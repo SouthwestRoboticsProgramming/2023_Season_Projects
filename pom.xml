@@ -6,7 +6,12 @@
 
     <groupId>com.swrobotics</groupId>
     <artifactId>2023_Season_Projects</artifactId>
+    <packaging>pom</packaging>
     <version>2023</version>
+    
+    <modules>
+        <module>Messenger</module>
+    </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
