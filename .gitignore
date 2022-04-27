@@ -4,3 +4,6 @@
 # IntelliJ IDEA Project Files
 .idea/
 *.iml
+
+# Compiled Python
+*.pyc
