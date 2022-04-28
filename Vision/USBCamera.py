@@ -40,7 +40,7 @@ class USBCamera:
     def getFrame(self):
 
         ret, frame = self.capture.read()
-        if self.useCalibration:
+        if self.useCalibration and self.calibrationProfile is not None:
             frame = self.calibrationProfile.undistortImage(frame)
         return frame
 

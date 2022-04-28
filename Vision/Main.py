@@ -2,12 +2,16 @@
 # TODO: The code
 import cv2
 
+from USBCamera import USBCamera
+
 '''
     Object Structure:
 
-    
+
 '''
 
-
-cv2.namedWindow("Name")
-print("Ok")
+camera = USBCamera(0)
+camera.useCalibration(True)
+while True:
+    cv2.imshow("Camera feed", camera.getFrame())
+    cv2.waitKey(1)
