@@ -14,6 +14,8 @@ class USBCamera:
     '''
 
     cameraID = 0
+    useCalibration = False
+    calibrationProfile = None
 
     capture = None
 
@@ -26,13 +28,25 @@ class USBCamera:
         ret, frame = self.capture.read()
         return ret
 
+    def useCalibration(self, useCalibration):
+        self.useCalibration = useCalibration
+
+    def setCalibraitonImage(self, calibrationImage, checkerboard):
+        # ** Checkerboard should be a list ** #
+        self.calibrationProfile = Calibration(calibrationImage, checkerboard)
+
+
+
     def getFrame(self):
+
         ret, frame = self.capture.read()
+        if self.useCalibration:
+            frame = self.calibrationProfile.undistortImage(frame)
         return frame
 
-    def getCalibratedImage(self):
-        return
-
+    def getRawFrame(self):
+        ret, frame = self.capture.read()
+        return frame
 
 
 
