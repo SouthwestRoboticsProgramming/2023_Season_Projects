@@ -5,5 +5,9 @@
 .idea/
 *.iml
 
+# VSCode Project Files
+.vscode/
+
 # Compiled Python
 *.pyc
+*__pycache__/
