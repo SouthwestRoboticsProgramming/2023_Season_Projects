@@ -23,14 +23,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-class VisionMode(Enum):
-    # All of the modes that vision has for various FRC use cases
-    Mono_Target = None
-    Stereo_Target = None
-
-    Mono_Object = None
-    Stereo_Object = None
-
-    Mono_Ball = None
-    Stereo_Ball = None
