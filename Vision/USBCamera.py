@@ -4,6 +4,9 @@ import glob
 
 class USBCamera:
 
+    # TODO: Turn off auto exposure
+    # TODO: Set exposure
+
     cameraID = 0
     capture = None
 

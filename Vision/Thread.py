@@ -1,22 +1,24 @@
 import threading
+from networktables import NetworkTables
 from enum import Enum
 
 
 class VisionMode(Enum):
     # All of the modes that vision has for various FRC use cases
-    Mono_Target = None
-    Stereo_Target = None
+    Mono_Target = "Mono Target"
+    Stereo_Target = "Stereo Target"
 
-    Mono_Object = None
-    Stereo_Object = None
+    Mono_Object = "Mono Object"
+    Stereo_Object = "Stereo Object"
 
-    Mono_Ball = None
-    Stereo_Ball = None
+    Mono_Ball = "Mono Ball"
+    Stereo_Ball = "Stereo Ball"
 
 
 class Thread:
     def __init__(self, visionMode):
         if visionMode == VisionMode.Mono_Target:
+            # threading.Thread
             print("Mono Target")
 
         elif visionMode == VisionMode.Stereo_Target:
