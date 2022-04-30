@@ -11,6 +11,7 @@
     
     <modules>
         <module>Messenger</module>
+        <module>ShuffleLog</module>
     </modules>
 
     <properties>
