@@ -11,3 +11,6 @@
 # Compiled Python
 *.pyc
 *__pycache__/
+
+# Log Files
+*.log

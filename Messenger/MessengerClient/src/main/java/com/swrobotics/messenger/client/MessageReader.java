@@ -1,5 +1,6 @@
 package com.swrobotics.messenger.client;
 
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 
@@ -7,8 +8,8 @@ public final class MessageReader {
     private final DataInputStream in;
     private boolean closed;
 
-    public MessageReader(DataInputStream in) {
-        this.in = in;
+    public MessageReader(byte[] data) {
+        in = new DataInputStream(new ByteArrayInputStream(data));
         closed = false;
     }
 
