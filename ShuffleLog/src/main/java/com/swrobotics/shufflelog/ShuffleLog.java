@@ -13,18 +13,18 @@ public final class ShuffleLog extends Application {
         config.setTitle("ShuffleLog");
     }
 
-    private void initialize() {
+    @Override
+    protected void initImGui(Configuration config) {
+        super.initImGui(config);
+
         ImGuiIO io = ImGui.getIO();
         io.setIniFilename("layout.ini");
+
+        Styles.applyDark();
     }
 
     @Override
     public void process() {
-        if (!hasInitialized) {
-            initialize();
-            hasInitialized = true;
-        }
-
         ImGui.showDemoWindow();
     }
 
