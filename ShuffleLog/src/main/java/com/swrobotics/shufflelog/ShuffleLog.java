@@ -6,8 +6,6 @@ import imgui.app.Application;
 import imgui.app.Configuration;
 
 public final class ShuffleLog extends Application {
-    private boolean hasInitialized = false;
-
     @Override
     protected void configure(Configuration config) {
         config.setTitle("ShuffleLog");
