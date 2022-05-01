@@ -1,5 +1,6 @@
 package com.swrobotics.shufflelog;
 
+import imgui.ImFontConfig;
 import imgui.ImGui;
 import imgui.ImGuiIO;
 import imgui.ImGuiStyle;
@@ -8,6 +9,11 @@ import imgui.flag.ImGuiCol;
 import java.io.IOException;
 
 public final class Styles {
+    private static final ImFontConfig fontConfig = new ImFontConfig();
+    static {
+        fontConfig.setFontDataOwnedByAtlas(false);
+    }
+
     private static void loadFont(String res, float size) {
         byte[] data;
         try {
@@ -18,7 +24,7 @@ public final class Styles {
         }
 
         ImGuiIO io = ImGui.getIO();
-        io.getFonts().addFontFromMemoryTTF(data, size);
+        io.getFonts().addFontFromMemoryTTF(data, size, fontConfig);
     }
 
     public static void applyDark() {
