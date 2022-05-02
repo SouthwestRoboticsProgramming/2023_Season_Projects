@@ -228,7 +228,7 @@ public final class MessengerClient {
         @Override
         public void handle(String type, byte[] data) {
             if (type.equals(targetType)) {
-                handler.handle(new MessageReader(data));
+                handler.handle(type, new MessageReader(data));
             }
         }
     }
@@ -245,7 +245,7 @@ public final class MessengerClient {
         @Override
         public void handle(String type, byte[] data) {
             if (type.startsWith(targetPrefix)) {
-                handler.handle(new MessageReader(data));
+                handler.handle(type, new MessageReader(data));
             }
         }
     }

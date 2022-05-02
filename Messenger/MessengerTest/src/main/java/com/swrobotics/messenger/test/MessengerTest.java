@@ -22,10 +22,10 @@ public final class MessengerTest {
             Thread.onSpinWait();
         }
 
-        msg.addHandler("Test", (reader) -> {
+        msg.addHandler("Test", (type, reader) -> {
             System.out.println("Direct: " + reader.readInt());
         });
-        msg.addHandler("Test2*", (reader) -> {
+        msg.addHandler("Test2*", (type, reader) -> {
             System.out.println("Wildcard: " + reader.readInt());
         });
 

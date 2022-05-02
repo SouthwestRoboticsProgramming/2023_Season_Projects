@@ -1,6 +1,8 @@
 package com.swrobotics.shufflelog;
 
 import com.swrobotics.messenger.client.MessengerClient;
+import com.swrobotics.shufflelog.tool.MenuBarTool;
+import com.swrobotics.shufflelog.tool.MessageLogTool;
 import com.swrobotics.shufflelog.tool.MessengerTool;
 import com.swrobotics.shufflelog.tool.Tool;
 import imgui.ImGui;
@@ -29,12 +31,14 @@ public final class ShuffleLog extends Application {
 
         Styles.applyDark();
 
+        tools.add(new MenuBarTool());
         tools.add(new MessengerTool(this));
+        tools.add(new MessageLogTool(this));
     }
 
     @Override
     public void process() {
-        ImGui.showDemoWindow();
+        msg.readMessages();
 
         for (Tool tool : tools) {
             tool.process();

@@ -17,9 +17,12 @@ public final class MessengerTool implements Tool {
     private final ImString name;
 
     public MessengerTool(ShuffleLog log) {
-        host = new ImString("10.21.29.3");
+        host = new ImString(64);
         port = new ImInt(5805);
-        name = new ImString("ShuffleLog");
+        name = new ImString(64);
+
+        host.set("localhost");
+        name.set("ShuffleLog");
 
         msg = new MessengerClient(host.get(), port.get(), name.get());
         log.setMsg(msg);
@@ -27,59 +30,59 @@ public final class MessengerTool implements Tool {
 
     @Override
     public void process() {
-        begin("Messenger");
+        if (begin("Messenger")) {
+            boolean changed = false;
+            if (beginTable("layout", 2)) {
+                tableNextColumn();
+                text("Host:");
+                tableNextColumn();
+                pushItemWidth(-1);
+                changed |= inputText("##host", host);
+                popItemWidth();
 
-        boolean changed = false;
-        if (beginTable("layout", 2)) {
-            tableNextColumn();
-            text("Host:");
-            tableNextColumn();
-            pushItemWidth(-1);
-            changed |= inputText("##host", host);
-            popItemWidth();
+                tableNextColumn();
+                text("Port:");
+                tableNextColumn();
+                pushItemWidth(-1);
+                changed |= inputInt("##port", port);
+                popItemWidth();
 
-            tableNextColumn();
-            text("Port:");
-            tableNextColumn();
-            pushItemWidth(-1);
-            changed |= inputInt("##port", port);
-            popItemWidth();
+                tableNextColumn();
+                text("Name:");
+                tableNextColumn();
+                pushItemWidth(-1);
+                changed |= inputText("##name", name);
+                popItemWidth();
 
-            tableNextColumn();
-            text("Name:");
-            tableNextColumn();
-            pushItemWidth(-1);
-            changed |= inputText("##name", name);
-            popItemWidth();
+                separator();
 
-            separator();
+                tableNextColumn();
+                text("Status:");
+                tableNextColumn();
+                boolean connected = msg.isConnected();
+                if (connected) {
+                    pushStyleColor(ImGuiCol.Text, 0.0f, 1.0f, 0.0f, 1.0f);
+                    text("Connected");
+                    popStyleColor();
+                } else {
+                    pushStyleColor(ImGuiCol.Text, 1.0f, 0.0f, 0.0f, 1.0f);
+                    text("Not connected");
 
-            tableNextColumn();
-            text("Status:");
-            tableNextColumn();
-            boolean connected = msg.isConnected();
-            if (connected) {
-                pushStyleColor(ImGuiCol.Text, 0.0f, 1.0f, 0.0f, 1.0f);
-                text("Connected");
-                popStyleColor();
-            } else {
-                pushStyleColor(ImGuiCol.Text, 1.0f, 0.0f, 0.0f, 1.0f);
-                text("Not connected");
-
-                Exception e = msg.getLastConnectionException();
-                if (e != null && isItemHovered()) {
-                    beginTooltip();
-                    text(StreamUtil.getStackTrace(e));
-                    endTooltip();
+                    Exception e = msg.getLastConnectionException();
+                    if (e != null && isItemHovered()) {
+                        beginTooltip();
+                        text(StreamUtil.getStackTrace(e));
+                        endTooltip();
+                    }
+                    popStyleColor();
                 }
-                popStyleColor();
+
+                endTable();
             }
 
-            endTable();
+            if (changed)
+                msg.reconnect(host.get(), port.get(), name.get());
         }
         end();
-
-        if (changed)
-            msg.reconnect(host.get(), port.get(), name.get());
     }
 }
