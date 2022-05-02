@@ -20,9 +20,9 @@ public final class MessengerClient {
     private static final String UNLISTEN = "_Unlisten";
     private static final String DISCONNECT = "_Disconnect";
 
-    private final String host;
-    private final int port;
-    private final String name;
+    private String host;
+    private int port;
+    private String name;
 
     private final AtomicBoolean connected;
     private final ScheduledExecutorService executor;
@@ -51,6 +51,18 @@ public final class MessengerClient {
 
         listening = Collections.synchronizedSet(new HashSet<>());
         handlers = new HashSet<>();
+
+        startConnectThread();
+    }
+
+    public void reconnect(String host, int port, String name) {
+        this.host = host;
+        this.port = port;
+        this.name = name;
+
+        send(DISCONNECT);
+        disconnectSocket();
+        connected.set(false);
 
         startConnectThread();
     }
@@ -93,12 +105,6 @@ public final class MessengerClient {
 
         System.err.println("Messenger connection lost:");
         e.printStackTrace();
-
-        try {
-            socket.close();
-        } catch (IOException e2) {
-            e2.printStackTrace();
-        }
 
         connected.set(false);
         startConnectThread();
@@ -147,6 +153,7 @@ public final class MessengerClient {
         executor.shutdown();
 
         disconnectSocket();
+        connected.set(false);
     }
 
     public MessageBuilder prepare(String type) {
