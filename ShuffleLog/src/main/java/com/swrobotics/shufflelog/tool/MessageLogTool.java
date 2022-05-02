@@ -3,6 +3,7 @@ package com.swrobotics.shufflelog.tool;
 import com.swrobotics.messenger.client.MessageReader;
 import com.swrobotics.shufflelog.ShuffleLog;
 import imgui.ImVec2;
+import imgui.flag.ImGuiCond;
 import imgui.flag.ImGuiInputTextFlags;
 import imgui.flag.ImGuiTableFlags;
 import imgui.type.ImString;
@@ -42,6 +43,9 @@ public final class MessageLogTool implements Tool {
     @Override
     public void process() {
         if (begin("Message Log")) {
+            setWindowPos(50, 250, ImGuiCond.FirstUseEver);
+            setWindowSize(675, 450, ImGuiCond.FirstUseEver);
+
             text("This is the message log.");
 
             float footerHeight = getStyle().getItemSpacingY() + getFrameHeightWithSpacing();

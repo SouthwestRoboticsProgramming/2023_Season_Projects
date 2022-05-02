@@ -5,6 +5,7 @@ import com.swrobotics.shufflelog.ShuffleLog;
 import com.swrobotics.shufflelog.StreamUtil;
 import com.swrobotics.shufflelog.tool.Tool;
 import imgui.flag.ImGuiCol;
+import imgui.flag.ImGuiCond;
 import imgui.type.ImInt;
 import imgui.type.ImString;
 
@@ -31,6 +32,9 @@ public final class MessengerTool implements Tool {
     @Override
     public void process() {
         if (begin("Messenger")) {
+            setWindowPos(50, 50, ImGuiCond.FirstUseEver);
+            setWindowSize(350, 175, ImGuiCond.FirstUseEver);
+
             boolean changed = false;
             if (beginTable("layout", 2)) {
                 tableNextColumn();
