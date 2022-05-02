@@ -1,8 +1,6 @@
 package com.swrobotics.shufflelog;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 public final class StreamUtil {
     public static byte[] readResourceToByteArray(String res) throws IOException {
@@ -20,6 +18,13 @@ public final class StreamUtil {
         }
 
         return b.toByteArray();
+    }
+
+    public static String getStackTrace(Throwable t) {
+        StringWriter writer = new StringWriter();
+        PrintWriter out = new PrintWriter(writer);
+        t.printStackTrace(out);
+        return writer.toString();
     }
 
     private StreamUtil() {

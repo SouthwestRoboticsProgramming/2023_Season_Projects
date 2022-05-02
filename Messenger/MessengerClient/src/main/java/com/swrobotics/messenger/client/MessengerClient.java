@@ -36,6 +36,8 @@ public final class MessengerClient {
     private final Set<String> listening;
     private final Set<Handler> handlers;
 
+    private Exception lastConnectFailException;
+
     public MessengerClient(String host, int port, String name) {
         this.host = host;
         this.port = port;
@@ -52,6 +54,8 @@ public final class MessengerClient {
         listening = Collections.synchronizedSet(new HashSet<>());
         handlers = new HashSet<>();
 
+        lastConnectFailException = null;
+
         startConnectThread();
     }
 
@@ -65,6 +69,10 @@ public final class MessengerClient {
         connected.set(false);
 
         startConnectThread();
+    }
+
+    public Exception getLastConnectionException() {
+        return lastConnectFailException;
     }
 
     private void startConnectThread() {
@@ -83,7 +91,8 @@ public final class MessengerClient {
                     for (String listen : listening) {
                         listen(listen);
                     }
-                } catch (IOException e) {
+                } catch (Exception e) {
+                    lastConnectFailException = e;
                     System.err.println("Messenger connection failed (" + e.getClass().getSimpleName() + ": " + e.getMessage() + ")");
                 }
 
