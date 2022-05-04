@@ -5,6 +5,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -17,18 +20,23 @@ public final class MessengerClient {
     private static final String UNLISTEN = "_Unlisten";
     private static final String DISCONNECT = "_Disconnect";
 
-    private final String host;
-    private final int port;
-    private final String name;
+    private String host;
+    private int port;
+    private String name;
 
-    private AtomicBoolean connected;
-    private Thread connectThread;
+    private final AtomicBoolean connected;
     private final ScheduledExecutorService executor;
     private final ScheduledFuture<?> heartbeatFuture;
+    private Thread connectThread;
 
     private Socket socket;
     private DataInputStream in;
     private DataOutputStream out;
+
+    private final Set<String> listening;
+    private final Set<Handler> handlers;
+
+    private Exception lastConnectFailException;
 
     public MessengerClient(String host, int port, String name) {
         this.host = host;
@@ -38,12 +46,33 @@ public final class MessengerClient {
         socket = null;
         connected = new AtomicBoolean(false);
 
-        startConnectThread();
-
         executor = Executors.newSingleThreadScheduledExecutor();
         heartbeatFuture = executor.scheduleAtFixedRate(() -> {
             sendMessage(HEARTBEAT, new byte[0]);
         }, 0, 1, TimeUnit.SECONDS);
+
+        listening = Collections.synchronizedSet(new HashSet<>());
+        handlers = new HashSet<>();
+
+        lastConnectFailException = null;
+
+        startConnectThread();
+    }
+
+    public void reconnect(String host, int port, String name) {
+        this.host = host;
+        this.port = port;
+        this.name = name;
+
+        send(DISCONNECT);
+        disconnectSocket();
+        connected.set(false);
+
+        startConnectThread();
+    }
+
+    public Exception getLastConnectionException() {
+        return lastConnectFailException;
     }
 
     private void startConnectThread() {
@@ -58,7 +87,12 @@ public final class MessengerClient {
                     out.writeUTF(name);
 
                     connected.set(true);
-                } catch (IOException e) {
+
+                    for (String listen : listening) {
+                        listen(listen);
+                    }
+                } catch (Exception e) {
+                    lastConnectFailException = e;
                     System.err.println("Messenger connection failed (" + e.getClass().getSimpleName() + ": " + e.getMessage() + ")");
                 }
 
@@ -69,33 +103,25 @@ public final class MessengerClient {
                 }
             }
 
-            System.out.println("Debug: Messenger connect thread terminated");
             connectThread = null;
         }, "Messenger Reconnect Thread");
 
         connectThread.start();
     }
 
-    private void handleWriteError(IOException e) {
-        terminateHeartbeatExecutor();
+    private void handleError(IOException e) {
+        disconnectSocket();
 
         System.err.println("Messenger connection lost:");
         e.printStackTrace();
-
-        try {
-            socket.close();
-        } catch (IOException e2) {
-            e2.printStackTrace();
-        }
 
         connected.set(false);
         startConnectThread();
     }
 
-    private void terminateHeartbeatExecutor() {
-        heartbeatFuture.cancel(false);
-        executor.shutdown();
-        connectThread.interrupt();
+    private void disconnectSocket() {
+        if (connectThread != null)
+            connectThread.interrupt();
         connectThread = null;
 
         try {
@@ -109,7 +135,20 @@ public final class MessengerClient {
         if (!isConnected())
             return;
 
+        try {
+            while (in.available() > 0) {
+                String type = in.readUTF();
+                int dataSize = in.readInt();
+                byte[] data = new byte[dataSize];
+                in.readFully(data);
 
+                for (Handler handler : handlers) {
+                    handler.handle(type, data);
+                }
+            }
+        } catch (IOException e) {
+            handleError(e);
+        }
     }
 
     public boolean isConnected() {
@@ -117,25 +156,96 @@ public final class MessengerClient {
     }
 
     public void disconnect() {
-        terminateHeartbeatExecutor();
+        send(DISCONNECT);
+
+        heartbeatFuture.cancel(false);
+        executor.shutdown();
+
+        disconnectSocket();
+        connected.set(false);
     }
 
-    public MessageBuilder builder(String type) {
+    public MessageBuilder prepare(String type) {
         return new MessageBuilder(this, type);
     }
 
-    public void addHandler(String type, MessageHandler handler) {
+    public void send(String type) {
+        sendMessage(type, new byte[0]);
+    }
 
+    public void addHandler(String type, MessageHandler handler) {
+        Handler h;
+        if (type.endsWith("*")) {
+            h = new WildcardHandler(type.substring(0, type.length() - 1), handler);
+        } else {
+            h = new DirectHandler(type, handler);
+        }
+        handlers.add(h);
+
+        if (!listening.contains(type)) {
+            listening.add(type);
+
+            if (connected.get()) {
+                listen(type);
+            }
+        }
+    }
+
+    private void listen(String type) {
+        prepare(LISTEN)
+                .addString(type)
+                .send();
     }
 
     void sendMessage(String type, byte[] data) {
+        if (!connected.get())
+            return;
+
         synchronized (out) {
             try {
                 out.writeUTF(type);
                 out.writeInt(data.length);
                 out.write(data);
             } catch (IOException e) {
-                handleWriteError(e);
+                handleError(e);
+            }
+        }
+    }
+
+    private interface Handler {
+        void handle(String type, byte[] data);
+    }
+
+    private static final class DirectHandler implements Handler {
+        private final String targetType;
+        private final MessageHandler handler;
+
+        public DirectHandler(String targetType, MessageHandler handler) {
+            this.targetType = targetType;
+            this.handler = handler;
+        }
+
+        @Override
+        public void handle(String type, byte[] data) {
+            if (type.equals(targetType)) {
+                handler.handle(type, new MessageReader(data));
+            }
+        }
+    }
+
+    private static final class WildcardHandler implements Handler {
+        private final String targetPrefix;
+        private final MessageHandler handler;
+
+        public WildcardHandler(String targetPrefix, MessageHandler handler) {
+            this.targetPrefix = targetPrefix;
+            this.handler = handler;
+        }
+
+        @Override
+        public void handle(String type, byte[] data) {
+            if (type.startsWith(targetPrefix)) {
+                handler.handle(type, new MessageReader(data));
             }
         }
     }

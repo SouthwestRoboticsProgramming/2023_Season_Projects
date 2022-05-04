@@ -9,9 +9,6 @@ import com.swrobotics.messenger.server.Message;
  */
 public final class NoOpLogger implements MessageLogger {
     @Override
-    public void logEvent(String type, String name) {}
-
-    @Override
     public void logEvent(String type, String name, String descriptor) {}
 
     @Override

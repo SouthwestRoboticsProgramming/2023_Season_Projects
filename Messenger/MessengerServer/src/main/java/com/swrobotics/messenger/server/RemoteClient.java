@@ -55,7 +55,7 @@ public final class RemoteClient implements Client, Runnable {
             case LISTEN: {
                 String listenType = in.readUTF();
                 System.out.println("Client " + name + " listening to " + listenType);
-                MessengerServer.get().getLog().logEvent("_Listen", name, listenType);
+                MessengerServer.get().broadcastEvent("Listen", name, listenType);
                 if (listenType.charAt(listenType.length() - 1) == '*') {
                     wildcards.add(listenType.substring(0, listenType.length() - 1));
                 } else {
@@ -66,7 +66,7 @@ public final class RemoteClient implements Client, Runnable {
             case UNLISTEN: {
                 String unlistenType = in.readUTF();
                 System.out.println("Client " + name + " no longer listening to " + unlistenType);
-                MessengerServer.get().getLog().logEvent("_Unlisten", name, unlistenType);
+                MessengerServer.get().broadcastEvent("Unlisten", name, unlistenType);
                 listening.remove(unlistenType);
                 wildcards.remove(unlistenType.substring(0, unlistenType.length() - 1));
                 break;
@@ -74,7 +74,7 @@ public final class RemoteClient implements Client, Runnable {
             case DISCONNECT: {
                 connected = false;
                 System.out.println("Client " + name + " disconnected");
-                MessengerServer.get().getLog().logEvent("_Disconnect", name);
+                MessengerServer.get().broadcastEvent("Disconnect", name, "");
                 break;
             }
             default: {
@@ -102,7 +102,7 @@ public final class RemoteClient implements Client, Runnable {
                 if (System.currentTimeMillis() - lastHeartbeatTime > TIMEOUT) {
                     System.out.println("Client " + name + " disconnected due to heartbeat timeout");
 
-                    MessengerServer.get().getLog().logEvent("_Timeout", name);
+                    MessengerServer.get().broadcastEvent("Timeout", name, "");
                     break;
                 }
 
@@ -118,7 +118,7 @@ public final class RemoteClient implements Client, Runnable {
                         name = in.readUTF();
                         identified = true;
 
-                        MessengerServer.get().getLog().logEvent("_Connect", name);
+                        MessengerServer.get().broadcastEvent("Connect", name, "");
                     }
                 }
 
@@ -139,7 +139,7 @@ public final class RemoteClient implements Client, Runnable {
             System.err.println("Exception in remote client connection " + name + ":");
             e.printStackTrace();
 
-            MessengerServer.get().getLog().logEvent("_Error", name);
+            MessengerServer.get().broadcastEvent("Error", name, "");
         }
 
         MessengerServer.get().removeClient(this);

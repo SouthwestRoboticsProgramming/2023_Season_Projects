@@ -4,7 +4,10 @@ import com.swrobotics.messenger.server.log.FileLogger;
 import com.swrobotics.messenger.server.log.MessageLogger;
 import com.swrobotics.messenger.server.log.NoOpLogger;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -28,10 +31,34 @@ public final class MessengerServer {
         }
     }
 
+    public void broadcastEvent(String type, String name, String descriptor) {
+        log.logEvent(type, name, descriptor);
+
+        byte[] data;
+        try {
+            ByteArrayOutputStream b = new ByteArrayOutputStream();
+            DataOutputStream out = new DataOutputStream(b);
+
+            out.writeUTF(type);
+            out.writeUTF(name);
+            out.writeUTF(descriptor);
+
+            data = b.toByteArray();
+        } catch (IOException e) {
+            return;
+        }
+
+        dispatchMessage(new Message("Messenger:Event", data));
+    }
+
     public void onMessage(Message msg) {
         if (log != null)
             log.logMessage(msg);
 
+        dispatchMessage(msg);
+    }
+
+    private void dispatchMessage(Message msg) {
         for (Client client : clients) {
             if (client.listensTo(msg.getType())) {
                 client.sendMessage(msg);
