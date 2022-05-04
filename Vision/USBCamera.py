@@ -23,6 +23,9 @@ class USBCamera:
         ret, frame = self.capture.read()
         return ret
 
+    def useAuto(useAuto):
+        return
+
     def useCalibration(self, useCalibration):
         self.useCalibration = useCalibration
 
@@ -33,6 +36,7 @@ class USBCamera:
 
     def getCameraID(self):
         return self.cameraID
+
     def getFrame(self):
 
         ret, frame = self.capture.read()
@@ -43,6 +47,9 @@ class USBCamera:
     def getRawFrame(self):
         ret, frame = self.capture.read()
         return frame
+
+    def release(self):
+        self.capture.release()
 
 
 

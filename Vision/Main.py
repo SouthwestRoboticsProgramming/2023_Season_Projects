@@ -17,9 +17,17 @@ from USBCamera import USBCamera
 
 
 '''
+
+# Thread Constants #
+numberOfThreads = 5
+
 def main():
+    threads = []
+
     NetworkTables.initialize()
+
     thread = Thread(VisionMode.Mono_Ball)
+    print(threads)
 
 if __name__ == "__main__":
     main()
