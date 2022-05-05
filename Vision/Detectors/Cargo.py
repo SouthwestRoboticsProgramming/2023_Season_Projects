@@ -39,6 +39,8 @@ class Cargo_Detector:
 
     def periodic(self, rawFrame):
 
+        mask = None
+
         h_min = self.h_min
         h_max = self.h_max
         s_min = self.s_min
@@ -64,13 +66,31 @@ class Cargo_Detector:
         lower = np.array([h_min, s_min, v_min])
         upper = np.array([h_max, s_max, v_max])
 
+        lower2 = None
+        upper2 = None
+
         # TODO: Invert the hue so that red can be fully within spectrum
+        if h_max < h_min:
+            lower = np.array([h_min, s_min, v_min])
+            upper = np.array([180, s_max, v_max])
+
+            lower = np.array([0, s_min, v_min])
+            upper = np.array([h_max, s_max, v_max])
+            print("Inverse Hue")
+            pass
 
         # Blur the image to remove noise
         blur = cv2.GaussianBlur(rawFrame,(5,5),0)
         hsv = cv2.cvtColor(blur, cv2.COLOR_BGR2HSV)
         gray = cv2.cvtColor(blur,cv2.COLOR_BGR2GRAY)
         mask = cv2.inRange(hsv,lower,upper)
+        maskedColor = cv2.bitwise_and(hsv, hsv, mask=mask)
+
+        self.mask = mask
+
+        if lower2 is not None and upper2 is not None:
+            mask = cv2.inRange(maskedColor, lower2, upper2)
+        
         grayMask = cv2.bitwise_and(gray,gray,mask=mask)
 
         self.maskedFrame = cv2.bitwise_and(rawFrame, rawFrame, mask=mask)
@@ -99,9 +119,8 @@ class Cargo_Detector:
 
             detector = cv2.SimpleBlobDetector_create(params)
             keypoints = detector.detect(edges)
-            blank = np.zeros((1,1))
 
-            blobs_full = cv2.drawKeypoints(rawFrame, keypoints, 0, (255,0,0), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+            self.maskedFrame = cv2.drawKeypoints(self.maskedFrame, keypoints, 0, (255,0,0), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
 
             contours2, hierarchy = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -135,6 +154,27 @@ class Cargo_Detector:
         self.fov_horizontal = hor_fov
         self.fov_vertical - vert_fov
         return
+    
+    def setHue(self, min, max):
+        self.h_min = min
+        self.h_max = max
+        return
+
+    def setSat(self, min, max):
+        self.s_min = min
+        self.s_max = max
+        return
+
+    def setValue(self, min, max):
+        self.s_min = min
+        self.s_max = max
+        return
 
     def getMaskedFrame(self):
         return self.maskedFrame
+    
+    def getMask(self):
+        return self.mask
+    
+    def getAngles(self):
+        return (self.angle_horizontal, self.angle_horizontal2, self.angle_vertical)

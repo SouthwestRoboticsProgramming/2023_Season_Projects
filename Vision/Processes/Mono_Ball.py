@@ -17,6 +17,9 @@ class Mono_Ball:
             frame = camera.getFrame()
             detector.periodic(frame)
 
+            #detector.setValue(5,250)
+            detector.setHue(350, 5)
+
             cv2.imshow("Result", detector.getMaskedFrame())
             cv2.waitKey(1)
 
