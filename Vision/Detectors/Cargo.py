@@ -28,9 +28,11 @@ class Cargo_Detector:
     angle_horizontal2 = 0
     angle_vertical = 0
 
-    def __init__(self, hor_fov, vert_fov):
-        self.fov_horizontal = hor_fov
-        self.fov_vertical = vert_fov
+    maskedFrame = None
+
+    def __init__(self, fov):
+        self.fov_horizontal = fov[0]
+        self.fov_vertical = fov[1]
         return
 
 
@@ -71,10 +73,10 @@ class Cargo_Detector:
         mask = cv2.inRange(hsv,lower,upper)
         grayMask = cv2.bitwise_and(gray,gray,mask=mask)
 
-        result = cv2.bitwise_and(rawFrame, rawFrame, mask=mask)
+        self.maskedFrame = cv2.bitwise_and(rawFrame, rawFrame, mask=mask)
 
         # Create binary mask for contour filtering
-        ret, binary = cv2.threshold(grayMask)
+        ret, binary = cv2.threshold(grayMask, self.t_low, self.t_high, cv2.THRESH_BINARY)
 
         # Find contours in the mask
         contours, hierarchy = cv2.findContours(binary,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
@@ -133,3 +135,6 @@ class Cargo_Detector:
         self.fov_horizontal = hor_fov
         self.fov_vertical - vert_fov
         return
+
+    def getMaskedFrame(self):
+        return self.maskedFrame
