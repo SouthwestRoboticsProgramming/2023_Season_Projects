@@ -3,6 +3,7 @@ from networktables import NetworkTables
 from enum import Enum
 from Processes import *
 from Processes.Mono_Ball import Mono_Ball
+from Network import Networking
 
 
 class VisionMode(Enum):
@@ -16,9 +17,16 @@ class VisionMode(Enum):
     Mono_Ball = "Mono Ball"
     Stereo_Ball = "Stereo Ball"
 
+    thread = None
+
+    network = None
+
 
 class Thread:
     def __init__(self, visionMode):
+
+        self.network = Networking()
+
         if visionMode == VisionMode.Mono_Target:
             print("Mono Target")
 
@@ -32,8 +40,8 @@ class Thread:
             print("Stereo Object")
 
         elif visionMode == VisionMode.Mono_Ball:
-            x = threading.Thread(target=Mono_Ball.run, args=(Mono_Ball(),))
-            x.run()
+            self.thread = threading.Thread(target=Mono_Ball.run, args=(Mono_Ball(),self.network,self.network.entry_runBallDetector))
+            self.thread.run()
             print("Mono Ball")
 
         elif visionMode == VisionMode.Stereo_Ball:
@@ -43,6 +51,11 @@ class Thread:
             print("Not a valid mode")
 
 
+        return
+
+
+    def stop(self):
+        self.thread.join()
         return
 
 

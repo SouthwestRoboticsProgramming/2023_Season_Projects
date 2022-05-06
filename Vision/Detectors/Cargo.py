@@ -39,8 +39,6 @@ class Cargo_Detector:
 
     def periodic(self, rawFrame):
 
-        mask = None
-
         h_min = self.h_min
         h_max = self.h_max
         s_min = self.s_min
@@ -69,14 +67,13 @@ class Cargo_Detector:
         lower2 = None
         upper2 = None
 
-        # TODO: Invert the hue so that red can be fully within spectrum
+        # If the hue is inverted min > max, then invert the spectrum so that it can detect red
         if h_max < h_min:
             lower = np.array([h_min, s_min, v_min])
             upper = np.array([180, s_max, v_max])
 
             lower = np.array([0, s_min, v_min])
             upper = np.array([h_max, s_max, v_max])
-            print("Inverse Hue")
             pass
 
         # Blur the image to remove noise
@@ -85,8 +82,6 @@ class Cargo_Detector:
         gray = cv2.cvtColor(blur,cv2.COLOR_BGR2GRAY)
         mask = cv2.inRange(hsv,lower,upper)
         maskedColor = cv2.bitwise_and(hsv, hsv, mask=mask)
-
-        self.mask = mask
 
         if lower2 is not None and upper2 is not None:
             mask = cv2.inRange(maskedColor, lower2, upper2)
@@ -125,22 +120,21 @@ class Cargo_Detector:
             contours2, hierarchy = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
             # If the circle detection fails, use normal filtering instead
-            if len(contours) > 0:
+            if len(contours2) > 0:
                 contours = contours2
 
+        # Create a bounding box around the ball
+        if len(contours) > 0:
+            bestContour = max(contours, key= cv2.contourArea)
 
-            # Create a bounding box around the ball
-            if len(contours) > 0:
-                bestContour = max(contours, key= cv2.contourArea)
+            x, y, w, h = cv2.boundingRect(bestContour)
 
-                x, y, w, h = cv2.boundingRect(bestContour)
+            # Calculate angles to target
+            self.angle_horizontal = math.degrees(math.atan2((x + 0.5* w) - (rawFrame.shape[1]/2), self.pixelDistance_horizontal))
+            self.angle_vertical = math.degrees(math.atan2(((y+ 0.5 * h) - rawFrame.shape[0]/2), self.pixelDistance_vertical))
+            self.angle_horizontal2 = math.degrees(math.atan2(x - rawFrame.shape[1]/2, self.pixelDistance_horizontal))
 
-                # Calculate angles to target
-                # FIXME: Check that atan2 works here (It should)
-                self.angle_horizontal = math.degrees(math.atan2((x + 0.5* w) - (rawFrame.shape[1]/2), self.pixelDistance_horizontal))
-                self.angle_vertical = math.degrees(math.atan2(((y+ 0.5 * h) - rawFrame.shape[0]/2), self.pixelDistance_vertical))
-                self.angle_horizontal2 = math.degrees(math.atan2(x - rawFrame.shape[1]/2, self.pixelDistance_horizontal))
-
+            cv2.rectangle(self.maskedFrame, (x,y),( x + w,y + h ), (255,0,255),3)
 
         self.lastShape = rawFrame.shape
         self.lastFov = [self.fov_horizontal, self.fov_vertical]

@@ -1,10 +1,11 @@
 # NOTE: To use opencv, use python 3.8
-
 import cv2
 import threading
 from enum import Enum
 from Thread import Thread, VisionMode
-from networktables import NetworkTables
+from Network import Networking
+import timeit
+import time
 
 from USBCamera import USBCamera
 
@@ -22,12 +23,23 @@ from USBCamera import USBCamera
 numberOfThreads = 5
 
 def main():
-    threads = []
 
-    NetworkTables.initialize()
+    # network = Networking()
+    # network.periodic()
 
+    # print(Networking.isRedAlliance)
+
+    # threads = [None] * numberOfThreads
+
+    # for i in threads:
+    #     # Initialize thread
+    #     pass
+
+    # while True:
+    #     network.periodic()
     thread = Thread(VisionMode.Mono_Ball)
-    print(threads)
+    thread.run()
+    pass
 
 if __name__ == "__main__":
     main()
