@@ -1,13 +1,6 @@
 # NOTE: To use opencv, use python 3.8
-import cv2
-import threading
-from enum import Enum
-from Thread import Thread, VisionMode
-from Network import Networking
-import timeit
-import time
 
-from USBCamera import USBCamera
+from Thread import Thread, VisionMode
 
 '''
     Thread Control:
