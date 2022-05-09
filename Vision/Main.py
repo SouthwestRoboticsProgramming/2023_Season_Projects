@@ -26,15 +26,14 @@ def main():
 
     threads = [None] * numberOfThreads
 
-    for i in threads:
+    for thread in threads:
         # Initialize thread
-        threads[i] = Thread(VisionMode.Nothing)
+        thread = Thread(VisionMode.Nothing)
         pass
 
     # while True:
     #     network.periodic()
-    thread = Thread(VisionMode.Mono_Ball)
-    thread.run()
+    threads[2] = Thread(VisionMode.Mono_Ball)
     pass
 
 if __name__ == "__main__":

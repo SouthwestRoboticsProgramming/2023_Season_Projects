@@ -49,6 +49,9 @@ class Thread:
         elif visionMode == VisionMode.Stereo_Ball:
             print("Stereo Ball")
         
+        elif visionMode == VisionMode.Nothing:
+            pass
+
         else:
             print("Not a valid mode")
 
