@@ -17,6 +17,8 @@ class VisionMode(Enum):
     Mono_Ball = "Mono Ball"
     Stereo_Ball = "Stereo Ball"
 
+    Nothing = "Nothing"
+
     thread = None
 
     network = None
