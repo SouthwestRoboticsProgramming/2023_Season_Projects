@@ -9,9 +9,9 @@ from enum import Enum
 class Mono_Ball:
 
 
-    stop = True
+    run = True
 
-    def run(self, network, startEntry):
+    def run(self, network, run):
 
         # Open the JSON file with all of the settings for the ball camera
         with open("ball.json") as file:
@@ -35,24 +35,26 @@ class Mono_Ball:
             sat = settings["blue"]["sat"]
             value = settings["blue"]["val"]
 
-        while self.stop and startEntry.getBoolean(True):
-            frame = camera.getFrame()
-            detector.periodic(frame)
+        while self.run:
+            if run.getBoolean(True):
+                frame = camera.getFrame()
+                detector.periodic(frame)
 
-            #detector.setValue(5,250)
-            detector.setHue(hue[0],hue[1])
-            detector.setSat(sat[0],sat[1])
-            detector.setValue(value[0],value[1])
+                #detector.setValue(5,250)
+                detector.setHue(hue[0],hue[1])
+                detector.setSat(sat[0],sat[1])
+                detector.setValue(value[0],value[1])
 
-            # TODO: Remove
-            cv2.imshow("Result", detector.getMaskedFrame())
-            print(detector.getAngles()[0])
-            cv2.waitKey(1)
+                # TODO: Remove
+                cv2.imshow("Result", detector.getMaskedFrame())
+                print(detector.getAngles()[0])
+                cv2.waitKey(1)
 
 
         print("Running Mono_Ball")
         return
 
     def stop(self):
-        self.stop = True
+        self.run = False
+        # TODO: Change the shuffleboard entries
         return

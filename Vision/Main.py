@@ -1,6 +1,7 @@
 # NOTE: To use opencv, use python 3.8
 
 from Thread import Thread, VisionMode
+import json
 
 '''
     Thread Control:
@@ -12,21 +13,24 @@ from Thread import Thread, VisionMode
 
 '''
 
-# Thread Constants #
-numberOfThreads = 5
+# TODO: Fix issue where if nothing is running, the program just stops
 
 def main():
 
-    threads = [None] * numberOfThreads
+    with open("general.json") as file:
+        settings = json.load(file)
+            
+
+    threads = [None] * settings["threads"]
 
     for thread in threads:
         # Initialize thread
-        thread = Thread(VisionMode.Nothing)
+        thread = Thread(thread, VisionMode.Nothing)
         pass
 
     # while True:
     #     network.periodic()
-    threads[2] = Thread(VisionMode.Mono_Ball)
+    threads[2] = Thread(2, VisionMode.Mono_Ball)
     pass
 
 if __name__ == "__main__":
