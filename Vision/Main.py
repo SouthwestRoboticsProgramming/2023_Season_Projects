@@ -24,16 +24,12 @@ numberOfThreads = 5
 
 def main():
 
-    # network = Networking()
-    # network.periodic()
+    threads = [None] * numberOfThreads
 
-    # print(Networking.isRedAlliance)
-
-    # threads = [None] * numberOfThreads
-
-    # for i in threads:
-    #     # Initialize thread
-    #     pass
+    for i in threads:
+        # Initialize thread
+        threads[i] = Thread(VisionMode.Nothing)
+        pass
 
     # while True:
     #     network.periodic()
