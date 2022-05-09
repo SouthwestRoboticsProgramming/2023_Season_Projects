@@ -1,6 +1,9 @@
 from networktables import NetworkTable
 from networktables import NetworkTablesInstance
 from networktables import NetworkTableEntry
+from networktables import NetworkTables
+import sys
+import logging
 
 class Networking:
 
@@ -23,11 +26,16 @@ class Networking:
 
     
     def __init__(self):
-        table = NetworkTablesInstance.getDefault().getTable("bert")
+        logging.basicConfig(level=logging.DEBUG)
+
+        NetworkTables.initialize()
+        table = NetworkTables.getTable("bert")
+
 
         self.entry_isRedAlliance = table.getEntry("isRedAlliance")
 
         self.entry_runBallDetector = table.getEntry("run_ballDetector")
+
         pass
 
 

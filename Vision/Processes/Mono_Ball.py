@@ -38,6 +38,8 @@ class Mono_Ball:
 
             #detector.setValue(5,250)
             detector.setHue(hue[0],hue[1])
+            detector.setSat(sat[0],sat[1])
+            detector.setValue(value[0],value[1])
 
             cv2.imshow("Result", detector.getMaskedFrame())
             print(detector.getAngles()[0])
