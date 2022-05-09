@@ -25,7 +25,7 @@ class VisionMode(Enum):
 
 
 class Thread:
-    def __init__(self, visionMode):
+    def __init__(self, threadNum, visionMode):
 
         self.network = Networking()
 
@@ -42,7 +42,7 @@ class Thread:
             print("Stereo Object")
 
         elif visionMode == VisionMode.Mono_Ball:
-            self.thread = threading.Thread(target=Mono_Ball.run, args=(Mono_Ball(),self.network,self.network.entry_runBallDetector))
+            self.thread = threading.Thread(target=Mono_Ball.run, args=(Mono_Ball(),self.network,self.network.entry_run_thread[threadNum]))
             self.thread.run()
             print("Mono Ball")
 
@@ -52,6 +52,10 @@ class Thread:
         elif visionMode == VisionMode.Nothing:
             pass
         
+        elif visionMode == VisionMode.Nothing:
+            print("Doing nothing")
+            pass
+
         else:
             print("Not a valid mode")
 
