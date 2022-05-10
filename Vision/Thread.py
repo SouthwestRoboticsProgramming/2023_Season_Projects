@@ -4,6 +4,7 @@ from enum import Enum
 from Processes import *
 from Processes.Mono_Ball import Mono_Ball
 from Network import Networking
+from Processes.Stereo_Ball import Stereo_Ball
 
 
 class VisionMode(Enum):
@@ -44,10 +45,10 @@ class Thread:
         elif visionMode == VisionMode.Mono_Ball:
             self.thread = threading.Thread(target=Mono_Ball.run, args=(Mono_Ball(),self.network,self.network.entry_run_thread[threadNum]))
             self.thread.run()
-            print("Mono Ball")
 
         elif visionMode == VisionMode.Stereo_Ball:
-            print("Stereo Ball")
+            self.thread = threading.Thread(target=Stereo_Ball.run, args=(Stereo_Ball(),self.network,self.network.entry_run_thread[threadNum]))
+            self.thread.run()
         
         elif visionMode == VisionMode.Nothing:
             print("Doing nothing")

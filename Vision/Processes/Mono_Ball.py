@@ -2,7 +2,6 @@ from Detectors.Cargo import Cargo_Detector
 from USBCamera import USBCamera
 import json
 import cv2
-from enum import Enum
 # TODO: Be able to change ball color during the match
 
 
@@ -11,7 +10,7 @@ class Mono_Ball:
 
     run = True
 
-    def run(self, network, run):
+    def run(self, network, enable):
 
         # Open the JSON file with all of the settings for the ball camera
         with open("ball.json") as file:
@@ -36,7 +35,7 @@ class Mono_Ball:
             value = settings["blue"]["val"]
 
         while self.run:
-            if run.getBoolean(True):
+            if enable.getBoolean(True):
                 frame = camera.getFrame()
                 detector.periodic(frame)
 
