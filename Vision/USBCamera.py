@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import glob
+import warnings
 
 class USBCamera:
 
@@ -40,6 +41,12 @@ class USBCamera:
     def getFrame(self):
 
         ret, frame = self.capture.read()
+
+        # If the camera doesn't exist, return an all black image
+        if not ret:
+            warnings.warn("No camera found", Warning, 2)
+            return np.zeros((300,300,3),np.uint8)
+
         if self.useCalibration and self.calibrationProfile is not None:
             frame = self.calibrationProfile.undistortImage(frame)
         return frame
