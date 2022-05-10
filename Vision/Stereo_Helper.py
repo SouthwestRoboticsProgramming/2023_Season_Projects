@@ -14,7 +14,7 @@ class Stereo_Helper:
         cam1 = math.tan(math.radians(-camAngleL + 90))
         cam2 = math.tan(math.radians(-camAngleR + 90))
 
-        b = self.baseline
+        b = self.base
 
         if cam1 == cam2:
             return 0.0, 0.0

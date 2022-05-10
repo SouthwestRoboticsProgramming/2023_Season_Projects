@@ -1,6 +1,7 @@
 from Detectors.Cargo import Cargo_Detector
 from USBCamera import USBCamera
 from Stereo_Helper import Stereo_Helper
+import numpy as np
 import json
 import cv2
 
@@ -59,6 +60,18 @@ class Stereo_Ball:
                 x, y = helper.solveStereo(angles_l[0],angles_r[0])
 
                 centerAngle = angles_r[0] - angles_l[0]
+
+                # TODO: Remove
+                if frame_l.shape == frame_r.shape:
+                    stacked = np.hstack((frame_l, frame_r))
+                    cv2.imshow(stacked)
+                    pass
+                else:
+                    cv2.imshow("Left", frame_l)
+                    cv2.imshow("Right", frame_r)
+                
+                cv2.waitKey(1)
+                
 
                 # Return values
                 # return y, centerAngle
