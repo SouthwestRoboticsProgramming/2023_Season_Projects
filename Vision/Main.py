@@ -3,16 +3,6 @@
 from Thread import Thread, VisionMode
 import json
 
-'''
-    Thread Control:
-    5 threads (List for variable threads?)
-    In shuffleboard, have 5 strings, one for each thread
-    Strings control which process, if invalid string, just do nothing
-    When string changes, stop the thread and start another
-
-
-'''
-
 # TODO: Fix issue where if nothing is running, the program just stops
 
 def main():
@@ -30,7 +20,7 @@ def main():
 
     # while True:
     #     network.periodic()
-    threads[2] = Thread(2, VisionMode.Mono_Ball)
+    threads[2] = Thread(2, VisionMode.Stereo_Ball)
     pass
 
 if __name__ == "__main__":

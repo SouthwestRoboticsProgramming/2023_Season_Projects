@@ -29,11 +29,13 @@ class Stereo_Ball:
 
         isRedAlliance = network.isRedAlliance
 
-        if isRedAlliance == False:
+        print(settings["blue"])
+
+        if isRedAlliance:
             hue = settings["red"]["hue"]
             sat = settings["red"]["sat"]
             value = settings["red"]["val"]
-        elif isRedAlliance == False:
+        else:
             hue = settings["blue"]["hue"]
             sat = settings["blue"]["sat"]
             value = settings["blue"]["val"]
@@ -45,7 +47,6 @@ class Stereo_Ball:
                 detector_l.periodic(frame_l)
                 detector_r.periodic(frame_r)
 
-                #detector.setValue(5,250)
                 detector_l.setHue(hue[0],hue[1])
                 detector_l.setSat(sat[0],sat[1])
                 detector_l.setValue(value[0],value[1])
@@ -57,9 +58,19 @@ class Stereo_Ball:
                 angles_l = detector_l.getAngles()
                 angles_r = detector_r.getAngles()
 
-                x, y = helper.solveStereo(angles_l[0],angles_r[0])
+                frame_l = detector_l.getMaskedFrame()
+                frame_r = detector_r.getMaskedFrame()
+
+                x, z = helper.solveStereo(angles_l[0],angles_r[0])
 
                 centerAngle = angles_r[0] - angles_l[0]
+
+                if angles_l != 0 and angles_r != 0:
+                    centerAngle = 0
+
+                print("Center Angle: " + str(centerAngle))
+                print("Z: " + str(z))
+                print("")
 
                 # TODO: Remove
                 if frame_l.shape == frame_r.shape:

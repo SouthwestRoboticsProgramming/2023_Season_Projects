@@ -25,11 +25,11 @@ class Mono_Ball:
 
         isRedAlliance = network.isRedAlliance
 
-        if isRedAlliance == False:
+        if isRedAlliance:
             hue = settings["red"]["hue"]
             sat = settings["red"]["sat"]
             value = settings["red"]["val"]
-        elif isRedAlliance == False:
+        else:
             hue = settings["blue"]["hue"]
             sat = settings["blue"]["sat"]
             value = settings["blue"]["val"]
@@ -39,7 +39,6 @@ class Mono_Ball:
                 frame = camera.getFrame()
                 detector.periodic(frame)
 
-                #detector.setValue(5,250)
                 detector.setHue(hue[0],hue[1])
                 detector.setSat(sat[0],sat[1])
                 detector.setValue(value[0],value[1])
