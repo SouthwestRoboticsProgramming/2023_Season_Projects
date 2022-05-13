@@ -6,7 +6,7 @@ class Pixel_Getter:
     mouseX = 0
     mouseY = 0
 
-    includedPixels = np.array([[],[],[]])
+    includedPixels = np.array([['awww'],['mann'],['anotherthing']])
     excludedPixels = np.array([[],[],[]])
 
     frame = None
@@ -54,7 +54,7 @@ class Pixel_Getter:
         values = [None] * pixelCount
         for i in range(x, x2):
             for j in range(y, y2):
-                index = (i - x) + (j - y) * width
+                index = (i + x) + (j + y) * width
                 hues[index] = frame[y, x, 0]
                 saturations[index] = frame[y, x, 1]
                 values[index] = frame[y, x, 2]
@@ -82,7 +82,6 @@ class Pixel_Getter:
         hues = np.concatenate((self.includedPixels[0], hues))
         sats = np.concatenate((self.includedPixels[1], sats))
         values = np.concatenate((self.includedPixels[2], values))
-        print(hues)
         # self.includedPixels[0] = np.sort(hues)
         # self.includedPixels[1] = np.sort(sats)
         # self.includedPixels[2] = np.sort(values)
@@ -91,7 +90,6 @@ class Pixel_Getter:
         # self.includedPixels[1] = sats
         # self.includedPixels[2] = values
 
-        print(self.includedPixels[0])
         pass
 
     def exclude(self, hues, sats, values):
