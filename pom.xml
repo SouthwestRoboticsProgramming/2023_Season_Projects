@@ -12,6 +12,7 @@
     <modules>
         <module>Messenger</module>
         <module>ShuffleLog</module>
+        <module>MathLib</module>
     </modules>
 
     <properties>
