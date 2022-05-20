@@ -1,5 +1,6 @@
 # Build output
 *target/
+*build/
 
 # IntelliJ IDEA Project Files
 .idea/
@@ -11,6 +12,7 @@
 # Compiled Python
 *.pyc
 *__pycache__/
+*.so
 
 # Log Files
 *.log

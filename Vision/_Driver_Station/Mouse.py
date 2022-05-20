@@ -52,12 +52,15 @@ class Pixel_Getter:
         hues = [None] * pixelCount
         saturations = [None] * pixelCount
         values = [None] * pixelCount
+
+        index = 0
         for i in range(x, x2):
             for j in range(y, y2):
-                index = (i + x) + (j + y) * width
+                print(frame[y,x,0])
                 hues[index] = frame[y, x, 0]
                 saturations[index] = frame[y, x, 1]
                 values[index] = frame[y, x, 2]
+                index+=1
         
         return hues, saturations, values
 
@@ -89,6 +92,8 @@ class Pixel_Getter:
         # self.includedPixels[0] = hues
         # self.includedPixels[1] = sats
         # self.includedPixels[2] = values
+        # with np.printoptions(threshold=np.inf):
+        #     print(hues)
 
         pass
 
