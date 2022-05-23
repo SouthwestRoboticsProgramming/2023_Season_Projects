@@ -3,7 +3,7 @@ package com.swrobotics.lib.motor;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.swrobotics.lib.math.Angle;
 
-public interface NewMotor { // TODO: Extend subsystem for periodic function
+public interface NewMotor {
 
     /**
      * 
@@ -53,13 +53,6 @@ public interface NewMotor { // TODO: Extend subsystem for periodic function
      * @param kD Derivative -> Based on the acceleration differnce
      */
     public void setPID(double kP, double kI, double kD);
-
-    /**
-     * Reset the PID controller's integral accumulator back to zero
-     */
-    public void resetPID();
-
-    public void periodic();
 
 
 

@@ -8,11 +8,15 @@
 
 # VSCode Project Files
 .vscode/
+*.lock/
 
 # Compiled Python
 *.pyc
 *__pycache__/
 *.so
+
+# Compiled Java
+*.class
 
 # Log Files
 *.log

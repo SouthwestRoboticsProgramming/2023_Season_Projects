@@ -1,25 +1,17 @@
 package com.swrobotics.lib.motor;
 
-import java.util.ResourceBundle.Control;
-
-import javax.swing.text.Position;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.CANCoder;
 
 import edu.wpi.first.math.controller.BangBangController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.MotorSafety;
 
 import com.swrobotics.lib.math.Angle;
-import com.swrobotics.lib.motor.MotorMode;
 
-public class CTREMotor implements NewMotor { // TODO: Implement subystem
+public class CTREMotor implements NewMotor {
 
     private static final int SENSOR_TICKS_PER_ROTATION = 2048;
 
@@ -29,14 +21,16 @@ public class CTREMotor implements NewMotor { // TODO: Implement subystem
     private final BangBangController bang;
 
     private CANCoder encoder;
+    private boolean useEncoder;
     
     private double setpoint;
     private boolean isFlywheel;
 
     private Angle sensorOffset;
+    private MotorMode mode;
 
     /**
-     * Creates a TalonMotor waprring around another motor controller,
+     * Creates a TalonMotor wrapping around another motor controller,
      * giving it additional functionality
      * @param talon Talon SRX, SPX, FX to wrap
      * @param motorType Type of motor that the controller is attached to
@@ -54,7 +48,7 @@ public class CTREMotor implements NewMotor { // TODO: Implement subystem
         encoder = null;
         isFlywheel = false;
 
-        sensorOffset = 0;
+        sensorOffset = Angle.cwDeg(0);
     }
 
     // TODO: Store the offset in a variable, don't let the motors control it.
@@ -63,41 +57,44 @@ public class CTREMotor implements NewMotor { // TODO: Implement subystem
     public void set(MotorMode mode, double demand) {
         switch (mode) {
             case PERCENT_OUT:
-                talon.set(ControlMode.PercentOutput, demand);
-                break;
+            talon.set(ControlMode.PercentOutput, demand);
+            break;
             
             case POSITION:
-                setpoint = demand;
+            setpoint = demand;
                 mode_position();
                 break;
             
-            case VELOCITY:
+                case VELOCITY:
                 setpoint = demand;
                 mode_velocity();
                 break;
-
-            case STOP:
+                
+                case STOP:
                 talon.set(ControlMode.PercentOutput, 0);
                 break;
-            
-            case HALT:
+                
+                case HALT:
                 setpoint = 0;
                 mode_velocity();
                 break;
-            
-            case HOLD:
-                setpoint = getPosition().getCWDeg(); // TODO: If the motor moves, move back to where it was
+                
+                case HOLD:
+                if (this.mode != MotorMode.HOLD) {
+                    setpoint = getPosition().getCWDeg();
+                }
                 mode_position();
-
+                
                 break;
-        
-            default:
+                
+                default:
                 break;
+            }
+            this.mode = mode;
         }
-    }
 
     private void mode_position() {
-        if (pid.getP() == 0 && pid.getI() == 0) {
+        if (pid.getP() == 0.0 && pid.getI() == 0.0) {
             throw new Error("No PID gains set");
         }
 
@@ -133,7 +130,7 @@ public class CTREMotor implements NewMotor { // TODO: Implement subystem
     @Override
     public Angle getPosition() {
         double position = talon.getSelectedSensorPosition() / SENSOR_TICKS_PER_ROTATION;
-        if (encoder != null) {
+        if (useEncoder) {
             position = encoder.getAbsolutePosition();
         }
 
@@ -143,7 +140,7 @@ public class CTREMotor implements NewMotor { // TODO: Implement subystem
     @Override
     public double getVelocity() {
         double velocity = talon.getSelectedSensorVelocity() * 10 * 60;
-        if (encoder != null) {
+        if (useEncoder) {
             velocity = encoder.getVelocity();
         }
         return velocity;
@@ -151,6 +148,7 @@ public class CTREMotor implements NewMotor { // TODO: Implement subystem
 
     @Override
     public void setAbsoluteSensor(CANCoder encoder) {
+        useEncoder = true;
         this.encoder = encoder; // TODO: Change off CANCoder
         
     }
@@ -158,7 +156,7 @@ public class CTREMotor implements NewMotor { // TODO: Implement subystem
     @Override
     public void setPosition(Angle position) {
         talon.setSelectedSensorPosition(position.getCWDeg() * SENSOR_TICKS_PER_ROTATION); // FIXME Not ticks per rotation
-        if (encoder != null) {
+        if (useEncoder) {
             encoder.setPosition(position.getCWDeg());
         }
         
@@ -172,18 +170,6 @@ public class CTREMotor implements NewMotor { // TODO: Implement subystem
     @Override
     public void setPID(double kP, double kI, double kD) {
         pid.setPID(kP, kI, kD);
-        
-    }
-
-    @Override
-    public void resetPID() {
-        return;
-        
-    }
-
-    @Override
-    public void periodic() {
-        // TODO Auto-generated method stub
         
     }
 
