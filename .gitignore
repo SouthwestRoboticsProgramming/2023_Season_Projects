@@ -18,7 +18,7 @@
 *.class
 
 # Gradle builds
-*.lock
+.gradle/7.3.3/*
 
 # Log Files
 *.log
