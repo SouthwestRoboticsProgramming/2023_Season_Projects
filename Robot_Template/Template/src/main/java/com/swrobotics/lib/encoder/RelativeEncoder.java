@@ -2,23 +2,23 @@ package com.swrobotics.lib.encoder;
 
 import com.swrobotics.lib.math.Angle;
 
-public abstract class AbsoluteEncoder {
+public abstract class RelativeEncoder {
 
     private Angle offset;
 
     /**
-     * Absolute encoder implementation.
+     * Relative encoder implementation.
      */
-    public AbsoluteEncoder() {
+    public RelativeEncoder() {
         offset = Angle.cwDeg(0);
     }
 
     /**
-     * Get the absolute position of the encoder as an Angle.
-     * @return The absolute position of the encoder relative
+     * Get the relative position of the encoder as an Angle.
+     * @return The relative position of the encoder relative
      * to when you set the position.
      */
-    public Angle getAbsoluteAngle() {
+    public Angle getRelativeAngle() {
         return getRawPosition().add(offset);
     }
 
@@ -29,7 +29,7 @@ public abstract class AbsoluteEncoder {
     public abstract double getRPM();
 
     /**
-     * Get the absolute position of the encoder, not including any offset
+     * Get the relative position of the encoder, not including any offset
      * given by the user.
      * @return The raw position of the encoder as an Angle.
      */

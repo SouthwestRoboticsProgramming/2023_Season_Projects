@@ -1,7 +1,7 @@
 package com.swrobotics.lib.motor;
 
-import com.ctre.phoenix.sensors.CANCoder;
 import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.encoder.AbsoluteEncoder;
 
 public interface NewMotor {
 
@@ -30,7 +30,7 @@ public interface NewMotor {
      * Gives the motor an absolute encoder
      * @param encoder Encoder implementation
      */
-    public void setAbsoluteSensor(CANCoder encoder);
+    public void setAbsoluteSensor(AbsoluteEncoder encoder);
 
 
 

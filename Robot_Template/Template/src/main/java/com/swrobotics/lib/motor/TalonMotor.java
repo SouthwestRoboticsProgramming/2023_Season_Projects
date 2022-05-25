@@ -2,12 +2,10 @@ package com.swrobotics.lib.motor;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
-import com.ctre.phoenix.sensors.CANCoder;
 import com.swrobotics.lib.math.Angle;
 import com.swrobotics.lib.math.MathUtil;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.CAN;
 
 public final class TalonMotor implements Motor {
     private static final int ENCODER_TICKS_PER_ROTATION = 2048;
@@ -21,7 +19,6 @@ public final class TalonMotor implements Motor {
 
     private final BaseTalon talon;
     private final PIDController pid;
-    private final CANCoder
 
     private RunState state;
     private double target;

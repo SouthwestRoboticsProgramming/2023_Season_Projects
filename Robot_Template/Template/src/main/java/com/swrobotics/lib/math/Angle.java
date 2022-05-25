@@ -1,5 +1,9 @@
 package com.swrobotics.lib.math;
 
+import org.opencv.core.RotatedRect;
+
+import edu.wpi.first.math.geometry.Rotation2d;
+
 public final class Angle {
     public static Angle cwRad(double angle) {
         return new Angle(-angle);
@@ -176,6 +180,14 @@ public final class Angle {
     public Angle subCCWDeg(double a, Angle dest) {
         dest.angle = angle - Math.toRadians(a);
         return dest;
+    }
+
+    public Rotation2d toRotation2dCW() {
+        return new Rotation2d(getCWRad());
+    }
+
+    public Rotation2d toRotation2dCCW() {
+        return new Rotation2d(getCCWRad());
     }
 
     @Override

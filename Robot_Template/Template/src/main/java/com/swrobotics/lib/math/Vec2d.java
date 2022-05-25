@@ -2,6 +2,9 @@ package com.swrobotics.lib.math;
 
 import java.util.Objects;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
+
 public final class Vec2d {
     public double x;
     public double y;
@@ -249,6 +252,16 @@ public final class Vec2d {
     public Vec2d set(Vec2d vec) {
         x = vec.x;
         y = vec.y;
+        return this;
+    }
+
+    public Translation2d toTranslation2d() {
+        return new Translation2d(x, y);
+    }
+
+    public Vec2d fromPose2d(Pose2d pose) {
+        x = pose.getX();
+        y = pose.getY();
         return this;
     }
 

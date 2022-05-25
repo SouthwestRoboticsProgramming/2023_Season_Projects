@@ -9,6 +9,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
+import com.swrobotics.lib.encoder.AbsoluteEncoder;
 import com.swrobotics.lib.math.Angle;
 
 public class CTREMotor implements NewMotor {
@@ -20,7 +21,7 @@ public class CTREMotor implements NewMotor {
     private final SimpleMotorFeedforward feed;
     private final BangBangController bang;
 
-    private CANCoder encoder;
+    private AbsoluteEncoder encoder;
     private boolean useEncoder;
     
     private double setpoint;
@@ -45,10 +46,13 @@ public class CTREMotor implements NewMotor {
         feed = new SimpleMotorFeedforward(0, 0, 0);
         bang = new BangBangController();
 
-        encoder = null;
         isFlywheel = false;
 
         sensorOffset = Angle.cwDeg(0);
+    }
+
+    public CTREMotor(BaseTalon talon) {
+        this(talon, MotorType.CIM);
     }
 
     // TODO: Store the offset in a variable, don't let the motors control it.
@@ -131,7 +135,7 @@ public class CTREMotor implements NewMotor {
     public Angle getPosition() {
         double position = talon.getSelectedSensorPosition() / SENSOR_TICKS_PER_ROTATION;
         if (useEncoder) {
-            position = encoder.getAbsolutePosition();
+            position = encoder.getAbsoluteAngle().getCWDeg();
         }
 
         return Angle.cwDeg(position);
@@ -141,13 +145,13 @@ public class CTREMotor implements NewMotor {
     public double getVelocity() {
         double velocity = talon.getSelectedSensorVelocity() * 10 * 60;
         if (useEncoder) {
-            velocity = encoder.getVelocity();
+            velocity = encoder.getRPM();
         }
         return velocity;
     }
 
     @Override
-    public void setAbsoluteSensor(CANCoder encoder) {
+    public void setAbsoluteSensor(AbsoluteEncoder encoder) {
         useEncoder = true;
         this.encoder = encoder; // TODO: Change off CANCoder
         
@@ -157,7 +161,7 @@ public class CTREMotor implements NewMotor {
     public void setPosition(Angle position) {
         talon.setSelectedSensorPosition(position.getCWDeg() * SENSOR_TICKS_PER_ROTATION); // FIXME Not ticks per rotation
         if (useEncoder) {
-            encoder.setPosition(position.getCWDeg());
+            encoder.setPosition(position);
         }
         
     }
