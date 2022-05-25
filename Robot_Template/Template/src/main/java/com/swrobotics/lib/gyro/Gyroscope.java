@@ -15,6 +15,11 @@ public abstract class Gyroscope {
 
     public abstract Angle getRawAngle();
 
+    /**
+     * Set the position of the gyro.
+     * @param angleOffset The angle that the gyro is actually at. 
+     * All other measurements will be relative to this.
+     */
     public void setOffset(Angle angleOffset) {
         offset.sub(angleOffset);
     }

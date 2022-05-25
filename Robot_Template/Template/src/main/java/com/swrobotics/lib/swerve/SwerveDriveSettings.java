@@ -13,9 +13,6 @@ public class SwerveDriveSettings {
         maxWheelSpeed = 4.11;
     }
 
-    public void setWheelPositions(Vec2d[] positions) {
-        wheelPositions = positions;
-    }
 
     public Translation2d[] getWheelPositions() {
         Translation2d[] positions = new Translation2d[wheelPositions.length];

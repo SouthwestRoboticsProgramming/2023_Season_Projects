@@ -30,6 +30,10 @@ public class SwerveModule {
         return drive.getVelocity();
     }
 
+    /**
+     * Get the real state of the swerve module for use in telemetry and odometry.
+     * @return The state the the swerve module is currently at.
+     */
     public SwerveModuleState getModuleState() {
         SwerveModuleState state = new SwerveModuleState(drive.getVelocity() / 2 /*FIXME: Change to converstion to m/s*/, steer.getPosition().toRotation2dCCW()); // FIXME: Could be CW instead of CCW
         return state;

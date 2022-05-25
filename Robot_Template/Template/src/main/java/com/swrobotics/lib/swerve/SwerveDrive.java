@@ -18,7 +18,7 @@ public class SwerveDrive { // TODO: Implement subsystem
     private final SwerveDriveSettings settings;
     private final SwerveDriveOdometry odometry;
     
-    public SwerveDrive(SwerveDriveSettings settings ,NewMotor[] driveMotors, NewMotor[] steerMotors, AbsoluteEncoder[] encoders, Gyroscope gyro) {
+    public SwerveDrive(SwerveDriveSettings settings, NewMotor[] driveMotors, NewMotor[] steerMotors, AbsoluteEncoder[] encoders, Gyroscope gyro) { // TODO: Change motors to settings
         front_l = new SwerveModule(driveMotors[0], steerMotors[0], encoders[0]);
         front_r = new SwerveModule(driveMotors[1], steerMotors[1], encoders[1]);
         back_l = new SwerveModule(driveMotors[2], steerMotors[2], encoders[2]);
@@ -31,6 +31,10 @@ public class SwerveDrive { // TODO: Implement subsystem
 
     }
 
+    /**
+     * Set the desired movmemnt of the robot
+     * @param chassis Desired chassis movement.
+     */
     public void setChassis(ChassisSpeeds chassis) {
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(chassis);
         SwerveDriveKinematics.desaturateWheelSpeeds(states, settings.getMaxWheelSpeed());

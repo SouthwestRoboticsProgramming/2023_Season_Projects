@@ -2,7 +2,6 @@ package com.swrobotics.lib.motor;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
-import com.ctre.phoenix.sensors.CANCoder;
 
 import edu.wpi.first.math.controller.BangBangController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -125,7 +124,7 @@ public class CTREMotor implements NewMotor {
 
     /**
      * Determines the velocity control of the motor
-     * @param isFlywheel
+     * @param isFlywheel If the motor is controlling a flywheel
      */
     public void setFlywheelMode(boolean isFlywheel) {
         this.isFlywheel = isFlywheel;
