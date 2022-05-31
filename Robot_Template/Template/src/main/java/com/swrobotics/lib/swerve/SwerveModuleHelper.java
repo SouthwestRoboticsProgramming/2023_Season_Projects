@@ -14,7 +14,5 @@ public interface SwerveModuleHelper {
 
     public Vec2d getPosition();
 
-    public double  getGearRatio();
-
     
 }

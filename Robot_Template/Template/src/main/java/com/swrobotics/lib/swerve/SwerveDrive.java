@@ -5,7 +5,6 @@ import com.swrobotics.lib.gyro.Gyroscope;
 import com.swrobotics.lib.math.Vec2d;
 import com.swrobotics.lib.motor.NewMotor;
 
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -18,11 +17,13 @@ public class SwerveDrive { // TODO: Implement subsystem
     private final Gyroscope gyro;
     private final SwerveDriveKinematics kinematics;
     private final SwerveDriveOdometry odometry;
+    private final SwerveDriveSpecialties moduleType;
     
-    public SwerveDrive(SwerveModule[] modules, Gyroscope gyro) {
+    public SwerveDrive(SwerveModule[] modules, Gyroscope gyro, SwerveDriveSpecialties moduleType) {
 
         this.modules = modules;
         this.gyro = gyro;
+        this.moduleType = moduleType;
 
         Translation2d[] positions = new Translation2d[modules.length];
         for (int i = 0; i < modules.length; i++) {
@@ -39,11 +40,20 @@ public class SwerveDrive { // TODO: Implement subsystem
      */
     public void setChassis(ChassisSpeeds chassis) {
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(chassis);
-        SwerveDriveKinematics.desaturateWheelSpeeds(states, settings.getMaxWheelSpeed());
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, moduleType.getMaxWheelSpeed());
         
         for (int i = 0; i < modules.length; i++) {
             modules[i].set(states[i]);
         }
+    }
+
+    // @Override // TODO
+    public void update() {
+        SwerveModuleState[] states = new SwerveModuleState[modules.length];
+        for (int i = 0; i < modules.length; i++) {
+            states[i] = modules[i].getModuleState();
+        }
+        odometry.update(gyro.getAngle().toRotation2dCW(), states);
     }
 
     /**

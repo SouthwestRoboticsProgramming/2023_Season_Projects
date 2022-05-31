@@ -13,21 +13,26 @@ public class SwerveModule {
     private final NewMotor steer;
     private final NewMotor drive;
     private final Vec2d position;
+
+    private double gearRatio;
     
     public SwerveModule(SwerveModuleHelper helper) {
         drive = helper.getDriveMotor();
         steer = helper.getTurnMotor();
         steer.setAbsoluteSensor(helper.getEncoder());
         position = helper.getPosition();
-        // TODO: Gear ratio
     }
 
     public void set(SwerveModuleState swerveState) {
         double velocity = swerveState.speedMetersPerSecond;
         Angle angle = Angle.cwDeg(swerveState.angle.getDegrees());
-        double rpm = 2; // TODO: Use settings given by swerve drive
+        double rpm = 2 * gearRatio; // TODO: Actually do FIXME
         drive.set(MotorMode.VELOCITY, velocity);
         steer.set(MotorMode.POSITION, angle.getCWDeg());
+    }
+
+    public void setGearRatio(double gearRatio) {
+        this.gearRatio = gearRatio;
     }
 
     public double getVelocity() {

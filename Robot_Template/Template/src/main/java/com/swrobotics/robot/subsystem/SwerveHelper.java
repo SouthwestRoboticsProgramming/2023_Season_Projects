@@ -7,16 +7,16 @@ import com.swrobotics.lib.encoder.AbsoluteEncoder;
 import com.swrobotics.lib.math.Angle;
 import com.swrobotics.lib.math.Vec2d;
 import com.swrobotics.lib.motor.NewMotor;
-import com.swrobotics.lib.motor.TalonMotor;
+import com.swrobotics.lib.motor.CTREMotor;
 import com.swrobotics.lib.swerve.SwerveModuleHelper;
 
 public class SwerveHelper implements SwerveModuleHelper{
-    private final TalonMotor drive;
-    private final TalonMotor steer;
+    private final CTREMotor drive;
+    private final CTREMotor steer;
     private final AbsoluteEncoder encoder;
     private final Vec2d position;
 
-    public SwerveHelper(int driveID, int steerID, int encoderID, Vec2d position, ) {
+    public SwerveHelper(int driveID, int steerID, int encoderID, Vec2d position) {
         this.position = position;
 
         // Create original motors
@@ -30,7 +30,8 @@ public class SwerveHelper implements SwerveModuleHelper{
 
 
         // Create wrappers
-        drive = new TalonMotor(driveMotor);
+        steer = new CTREMotor(steerMotor);
+        drive = new CTREMotor(driveMotor);
         encoder = new AbsoluteEncoder() {
 
             @Override
@@ -44,6 +45,8 @@ public class SwerveHelper implements SwerveModuleHelper{
             }
             
         };
+
+        drive.setAbsoluteSensor(encoder);
     }
 
     @Override
@@ -53,24 +56,16 @@ public class SwerveHelper implements SwerveModuleHelper{
 
     @Override
     public NewMotor getTurnMotor() {
-        // TODO Auto-generated method stub
-        return null;
+        return steer;
     }
 
     @Override
     public AbsoluteEncoder getEncoder() {
-        // TODO Auto-generated method stub
-        return null;
+        return encoder;
     }
 
     @Override
     public Vec2d getPosition() {
         return position;
-    }
-
-    @Override
-    public double getGearRatio() {
-        // TODO Auto-generated method stub
-        return 0;
     }
 }
