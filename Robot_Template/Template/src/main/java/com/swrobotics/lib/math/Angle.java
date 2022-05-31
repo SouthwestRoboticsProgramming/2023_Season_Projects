@@ -43,20 +43,24 @@ public final class Angle {
         return Math.toDegrees(-angle);
     }
 
-    public void setCWRad(double a) {
+    public Angle setCWRad(double a) {
         angle = -a;
+        return this;
     }
 
-    public void setCCWRad(double a) {
+    public Angle setCCWRad(double a) {
         angle = a;
+        return this;
     }
 
-    public void setCWDeg(double a) {
+    public Angle setCWDeg(double a) {
         angle = Math.toRadians(-a);
+        return this;
     }
 
-    public void setCCWDeg(double a) {
+    public Angle setCCWDeg(double a) {
         angle = Math.toRadians(a);
+        return this;
     }
 
     public double getSin() {

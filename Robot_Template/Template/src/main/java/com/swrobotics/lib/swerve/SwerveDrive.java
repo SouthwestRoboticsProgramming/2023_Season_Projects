@@ -6,6 +6,7 @@ import com.swrobotics.lib.math.Vec2d;
 import com.swrobotics.lib.motor.NewMotor;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -13,22 +14,23 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 public class SwerveDrive { // TODO: Implement subsystem
 
-    private SwerveModule front_l, front_r, back_l, back_r;
-    private SwerveDriveKinematics kinematics;
-    private final SwerveDriveSettings settings;
+    private final SwerveModule[] modules;
+    private final Gyroscope gyro;
+    private final SwerveDriveKinematics kinematics;
     private final SwerveDriveOdometry odometry;
     
-    public SwerveDrive(SwerveDriveSettings settings, NewMotor[] driveMotors, NewMotor[] steerMotors, AbsoluteEncoder[] encoders, Gyroscope gyro) { // TODO: Change motors to settings
-        front_l = new SwerveModule(driveMotors[0], steerMotors[0], encoders[0]);
-        front_r = new SwerveModule(driveMotors[1], steerMotors[1], encoders[1]);
-        back_l = new SwerveModule(driveMotors[2], steerMotors[2], encoders[2]);
-        back_r = new SwerveModule(driveMotors[3], steerMotors[3], encoders[3]);
+    public SwerveDrive(SwerveModule[] modules, Gyroscope gyro) {
 
-        kinematics = new SwerveDriveKinematics(settings.getWheelPositions());
+        this.modules = modules;
+        this.gyro = gyro;
+
+        Translation2d[] positions = new Translation2d[modules.length];
+        for (int i = 0; i < modules.length; i++) {
+            positions[i] = modules[i].getPosition();
+        }
+
+        kinematics = new SwerveDriveKinematics(positions);
         odometry = new SwerveDriveOdometry(kinematics, gyro.getAngle().toRotation2dCCW());
-
-        this.settings = settings;
-
     }
 
     /**
@@ -38,10 +40,10 @@ public class SwerveDrive { // TODO: Implement subsystem
     public void setChassis(ChassisSpeeds chassis) {
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(chassis);
         SwerveDriveKinematics.desaturateWheelSpeeds(states, settings.getMaxWheelSpeed());
-        front_l.set(states[0]);
-        front_r.set(states[1]);
-        back_l.set(states[2]);
-        back_r.set(states[3]);
+        
+        for (int i = 0; i < modules.length; i++) {
+            modules[i].set(states[i]);
+        }
     }
 
     /**
