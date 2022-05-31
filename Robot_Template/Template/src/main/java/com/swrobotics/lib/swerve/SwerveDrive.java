@@ -11,6 +11,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
+/**
+ * Manages the modules in a swerve drivebase and calculates odometry.
+ */
 public class SwerveDrive { // TODO: Implement subsystem
 
     private final SwerveModule[] modules;
@@ -19,6 +22,12 @@ public class SwerveDrive { // TODO: Implement subsystem
     private final SwerveDriveOdometry odometry;
     private final SwerveDriveSpecialties moduleType;
     
+    /**
+     * Create a swerve drive to control the passed modules.
+     * @param modules An array of modules to control. Each module should already be configured using a SwerveModuleHelper implementation.
+     * @param gyro A gryoscope to read the direction of the robot for odometry.
+     * @param moduleType The type of modules that the swerve drive uses. Currently, this only implements Swerve Drive Specialties modules.
+     */
     public SwerveDrive(SwerveModule[] modules, Gyroscope gyro, SwerveDriveSpecialties moduleType) {
 
         this.modules = modules;

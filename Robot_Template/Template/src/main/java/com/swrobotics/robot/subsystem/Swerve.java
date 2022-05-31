@@ -11,6 +11,8 @@ import com.swrobotics.lib.swerve.SwerveModule;
 public class Swerve {
     private final SwerveDrive swerve;
     
+    // Example usage of the swerve drive library
+    // Note: This is just building the drive system, not using it.
     public Swerve() {
         AHRS navx = new AHRS();
         Gyroscope gyro = new Gyroscope() {
@@ -23,12 +25,14 @@ public class Swerve {
         };
 
         SwerveModule modules[] = {
-            new SwerveModule(new SwerveHelper(1,2,3, new Vec2d(5,4)),
-            new SwerveModule(new SwerveHelper(1,2,3, new Vec2d(5,4)),
-            new SwerveModule(new SwerveHelper(1,2,3, new Vec2d(5,4)),
-            new SwerveModule(new SwerveHelper(1,2,3, new Vec2d(5,4))
+            new SwerveModule(new SwerveHelper(1,2,3, new Vec2d(5,4))),
+            new SwerveModule(new SwerveHelper(1,2,3, new Vec2d(5,4))),
+            new SwerveModule(new SwerveHelper(1,2,3, new Vec2d(5,4))),
+            new SwerveModule(new SwerveHelper(1,2,3, new Vec2d(5,4)))
         };
         swerve = new SwerveDrive(modules, gyro, SwerveDriveSpecialties.L1);
     }
+
+
 
 }

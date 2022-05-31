@@ -16,6 +16,16 @@ public class SwerveHelper implements SwerveModuleHelper{
     private final AbsoluteEncoder encoder;
     private final Vec2d position;
 
+    /**
+     * Example implementation of the SwerveModuleHelper class <br></br>
+     * 
+     * You should make a similar class to this that configures the motors to your preference.
+     *
+     * @param driveID
+     * @param steerID
+     * @param encoderID
+     * @param position
+     */
     public SwerveHelper(int driveID, int steerID, int encoderID, Vec2d position) {
         this.position = position;
 
