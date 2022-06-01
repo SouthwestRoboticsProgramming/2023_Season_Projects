@@ -3,7 +3,7 @@ package com.swrobotics.lib.swerve;
 import com.swrobotics.lib.encoder.AbsoluteEncoder;
 import com.swrobotics.lib.gyro.Gyroscope;
 import com.swrobotics.lib.math.Vec2d;
-import com.swrobotics.lib.motor.NewMotor;
+import com.swrobotics.lib.motor.Motor;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -20,19 +20,19 @@ public class SwerveDrive { // TODO: Implement subsystem
     private final Gyroscope gyro;
     private final SwerveDriveKinematics kinematics;
     private final SwerveDriveOdometry odometry;
-    private final SwerveDriveSpecialties moduleType;
+    private final SwerveModuleSpecs specs;
     
     /**
      * Create a swerve drive to control the passed modules.
      * @param modules An array of modules to control. Each module should already be configured using a SwerveModuleHelper implementation.
      * @param gyro A gryoscope to read the direction of the robot for odometry.
-     * @param moduleType The type of modules that the swerve drive uses. Currently, this only implements Swerve Drive Specialties modules.
+     * @param specs The type of modules that the swerve drive uses. Currently, this only implements Swerve Drive Specialties modules.
      */
-    public SwerveDrive(SwerveModule[] modules, Gyroscope gyro, SwerveDriveSpecialties moduleType) {
+    public SwerveDrive(SwerveModule[] modules, Gyroscope gyro, SwerveModuleSpecs specs) {
 
         this.modules = modules;
         this.gyro = gyro;
-        this.moduleType = moduleType;
+        this.specs = specs;
 
         Translation2d[] positions = new Translation2d[modules.length];
         for (int i = 0; i < modules.length; i++) {
@@ -49,7 +49,7 @@ public class SwerveDrive { // TODO: Implement subsystem
      */
     public void setChassis(ChassisSpeeds chassis) {
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(chassis);
-        SwerveDriveKinematics.desaturateWheelSpeeds(states, moduleType.getMaxWheelSpeed());
+        SwerveDriveKinematics.desaturateWheelSpeeds(states, specs.getMaxWheelSpeed());
         
         for (int i = 0; i < modules.length; i++) {
             modules[i].set(states[i]);

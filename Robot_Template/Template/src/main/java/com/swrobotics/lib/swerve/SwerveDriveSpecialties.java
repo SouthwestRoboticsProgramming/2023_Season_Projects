@@ -1,13 +1,20 @@
 package com.swrobotics.lib.swerve;
 
 /**
- * Swerve Drive Specialties module configurations.
+ * Swerve Drive Specialties MK4 module configurations.
  */
 public enum SwerveDriveSpecialties {
-    L1(10,20),
-    L2(20,40),
-    L3(30,60),
-    L4(40,80); // > fast FIXME
+    L1_Falcon(8.14, 13.5),
+    L2_Falcon(6.75, 16.3),
+    L3_Falcon(6.12, 18.0),
+    L4_Falcon(5.14, 21.4),
+
+    L1_Neo(8.14, 12.0),
+    L2_Neo(6.75, 14.5),
+    L3_Neo(6.12, 16.0),
+    L4_Neo(5.14, 19.0);
+
+
 
     private final double gearRatio;
     private final double maxWheelSpeed;
@@ -30,7 +37,7 @@ public enum SwerveDriveSpecialties {
      * @return The max velocity of the wheel in m/s.
      */
     public double getMaxWheelSpeed() {
-        return maxWheelSpeed;
+        return maxWheelSpeed / 3.28084; // Convert from ft/s to m/s
     }
 
 

@@ -30,7 +30,7 @@ public class Swerve {
             new SwerveModule(new SwerveHelper(1,2,3, new Vec2d(5,4))),
             new SwerveModule(new SwerveHelper(1,2,3, new Vec2d(5,4)))
         };
-        swerve = new SwerveDrive(modules, gyro, SwerveDriveSpecialties.L1);
+        swerve = new SwerveDrive(modules, gyro, SwerveDriveSpecialties.L4);
     }
 
 

@@ -2,150 +2,180 @@ package com.swrobotics.lib.motor;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
+
+import edu.wpi.first.math.controller.BangBangController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+
+import com.swrobotics.lib.encoder.AbsoluteEncoder;
 import com.swrobotics.lib.math.Angle;
-import com.swrobotics.lib.math.MathUtil;
 
-import edu.wpi.first.math.controller.PIDController;
+public class TalonMotor implements Motor {
 
-public final class TalonMotor implements Motor {
-    private static final int ENCODER_TICKS_PER_ROTATION = 2048;
+    private static final int SENSOR_TICKS_PER_ROTATION = 2048;
 
-    private enum RunState {
-        PERCENT_OUTPUT,
-        PID_POSITION,
-        FEED_VELOCITY,
-        HOLD
-    }
+    // TODO: Rework this class to more clearly use the correct control modes
 
     private final BaseTalon talon;
-    private final PIDController pid;
+    private final ProfiledPIDController pid;
+    private final SimpleMotorFeedforward feed;
+    private final BangBangController bang;
 
-    private RunState state;
-    private double target;
-    private double positionOffset;
-    private double clampMin, clampMax;
+    private AbsoluteEncoder encoder;
+    private boolean useEncoder;
+    
+    private double setpoint;
+    private boolean isFlywheel;
+
+    private Angle sensorOffset;
+    private MotorMode mode;
 
     /**
-     * Creates a new TalonMotor wrapping around a Talon motor
-     * controller. The Talon's selected feedback sensor is used for
-     * PID feedback.
-     * 
-     * @param talon Talon motor to wrap
+     * Creates a TalonMotor wrapping around another motor controller,
+     * giving it additional functionality
+     * @param talon Talon SRX, SPX, FX to wrap
+     * @param motorType Type of motor that the controller is attached to
      */
-    public TalonMotor(BaseTalon talon) {
+    public TalonMotor(BaseTalon talon, MotorType motorType) {
         this.talon = talon;
-        pid = new PIDController(0, 0, 0);
 
-        state = RunState.PERCENT_OUTPUT;
-        target = 0;
+        double maxVelocity = motorType.getMaxRPM();
+        double maxAcceleration = motorType.getAcceleration();
 
-        clampMin = -1;
-        clampMax = 1;
+        pid = new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration));
+        feed = new SimpleMotorFeedforward(0, 0, 0);
+        bang = new BangBangController();
 
-        positionOffset = 0;
+        isFlywheel = false;
+
+        sensorOffset = Angle.cwDeg(0);
     }
+
+    public TalonMotor(BaseTalon talon) {
+        this(talon, MotorType.CIM);
+    }
+
+    // TODO: Store the offset in a variable, don't let the motors control it.
 
     @Override
-    public void update() {
-        switch (state) {
-            case PERCENT_OUTPUT:
-                talon.set(ControlMode.PercentOutput, target);
+    public void set(MotorMode mode, double demand) {
+        switch (mode) {
+            case PERCENT_OUT:
+            talon.set(ControlMode.PercentOutput, demand);
+            break;
+            
+            case POSITION:
+            setpoint = demand;
+                mode_position();
                 break;
-            case PID_POSITION:
-            case HOLD: {
-                double output = pid.calculate(getPosition().getCWRad(), target);
-                output = MathUtil.clamp(output, clampMin, clampMax);
-                talon.set(ControlMode.PercentOutput, output);
+            
+                case VELOCITY:
+                setpoint = demand;
+                mode_velocity();
+                break;
+                
+                case STOP:
+                talon.set(ControlMode.PercentOutput, 0);
+                break;
+                
+                case HALT:
+                setpoint = 0;
+                mode_velocity();
+                break;
+                
+                case HOLD:
+                if (this.mode != MotorMode.HOLD) {
+                    setpoint = getPosition().getCWDeg();
+                }
+                mode_position();
+                
+                break;
+                
+                default:
                 break;
             }
-            case FEED_VELOCITY: {
-                double output = pid.calculate(getVelocity(), target);
-                output = MathUtil.clamp(output, clampMin, clampMax);
-                talon.set(ControlMode.PercentOutput, output);
-                break;
-            }
+            this.mode = mode;
         }
+
+    private void mode_position() {
+        if (pid.getP() == 0.0 && pid.getI() == 0.0) {
+            throw new Error("No PID gains set");
+        }
+
+        double position = getPosition().getCWDeg();
+        double out = pid.calculate(position, setpoint);
+        talon.set(ControlMode.PercentOutput, out);
     }
 
-    private double getRawPosition() {
-        return talon.getSelectedSensorPosition() / ENCODER_TICKS_PER_ROTATION * Math.PI * 2;
+    private void mode_velocity() {
+        double velocity = getVelocity();
+
+        double out = feed.calculate(setpoint);
+        if (isFlywheel) {
+            out = bang.calculate(velocity, setpoint) + 0.9 * out;
+        }
+
+        talon.set(ControlMode.PercentOutput, out);
+    }
+
+
+
+
+
+
+    /**
+     * Determines the velocity control of the motor
+     * @param isFlywheel If the motor is controlling a flywheel
+     */
+    public void setFlywheelMode(boolean isFlywheel) {
+        this.isFlywheel = isFlywheel;
     }
 
     @Override
     public Angle getPosition() {
-        return Angle.cwRad(getRawPosition() - positionOffset);
-    }
+        double position = talon.getSelectedSensorPosition() / SENSOR_TICKS_PER_ROTATION;
+        if (useEncoder) {
+            position = encoder.getAbsoluteAngle().getCWDeg();
+        }
 
-    @Override
-    public void zeroPosition() {
-        positionOffset = getRawPosition();
-    }
-
-    @Override
-    public void setPosition(Angle position) {
-        positionOffset = getRawPosition() - position.getCWRad();
+        return Angle.cwDeg(position);
     }
 
     @Override
     public double getVelocity() {
-        return talon.getSelectedSensorVelocity() / ENCODER_TICKS_PER_ROTATION * 10 * 60;
+        double velocity = talon.getSelectedSensorVelocity() * 10 * 60;
+        if (useEncoder) {
+            velocity = encoder.getRPM();
+        }
+        return velocity;
     }
 
     @Override
-    public void runAtPercentPower(double power) {
-        state = RunState.PERCENT_OUTPUT;
-        target = power;
-    }
-
-    @Override
-    public void targetPosition(double position) {
-        state = RunState.PID_POSITION;
-        target = position;
-        resetPID();
-    }
-
-    @Override
-    public void runAtRPM(double rpm) {
-        state = RunState.FEED_VELOCITY;
-        target = rpm;
-        resetPID();
-    }
-
-    @Override
-    public void stop() {
-        runAtPercentPower(0);
-    }
-
-    @Override
-    public void halt() {
-        runAtRPM(0);
-    }
-
-    @Override
-    public void hold() {
-        // Maintain current hold target if already holding
-        if (state == RunState.HOLD)
-            return;
-
+    public void setAbsoluteSensor(AbsoluteEncoder encoder) {
+        useEncoder = true;
+        this.encoder = encoder; // TODO: Change off CANCoder
         
-        state = RunState.HOLD;
-        target = getPosition().getCWRad();
-        resetPID();
+    }
+
+    @Override
+    public void setPosition(Angle position) {
+        talon.setSelectedSensorPosition(position.getCWDeg() * SENSOR_TICKS_PER_ROTATION); // FIXME Not ticks per rotation
+        if (useEncoder) {
+            encoder.setPosition(position);
+        }
+        
+    }
+
+    @Override
+    public void zeroPosition() {
+        sensorOffset.setCWDeg(sensorOffset.getCWDeg() - getPosition().getCWDeg());
     }
 
     @Override
     public void setPID(double kP, double kI, double kD) {
         pid.setPID(kP, kI, kD);
+        
     }
 
-    @Override
-    public void resetPID() {
-        pid.reset();
-    }
-
-    @Override
-    public void setOutputClamp(double min, double max) {
-        clampMin = min;
-        clampMax = max;
-    }
 }

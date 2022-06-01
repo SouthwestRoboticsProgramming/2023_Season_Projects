@@ -2,13 +2,15 @@ package com.swrobotics.lib.swerve;
 
 import com.swrobotics.lib.encoder.AbsoluteEncoder;
 import com.swrobotics.lib.math.Vec2d;
-import com.swrobotics.lib.motor.NewMotor;
+import com.swrobotics.lib.motor.Motor;
 
 public interface SwerveModuleHelper {
-    
-    public NewMotor getDriveMotor();
 
-    public NewMotor getTurnMotor();
+    // TODO: Document
+    
+    public Motor getDriveMotor();
+
+    public Motor getTurnMotor();
 
     public AbsoluteEncoder getEncoder();
 

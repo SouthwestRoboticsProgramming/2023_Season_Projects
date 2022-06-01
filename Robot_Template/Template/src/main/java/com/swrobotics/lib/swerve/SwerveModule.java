@@ -3,7 +3,7 @@ package com.swrobotics.lib.swerve;
 import com.swrobotics.lib.math.Angle;
 import com.swrobotics.lib.math.Vec2d;
 import com.swrobotics.lib.motor.MotorMode;
-import com.swrobotics.lib.motor.NewMotor;
+import com.swrobotics.lib.motor.Motor;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -13,8 +13,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
  */
 public class SwerveModule {
 
-    private final NewMotor steer;
-    private final NewMotor drive;
+    private final Motor steer;
+    private final Motor drive;
     private final Vec2d position;
 
     private double gearRatio; // In X:1

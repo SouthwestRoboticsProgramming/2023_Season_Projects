@@ -6,13 +6,13 @@ import com.ctre.phoenix.sensors.CANCoder;
 import com.swrobotics.lib.encoder.AbsoluteEncoder;
 import com.swrobotics.lib.math.Angle;
 import com.swrobotics.lib.math.Vec2d;
-import com.swrobotics.lib.motor.NewMotor;
-import com.swrobotics.lib.motor.CTREMotor;
+import com.swrobotics.lib.motor.Motor;
+import com.swrobotics.lib.motor.TalonMotor;
 import com.swrobotics.lib.swerve.SwerveModuleHelper;
 
 public class SwerveHelper implements SwerveModuleHelper{
-    private final CTREMotor drive;
-    private final CTREMotor steer;
+    private final TalonMotor drive;
+    private final TalonMotor steer;
     private final AbsoluteEncoder encoder;
     private final Vec2d position;
 
@@ -40,8 +40,8 @@ public class SwerveHelper implements SwerveModuleHelper{
 
 
         // Create wrappers
-        steer = new CTREMotor(steerMotor);
-        drive = new CTREMotor(driveMotor);
+        steer = new TalonMotor(steerMotor);
+        drive = new TalonMotor(driveMotor);
         encoder = new AbsoluteEncoder() {
 
             @Override
@@ -60,12 +60,12 @@ public class SwerveHelper implements SwerveModuleHelper{
     }
 
     @Override
-    public NewMotor getDriveMotor() {
+    public Motor getDriveMotor() {
         return drive;
     }
 
     @Override
-    public NewMotor getTurnMotor() {
+    public Motor getTurnMotor() {
         return steer;
     }
 
