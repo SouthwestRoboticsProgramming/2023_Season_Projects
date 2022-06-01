@@ -1,5 +1,7 @@
 package com.swrobotics.lib.encoder;
 
+import javax.xml.stream.events.EndDocument;
+
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderStatusFrame;
 import com.swrobotics.lib.math.Angle;
@@ -8,29 +10,29 @@ public class CANCoderImplementation extends AbsoluteEncoder {
 
     private final CANCoder encoder;
 
-    public CANCoderImplementation(int ID) {
-        encoder = new CANCoder(ID);
+    public CANCoderImplementation(int id) {
+        encoder = new CANCoder(id);
     }
 
-    public CANCoderImplementation(int ID, String canbus) {
-        encoder = new CANCoder(ID, canbus);
-        encoder.setStatusFramePeriod(CANCoderStatusFrame.SensorData, 20);
+    /**
+     * Get the relative angle of the encoder if it is configured not to use
+     * absolute angle by default.
+     */
+    @Override
+    public Angle getRelativeAngle() {
+        return Angle.cwDeg(encoder.getPosition());
     }
 
     @Override
-    public double getRPM() {
-        // TODO Auto-generated method stub
-        return 0;
+    public Angle getRawAngle() {
+        return Angle.cwDeg(encoder.getAbsolutePosition());
     }
 
     @Override
-    public Angle getRawPosition() {
-        // TODO Auto-generated method stub
-        return null;
+    public Angle getVelocity() {
+        return Angle.cwDeg(encoder.getVelocity());
     }
 
+    // TODO: Configuration
 
-    public void setStatusFramePeriod() {
-        // TODO
-    }
 }

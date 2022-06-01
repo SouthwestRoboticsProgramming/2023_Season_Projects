@@ -30,7 +30,7 @@ public interface Motor {
      * Gives the motor an absolute encoder
      * @param encoder Encoder implementation
      */
-    public void setAbsoluteSensor(AbsoluteEncoder encoder);
+    public void assignEncoder(AbsoluteEncoder encoder);
 
 
 

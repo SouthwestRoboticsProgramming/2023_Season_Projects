@@ -4,11 +4,12 @@ import com.kauailabs.navx.frc.AHRS;
 import com.swrobotics.lib.gyro.Gyroscope;
 import com.swrobotics.lib.math.Angle;
 import com.swrobotics.lib.math.Vec2d;
+import com.swrobotics.lib.routines.Routine;
 import com.swrobotics.lib.swerve.SwerveDrive;
 import com.swrobotics.lib.swerve.SwerveDriveSpecialties;
 import com.swrobotics.lib.swerve.SwerveModule;
 
-public class Swerve {
+public class Swerve implements Routine{
     private final SwerveDrive swerve;
     
     // Example usage of the swerve drive library
@@ -31,6 +32,11 @@ public class Swerve {
             new SwerveModule(new SwerveHelper(1,2,3, new Vec2d(5,4)))
         };
         swerve = new SwerveDrive(modules, gyro, SwerveDriveSpecialties.L4_Falcon);
+    }
+
+    @Override
+    public void periodic() {
+        
     }
 
 

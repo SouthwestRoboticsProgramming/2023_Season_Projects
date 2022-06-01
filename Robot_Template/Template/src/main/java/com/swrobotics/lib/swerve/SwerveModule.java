@@ -28,7 +28,7 @@ public class SwerveModule {
     public SwerveModule(SwerveModuleHelper helper) {
         drive = helper.getDriveMotor();
         steer = helper.getTurnMotor();
-        steer.setAbsoluteSensor(helper.getEncoder());
+        steer.assignEncoder(helper.getEncoder());
         position = helper.getPosition();
     }
 
