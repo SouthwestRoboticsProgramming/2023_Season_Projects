@@ -1,7 +1,7 @@
 package com.swrobotics.lib.motor;
 
 import com.swrobotics.lib.math.Angle;
-import com.swrobotics.lib.encoder.AbsoluteEncoder;
+import com.swrobotics.lib.encoder.Encoder;
 
 public interface Motor {
 
@@ -23,14 +23,14 @@ public interface Motor {
      * Get the velocity of the motor in RPM
      * @return The RPM of the motor
      */
-    public double getVelocity();
+    public Angle getVelocity();
 
 
     /**
      * Gives the motor an absolute encoder
      * @param encoder Encoder implementation
      */
-    public void assignEncoder(AbsoluteEncoder encoder);
+    public void assignEncoder(Encoder encoder);
 
 
 
@@ -45,14 +45,6 @@ public interface Motor {
      */
     public void zeroPosition();
 
-
-    /**
-     * Sets the coefficients of the motor's PID controller.
-     * @param kP Proportional -> Based on the error
-     * @param kI Integral -> Based on time that the error has existed
-     * @param kD Derivative -> Based on the acceleration differnce
-     */
-    public void setPID(double kP, double kI, double kD);
 
 
 
