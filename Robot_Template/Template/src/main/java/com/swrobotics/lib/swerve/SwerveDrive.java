@@ -1,9 +1,7 @@
 package com.swrobotics.lib.swerve;
 
-import com.swrobotics.lib.encoder.AbsoluteEncoder;
 import com.swrobotics.lib.gyro.Gyroscope;
 import com.swrobotics.lib.math.Vec2d;
-import com.swrobotics.lib.motor.Motor;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;

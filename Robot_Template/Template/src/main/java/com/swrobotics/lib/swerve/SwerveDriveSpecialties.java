@@ -3,7 +3,7 @@ package com.swrobotics.lib.swerve;
 /**
  * Swerve Drive Specialties MK4 module configurations.
  */
-public enum SwerveDriveSpecialties {
+public enum SwerveDriveSpecialties implements SwerveModuleSpecs{
     L1_Falcon(8.14, 13.5),
     L2_Falcon(6.75, 16.3),
     L3_Falcon(6.12, 18.0),
@@ -28,6 +28,7 @@ public enum SwerveDriveSpecialties {
      * Get the gear ratio of the module configuration.
      * @return Gear ratio in X:1.
      */
+    @Override
     public double getGearRatio() {
         return gearRatio;
     }
@@ -36,6 +37,7 @@ public enum SwerveDriveSpecialties {
      * Get the max attainable speed of the module with the motor at 100% power.
      * @return The max velocity of the wheel in m/s.
      */
+    @Override
     public double getMaxWheelSpeed() {
         return maxWheelSpeed / 3.28084; // Convert from ft/s to m/s
     }
