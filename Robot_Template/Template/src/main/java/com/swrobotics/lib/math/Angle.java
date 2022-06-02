@@ -194,6 +194,24 @@ public final class Angle {
         return new Rotation2d(getCCWRad());
     }
 
+    // Compare Angles
+    public boolean greaterThan(Angle comparison) {
+        return angle > comparison.angle;
+    }
+
+    public boolean lessThan(Angle comparison) {
+        return angle < comparison.angle;
+    }
+
+    public boolean greaterOrEqualTo(Angle comparison) {
+        return angle >= comparison.angle;
+    }
+
+    public boolean lessOrEqualTo(Angle comparison) {
+        return angle <= comparison.angle;
+    }
+
+
     @Override
     public String toString() {
         return "Angle{" +
