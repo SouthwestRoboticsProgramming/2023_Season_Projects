@@ -42,6 +42,7 @@ public class MotorTest {
         fx = new TalonMotor(fx_toWrap);
         srx = new TalonMotor(srx_toWrap);
 
+        // TODO: Build a setup with a CANCoder or something.
         encoder = new CANCoderImplementation(12);
     }
 

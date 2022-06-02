@@ -1,7 +1,5 @@
 package com.swrobotics.lib.math;
 
-import org.opencv.core.RotatedRect;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 
 public final class Angle {

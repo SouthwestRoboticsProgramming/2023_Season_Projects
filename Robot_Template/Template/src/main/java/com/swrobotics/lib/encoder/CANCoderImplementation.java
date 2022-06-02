@@ -1,9 +1,6 @@
 package com.swrobotics.lib.encoder;
 
-import javax.xml.stream.events.EndDocument;
-
 import com.ctre.phoenix.sensors.CANCoder;
-import com.ctre.phoenix.sensors.CANCoderStatusFrame;
 import com.swrobotics.lib.math.Angle;
 
 public class CANCoderImplementation extends AbsoluteEncoder {
@@ -13,6 +10,8 @@ public class CANCoderImplementation extends AbsoluteEncoder {
     public CANCoderImplementation(int id) {
         encoder = new CANCoder(id);
     }
+
+    // TODO: Actually configure the CANCoder
 
     /**
      * Get the relative angle of the encoder if it is configured not to use
