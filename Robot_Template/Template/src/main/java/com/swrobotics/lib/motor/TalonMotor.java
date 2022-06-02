@@ -216,6 +216,11 @@ public class TalonMotor implements Motor, Routine {
     private boolean useClosedLoop;
     private boolean useFeedforward;
 
+    // Mode and demand
+    private MotorMode mode;
+    private double demand;
+    private Angle angleDemand;
+
     /**
      * Create a talon motor without closed loop control. This is intended for very basic use cases where voltae control is all you need.
      * @param talon CTRE motor to wrap.
@@ -301,7 +306,7 @@ public class TalonMotor implements Motor, Routine {
     }
     
     @Override
-    public void setPosition(Angle position) {
+    public void setEncoderPosition(Angle position) {
         offset = rawPosition.sub(position);   
     }
     

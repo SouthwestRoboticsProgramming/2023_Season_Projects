@@ -38,7 +38,7 @@ public interface Motor {
      * 
      * @param position Angular position of the motor in clockwise radians
      */
-    public void setPosition(Angle position);
+    public void setEncoderPosition(Angle position);
     
     /**
      * Set the current position of the motor to zero
