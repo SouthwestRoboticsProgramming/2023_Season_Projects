@@ -14,181 +14,10 @@ import edu.wpi.first.wpilibj.DriverStation;
 import com.swrobotics.lib.encoder.AbsoluteEncoder;
 import com.swrobotics.lib.encoder.Encoder;
 import com.swrobotics.lib.math.Angle;
-import com.swrobotics.lib.routines.Routine;
+import com.swrobotics.lib.routine.Routine;
 
 
-// public class TalonMotor implements Motor {
-
-//     private static final int SENSOR_TICKS_PER_ROTATION = 2048;
-
-//     // TODO: Rework this class to more clearly use the correct control modes
-
-//     private final BaseTalon talon;
-//     private final ProfiledPIDController pid;
-//     private final SimpleMotorFeedforward feed;
-//     private final BangBangController bang;
-
-//     private AbsoluteEncoder encoder;
-//     private boolean useEncoder;
-    
-//     private double setpoint;
-//     private boolean isFlywheel;
-
-//     private Angle sensorOffset;
-//     private MotorMode mode;
-
-//     /**
-//      * Creates a TalonMotor wrapping around another motor controller,
-//      * giving it additional functionality
-//      * @param talon Talon SRX, SPX, FX to wrap
-//      * @param motorType Type of motor that the controller is attached to
-//      */
-//     public TalonMotor(BaseTalon talon, MotorType motorType) {
-//         this.talon = talon;
-
-//         double maxVelocity = motorType.getMaxRPM();
-//         double maxAcceleration = motorType.getAcceleration();
-
-//         pid = new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration));
-//         feed = new SimpleMotorFeedforward(0, 0, 0);
-//         bang = new BangBangController();
-
-//         isFlywheel = false;
-
-//         sensorOffset = Angle.cwDeg(0);
-//     }
-
-//     public TalonMotor(BaseTalon talon) {
-//         this(talon, MotorType.CIM);
-//     }
-
-//     // TODO: Store the offset in a variable, don't let the motors control it.
-
-//     @Override
-//     public void set(MotorMode mode, double demand) {
-//         switch (mode) {
-//             case PERCENT_OUT:
-//             talon.set(ControlMode.PercentOutput, demand);
-//             break;
-            
-//             case POSITION:
-//             setpoint = demand;
-//                 mode_position();
-//                 break;
-            
-//                 case VELOCITY:
-//                 setpoint = demand;
-//                 mode_velocity();
-//                 break;
-                
-//                 case STOP:
-//                 talon.set(ControlMode.PercentOutput, 0);
-//                 break;
-                
-//                 case HALT:
-//                 setpoint = 0;
-//                 mode_velocity();
-//                 break;
-                
-//                 case HOLD:
-//                 if (this.mode != MotorMode.HOLD) {
-//                     setpoint = getPosition().getCWDeg();
-//                 }
-//                 mode_position();
-                
-//                 break;
-                
-//                 default:
-//                 break;
-//             }
-//             this.mode = mode;
-//         }
-
-//     private void mode_position() {
-//         if (pid.getP() == 0.0 && pid.getI() == 0.0) {
-//             throw new Error("No PID gains set");
-//         }
-
-//         double position = getPosition().getCWDeg();
-//         double out = pid.calculate(position, setpoint);
-//         talon.set(ControlMode.PercentOutput, out);
-//     }
-
-//     private void mode_velocity() {
-//         double velocity = getVelocity();
-
-//         double out = feed.calculate(setpoint);
-//         if (isFlywheel) {
-//             out = bang.calculate(velocity, setpoint) + 0.9 * out;
-//         }
-
-//         talon.set(ControlMode.PercentOutput, out);
-//     }
-
-
-
-
-
-
-//     /**
-//      * Determines the velocity control of the motor
-//      * @param isFlywheel If the motor is controlling a flywheel
-//      */
-//     public void setFlywheelMode(boolean isFlywheel) {
-//         this.isFlywheel = isFlywheel;
-//     }
-
-//     @Override
-//     public Angle getPosition() {
-//         double position = talon.getSelectedSensorPosition() / SENSOR_TICKS_PER_ROTATION;
-//         if (useEncoder) {
-//             position = encoder.getAbsoluteAngle().getCWDeg();
-//         }
-
-//         return Angle.cwDeg(position);
-//     }
-
-//     @Override
-//     public double getVelocity() {
-//         double velocity = talon.getSelectedSensorVelocity() * 10 * 60;
-//         if (useEncoder) {
-//             velocity = encoder.getRPM();
-//         }
-//         return velocity;
-//     }
-
-//     @Override
-//     public void setAbsoluteSensor(AbsoluteEncoder encoder) {
-//         useEncoder = true;
-//         this.encoder = encoder; // TODO: Change off CANCoder
-        
-//     }
-
-//     @Override
-//     public void setPosition(Angle position) {
-//         talon.setSelectedSensorPosition(position.getCWDeg() * SENSOR_TICKS_PER_ROTATION); // FIXME Not ticks per rotation
-//         if (useEncoder) {
-//             encoder.setPosition(position);
-//         }
-        
-//     }
-
-//     @Override
-//     public void zeroPosition() {
-//         sensorOffset.setCWDeg(sensorOffset.getCWDeg() - getPosition().getCWDeg());
-//     }
-
-//     @Override
-//     public void setPID(double kP, double kI, double kD) {
-//         pid.setPID(kP, kI, kD);
-        
-//     }
-
-// }
-
-
-
-public class TalonMotor implements Motor, Routine {
+public class TalonMotor extends Routine implements Motor {
     
     public static final double sensorCoefficient = 2048.0;
     /*
@@ -218,8 +47,13 @@ public class TalonMotor implements Motor, Routine {
 
     // Mode and demand
     private MotorMode mode;
+    private MotorMode lastMode;
+
+    // Demand for what is wanted
     private double demand;
     private Angle angleDemand;
+
+    private Angle holdPosition;
 
     /**
      * Create a talon motor without closed loop control. This is intended for very basic use cases where voltae control is all you need.
@@ -289,19 +123,21 @@ public class TalonMotor implements Motor, Routine {
 
     @Override
     public void set(MotorMode mode, double demand) {
-        // TODO Auto-generated method stub
+        this.mode = mode;
+        this.demand = demand;
         
     }
 
     public void set(MotorMode mode, Angle demand) {
-        // TODO Auto-generated method stub
+        this.mode = mode;
+        angleDemand = demand;
     }
 
 
     // Sensor management
 
     @Override
-    public Angle getPosition() {
+    public Angle getAngle() {
         return rawPosition.sub(offset);
     }
     
@@ -356,6 +192,7 @@ public class TalonMotor implements Motor, Routine {
     @Override
     public void periodic() {
 
+        // Update positions
         if (encoder != null) {
             rawPosition = encoder.getRawAngle().sub(offset); // Raw angle because I'm doing the offset
             velocity = encoder.getVelocity();
@@ -365,6 +202,55 @@ public class TalonMotor implements Motor, Routine {
             rawPosition = Angle.cwDeg(talon.getSelectedSensorPosition() / sensorCoefficient * 360);
             velocity = Angle.cwDeg(talon.getSelectedSensorVelocity() / sensorCoefficient /* Divide by other stuff TODO */);
         }
+
+
+
+        switch (mode) {
+            case PERCENT_OUT:
+                talon.set(ControlMode.PercentOutput, demand);
+                break;
+        
+            case POSITION:
+                position(angleDemand);
+                break;
+
+            case VELOCITY:
+                velocity(angleDemand);
+                break;
+
+            case STOP:
+                talon.set(ControlMode.PercentOutput, 0);
+                break;
+
+            case HALT:
+                velocity(Angle.cwRad(0));
+                break;
+
+            case HOLD:
+                if (lastMode != MotorMode.HOLD) {
+                    position(getAngle());
+                    holdPosition = getAngle();
+                } else {
+                    position(holdPosition);
+                }
+                break;
+            
+            default:
+                DriverStation.reportError("Hmmmm, that shouldn't have happened, not motor mode defined", true);
+                break;
+        }
+
+        lastMode = mode;
+
+    }
+
+
+    private void velocity(Angle demand) {
+        // TODO
+    }
+
+    private void position(Angle demand) {
+
     }
 
 }

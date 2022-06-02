@@ -17,7 +17,7 @@ public interface Motor {
      * Gets the motors position relative to the starting position or the zero'd position
      * @return Rotational position in clockwise radians
      */
-    public Angle getPosition();
+    public Angle getAngle();
 
     /**
      * Get the velocity of the motor in RPM

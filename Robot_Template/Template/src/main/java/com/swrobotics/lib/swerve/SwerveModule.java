@@ -76,7 +76,7 @@ public class SwerveModule {
      * @return The state the the swerve module is currently at.
      */
     public SwerveModuleState getModuleState() {
-        SwerveModuleState state = new SwerveModuleState(drive.getVelocity().getCWDeg() / 2 /*FIXME: Change to converstion to m/s*/, steer.getPosition().toRotation2dCCW()); // FIXME: Could be CW instead of CCW
+        SwerveModuleState state = new SwerveModuleState(drive.getVelocity().getCWDeg() / 2 /*FIXME: Change to converstion to m/s*/, steer.getAngle().toRotation2dCCW()); // FIXME: Could be CW instead of CCW
         return state;
     }
 }
