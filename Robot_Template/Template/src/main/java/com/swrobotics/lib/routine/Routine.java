@@ -24,19 +24,9 @@ public abstract class Routine {
         return runStates.contains(state);
     }
 
-    protected abstract void onInit();
-    protected abstract void onEnd();
-    protected abstract void onPeriodic();
-    protected void onCancel() {} // Implementation is optional
-
-    protected void finish() {
-        running = false;
-        onEnd();
-    }
-
-    public void cancel() {
-        running = false;
-        onCancel();
-        onEnd();
-    }
+    // Implementation is optional
+    protected void init() {}
+    protected void end() {}
+    protected void periodic() {}
+    protected void deconstruct() {}
 }
