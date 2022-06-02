@@ -1,5 +1,9 @@
 package com.swrobotics.lib.math;
 
+import org.opencv.core.RotatedRect;
+
+import edu.wpi.first.math.geometry.Rotation2d;
+
 public final class Angle {
     public static Angle cwRad(double angle) {
         return new Angle(-angle);
@@ -39,20 +43,24 @@ public final class Angle {
         return Math.toDegrees(-angle);
     }
 
-    public void setCWRad(double a) {
+    public Angle setCWRad(double a) {
         angle = -a;
+        return this;
     }
 
-    public void setCCWRad(double a) {
+    public Angle setCCWRad(double a) {
         angle = a;
+        return this;
     }
 
-    public void setCWDeg(double a) {
+    public Angle setCWDeg(double a) {
         angle = Math.toRadians(-a);
+        return this;
     }
 
-    public void setCCWDeg(double a) {
+    public Angle setCCWDeg(double a) {
         angle = Math.toRadians(a);
+        return this;
     }
 
     public double getSin() {
@@ -177,6 +185,32 @@ public final class Angle {
         dest.angle = angle - Math.toRadians(a);
         return dest;
     }
+
+    public Rotation2d toRotation2dCW() {
+        return new Rotation2d(getCWRad());
+    }
+
+    public Rotation2d toRotation2dCCW() {
+        return new Rotation2d(getCCWRad());
+    }
+
+    // Compare Angles
+    public boolean greaterThan(Angle comparison) {
+        return angle > comparison.angle;
+    }
+
+    public boolean lessThan(Angle comparison) {
+        return angle < comparison.angle;
+    }
+
+    public boolean greaterOrEqualTo(Angle comparison) {
+        return angle >= comparison.angle;
+    }
+
+    public boolean lessOrEqualTo(Angle comparison) {
+        return angle <= comparison.angle;
+    }
+
 
     @Override
     public String toString() {

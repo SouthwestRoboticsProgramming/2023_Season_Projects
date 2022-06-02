@@ -6,21 +6,20 @@ import json
 # TODO: Fix issue where if nothing is running, the program just stops
 
 def main():
-
     with open("general.json") as file:
         settings = json.load(file)
             
 
     threads = [None] * settings["threads"]
 
-    for thread in threads:
+    for thread in enumerate(threads):
         # Initialize thread
-        thread = Thread(thread, VisionMode.Nothing)
+        thread = list(thread)
+        thread[1] = Thread(thread[0])
         pass
 
     # while True:
     #     network.periodic()
-    threads[2] = Thread(2, VisionMode.Stereo_Ball)
     pass
 
 if __name__ == "__main__":

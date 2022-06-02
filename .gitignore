@@ -17,6 +17,9 @@
 # Compiled Java
 *.class
 
+# Gradle builds
+.gradle/7.3.3/*
+
 # Log Files
 *.log
 

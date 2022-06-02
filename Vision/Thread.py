@@ -5,6 +5,7 @@ from Processes import *
 from Processes.Mono_Ball import Mono_Ball
 from Network import Networking
 from Processes.Stereo_Ball import Stereo_Ball
+from Processes.Nothing import Nothing
 
 
 class VisionMode(Enum):
@@ -26,33 +27,40 @@ class VisionMode(Enum):
 
 
 class Thread:
-    def __init__(self, threadNum, visionMode):
+
+    def __init__(self, threadNum):
 
         self.network = Networking()
+        self.network.entry_thread[threadNum].setString("Thing")
+        visionMode = self.network.entry_run_thread[threadNum].getString("Nothing")
 
-        if visionMode == VisionMode.Mono_Target:
+        print(visionMode)
+
+        if visionMode == VisionMode.Mono_Target.value or visionMode == VisionMode.Mono_Target:
             print("Mono Target")
 
-        elif visionMode == VisionMode.Stereo_Target:
+        elif visionMode == VisionMode.Stereo_Target.value or visionMode == VisionMode.Stereo_Target:
             print("Stereo Target")
         
-        elif visionMode == VisionMode.Mono_Object:
+        elif visionMode == VisionMode.Mono_Object.value or visionMode == VisionMode.Mono_Object:
             print("Mono Object")
         
-        elif visionMode == VisionMode.Stereo_Object:
+        elif visionMode == VisionMode.Stereo_Object.value or visionMode == VisionMode.Stereo_Object:
             print("Stereo Object")
 
-        elif visionMode == VisionMode.Mono_Ball:
+        elif visionMode == VisionMode.Mono_Ball.value or visionMode == VisionMode.Mono_Ball:
+            print("Mono ball")
             self.thread = threading.Thread(target=Mono_Ball.run, args=(Mono_Ball(),self.network,self.network.entry_run_thread[threadNum]))
-            self.thread.run()
+            self.thread.start()
 
-        elif visionMode == VisionMode.Stereo_Ball:
+        elif visionMode == VisionMode.Stereo_Ball.value or visionMode == VisionMode.Stereo_Ball:
             self.thread = threading.Thread(target=Stereo_Ball.run, args=(Stereo_Ball(),self.network,self.network.entry_run_thread[threadNum]))
-            self.thread.run()
+            self.thread.start()
         
-        elif visionMode == VisionMode.Nothing:
+        elif visionMode == VisionMode.Nothing.value or visionMode == VisionMode.Nothing:
             print("Doing nothing")
-            pass
+            self.thread = threading.Thread(target=Nothing.run)
+            self.thread.start()
 
         else:
             print("Not a valid mode")

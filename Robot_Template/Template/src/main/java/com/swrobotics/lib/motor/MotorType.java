@@ -22,10 +22,19 @@ public enum MotorType {
         this.maxAccel = maxAccel;
     }
 
+    /**
+     * Get the maximum acheivable RPM of the motor as per the spec sheet.
+     * No motor is 100% efficent so expect lower power.
+     * @return The maximum RPM of the motor.
+     */
     public double getMaxRPM() {
         return maxRPM;
     }
 
+    /**
+     * Get the maximum acheviable acceleration of the motor // TODO
+     * @return The maximum acceleration of the motor in RPM/s.
+     */
     public double getAcceleration() {
         return maxAccel;
     }
