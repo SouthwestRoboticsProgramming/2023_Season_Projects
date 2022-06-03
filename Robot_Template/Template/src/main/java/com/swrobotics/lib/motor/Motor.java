@@ -1,49 +1,139 @@
 package com.swrobotics.lib.motor;
 
 import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.routine.Routine;
+
+import edu.wpi.first.wpilibj.DriverStation;
+
 import com.swrobotics.lib.encoder.Encoder;
 
-public interface Motor {
+public abstract class Motor extends Routine {
+
+    private Encoder encoder;
+
+    private MotorMode mode;
+    private double demand; // CW Degrees/s, CW Degrees, percent out
+
+    private Angle holdAngle; // Recorded to save the angle for the HOLD mode
+    private MotorMode lastMode; // Record last mode to make HOLD work properly
+
 
     /**
-     * 
-     * @param mode The mode that you want the motor to run with
-     * @param demand Applicibale unit to mode (i.e: Velocity - RPM, Voltage - Volts)
+     * Create a motor with a defined encoder. This encoder can be either internal or external but
+     * it must be defined and controlled outside of this motor.
+     * @param encoder
      */
-    public void set(MotorMode mode, double demand);
-    default void set(MotorMode mode) { set(mode, 0); }
+    public Motor(Encoder encoder) {
+        this.encoder = encoder;
+        mode = MotorMode.STOP;
+    }
 
     /**
-     * Gets the motors position relative to the starting position or the zero'd position
-     * @return Rotational position in clockwise radians
+     * Create a motor without a defined encoder.
+     * This is intended for motors without an integrated encoder. <br></br>
+     * If your motor has an integrated encoder, create an InternalEncoder implementation.
      */
-    public Angle getAngle();
-
-    /**
-     * Get the velocity of the motor in RPM
-     * @return The RPM of the motor
-     */
-    public Angle getVelocity();
+    public Motor() {
+        mode = MotorMode.STOP;
+    }
 
 
     /**
      * Gives the motor an absolute encoder
      * @param encoder Encoder implementation
      */
-    public void assignEncoder(Encoder encoder);
+    public void assignEncoder(Encoder encoder) {
+        this.encoder = encoder;
+    }
 
+    public void set(MotorMode mode, Angle demand) {
+        this.mode = mode;
+        this.demand = demand.getCWDeg();
+    }
+
+    /**
+     * Specify what the motor should be doing. This implementation is for
+     * @param mode
+     * @param demand
+     */
+    public void set(MotorMode mode, double demand) {
+        this.mode = mode;
+        this.demand = demand;
+    }
+
+    public void set(MotorMode mode) {
+        if (mode != MotorMode.HOLD && mode != MotorMode.HALT && mode != MotorMode.HOLD) {
+            DriverStation.reportError("Demand is not a stop mode, defaulting to a " + mode + " of zero", true);
+        }
+        this.mode = mode;
+        demand = 0;
+    }
 
 
     /**
-     * 
-     * @param position Angular position of the motor in clockwise radians
+     * Give the motor a percentage of the voltage recieved.
+     * @param percent The demanded percent out of the motor.
      */
-    public void setEncoderPosition(Angle position);
-    
+    protected abstract void percent(double percent);
+
     /**
-     * Set the current position of the motor to zero
+     * Control the motor to spin at a specified speed.
+     * @param velocity Velocity in Angle/Second.
      */
-    public void zeroPosition();
+    protected abstract void velocity(Angle velocity);
+
+    /**
+     * Control the motor to target an angular position.
+     * @param angle Angle to target.
+     */
+    protected abstract void angle(Angle angle);
+
+    @Override
+    public void periodic() {
+
+        if (encoder == null) {
+            // If there isn't an encoder, don't do anything
+            if (mode != MotorMode.PERCENT_OUT) {
+                DriverStation.reportError("No encoder, cannot use mode: " + mode, true);
+                demand = 0;
+            }
+            percent(demand);
+            return;
+        }
+
+        switch (mode) {
+            case PERCENT_OUT:
+                percent(demand);
+                break;
+            
+            case ANGLE:
+                angle(Angle.cwDeg(demand));
+                break;
+
+            case VELOCITY:
+                velocity(Angle.cwDeg(demand));
+                break;
+
+            case STOP:
+                percent(0);
+                break;
+
+            case HALT:
+                velocity(Angle.cwDeg(0));
+                break;
+
+            case HOLD:
+                if (mode != lastMode) {
+                    holdAngle = encoder.getAngle();
+                }
+                angle(holdAngle);
+                break;
+        
+            default:
+                DriverStation.reportError("Hmm, that should never happen, no motor mode defined", true);
+                break;
+        }
+    }
 
 
 

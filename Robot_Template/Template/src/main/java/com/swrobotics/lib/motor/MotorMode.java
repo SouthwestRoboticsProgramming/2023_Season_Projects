@@ -14,7 +14,7 @@ public enum MotorMode {
     /**
      * Set the motor to target an angular position in clockwise degrees.
      */
-    POSITION,
+    ANGLE,
 
     /**
      * Set the motor to target an angular velocity in RPM.
