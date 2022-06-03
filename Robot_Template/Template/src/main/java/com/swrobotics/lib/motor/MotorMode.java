@@ -31,7 +31,6 @@ public enum MotorMode {
      */
     HALT,
 
-
     /**
      * Attempt to hold the motors position. It is is moved, it will try to move back to the original position.
      */
