@@ -2,6 +2,7 @@ package com.swrobotics.lib.motor;
 
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 import com.swrobotics.lib.encoder.Encoder;
+import com.swrobotics.lib.encoder.TalonInternalEncoder;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -17,9 +18,20 @@ public class TalonMotorBuilder {
 
     private BaseTalon talon;
     private Encoder external;
+    private TalonInternalEncoder internal;
     
     private ProfiledPIDController pid;
     private SimpleMotorFeedforward feed;
+
+    public TalonMotorBuilder(BaseTalon talon, Encoder externalEncoder) {
+        this.talon = talon;
+        externalEncoder = external;
+    }
+
+    public TalonMotorBuilder(BaseTalon talon, double internalEncoderTicksPerDegree) {
+        this.talon = talon;
+        internal = new TalonInternalEncoder(talon, internalEncoderTicksPerDegree);
+    }
 
     public TalonMotorBuilder(BaseTalon talon) {
         this.talon = talon;
@@ -63,7 +75,29 @@ public class TalonMotorBuilder {
 
 
     public TalonMotor build() {
-        return new TalonMotor(talon); // TODO
+
+        Encoder finalEncoder;
+
+        if (feed == null) {
+            feed = new SimpleMotorFeedforward(0, 0); // Set up a feedforward that won't do anything
+        }
+
+        if (pid == null) {
+            pid = new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(0,0));
+        }
+
+        if (internal != null) {
+            finalEncoder = internal;
+        } else if (external != null) {
+            finalEncoder = external;
+        } else {
+            return new TalonMotor(talon, pid, feed);
+        }
+
+        
+
+
+        return new TalonMotor(talon, finalEncoder, pid, feed);
     }
 
 }

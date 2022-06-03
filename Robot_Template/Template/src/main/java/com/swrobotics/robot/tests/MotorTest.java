@@ -7,9 +7,11 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.swrobotics.lib.encoder.AbsoluteEncoder;
 import com.swrobotics.lib.encoder.CANCoderImplementation;
+import com.swrobotics.lib.encoder.InternalEncoder;
 import com.swrobotics.lib.math.Angle;
 import com.swrobotics.lib.motor.MotorMode;
 import com.swrobotics.lib.motor.TalonMotor;
+import com.swrobotics.lib.motor.TalonMotorBuilder;
 
 public class MotorTest {
     // Class for testing the motor rework in swrobotics.lib
@@ -39,8 +41,13 @@ public class MotorTest {
 
 
         // Wrap the motors
-        fx = new TalonMotor(fx_toWrap);
+        fx = new TalonMotorBuilder(fx_toWrap)
+            .setPID(0.05, 0.0, 0.0)
+            .setFeed(0.05, 0.0, 0.0)
+            /*.setEncoder(encoder)*/
         srx = new TalonMotor(srx_toWrap);
+
+        InternalEncoder internal = fx.getInternalEncoder();
 
         // TODO: Build a setup with a CANCoder or something.
         encoder = new CANCoderImplementation(12);

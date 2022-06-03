@@ -78,15 +78,17 @@ public abstract class Motor extends Routine {
 
     /**
      * Control the motor to spin at a specified speed.
-     * @param velocity Velocity in Angle/Second.
+     * @param current The current velocity of the motor.
+     * @param target The target velocity of the motor.
      */
-    protected abstract void velocity(Angle velocity);
+    protected abstract void velocity(Angle current, Angle target);
 
     /**
      * Control the motor to target an angular position.
-     * @param angle Angle to target.
+     * @param current The current angle of the motor.
+     * @param target The target angle of the motor.
      */
-    protected abstract void angle(Angle angle);
+    protected abstract void angle(Angle current, Angle target);
 
     @Override
     public void periodic() {
@@ -107,11 +109,11 @@ public abstract class Motor extends Routine {
                 break;
             
             case ANGLE:
-                angle(Angle.cwDeg(demand));
+                angle(encoder.getAngle(), Angle.cwDeg(demand));
                 break;
 
             case VELOCITY:
-                velocity(Angle.cwDeg(demand));
+                velocity(encoder.getVelocity(), Angle.cwDeg(demand));
                 break;
 
             case STOP:
@@ -119,14 +121,14 @@ public abstract class Motor extends Routine {
                 break;
 
             case HALT:
-                velocity(Angle.cwDeg(0));
+                velocity(encoder.getVelocity(),Angle.cwDeg(0));
                 break;
 
             case HOLD:
                 if (mode != lastMode) {
                     holdAngle = encoder.getAngle();
                 }
-                angle(holdAngle);
+                angle(encoder.getAngle(), holdAngle);
                 break;
         
             default:
