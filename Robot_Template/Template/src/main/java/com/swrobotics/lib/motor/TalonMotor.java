@@ -15,8 +15,10 @@ public class TalonMotor extends Motor {
     private final BaseTalon talon;
 
     private final ProfiledPIDController pid;
-    private final SimpleMotorFeedforward feed;
+    private SimpleMotorFeedforward feed;
     private final BangBangController bang;
+
+    private boolean flywheel;
 
     /**
      * Create a TalonMotor to wrap around an existing CTRE Motor controller.
@@ -38,6 +40,30 @@ public class TalonMotor extends Motor {
         bang = new BangBangController();
     }
 
+
+    /**
+     * Rebuild the feedforward controller to update its values.
+     * @param kS Static gain
+     * @param kV Velocity gain
+     * @param kA Acceleration gain (OPTIONAL: Leave 0 if undefined)
+     */
+    public void rebuildFeedforward(double kS, double kV, double kA) {
+        if (kA == 0) {
+            feed = new SimpleMotorFeedforward(kS, kV);
+            return;
+        }
+
+        feed = new SimpleMotorFeedforward(kS, kV, kA);
+    }
+
+    public void setPID(double kP, double kI, double kV) {
+        pid.setPID(kP,kI,kV);
+    }
+
+    public void setFlywheelMode(boolean isFlywheel) {
+        flywheel = isFlywheel;
+    }
+
     @Override
     protected void percent(double percent) {
         talon.set(ControlMode.PercentOutput, percent);
@@ -46,14 +72,25 @@ public class TalonMotor extends Motor {
 
     @Override
     protected void velocity(Angle current, Angle target) {
-        // TODO Auto-generated method stub
+        double feedOut = feed.calculate(target.getCWDeg());
+
+        if (flywheel) {
+            double bangOut = bang.calculate(current.getCWDeg(), target.getCWDeg());
+            talon.set(ControlMode.PercentOutput, bangOut + 0.9 * feedOut);
+            return;
+        }
+
+
+        double pidOut = pid.calculate(current.getCWDeg(), target.getCWDeg());
+        
+        talon.set(ControlMode.PercentOutput, pidOut + feedOut);
         
     }
 
     @Override
     protected void angle(Angle current, Angle target) {
-        // TODO Auto-generated method stub
-        
+        double output = pid.calculate(current.getCWDeg(), target.getCWDeg());
+        talon.set(ControlMode.PercentOutput, output);
     }
 
 }
