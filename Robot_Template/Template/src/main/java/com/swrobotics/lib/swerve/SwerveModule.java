@@ -1,5 +1,6 @@
 package com.swrobotics.lib.swerve;
 
+import com.swrobotics.lib.encoder.Encoder;
 import com.swrobotics.lib.math.Angle;
 import com.swrobotics.lib.math.Vec2d;
 import com.swrobotics.lib.motor.MotorMode;
@@ -16,6 +17,8 @@ public class SwerveModule {
     private final Motor steer;
     private final Motor drive;
     private final Vec2d position;
+    private final Encoder encoder; // FIXME: Change names and work out encoder sharing
+    private final Encoder driveEncoder;
 
     private double gearRatio; // In X:1
 
@@ -30,6 +33,8 @@ public class SwerveModule {
         steer = helper.getTurnMotor();
         steer.assignEncoder(helper.getEncoder());
         position = helper.getPosition();
+        encoder = helper.getEncoder();
+        driveEncoder = drive.getEncoder();
     }
 
 
@@ -49,9 +54,9 @@ public class SwerveModule {
     public void set(SwerveModuleState swerveState) {
         double velocity = swerveState.speedMetersPerSecond;
         Angle angle = Angle.cwDeg(swerveState.angle.getDegrees());
-        double rpm = 2 * gearRatio; // TODO: Actually do FIXME
+        // double rpm = 2 * gearRatio; // TODO: Actually do FIXME
         drive.set(MotorMode.VELOCITY, velocity);
-        steer.set(MotorMode.POSITION, angle.getCWDeg());
+        steer.set(MotorMode.ANGLE, angle.getCWDeg());
     }
 
 
@@ -60,7 +65,7 @@ public class SwerveModule {
      * @return Velocity of the module in m/s.
      */
     public double getVelocity() {
-        return drive.getVelocity().getCWDeg() / gearRatio; // FIXME
+        return driveEncoder.getVelocity().getCWDeg() / gearRatio; // FIXME
     }
 
     /**
@@ -76,7 +81,7 @@ public class SwerveModule {
      * @return The state the the swerve module is currently at.
      */
     public SwerveModuleState getModuleState() {
-        SwerveModuleState state = new SwerveModuleState(drive.getVelocity().getCWDeg() / 2 /*FIXME: Change to converstion to m/s*/, steer.getAngle().toRotation2dCCW()); // FIXME: Could be CW instead of CCW
+        SwerveModuleState state = new SwerveModuleState(driveEncoder.getVelocity().getCWDeg() / 2 /*FIXME: Change to converstion to m/s*/, encoder.getAngle().toRotation2dCCW()); // FIXME: Could be CW instead of CCW
         return state;
     }
 }

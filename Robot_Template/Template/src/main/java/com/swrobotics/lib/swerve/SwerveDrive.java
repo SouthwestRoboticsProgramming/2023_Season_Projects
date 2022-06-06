@@ -2,6 +2,7 @@ package com.swrobotics.lib.swerve;
 
 import com.swrobotics.lib.gyro.Gyroscope;
 import com.swrobotics.lib.math.Vec2d;
+import com.swrobotics.lib.routine.Routine;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -12,7 +13,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 /**
  * Manages the modules in a swerve drivebase and calculates odometry.
  */
-public class SwerveDrive { // TODO: Implement subsystem
+public class SwerveDrive extends Routine {
 
     private final SwerveModule[] modules;
     private final Gyroscope gyro;
@@ -54,8 +55,8 @@ public class SwerveDrive { // TODO: Implement subsystem
         }
     }
 
-    // @Override // TODO
-    public void update() {
+    @Override
+    public void periodic() {
         SwerveModuleState[] states = new SwerveModuleState[modules.length];
         for (int i = 0; i < modules.length; i++) {
             states[i] = modules[i].getModuleState();

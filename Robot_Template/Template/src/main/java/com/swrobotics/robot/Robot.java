@@ -2,6 +2,8 @@ package com.swrobotics.robot;
 
 import com.swrobotics.lib.RobotState;
 import com.swrobotics.lib.routine.Scheduler;
+import com.swrobotics.robot.input.Input;
+import com.swrobotics.robot.subsystem.MiniRobotDrive;
 
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -11,8 +13,13 @@ public final class Robot extends RobotBase {
 
     private boolean running = false;
 
+    private Input input;
+    private MiniRobotDrive drive;
+
     private void addSubsystems() {
         // Add subsystems here
+        input = new Input();
+        drive = new MiniRobotDrive(input);
     }
 
     @Override

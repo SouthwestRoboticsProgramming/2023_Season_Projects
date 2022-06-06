@@ -69,6 +69,10 @@ public abstract class Motor extends Routine {
         demand = 0;
     }
 
+    public Encoder getEncoder() {
+        return encoder;
+    }
+
 
     /**
      * Give the motor a percentage of the voltage recieved.

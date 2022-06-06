@@ -1,5 +1,7 @@
 package com.swrobotics.robot.input;
 
+import com.swrobotics.lib.math.Angle;
+
 import edu.wpi.first.wpilibj.XboxController;
 
 public class Input {
@@ -24,5 +26,23 @@ public class Input {
 
     public boolean getTestHold() {
         return controller.getPOV() == 2;
+    }
+
+
+    // Swerve test 
+    public double getSwerveX() {
+        return controller.getLeftX();
+    }
+
+    public double getSwerveY() {
+        return controller.getLeftY();
+    }
+
+    /**
+     * Percentage of maximum clockwise rotation.
+     * @return Percent
+     */
+    public double getSwerveRotation() {
+        return controller.getRightX();
     }
 }

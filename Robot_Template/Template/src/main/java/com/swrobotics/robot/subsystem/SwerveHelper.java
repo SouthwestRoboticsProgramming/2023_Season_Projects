@@ -4,10 +4,12 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.swrobotics.lib.encoder.AbsoluteEncoder;
+import com.swrobotics.lib.encoder.CANCoderImplementation;
 import com.swrobotics.lib.math.Angle;
 import com.swrobotics.lib.math.Vec2d;
 import com.swrobotics.lib.motor.Motor;
 import com.swrobotics.lib.motor.TalonMotor;
+import com.swrobotics.lib.motor.TalonMotorBuilder;
 import com.swrobotics.lib.swerve.SwerveModuleHelper;
 
 public class SwerveHelper implements SwerveModuleHelper{
@@ -32,31 +34,18 @@ public class SwerveHelper implements SwerveModuleHelper{
         // Create original motors
         TalonFX driveMotor = new TalonFX(driveID);
         TalonSRX steerMotor = new TalonSRX(steerID);
-        CANCoder steerEncoder = new CANCoder(encoderID);
 
         // Configure motors
         // TODO: Implement
 
+        encoder = new CANCoderImplementation(encoderID);
 
 
         // Create wrappers
-        steer = new TalonMotor(steerMotor);
-        drive = new TalonMotor(driveMotor);
-        encoder = new AbsoluteEncoder() {
-
-            @Override
-            public double getRPM() {
-                return steerEncoder.getVelocity() / 360;
-            }
-
-            @Override
-            public Angle getRawPosition() {
-                return Angle.cwDeg(steerEncoder.getAbsolutePosition());
-            }
-            
-        };
-
-        drive.setAbsoluteSensor(encoder);
+        steer = new TalonMotorBuilder(steerMotor, encoder)
+            .build();
+        drive = new TalonMotorBuilder(driveMotor)
+            .build();
     }
 
     @Override
