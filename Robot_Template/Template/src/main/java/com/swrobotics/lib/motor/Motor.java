@@ -50,6 +50,13 @@ public abstract class Motor extends Routine {
         this.encoder = encoder;
     }
 
+    /**
+     * Get the encoder attached to the motor controller.
+     * @param ticksPerRotation Encoder ticks per rotation.
+     * @return Internal encoder.
+     */
+    public abstract Encoder getInternalEncoder(double ticksPerRotation);
+
     public void set(MotorMode mode, Angle demand) {
         this.mode = mode;
         this.demand = demand.getCWDeg();
