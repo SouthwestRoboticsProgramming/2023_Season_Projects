@@ -10,7 +10,7 @@ import com.swrobotics.lib.math.Angle;
  */
 public abstract class Encoder {
 
-    private Angle offset; // Subtracted to get angle
+    private Angle offset = Angle.ccwRad(0); // Subtracted to get angle
 
     /**
      * Get the anglular position of the encoder as an Angle.

@@ -212,8 +212,6 @@ public final class Angle {
 
     @Override
     public String toString() {
-        return "Angle{" +
-                "ccwdeg=" + getCCWDeg() +
-                '}';
+        return getCWDeg() + " cw deg";
     }
 }
