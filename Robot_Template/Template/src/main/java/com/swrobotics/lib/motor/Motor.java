@@ -7,6 +7,10 @@ import edu.wpi.first.wpilibj.DriverStation;
 
 import com.swrobotics.lib.encoder.Encoder;
 
+/**
+ * The Motor class wraps around an existing motor to ensure that all vendors have the same code for controlling their  motors.
+ * NOTE: This class heavily uses the Angle, Routine, and Encoder classes. TODO: Low dependency version.
+ */
 public abstract class Motor extends Routine {
 
     private Encoder encoder;
@@ -61,16 +65,18 @@ public abstract class Motor extends Routine {
         this.demand = demand;
     }
 
+    // TODO: Change set so it is only for velocity and position (Make seperate functions)
+
+    /**
+     * Set the stop mode of the motor. DO NOT USE THIS FUNCTION if you are trying to use a mode other than STOP, HALT, or HOLD.
+     * @param mode
+     */
     public void set(MotorMode mode) {
         if (mode != MotorMode.HOLD && mode != MotorMode.HALT && mode != MotorMode.HOLD) {
             DriverStation.reportError("Demand is not a stop mode, defaulting to a " + mode + " of zero", true);
         }
         this.mode = mode;
         demand = 0;
-    }
-
-    public Encoder getEncoder() {
-        return encoder;
     }
 
 
