@@ -3,23 +3,27 @@ package com.swrobotics.lib.motor;
 import com.swrobotics.lib.math.Angle;
 import com.swrobotics.lib.routine.Routine;
 
+import edu.wpi.first.math.controller.BangBangController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 
 import com.swrobotics.lib.encoder.Encoder;
 
-/**
- * The Motor class wraps around an existing motor to ensure that all vendors have the same code for controlling their  motors.
- * NOTE: This class heavily uses the Angle, Routine, and Encoder classes. TODO: Low dependency version.
- */
 public abstract class Motor extends Routine {
+
+    private ProfiledPIDController pid;
+    private SimpleMotorFeedforward feed;
+    private final BangBangController bang;
 
     private Encoder encoder;
 
-    private MotorMode mode;
-    private double demand; // CW Degrees/s, CW Degrees, percent out
-
     private Angle holdAngle; // Recorded to save the angle for the HOLD mode
-    private MotorMode lastMode; // Record last mode to make HOLD work properly
+    private boolean isFlywheel;
+
+    private Angle currentAngle;
+    private Angle currentVelocity;
 
 
     /**
@@ -29,7 +33,10 @@ public abstract class Motor extends Routine {
      */
     public Motor(Encoder encoder) {
         this.encoder = encoder;
-        mode = MotorMode.STOP;
+
+        pid = new ProfiledPIDController(0.0, 0.0, 0.0, new TrapezoidProfile.Constraints(Double.MAX_VALUE, Double.MAX_VALUE));
+        feed = new SimpleMotorFeedforward(0.0, 0.0);
+        bang = new BangBangController();
     }
 
     /**
@@ -38,7 +45,11 @@ public abstract class Motor extends Routine {
      * If your motor has an integrated encoder, create an InternalEncoder implementation.
      */
     public Motor() {
-        mode = MotorMode.STOP;
+        this(null);
+    }
+
+    public void setPIDController() {
+        
     }
 
 
@@ -51,39 +62,11 @@ public abstract class Motor extends Routine {
     }
 
     /**
-     * Get the encoder attached to the motor controller.
-     * @param ticksPerRotation Encoder ticks per rotation.
-     * @return Internal encoder.
+     * Get the encoder being used by the motor for position and velocity control.
+     * @return The assigned encoder for the motor.
      */
-    public abstract Encoder getInternalEncoder(double ticksPerRotation);
-
-    public void set(MotorMode mode, Angle demand) {
-        this.mode = mode;
-        this.demand = demand.getCWDeg();
-    }
-
-    /**
-     * Specify what the motor should be doing. This implementation is for
-     * @param mode
-     * @param demand
-     */
-    public void set(MotorMode mode, double demand) {
-        this.mode = mode;
-        this.demand = demand;
-    }
-
-    // TODO: Change set so it is only for velocity and position (Make seperate functions)
-
-    /**
-     * Set the stop mode of the motor. DO NOT USE THIS FUNCTION if you are trying to use a mode other than STOP, HALT, or HOLD.
-     * @param mode
-     */
-    public void set(MotorMode mode) {
-        if (mode != MotorMode.HOLD && mode != MotorMode.HALT && mode != MotorMode.HOLD) {
-            DriverStation.reportError("Demand is not a stop mode, defaulting to a " + mode + " of zero", true);
-        }
-        this.mode = mode;
-        demand = 0;
+    public Encoder getEncoder() {
+        return encoder;
     }
 
 
@@ -98,63 +81,61 @@ public abstract class Motor extends Routine {
      * @param current The current velocity of the motor.
      * @param target The target velocity of the motor.
      */
-    protected abstract void velocity(Angle current, Angle target);
+    public void velocity(Angle target) {
+        if (encoder == null) {
+            DriverStation.reportError("No assigned encoder, cannot control velocty", true);
+            return;
+        }
+
+        double out;
+
+        if (isFlywheel) {
+            out = bang.calculate(currentVelocity.getCWDeg(), target.getCWDeg())  +  feed.calculate(target.getCWDeg() * 0.9); 
+        } else {
+            out = pid.calculate(currentVelocity.getCWDeg(), target.getCWDeg())  +  feed.calculate(target.getCWDeg() * 0.9);
+        }
+
+        percent(out);
+    }
 
     /**
      * Control the motor to target an angular position.
      * @param current The current angle of the motor.
      * @param target The target angle of the motor.
      */
-    protected abstract void angle(Angle current, Angle target);
+    public void angle(Angle target) {
+        if (encoder == null) {
+            DriverStation.reportError("No assigned encoder, cannot control position", true);
+        }
+
+        double out = pid.calculate(currentAngle.getCWDeg(), target.getCWDeg());
+        percent(out);
+
+    }
+
+    /**
+     * Set the motor to 0% power. The motor will slowly wind down.
+     */
+    public void stop() {percent(0);}
+
+    /**
+     * Set the motor to target a velocity of zero.
+     */
+    public void halt() {velocity(Angle.cwDeg(0));}
+
+
+    public void hold() {
+        if (true) {
+            holdAngle = currentAngle;
+        }
+
+        angle(holdAngle);
+    }
 
     @Override
     public void periodic() {
-
-        if (encoder == null) {
-            // If there isn't an encoder, don't do anything
-            if (mode != MotorMode.PERCENT_OUT) {
-                DriverStation.reportError("No encoder, cannot use mode: " + mode, true);
-                demand = 0;
-            }
-            percent(demand);
-            return;
-        }
-
-        switch (mode) {
-            case PERCENT_OUT:
-                percent(demand);
-                break;
-            
-            case ANGLE:
-                angle(encoder.getAngle(), Angle.cwDeg(demand));
-                break;
-
-            case VELOCITY:
-                velocity(encoder.getVelocity(), Angle.cwDeg(demand));
-                break;
-
-            case STOP:
-                percent(0);
-                break;
-
-            case HALT:
-                velocity(encoder.getVelocity(),Angle.cwDeg(0));
-                break;
-
-            case HOLD:
-                if (mode != lastMode) {
-                    holdAngle = encoder.getAngle();
-                }
-                angle(encoder.getAngle(), holdAngle);
-                break;
-        
-            default:
-                DriverStation.reportError("Hmm, that should never happen, no motor mode defined", true);
-                break;
-        }
+        currentAngle = encoder.getAngle();
+        currentVelocity = encoder.getVelocity();
     }
-
-
-
 
 }
