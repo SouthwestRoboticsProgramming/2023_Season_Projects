@@ -1,9 +1,11 @@
-package com.swrobotics.lib.motor;
+package com.swrobotics.lib.motor.implementations;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 import com.swrobotics.lib.encoder.Encoder;
+import com.swrobotics.lib.encoder.TalonInternalEncoder;
 import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.motor.Motor;
 
 import edu.wpi.first.math.controller.BangBangController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -38,6 +40,11 @@ public class TalonMotor extends Motor {
         this.pid = pid;
         this.feed = feed;
         bang = new BangBangController();
+    }
+
+    @Override
+    public Encoder getInternalEncoder(double ticksPerRotation) {
+        return new TalonInternalEncoder(talon, ticksPerRotation);
     }
 
 
@@ -90,7 +97,16 @@ public class TalonMotor extends Motor {
     @Override
     protected void angle(Angle current, Angle target) {
         double output = pid.calculate(current.getCWDeg(), target.getCWDeg());
+        System.out.print("PID out: " + output);
+        System.out.println(" Current: " + current + ", " + target);
         talon.set(ControlMode.PercentOutput, output);
     }
+
+    // TODO: To string
+    @Override
+    public String toString() {
+        return "TODO";
+    }
+    
 
 }

@@ -2,8 +2,8 @@ package com.swrobotics.robot.subsystem;
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.swrobotics.lib.motor.MotorMode;
-import com.swrobotics.lib.motor.TalonMotor;
 import com.swrobotics.lib.motor.TalonMotorBuilder;
+import com.swrobotics.lib.motor.implementations.TalonMotor;
 import com.swrobotics.lib.routine.Routine;
 import com.swrobotics.robot.input.Input;
 

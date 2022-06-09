@@ -17,7 +17,7 @@ public class SwerveModule {
     private final Motor steer;
     private final Motor drive;
     private final Vec2d position;
-    private final Encoder encoder; // FIXME: Change names and work out encoder sharing
+    private final Encoder turnEncoder; // FIXME: Change names and work out encoder sharing
     private final Encoder driveEncoder;
 
     private double gearRatio; // In X:1
@@ -33,8 +33,10 @@ public class SwerveModule {
         steer = helper.getTurnMotor();
         steer.assignEncoder(helper.getEncoder());
         position = helper.getPosition();
-        encoder = helper.getEncoder();
-        driveEncoder = drive.getEncoder();
+        turnEncoder = helper.getEncoder();
+        //driveEncoder = drive.getEncoder();
+        driveEncoder = null;
+        // TODO: Fix
     }
 
 
@@ -81,7 +83,7 @@ public class SwerveModule {
      * @return The state the the swerve module is currently at.
      */
     public SwerveModuleState getModuleState() {
-        SwerveModuleState state = new SwerveModuleState(driveEncoder.getVelocity().getCWDeg() / 2 /*FIXME: Change to converstion to m/s*/, encoder.getAngle().toRotation2dCCW()); // FIXME: Could be CW instead of CCW
+        SwerveModuleState state = new SwerveModuleState(driveEncoder.getVelocity().getCWDeg() / 2 /*FIXME: Change to converstion to m/s*/, turnEncoder.getAngle().toRotation2dCCW()); // FIXME: Could be CW instead of CCW
         return state;
     }
 }

@@ -3,6 +3,7 @@ package com.swrobotics.lib.motor;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 import com.swrobotics.lib.encoder.Encoder;
 import com.swrobotics.lib.encoder.TalonInternalEncoder;
+import com.swrobotics.lib.motor.implementations.TalonMotor;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;

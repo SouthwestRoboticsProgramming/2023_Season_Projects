@@ -27,7 +27,7 @@ public enum MotorMode {
     STOP, // Let it coast
 
     /**
-     * Halt the motor by actively atempting to maintain an RPM of zero.
+     * Halt the motor by actively attempting to maintain an RPM of zero.
      */
     HALT,
 

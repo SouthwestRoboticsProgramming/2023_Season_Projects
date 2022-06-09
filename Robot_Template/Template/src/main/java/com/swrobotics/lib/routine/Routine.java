@@ -5,6 +5,7 @@ import java.util.EnumSet;
 
 import com.swrobotics.lib.RobotState;
 
+// TODO: Add way to remove from scheduler & docs
 public abstract class Routine {
     private final EnumSet<RobotState> runStates;
     private boolean running = true;
@@ -12,6 +13,7 @@ public abstract class Routine {
     // Run in all states (default)
     public Routine() {
         runStates = EnumSet.allOf(RobotState.class);
+        Scheduler.get().addRoutine(this);
     }
 
     // Run in specified states

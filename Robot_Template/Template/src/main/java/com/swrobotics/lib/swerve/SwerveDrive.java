@@ -24,7 +24,7 @@ public class SwerveDrive extends Routine {
     /**
      * Create a swerve drive to control the passed modules.
      * @param modules An array of modules to control. Each module should already be configured using a SwerveModuleHelper implementation.
-     * @param gyro A gryoscope to read the direction of the robot for odometry.
+     * @param gyro A gyroscope to read the direction of the robot for odometry.
      * @param specs The type of modules that the swerve drive uses. Currently, this only implements Swerve Drive Specialties modules.
      */
     public SwerveDrive(SwerveModule[] modules, Gyroscope gyro, SwerveModuleSpecs specs) {

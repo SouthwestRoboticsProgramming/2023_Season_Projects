@@ -4,6 +4,7 @@ import com.swrobotics.lib.RobotState;
 import com.swrobotics.lib.routine.Scheduler;
 import com.swrobotics.robot.input.Input;
 import com.swrobotics.robot.subsystem.MiniRobotDrive;
+import com.swrobotics.robot.subsystem.RunMotorSubsystem;
 
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -18,8 +19,7 @@ public final class Robot extends RobotBase {
 
     private void addSubsystems() {
         // Add subsystems here
-        input = new Input();
-        drive = new MiniRobotDrive(input);
+        new RunMotorSubsystem();
     }
 
     @Override
@@ -38,6 +38,7 @@ public final class Robot extends RobotBase {
         double unprocessedTime = 0;
 
         RobotState lastState = RobotState.DISABLED;
+        Scheduler.get().onStateSwitch(RobotState.DISABLED);
         while (running && !Thread.currentThread().isInterrupted()) {
             long currentTime = System.nanoTime();
             unprocessedTime += (currentTime - lastTime) / 1_000_000_000.0;

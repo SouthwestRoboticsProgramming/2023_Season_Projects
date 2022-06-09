@@ -8,9 +8,11 @@ import com.swrobotics.lib.encoder.CANCoderImplementation;
 import com.swrobotics.lib.math.Angle;
 import com.swrobotics.lib.math.Vec2d;
 import com.swrobotics.lib.motor.Motor;
-import com.swrobotics.lib.motor.TalonMotor;
 import com.swrobotics.lib.motor.TalonMotorBuilder;
+import com.swrobotics.lib.motor.implementations.TalonMotor;
 import com.swrobotics.lib.swerve.SwerveModuleHelper;
+
+import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
 
 public class SwerveHelper implements SwerveModuleHelper{
     private final TalonMotor drive;
@@ -32,8 +34,13 @@ public class SwerveHelper implements SwerveModuleHelper{
         this.position = position;
 
         // Create original motors
+
+        if (steerID == 0 || steerID == 1) {
+            VictorSP steerMotor = new VictorSP(steerID);
+        } else {
+            TalonSRX steerMotor = new TalonSRX(steerID);
+        }
         TalonFX driveMotor = new TalonFX(driveID);
-        TalonSRX steerMotor = new TalonSRX(steerID);
 
         // Configure motors
         // TODO: Implement
@@ -42,8 +49,9 @@ public class SwerveHelper implements SwerveModuleHelper{
 
 
         // Create wrappers
-        steer = new TalonMotorBuilder(steerMotor, encoder)
-            .build();
+        // steer = new TalonMotorBuilder(steerMotor, encoder)
+        //     .build();
+        steer = null;
         drive = new TalonMotorBuilder(driveMotor)
             .build();
     }
