@@ -18,7 +18,7 @@
 *.class
 
 # Gradle builds
-.gradle/7.3.3/*
+Robot_Template/Template/.gradle/
 
 # Log Files
 *.log
