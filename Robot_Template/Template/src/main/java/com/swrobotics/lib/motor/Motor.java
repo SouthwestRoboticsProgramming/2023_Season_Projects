@@ -48,8 +48,12 @@ public abstract class Motor extends Routine {
         this(null);
     }
 
-    public void setPIDController() {
-        
+    public void setPIDController(ProfiledPIDController pid) {
+        this.pid = pid;
+    }
+
+    public void setFeedforward(SimpleMotorFeedforward feed) {
+        this.feed = feed;
     }
 
 
@@ -67,6 +71,10 @@ public abstract class Motor extends Routine {
      */
     public Encoder getEncoder() {
         return encoder;
+    }
+
+    public void setFlywheelMode(boolean isFlywheel) {
+        this.isFlywheel = isFlywheel;
     }
 
 
