@@ -28,3 +28,6 @@ Vision/Test.py
 
 # WPI Settings
 .OutlineViewer/
+
+# Emacs temporary files
+*~
