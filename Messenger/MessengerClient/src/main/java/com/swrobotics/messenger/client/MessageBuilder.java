@@ -4,23 +4,37 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+/**
+ * Allows easy storage of data into a message.
+ *
+ * @author rmheuer
+ */
 public final class MessageBuilder {
     private final MessengerClient client;
     private final String type;
     private final ByteArrayOutputStream b;
     private final DataOutputStream out;
-
-    public MessageBuilder(MessengerClient client, String type) {
+    
+    MessageBuilder(MessengerClient client, String type) {
         this.client = client;
         this.type = type;
         b = new ByteArrayOutputStream();
         out = new DataOutputStream(b);
     }
 
+    /**
+     * Sends the message with the type and data.
+     */
     public void send() {
         client.sendMessage(type, b.toByteArray());
     }
 
+    /**
+     * Adds a {@code boolean} to this message.
+     *
+     * @param b boolean to add
+     * @return this
+     */
     public MessageBuilder addBoolean(boolean b) {
         try {
             out.writeBoolean(b);
@@ -30,6 +44,12 @@ public final class MessageBuilder {
         return this;
     }
 
+    /**
+     * Adds a {@code String} to this message.
+     *
+     * @param s String to add
+     * @return this
+     */
     public MessageBuilder addString(String s) {
         try {
             out.writeUTF(s);
@@ -39,6 +59,12 @@ public final class MessageBuilder {
         return this;
     }
 
+    /**
+     * Adds a {@code char} to this message.
+     *
+     * @param c char to add
+     * @return this
+     */
     public MessageBuilder addChar(char c) {
         try {
             out.writeChar(c);
@@ -48,6 +74,12 @@ public final class MessageBuilder {
         return this;
     }
 
+    /**
+     * Adds a {@code byte} to this message.
+     *
+     * @param b byte to add
+     * @return this
+     */
     public MessageBuilder addByte(byte b) {
         try {
             out.writeByte(b);
@@ -57,6 +89,12 @@ public final class MessageBuilder {
         return this;
     }
 
+    /**
+     * Adds a {@code short} to this message.
+     *
+     * @param s short to add
+     * @return this
+     */
     public MessageBuilder addShort(short s) {
         try {
             out.writeShort(s);
@@ -66,6 +104,12 @@ public final class MessageBuilder {
         return this;
     }
 
+    /**
+     * Adds an {@code int} to this message.
+     *
+     * @param i int to add
+     * @return this
+     */
     public MessageBuilder addInt(int i) {
         try {
             out.writeInt(i);
@@ -75,6 +119,12 @@ public final class MessageBuilder {
         return this;
     }
 
+    /**
+     * Adds a {@code long} to this message.
+     *
+     * @param l long to add
+     * @return this
+     */
     public MessageBuilder addLong(long l) {
         try {
             out.writeLong(l);
@@ -84,6 +134,12 @@ public final class MessageBuilder {
         return this;
     }
 
+    /**
+     * Adds a {@code float} to this message.
+     *
+     * @param f float to add
+     * @return this
+     */
     public MessageBuilder addFloat(float f) {
         try {
             out.writeFloat(f);
@@ -93,6 +149,12 @@ public final class MessageBuilder {
         return this;
     }
 
+    /**
+     * Adds a {@code double} to this message.
+     *
+     * @param d double to add
+     * @return this
+     */
     public MessageBuilder addDouble(double d) {
         try {
             out.writeDouble(d);

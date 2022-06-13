@@ -14,6 +14,12 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Represents a connection to the Messenger server.
+ * This can be used to send messages between processes.
+ *
+ * @author rmheuer
+ */
 public final class MessengerClient {
     private static final String HEARTBEAT = "_Heartbeat";
     private static final String LISTEN = "_Listen";
@@ -38,6 +44,14 @@ public final class MessengerClient {
 
     private Exception lastConnectFailException;
 
+    /**
+     * Creates a new instance and attempts to connect to a
+     * Messenger server at the given address.
+     *
+     * @param host server host
+     * @param port server port
+     * @param name unique string used in logging 
+     */
     public MessengerClient(String host, int port, String name) {
         this.host = host;
         this.port = port;
@@ -59,6 +73,14 @@ public final class MessengerClient {
         startConnectThread();
     }
 
+    /**
+     * Attempts to reconnect to a different Messenger server at
+     * a given address.
+     *
+     * @param host server host
+     * @param port server port
+     * @param name unique string used in logging
+     */
     public void reconnect(String host, int port, String name) {
         this.host = host;
         this.port = port;
@@ -71,6 +93,12 @@ public final class MessengerClient {
         startConnectThread();
     }
 
+    /**
+     * Gets the last exception thrown when attempting to connect.
+     * If no attempts have failed, this will return {@code null}.
+     *
+     * @return last connection exception
+     */
     public Exception getLastConnectionException() {
         return lastConnectFailException;
     }
@@ -131,6 +159,10 @@ public final class MessengerClient {
         }
     }
 
+    /**
+     * Reads all incoming messages. If not connected, this will do
+     * nothing. Message handlers will be invoked from this method.
+     */
     public void readMessages() {
         if (!isConnected())
             return;
@@ -151,10 +183,20 @@ public final class MessengerClient {
         }
     }
 
+    /**
+     * Gets whether this client is currently connected to a server.
+     *
+     * @return connected
+     */
     public boolean isConnected() {
         return connected.get();
     }
 
+    /**
+     * Disconnects from the current server. After this method is called,
+     * this object should no longer be used. If you want to change servers,
+     * use {@link #reconnect}.
+     */
     public void disconnect() {
         send(DISCONNECT);
 
@@ -165,14 +207,36 @@ public final class MessengerClient {
         connected.set(false);
     }
 
+    /**
+     * Prepares to send a message. This returns a {@link MessageBuilder},
+     * which allows you to add data to the message.
+     *
+     * @param type type of the message to send
+     * @return builder to add data
+     */
     public MessageBuilder prepare(String type) {
         return new MessageBuilder(this, type);
     }
 
+    /**
+     * Immediately sends a message with no data.
+     *
+     * @param type type of the message to send
+     */
     public void send(String type) {
         sendMessage(type, new byte[0]);
     }
 
+    /**
+     * Registers a {@link MessageHandler} to handle incoming messages.
+     * If the type ends in '*', the handler will be invoked for all messages
+     * that match the content before. For example, "Foo*" would match a
+     * message of type "Foo2", while "Foo" would only match messages of
+     * type "Foo".
+     *
+     * @param type type of message to listen to
+     * @param handler handler to invoke
+     */
     public void addHandler(String type, MessageHandler handler) {
         Handler h;
         if (type.endsWith("*")) {
