@@ -11,6 +11,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 
 import com.swrobotics.lib.encoder.Encoder;
 
+/**
+ * An abstract class to put all motor functions into one interface for better motor controlls and uniform code across all vendors.
+ */
 public abstract class Motor extends Routine {
 
     private ProfiledPIDController pid;
@@ -20,6 +23,7 @@ public abstract class Motor extends Routine {
     private Encoder encoder;
 
     private Angle holdAngle; // Recorded to save the angle for the HOLD mode
+    private boolean isHolding; // Record to set the holdAngle to the current.
     private boolean isFlywheel;
 
     private Angle currentAngle;
@@ -54,10 +58,18 @@ public abstract class Motor extends Routine {
         this(null);
     }
 
+    /**
+     * Set the profiled PID controller for position control with the motor.
+     * @param pid A configured PID controller.
+     */
     public void setPIDController(ProfiledPIDController pid) {
         this.pid = pid;
     }
 
+    /**
+     * Set the feedforward controller for velocity control with the motor.
+     * @param feed A configured feedforward controller.
+     */
     public void setFeedforward(SimpleMotorFeedforward feed) {
         this.feed = feed;
     }
@@ -79,6 +91,10 @@ public abstract class Motor extends Routine {
         return encoder;
     }
 
+    /**
+     * Change the way that velocity control is configured by using the motor as a flywheel controller. WARNING: Congigure the motor to turn off break mode!
+     * @param isFlywheel Set if the motor is controlling a flywheel.
+     */
     public void setFlywheelMode(boolean isFlywheel) {
         this.isFlywheel = isFlywheel;
     }
@@ -88,7 +104,16 @@ public abstract class Motor extends Routine {
      * Give the motor a percentage of the voltage recieved.
      * @param percent The demanded percent out of the motor.
      */
-    protected abstract void percent(double percent);
+    public void percent(double percent) {
+
+    }
+
+    /**
+     * Actually set the motor output. This is the implementation for motor usage.
+     * 
+     * @param percent Demanded percent -1 - 1 output for the motor.
+     */
+    protected abstract void setPercent(double percent);
 
     /**
      * Control the motor to spin at a specified speed.
@@ -113,7 +138,7 @@ public abstract class Motor extends Routine {
             out = pid.calculate(currentVelocity.getCWDeg(), target.getCWDeg())  +  feed.calculate(target.getCWDeg() * 0.9);
         }
 
-        percent(out);
+        setPercent(out);
     }
 
     /**
@@ -132,7 +157,7 @@ public abstract class Motor extends Routine {
         }
 
         double out = pid.calculate(currentAngle.getCWDeg(), target.getCWDeg());
-        percent(out);
+        setPercent(out);
 
     }
 
@@ -141,10 +166,10 @@ public abstract class Motor extends Routine {
      */
     public void stop() {
         controlMode = () -> {
-            percent(0);
+            setPercent(0);
         };
 
-        percent(0);
+        setPercent(0);
     }
 
     /**
@@ -159,16 +184,19 @@ public abstract class Motor extends Routine {
     }
 
 
+    /**
+     * Set the motor to hold the current position. If it is moved, it will target the initial position.
+     */
     public void hold() {
         controlMode = () -> {
             angle(holdAngle);
         };
 
-
-        if (true) {
+        if (!isHolding) {
             holdAngle = currentAngle;
         }
 
+        isHolding = true;
         angle(holdAngle);
     }
 
@@ -178,6 +206,13 @@ public abstract class Motor extends Routine {
         currentVelocity = encoder.getVelocity();
 
         controlMode.run();
+
+        isHolding = false;
+    }
+
+    @Override
+    public String toString() {
+        return "Angle: " + currentAngle + "   Velocity: " + currentVelocity + " per second";
     }
 
 }
