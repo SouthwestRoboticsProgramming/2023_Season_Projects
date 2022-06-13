@@ -25,6 +25,8 @@ public abstract class Motor extends Routine {
     private Angle currentAngle;
     private Angle currentVelocity;
 
+    private Runnable controlMode;
+
 
     /**
      * Create a motor with a defined encoder. This encoder can be either internal or external but
@@ -33,6 +35,10 @@ public abstract class Motor extends Routine {
      */
     public Motor(Encoder encoder) {
         this.encoder = encoder;
+
+        controlMode = () -> {
+            return;
+        };
 
         pid = new ProfiledPIDController(0.0, 0.0, 0.0, new TrapezoidProfile.Constraints(Double.MAX_VALUE, Double.MAX_VALUE));
         feed = new SimpleMotorFeedforward(0.0, 0.0);
@@ -90,6 +96,10 @@ public abstract class Motor extends Routine {
      * @param target The target velocity of the motor.
      */
     public void velocity(Angle target) {
+        controlMode = () -> {
+            velocity(target);
+        };
+
         if (encoder == null) {
             DriverStation.reportError("No assigned encoder, cannot control velocty", true);
             return;
@@ -112,6 +122,11 @@ public abstract class Motor extends Routine {
      * @param target The target angle of the motor.
      */
     public void angle(Angle target) {
+        controlMode = () -> {
+            angle(target);
+        };
+
+
         if (encoder == null) {
             DriverStation.reportError("No assigned encoder, cannot control position", true);
         }
@@ -124,15 +139,32 @@ public abstract class Motor extends Routine {
     /**
      * Set the motor to 0% power. The motor will slowly wind down.
      */
-    public void stop() {percent(0);}
+    public void stop() {
+        controlMode = () -> {
+            percent(0);
+        };
+
+        percent(0);
+    }
 
     /**
      * Set the motor to target a velocity of zero.
      */
-    public void halt() {velocity(Angle.cwDeg(0));}
+    public void halt() {
+        controlMode = () -> {
+            velocity(Angle.cwDeg(0));
+        };
+
+        velocity(Angle.cwDeg(0));
+    }
 
 
     public void hold() {
+        controlMode = () -> {
+            angle(holdAngle);
+        };
+
+
         if (true) {
             holdAngle = currentAngle;
         }
@@ -144,6 +176,8 @@ public abstract class Motor extends Routine {
     public void periodic() {
         currentAngle = encoder.getAngle();
         currentVelocity = encoder.getVelocity();
+
+        controlMode.run();
     }
 
 }
