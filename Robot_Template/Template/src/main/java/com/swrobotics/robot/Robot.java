@@ -1,6 +1,7 @@
 package com.swrobotics.robot;
 
 import com.swrobotics.lib.AbstractRobot;
+import com.swrobotics.robot.subsystem.Drive;
 
 public final class Robot extends AbstractRobot {
     private static final double PERIODIC_PER_SECOND = 50;
@@ -12,6 +13,6 @@ public final class Robot extends AbstractRobot {
     @Override
     protected final void addSubsystems() {
         // Add subsystems here
-        new RunMotorSubsystem();
+        new Drive();
     }
 }
