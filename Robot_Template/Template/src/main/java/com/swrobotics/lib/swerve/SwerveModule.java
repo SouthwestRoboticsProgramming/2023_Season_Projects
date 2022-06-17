@@ -1,89 +1,31 @@
 package com.swrobotics.lib.swerve;
 
+import com.ctre.phoenix.motorcontrol.can.BaseTalon;
+import com.swrobotics.lib.encoder.AbsoluteEncoder;
+import com.swrobotics.lib.encoder.CANCoderImplementation;
 import com.swrobotics.lib.encoder.Encoder;
-import com.swrobotics.lib.math.Angle;
-import com.swrobotics.lib.math.Vec2d;
-import com.swrobotics.lib.motor.MotorMode;
-import com.swrobotics.lib.motor.Motor;
-
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
+import com.swrobotics.lib.encoder.TalonInternalEncoder;
+import com.swrobotics.lib.motor.implementations.TalonMotor;
 
 /**
  * A single swerve module that controls both speed and azimuth (steer).
  */
 public class SwerveModule {
 
-    // private final Motor steer;
-    // private final Motor drive;
-    // private final Vec2d position;
-    // private final Encoder turnEncoder; // FIXME: Change names and work out encoder sharing
-    // private final Encoder driveEncoder;
-
-    // private double gearRatio; // In X:1
-
+    private final TalonMotor drive;
+    private final TalonMotor steer;
     
-    // /**
-    //  * Create a new swerve module using a helper class
-    //  * @param helper An implementation of the helper class to hold settings for the module <br></br>
-    //  * NOTE: You will need to write your own implementation of the helper class to configure the motors
-    //  */
-    // public SwerveModule(SwerveModuleHelper helper) {
-    //     drive = helper.getDriveMotor();
-    //     steer = helper.getTurnMotor();
-    //     steer.assignEncoder(helper.getEncoder());
-    //     position = helper.getPosition();
-    //     turnEncoder = helper.getEncoder();
-    //     //driveEncoder = drive.getEncoder();
-    //     driveEncoder = null;
-    //     // TODO: Fix
-    // }
+    private final Encoder driveEncoder;
+    private final AbsoluteEncoder steerEncoder;
+
+    public SwerveModule(BaseTalon drive_toWrap, BaseTalon steer_toWrap, Encoder driveEncoder, AbsoluteEncoder steerEncoder) {
+
+       // Setup encoders
+        this.driveEncoder = driveEncoder;
+        this.steerEncoder = steerEncoder;
 
 
-    // /**
-    //  * Set the gear ratio of the module for proper speed calculations.
-    //  * @param gearRatio The ratio of the module in X:1.
-    //  */
-    // public void setGearRatio(double gearRatio) {
-    //     this.gearRatio = gearRatio;
-    // }
-    
-
-    // /**
-    //  * Set the calculated desired state of the swerve module.
-    //  * @param swerveState The state calculated by the kinematics object.
-    //  */
-    // public void set(SwerveModuleState swerveState) {
-    //     double velocity = swerveState.speedMetersPerSecond;
-    //     Angle angle = Angle.cwDeg(swerveState.angle.getDegrees());
-    //     // double rpm = 2 * gearRatio; // TODO: Actually do FIXME
-    //     drive.velocity(velocity);
-    //     steer.set(MotorMode.ANGLE, angle.getCWDeg());
-    // }
-
-
-    // /**
-    //  * Get the real velocity of the module.
-    //  * @return Velocity of the module in m/s.
-    //  */
-    // public double getVelocity() {
-    //     return driveEncoder.getVelocity().getCWDeg() / gearRatio; // FIXME
-    // }
-
-    // /**
-    //  * Get the real position of the module for odometry calculation.
-    //  * @return The position of the module relative to the mechanical center of rotation.
-    //  */
-    // public Translation2d getPosition() {
-    //     return position.toTranslation2d();
-    // }
-
-    // /**
-    //  * Get the real state of the swerve module for use in telemetry and odometry.
-    //  * @return The state the the swerve module is currently at.
-    //  */
-    // public SwerveModuleState getModuleState() {
-    //     SwerveModuleState state = new SwerveModuleState(driveEncoder.getVelocity().getCWDeg() / 2 /*FIXME: Change to converstion to m/s*/, turnEncoder.getAngle().toRotation2dCCW()); // FIXME: Could be CW instead of CCW
-    //     return state;
-    // }
+        drive = new TalonMotor(drive_toWrap).assignEncoder(driveEncoder);
+        steer = new TalonMotor(steer_toWrap).assignEncoder(steerEncoder);
+    }
 }
