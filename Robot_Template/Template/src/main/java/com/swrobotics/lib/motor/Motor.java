@@ -37,7 +37,8 @@ public abstract class Motor extends Routine {
      * 
      * <pre>{@code
      * // Use this formatting for encoders
-     * motor = new Motor().assignEncoder();
+     * motor = new Motor();
+     * motor.assignEncoder();
      * }
      */
     public Motor() {
@@ -71,9 +72,8 @@ public abstract class Motor extends Routine {
      * Gives the motor an absolute encoder
      * @param encoder Encoder implementation
      */
-    public Motor assignEncoder(Encoder encoder) {
+    public void assignEncoder(Encoder encoder) {
         this.encoder = encoder;
-        return this;
     }
 
     /**
