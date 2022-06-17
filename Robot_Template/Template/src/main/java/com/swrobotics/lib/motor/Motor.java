@@ -33,12 +33,14 @@ public abstract class Motor extends Routine {
 
 
     /**
-     * Create a motor with a defined encoder. This encoder can be either internal or external but
-     * it must be defined and controlled outside of this motor.
-     * @param encoder
+     * Create a motor wrapping a vendor-specific motor. <br>
+     * 
+     * <pre>{@code
+     * // Use this formatting for encoders
+     * motor = new Motor().assignEncoder();
+     * }
      */
-    public Motor(Encoder encoder) {
-        this.encoder = encoder;
+    public Motor() {
 
         controlMode = () -> {
             return;
@@ -47,15 +49,6 @@ public abstract class Motor extends Routine {
         pid = new ProfiledPIDController(0.0, 0.0, 0.0, new TrapezoidProfile.Constraints(Double.MAX_VALUE, Double.MAX_VALUE));
         feed = new SimpleMotorFeedforward(0.0, 0.0);
         bang = new BangBangController();
-    }
-
-    /**
-     * Create a motor without a defined encoder.
-     * This is intended for motors without an integrated encoder. <br></br>
-     * If your motor has an integrated encoder, create an InternalEncoder implementation.
-     */
-    public Motor() {
-        this(null);
     }
 
     /**
@@ -74,13 +67,13 @@ public abstract class Motor extends Routine {
         this.feed = feed;
     }
 
-
     /**
      * Gives the motor an absolute encoder
      * @param encoder Encoder implementation
      */
-    public void assignEncoder(Encoder encoder) {
+    public Motor assignEncoder(Encoder encoder) {
         this.encoder = encoder;
+        return this;
     }
 
     /**

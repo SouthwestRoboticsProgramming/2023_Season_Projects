@@ -16,23 +16,16 @@ public class TalonMotor extends Motor {
 
 
     /**
-     * Create a TalonMotor without an encoder to wrap around an existing CTRE motor controller.
+     * Create a TalonMotor without an encoder to wrap around an existing CTRE motor controller.<br>
+     * <pre>{@code
+     * // Use this formatting to add an encoder for closed-loop
+     * talon = new TalonMotor(baseTalon).assignEncoder(encoder);
+     * }
      * @param talon CTRE motor controller to wrap. Note: This does include the Victor SPX.
      */
     public TalonMotor(BaseTalon talon) {
         this.talon = talon;
  
-    }
-
-    /**
-     * Create a TalonMotor to wrap around and existing CtRE motor controller with an assigned encoder.
-     * @param talon CTRE motor controller to wrap. Note: This does not include the Victor SPX.
-     * @param encoder Encoder to assign to the motor controller.
-     */
-    public TalonMotor(BaseTalon talon, Encoder encoder) {
-        super(encoder);
-        this.talon = talon;
-
     }
 
     /**
