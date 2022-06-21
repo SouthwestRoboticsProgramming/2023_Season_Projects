@@ -43,6 +43,10 @@ public abstract class Encoder {
         offset = getRawAngle().sub(angle);
     }
 
+    public void setOffset(Angle offset) {
+        this.offset = offset;
+    }
+
     // Use offset
 
     /**

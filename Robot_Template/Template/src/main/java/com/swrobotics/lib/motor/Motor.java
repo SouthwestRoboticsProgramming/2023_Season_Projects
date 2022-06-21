@@ -4,7 +4,7 @@ import com.swrobotics.lib.math.Angle;
 import com.swrobotics.lib.routine.Routine;
 
 import edu.wpi.first.math.controller.BangBangController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -16,7 +16,7 @@ import com.swrobotics.lib.encoder.Encoder;
  */
 public abstract class Motor extends Routine {
 
-    private ProfiledPIDController pid;
+    private PIDController pid;
     private SimpleMotorFeedforward feed;
     private final BangBangController bang;
 
@@ -47,7 +47,7 @@ public abstract class Motor extends Routine {
             return;
         };
 
-        pid = new ProfiledPIDController(0.0, 0.0, 0.0, new TrapezoidProfile.Constraints(Double.MAX_VALUE, Double.MAX_VALUE));
+        pid = new PIDController(0.0, 0.0, 0.0);
         feed = new SimpleMotorFeedforward(0.0, 0.0);
         bang = new BangBangController();
     }
@@ -56,7 +56,7 @@ public abstract class Motor extends Routine {
      * Set the profiled PID controller for position control with the motor.
      * @param pid A configured PID controller.
      */
-    public void setPIDController(ProfiledPIDController pid) {
+    public void setPIDController(PIDController pid) {
         this.pid = pid;
     }
 
@@ -74,6 +74,9 @@ public abstract class Motor extends Routine {
      */
     public void assignEncoder(Encoder encoder) {
         this.encoder = encoder;
+        currentAngle = encoder.getAngle();
+        currentVelocity = encoder.getVelocity();
+        System.out.println("I am assigning the encoder " + encoder + " (my encoder is " + this.encoder + ")");
     }
 
     /**
@@ -128,7 +131,11 @@ public abstract class Motor extends Routine {
         if (isFlywheel) {
             out = bang.calculate(currentVelocity.getCWDeg(), target.getCWDeg())  +  feed.calculate(target.getCWDeg() * 0.9); 
         } else {
-            out = pid.calculate(currentVelocity.getCWDeg(), target.getCWDeg())  +  feed.calculate(target.getCWDeg() * 0.9);
+//            System.out.println("PID " + pid + " cur " + currentVelocity + " targ " + target + " feed " + feed);
+            double pidOut = pid.calculate(currentVelocity.getCWDeg(), target.getCWDeg());
+            double feedOut = feed.calculate(target.getCWDeg() * 0.9);
+            out = pidOut  + feedOut ;
+            // System.out.println("Inputs: " + currentVelocity.getCWDeg() + ", " + target.getCWDeg() + " Outputs: " + pidOut + ", " + feedOut + " -> " + out);
         }
 
         setPercent(out);
@@ -150,6 +157,7 @@ public abstract class Motor extends Routine {
         }
 
         double out = pid.calculate(currentAngle.getCWDeg(), target.getCWDeg());
+        // System.out.println(currentAngle.getCWDeg() + " -> " + target.getCWDeg() + " : " + out);
         setPercent(out);
 
     }

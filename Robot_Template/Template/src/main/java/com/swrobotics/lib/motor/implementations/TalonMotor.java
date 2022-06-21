@@ -48,7 +48,4 @@ public class TalonMotor extends Motor {
         talon.set(ControlMode.PercentOutput, percent);
         
     }
-
-    
-
 }

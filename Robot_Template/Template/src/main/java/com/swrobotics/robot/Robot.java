@@ -1,6 +1,7 @@
 package com.swrobotics.robot;
 
 import com.swrobotics.lib.AbstractRobot;
+import com.swrobotics.robot.input.Input;
 import com.swrobotics.robot.subsystem.Drive;
 
 public final class Robot extends AbstractRobot {
@@ -12,7 +13,7 @@ public final class Robot extends AbstractRobot {
     
     @Override
     protected final void addSubsystems() {
-        // Add subsystems here
-        new Drive();
+        Input input = new Input();
+        new Drive(input);
     }
 }

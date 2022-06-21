@@ -7,6 +7,10 @@ public final class MathUtil {
         return value;
     }
 
+    public static double map(double value, double minOld, double maxOld, double minNew, double maxNew) {
+        return (value - minOld) / (maxOld - minOld) * (maxNew - minNew) + minNew;
+    }
+
     private MathUtil() {
         throw new AssertionError();
     }

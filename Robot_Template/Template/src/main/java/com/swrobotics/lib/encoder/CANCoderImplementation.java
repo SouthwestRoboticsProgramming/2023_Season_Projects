@@ -1,5 +1,6 @@
 package com.swrobotics.lib.encoder;
 
+import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.swrobotics.lib.math.Angle;
 
@@ -9,6 +10,7 @@ public class CANCoderImplementation extends AbsoluteEncoder {
 
     public CANCoderImplementation(int id) {
         encoder = new CANCoder(id);
+        encoder.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
     }
 
     // TODO: Actually configure the CANCoder
