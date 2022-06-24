@@ -4,6 +4,7 @@ import com.swrobotics.lib.math.Angle;
 import com.swrobotics.lib.math.Vec2d;
 import com.swrobotics.lib.motor.Motor;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 public final class SwerveModule {
@@ -35,7 +36,7 @@ public final class SwerveModule {
         return turn.getEncoder().getAngle();
     }
 
-    public Vec2d getCenterLocalPosition() {
-        return centerLocalPosition;
+    public Translation2d getWPILibCenterLocalPosition() {
+        return new Translation2d(centerLocalPosition.y, -centerLocalPosition.x);
     }
 }

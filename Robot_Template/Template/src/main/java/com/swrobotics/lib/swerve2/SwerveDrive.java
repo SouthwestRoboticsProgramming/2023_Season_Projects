@@ -19,7 +19,7 @@ public final class SwerveDrive {
         this.maxWheelSpeed = maxWheelSpeed;
         Translation2d[] positions = new Translation2d[modules.length];
         for (int i = 0; i < modules.length; i++) {
-            positions[i] = modules[i].getCenterLocalPosition().toTranslation2d();
+            positions[i] = modules[i].getWPILibCenterLocalPosition();
         }
         kinematics = new SwerveDriveKinematics(positions);
         this.modules = modules;
@@ -28,8 +28,8 @@ public final class SwerveDrive {
     // Translation in meters per second, turn in rotations per second
     public void drive(Vec2d translation, Angle turn) {
         ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                translation.x,
                 translation.y,
+                -translation.x,
                 turn.getCCWRad(),
                 gyro.getAngle().toRotation2dCCW()
         );
@@ -41,9 +41,10 @@ public final class SwerveDrive {
             modules[i].update(states[i]);
         }
 
-        String str = "";
+        // Debug: Print encoder measurements
+        StringBuilder str = new StringBuilder();
         for (SwerveModule module : modules) {
-            str += String.format("%3.3f ", module.getEncoderAngle().getCCWDeg());
+            str.append(String.format("%3.3f ", module.getEncoderAngle().getCCWDeg()));
         }
         System.out.println(str);
     }
