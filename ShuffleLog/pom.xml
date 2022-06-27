@@ -11,6 +11,17 @@
 
     <artifactId>ShuffleLog</artifactId>
 
+    <properties>
+        <wpilib.version>2022.4.1</wpilib.version>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>wpilib-repo</id>
+            <url>https://frcmaven.wpi.edu/artifactory/release/</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -22,6 +33,47 @@
             <groupId>io.github.spair</groupId>
             <artifactId>imgui-java-app</artifactId>
             <version>1.86.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>edu.wpi.first.ntcore</groupId>
+            <artifactId>ntcore-java</artifactId>
+            <version>${wpilib.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>edu.wpi.first.wpiutil</groupId>
+            <artifactId>wpiutil-java</artifactId>
+            <version>${wpilib.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>edu.wpi.first.ntcore</groupId>
+            <artifactId>ntcore-jni</artifactId>
+            <version>${wpilib.version}</version>
+            <classifier>windowsx86</classifier>
+        </dependency>
+        <dependency>
+            <groupId>edu.wpi.first.ntcore</groupId>
+            <artifactId>ntcore-jni</artifactId>
+            <version>${wpilib.version}</version>
+            <classifier>windowsx86-64</classifier>
+        </dependency>
+        <dependency>
+            <groupId>edu.wpi.first.ntcore</groupId>
+            <artifactId>ntcore-jni</artifactId>
+            <version>${wpilib.version}</version>
+            <classifier>linuxx86-64</classifier>
+        </dependency>
+        <dependency>
+            <groupId>edu.wpi.first.ntcore</groupId>
+            <artifactId>ntcore-jni</artifactId>
+            <version>${wpilib.version}</version>
+            <classifier>linuxraspbian</classifier>
+        </dependency>
+        <dependency>
+            <groupId>edu.wpi.first.ntcore</groupId>
+            <artifactId>ntcore-jni</artifactId>
+            <version>${wpilib.version}</version>
+            <classifier>osxx86-64</classifier>
         </dependency>
     </dependencies>
 </project>
