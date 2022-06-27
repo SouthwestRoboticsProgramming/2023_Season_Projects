@@ -3,6 +3,7 @@ package com.swrobotics.shufflelog;
 import com.swrobotics.messenger.client.MessengerClient;
 import com.swrobotics.shufflelog.tool.MenuBarTool;
 import com.swrobotics.shufflelog.tool.MessengerTool;
+import com.swrobotics.shufflelog.tool.NetworkTablesTool;
 import com.swrobotics.shufflelog.tool.Tool;
 import imgui.ImGui;
 import imgui.ImGuiIO;
@@ -32,6 +33,7 @@ public final class ShuffleLog extends Application {
 
         tools.add(new MenuBarTool());
         tools.add(new MessengerTool(this));
+        tools.add(new NetworkTablesTool());
     }
 
     @Override
