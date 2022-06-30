@@ -6,6 +6,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableType;
 import imgui.ImVec2;
 import imgui.flag.ImGuiCol;
+import imgui.flag.ImGuiCond;
 import imgui.flag.ImGuiDataType;
 import imgui.flag.ImGuiTableColumnFlags;
 import imgui.flag.ImGuiTableFlags;
@@ -293,13 +294,9 @@ public final class NetworkTablesTool implements Tool {
                 | ImGuiTableFlags.RowBg;
 
         if (beginTable("nt_tree", 3, flags)) {
-            ImVec2 size = new ImVec2();
-            calcTextSize(size, "A");
-            float w = size.x;
-
-            tableSetupColumn("Name", ImGuiTableColumnFlags.WidthFixed, w * 10);
+            tableSetupColumn("Name", ImGuiTableColumnFlags.WidthFixed, 135);
             tableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
-            tableSetupColumn("Type", ImGuiTableColumnFlags.WidthFixed, w * 10);
+            tableSetupColumn("Type", ImGuiTableColumnFlags.WidthFixed, 110);
             tableHeadersRow();
 
             showTable("Root", nt.getTable("/"));
@@ -311,6 +308,8 @@ public final class NetworkTablesTool implements Tool {
     @Override
     public void process() {
         if (begin("NetworkTables")) {
+            setWindowSize(500, 450, ImGuiCond.FirstUseEver);
+
             showConnectionParams();
             separator();
             showEntryTree();

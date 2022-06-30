@@ -8,6 +8,7 @@ import imgui.ImVec2;
 import imgui.ImVec4;
 import imgui.extension.implot.ImPlot;
 import imgui.flag.ImGuiColorEditFlags;
+import imgui.flag.ImGuiCond;
 import imgui.flag.ImGuiTableColumnFlags;
 import imgui.flag.ImGuiTableFlags;
 import imgui.flag.ImGuiTreeNodeFlags;
@@ -153,6 +154,8 @@ public abstract class ProfilerTool implements Tool {
     @Override
     public void process() {
         if (ImGui.begin(name)) {
+            ImGui.setWindowSize(475, 600, ImGuiCond.FirstUseEver);
+
             showHeader();
 
             ProfileNode node = getLastData();
@@ -176,7 +179,7 @@ public abstract class ProfilerTool implements Tool {
                 float w = size.x;
 
                 ImGui.tableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
-                ImGui.tableSetupColumn("Time (ms)", ImGuiTableColumnFlags.WidthFixed, w * 10);
+                ImGui.tableSetupColumn("Time (ms)", ImGuiTableColumnFlags.WidthFixed, 120);
                 ImGui.tableHeadersRow();
 
                 showNode(node, "", true);

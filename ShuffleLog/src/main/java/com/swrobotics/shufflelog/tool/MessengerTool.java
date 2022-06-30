@@ -157,7 +157,7 @@ public final class MessengerTool implements Tool {
     public void process() {
         if (begin("Messenger")) {
             setWindowPos(50, 50, ImGuiCond.FirstUseEver);
-            setWindowSize(675, 575, ImGuiCond.FirstUseEver);
+            setWindowSize(500, 450, ImGuiCond.FirstUseEver);
 
             showConnectionParams();
             separator();
