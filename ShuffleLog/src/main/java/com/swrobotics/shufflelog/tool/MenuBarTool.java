@@ -1,5 +1,6 @@
 package com.swrobotics.shufflelog.tool;
 
+import imgui.extension.implot.ImPlot;
 import imgui.type.ImBoolean;
 
 import static imgui.ImGui.*;
