@@ -286,11 +286,11 @@ public final class NetworkTablesTool implements Tool {
         }
     }
 
-    private void showTable(String name, NetworkTable table) {
+    private void showTable(String name, NetworkTable table, boolean isRoot) {
         tableNextRow();
 
         tableNextColumn();
-        boolean open = treeNodeEx(name, ImGuiTreeNodeFlags.SpanFullWidth);
+        boolean open = treeNodeEx(name, ImGuiTreeNodeFlags.SpanFullWidth | (isRoot ? ImGuiTreeNodeFlags.DefaultOpen : 0));
         tableNextColumn();
         textDisabled("--");
         tableNextColumn();
@@ -302,7 +302,7 @@ public final class NetworkTablesTool implements Tool {
             }
 
             for (String subtable : table.getSubTables()) {
-                showTable(subtable, table.getSubTable(subtable));
+                showTable(subtable, table.getSubTable(subtable), false);
             }
 
             treePop();
@@ -321,7 +321,7 @@ public final class NetworkTablesTool implements Tool {
             tableSetupColumn("Type", ImGuiTableColumnFlags.WidthFixed, 110);
             tableHeadersRow();
 
-            showTable("Root", nt.getTable("/"));
+            showTable("Root", nt.getTable("/"), true);
 
             endTable();
         }

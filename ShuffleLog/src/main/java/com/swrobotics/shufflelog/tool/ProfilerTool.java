@@ -130,6 +130,8 @@ public abstract class ProfilerTool implements Tool {
             flags |= ImGuiTreeNodeFlags.Leaf;
         if (path.equals(selectionPath))
             flags |= ImGuiTreeNodeFlags.Selected;
+        if (isRoot)
+            flags |= ImGuiTreeNodeFlags.DefaultOpen;
 
         sortNodes(children);
 
