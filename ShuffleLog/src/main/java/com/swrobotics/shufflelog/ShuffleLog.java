@@ -16,9 +16,12 @@ import imgui.extension.implot.ImPlotContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public final class ShuffleLog extends Application {
     private final List<Tool> tools = new ArrayList<>();
+    private final ExecutorService threadPool = Executors.newFixedThreadPool(4);
     private ImPlotContext plotCtx;
     private MessengerClient msg;
 
@@ -39,7 +42,7 @@ public final class ShuffleLog extends Application {
 
         tools.add(new MenuBarTool());
         tools.add(new MessengerTool(this));
-        tools.add(new NetworkTablesTool());
+        tools.add(new NetworkTablesTool(threadPool));
         tools.add(new ShuffleLogProfilerTool());
     }
 
@@ -62,6 +65,8 @@ public final class ShuffleLog extends Application {
 
     @Override
     protected void disposeImGui() {
+        threadPool.shutdown();
+
         ImPlot.destroyContext(plotCtx);
         super.disposeImGui();
 
@@ -74,6 +79,10 @@ public final class ShuffleLog extends Application {
 
     public void setMsg(MessengerClient msg) {
         this.msg = msg;
+    }
+
+    public ExecutorService getThreadPool() {
+        return threadPool;
     }
 
     public static void main(String[] args) {

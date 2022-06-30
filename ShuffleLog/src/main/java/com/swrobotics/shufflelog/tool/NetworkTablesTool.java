@@ -4,7 +4,6 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableType;
-import imgui.ImVec2;
 import imgui.flag.ImGuiCol;
 import imgui.flag.ImGuiCond;
 import imgui.flag.ImGuiDataType;
@@ -16,9 +15,11 @@ import imgui.type.ImDouble;
 import imgui.type.ImInt;
 import imgui.type.ImString;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+
 import static imgui.ImGui.*;
 
-// TODO: Move connecting and disconnecting to separate thread (pool?)
 public final class NetworkTablesTool implements Tool {
     private static final int TEAM_NUMBER = 0;
     private static final int ADDRESS = 1;
@@ -28,20 +29,25 @@ public final class NetworkTablesTool implements Tool {
     private static final String DEFAULT_HOST = "localhost";
     private static final int DEFAULT_PORT = NetworkTableInstance.kDefaultPort;
 
+    private final ExecutorService threadPool;
     private final NetworkTableInstance nt;
 
     private final ImInt connectionMode;
     private final ImString host;
     private final ImInt portOrTeamNumber;
 
-    public NetworkTablesTool() {
+    private Future<?> reconnectFuture;
+    private boolean requiresReconnect;
+
+    public NetworkTablesTool(ExecutorService threadPool) {
+        this.threadPool = threadPool;
         nt = NetworkTableInstance.getDefault();
         connectionMode = new ImInt(TEAM_NUMBER);
 
         host = new ImString(64);
         portOrTeamNumber = new ImInt(2129);
 
-        connectNT();
+        requiresReconnect = true;
     }
 
     private void connectNT() {
@@ -53,6 +59,21 @@ public final class NetworkTablesTool implements Tool {
         nt.setNetworkIdentity("ShuffleLog");
         nt.startClient();
         nt.startDSClient();
+    }
+
+    private void reconnectNT() {
+        if (!requiresReconnect)
+            return;
+
+        // If currently reconnecting, don't try again until it's done
+        if (reconnectFuture != null && !reconnectFuture.isDone())
+            return;
+
+        requiresReconnect = false;
+        reconnectFuture = threadPool.submit(() -> {
+            disconnectNT();
+            connectNT();
+        });
     }
 
     private void disconnectNT() {
@@ -126,9 +147,10 @@ public final class NetworkTablesTool implements Tool {
         }
 
         if (paramsChanged) {
-            disconnectNT();
-            connectNT();
+            requiresReconnect = true;
         }
+
+        reconnectNT();
     }
 
     private final ImBoolean b = new ImBoolean();
