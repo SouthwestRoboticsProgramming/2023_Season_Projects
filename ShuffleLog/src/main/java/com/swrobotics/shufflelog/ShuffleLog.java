@@ -9,12 +9,15 @@ import imgui.ImGui;
 import imgui.ImGuiIO;
 import imgui.app.Application;
 import imgui.app.Configuration;
+import imgui.extension.implot.ImPlot;
+import imgui.extension.implot.ImPlotContext;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class ShuffleLog extends Application {
     private final List<Tool> tools = new ArrayList<>();
+    private ImPlotContext plotCtx;
     private MessengerClient msg;
 
     @Override
@@ -25,6 +28,7 @@ public final class ShuffleLog extends Application {
     @Override
     protected void initImGui(Configuration config) {
         super.initImGui(config);
+        plotCtx = ImPlot.createContext();
 
         ImGuiIO io = ImGui.getIO();
         io.setIniFilename("layout.ini");
@@ -47,6 +51,7 @@ public final class ShuffleLog extends Application {
 
     @Override
     protected void disposeImGui() {
+        ImPlot.destroyContext(plotCtx);
         super.disposeImGui();
 
         msg.disconnect();
