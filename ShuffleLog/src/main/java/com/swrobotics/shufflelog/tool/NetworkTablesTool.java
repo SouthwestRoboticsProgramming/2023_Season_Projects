@@ -139,6 +139,7 @@ public final class NetworkTablesTool implements Tool {
         treeNodeEx(name, ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen | ImGuiTreeNodeFlags.SpanFullWidth);
         tableNextColumn();
         pushID("nt_value:" + name);
+        pushItemWidth(-1);
         switch (entry.getType()) {
             case kBoolean: {
                 b.set(entry.getBoolean(false));
@@ -165,6 +166,7 @@ public final class NetworkTablesTool implements Tool {
                 textDisabled("Can't edit");
             }
         }
+        popItemWidth();
         popID();
         tableNextColumn();
         text(entry.getType().name());
