@@ -32,8 +32,8 @@ public class TalonMotor extends Motor {
 
     /**
      * Get the encoder that is either plugged into the motor controller, or the enternal encoder of a Falon 500.
-     * @param ticksPerRotation The numver of encoder ticks per real rotation of the motor.
-     * @return
+     * @param ticksPerRotation The number of encoder ticks per real rotation of the motor.
+     * @return The internal encoder of the motor, seperated into an Encoder object.
      */
     public Encoder getInternalEncoder(double ticksPerRotation) {
         if (internalEncoder == null || this.ticksPerRotation != ticksPerRotation) {
