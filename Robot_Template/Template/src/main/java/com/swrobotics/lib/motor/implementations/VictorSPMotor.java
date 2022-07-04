@@ -4,12 +4,19 @@ import com.swrobotics.lib.motor.Motor;
 
 import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
 
+/**
+ * A wrapper class for CTRE Victor SP motor controllers.
+ */
 public class VictorSPMotor extends Motor {
 
     private final VictorSP victor;
 
-    public VictorSPMotor(int channel) {
-        victor = new VictorSP(channel);
+    /**
+     * Create a VictorSPMotor using an already configured VictorSP.
+     * @param victor VictorSP to wrap. NOTE: This should already be configured with inversion etc.
+     */
+    public VictorSPMotor(VictorSP victor) {
+        this.victor = victor;
     }
 
     @Override
