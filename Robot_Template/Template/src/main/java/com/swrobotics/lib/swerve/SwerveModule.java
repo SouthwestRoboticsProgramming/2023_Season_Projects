@@ -22,6 +22,7 @@ public class SwerveModule {
     
     /**
      * A single swerve module capable of both steering and driving.
+     * TIP: Create a helper class to configure the modules.
      * @param driveMotor A motor to drive the module, already configured with an encoder.
      * @param steerMotor A motor to steer the module.
      * @param steerEncoder An absolute encoder to read the angle of the module.
