@@ -18,6 +18,8 @@ public class SwerveModule {
 
     private final Vec2d position;
 
+    private final double metersToRadians;
+
     // TODO: Tolerence and odometry
     
     /**
@@ -27,8 +29,10 @@ public class SwerveModule {
      * @param steerMotor A motor to steer the module.
      * @param steerEncoder An absolute encoder to read the angle of the module.
      * @param position The position of the module in meters, relative to the center of rotation of the robot.
+     * @param gearRatio The gear ratio of the module. 1:8 becomes 1/8.
+     * @param wheelRadius The radius of wheel in meters.
      */
-    public SwerveModule(Motor driveMotor, Motor steerMotor, AbsoluteEncoder steerEncoder, Vec2d position) {
+    public SwerveModule(Motor driveMotor, Motor steerMotor, AbsoluteEncoder steerEncoder, Vec2d position, double gearRatio, double wheelRadius) {
         this.driveMotor = driveMotor;
         this.driveEncoder = driveMotor.getEncoder();
 
@@ -37,6 +41,8 @@ public class SwerveModule {
         steerMotor.assignEncoder(steerEncoder);
 
         this.position = position;
+
+        metersToRadians = 1.0 / (gearRatio * wheelRadius);
     }
 
     public Vec2d getPosition() {
@@ -49,11 +55,11 @@ public class SwerveModule {
         steerMotor.angle(Angle.cwDeg(desiredState.angle.getDegrees())); // Check direction
 
         // Set drive speed
-        driveMotor.velocity(Angle.cwDeg(desiredState.speedMetersPerSecond * 360 )); // TODO: Velocity to motor conversion
+        driveMotor.velocity(Angle.cwRad(desiredState.speedMetersPerSecond * metersToRadians));
     }
 
     public SwerveModuleState getState() {
-        double velocity = driveEncoder.getVelocity().getCWDeg(); // Check direction, TODO: Motor to velocity conversion
+        double velocity = driveEncoder.getVelocity().getCWRad() / metersToRadians; // Check direction
         Angle angle = steerEncoder.getAngle();
 
         return new SwerveModuleState(velocity, angle.toRotation2dCW());

@@ -34,9 +34,9 @@ public class SwerveModuleMaker {
 
         driveMotor.assignEncoder(driveMotor.getInternalEncoder(2048));
 
-        CANCoderImplementation canCoder = new CANCoderImplementation(steerEncoderID)
+        CANCoderImplementation canCoder = new CANCoderImplementation(steerEncoderID);
         canCoder.setOffset(steerOffset);
-        return new SwerveModule(driveMotor, steerMotor, canCoder, position);
+        return new SwerveModule(driveMotor, steerMotor, canCoder, position, GEAR_RATIO, WHEEL_RADIUS);
     }
     
 }

@@ -9,6 +9,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
+// TODO: BIG: Odometry
+
 /** A class to manage all of the swerve modules in a swerve drive. */
 public class SwerveDrive {
     private final Gyroscope gyro;
