@@ -14,7 +14,13 @@ public final class Constants {
     public static final double WHEEL_RADIUS = 0.05;
     public static final double WHEEL_SPACING = 29.3;
 
+    public static final double MAX_DRIVE_VELOCITY = 4.11;
+
+
+    public static final double MAX_DRIVE_ROTATION = 2 * Math.PI;
+    public static final double MAX_DRIVE_SPEED = 2.0;
+
     private Constants() { // Don't do ' new Constants '
-        throw new AssertionError("Don't make an instance of constants, just import static"); // Ignore this
+        throw new AssertionError(); // Ignore this
     }
 }

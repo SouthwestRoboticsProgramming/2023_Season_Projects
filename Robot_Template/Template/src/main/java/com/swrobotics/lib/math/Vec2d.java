@@ -19,6 +19,11 @@ public final class Vec2d {
         this.y = y;
     }
 
+    public Vec2d(Angle angle, double magnitude) {
+        this.y = angle.getSin() * magnitude;
+        this.x = angle.getCos() * magnitude;
+    }
+
     public double magnitude() {
         return Math.sqrt(x * x + y * y);
     }
