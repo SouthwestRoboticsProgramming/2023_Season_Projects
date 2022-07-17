@@ -4,6 +4,8 @@ import com.swrobotics.lib.math.Angle;
 import com.swrobotics.lib.math.MathUtil;
 import com.swrobotics.lib.math.Vec2d;
 import com.swrobotics.lib.util.InputUtils;
+
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.XboxController;
 
 import static com.swrobotics.robot.Constants.*;
@@ -12,9 +14,13 @@ public class Input {
     private static final double DEADBAND = 0.1;
 
     private final XboxController controller;
+
+    private final SlewRateLimiter filter;
     
     public Input() {
         controller = new XboxController(0);
+
+        filter = new SlewRateLimiter(INPUT_ACCELERATION);
     }
 
     public double getExample() { // This is how input functions are usually formatted
@@ -27,7 +33,7 @@ public class Input {
 
         Vec2d raw = new Vec2d(x, y);
 
-        return new Vec2d(raw.angle(), MathUtil.map(raw.magnitude(), -Math.sqrt(2), Math.sqrt(2), -MAX_DRIVE_SPEED, MAX_DRIVE_SPEED));
+        return new Vec2d(raw.angle(), MathUtil.map(filter.calculate(raw.magnitude()), -Math.sqrt(2), Math.sqrt(2), -MAX_DRIVE_SPEED, MAX_DRIVE_SPEED));
     }
 
     public Angle getDriveRotation() {

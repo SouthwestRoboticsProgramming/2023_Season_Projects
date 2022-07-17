@@ -20,6 +20,8 @@ public final class Constants {
     public static final double MAX_DRIVE_ROTATION = 2 * Math.PI;
     public static final double MAX_DRIVE_SPEED = 2.0;
 
+    public static final double INPUT_ACCELERATION = 2.0; // per second
+
     private Constants() { // Don't do ' new Constants '
         throw new AssertionError(); // Ignore this
     }
