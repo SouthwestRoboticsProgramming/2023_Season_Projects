@@ -23,10 +23,10 @@ public class Drive extends Routine {
 
         double centerDistance = WHEEL_SPACING / 2;
         drive = new SwerveDrive(gyro, MAX_WHEEL_VELOCITY,
-            SwerveModuleMaker.buildModule(5, 11, 10, Angle.cwDeg(88.945 + 180), new Vec2d(-centerDistance, centerDistance)),
-            SwerveModuleMaker.buildModule(5, 11, 10, Angle.cwDeg(349.453 - 180), new Vec2d(centerDistance, centerDistance)),
-            SwerveModuleMaker.buildModule(5, 11, 10, Angle.cwDeg(42.100 - 90), new Vec2d(-centerDistance, -centerDistance)),
-            SwerveModuleMaker.buildModule(5, 11, 10, Angle.cwDeg(94.746 - 90), new Vec2d(centerDistance, -centerDistance))
+            SwerveModuleMaker.buildModule(5, 11, 10, Angle.cwDeg(178.857 + 180), new Vec2d(-centerDistance, -centerDistance)),
+            SwerveModuleMaker.buildModule(3, 12, 8, Angle.cwDeg(78.83 + 180), new Vec2d(-centerDistance, centerDistance)),
+            SwerveModuleMaker.buildModule(4, 14, 9, Angle.cwDeg(4.043 + 180), new Vec2d(centerDistance, centerDistance)),
+            SwerveModuleMaker.buildModule(1, 13, 6, Angle.cwDeg(310.781 + 180), new Vec2d(centerDistance, -centerDistance))
         );
     }
 
