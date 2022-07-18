@@ -50,12 +50,29 @@ public class SwerveModule {
     }
 
     public void setState(SwerveModuleState desiredState) {
-        SwerveModuleState.optimize(desiredState, steerEncoder.getAngle().toRotation2dCW()); // Check angle measurement
+
+
+        // Normalize current angle to -90 to 90 degrees. (Fix optimization)
+        double rawCurrentAngle = steerEncoder.getAngle().getCWDeg();
+        double currentAngle = rawCurrentAngle;
+
+        if (rawCurrentAngle < 90) {
+            currentAngle = rawCurrentAngle;
+        } else if (rawCurrentAngle > 270) {
+            currentAngle = rawCurrentAngle - 360;
+        } else if (rawCurrentAngle < 270) {
+            currentAngle = rawCurrentAngle - 180;
+        }
+
+        Angle current = Angle.cwDeg(currentAngle);
+
+        SwerveModuleState state = SwerveModuleState.optimize(desiredState, current.toRotation2dCW()); // Check angle measurement
         // Set steer angle
-        steerMotor.angle(Angle.cwDeg(desiredState.angle.getDegrees())); // Check direction
+        steerMotor.angle(Angle.cwDeg(state.angle.getDegrees())); // Check direction
 
         // Set drive speed
-        driveMotor.velocity(Angle.cwRad(desiredState.speedMetersPerSecond * metersToRadians));
+        driveMotor.velocity(Angle.cwRad(state.speedMetersPerSecond * metersToRadians));
+
     }
 
     public SwerveModuleState getState() {
