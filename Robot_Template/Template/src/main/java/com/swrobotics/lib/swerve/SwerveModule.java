@@ -85,20 +85,24 @@ public class SwerveModule {
 
         if (position.x > 0 && position.y < 0 || true) {
         // Normalize current angle to -90 to 90 degrees. (Fix optimization)
-        Angle current = steerEncoder.getAngle().normalizeDeg(-90, 90);
-
+        Angle current = steerEncoder.getAngle();
+        
         SwerveModuleState state = SwerveModuleState.optimize(desiredState, current.toRotation2dCW());
+
+        current = current.normalizeDeg(-90, 90);
+
             
             if (!inTolerance()) {
                 // Set steer angle
-                steerMotor.angle(current, Angle.cwDeg(state.angle.getDegrees()));
-                //steerMotor.percent(0.2);
+                steerMotor.angle(current, Angle.ccwDeg(state.angle.getDegrees()));
             }
             
             // Set drive speed
             driveMotor.velocity(Angle.cwRad(state.speedMetersPerSecond * metersToRadians));
             
             currentDesiredState = state;
+
+            // System.out.println("Angle: " + steerEncoder.getRawAngle() + " Pos: " + getPosition());
         }
     }
 
