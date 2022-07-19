@@ -2,18 +2,33 @@ package com.swrobotics.lib.encoder;
 
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.sensors.CANCoderConfiguration;
+import com.ctre.phoenix.sensors.SensorInitializationStrategy;
+import com.ctre.phoenix.sensors.SensorTimeBase;
 import com.swrobotics.lib.math.Angle;
 
+/**
+ * A class to configure and implement CANCoders.
+ */
 public class CANCoderImplementation extends AbsoluteEncoder {
+
+    private final static int TIMEOUT_MS = 100;
 
     private final CANCoder encoder;
 
     public CANCoderImplementation(int id) {
         encoder = new CANCoder(id);
-        encoder.configAbsoluteSensorRange(AbsoluteSensorRange.Unsigned_0_to_360);
-    }
+        encoder.configFactoryDefault();
 
-    // TODO: Actually configure the CANCoder
+        CANCoderConfiguration config = new CANCoderConfiguration();
+        {
+            config.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
+            config.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
+            config.sensorTimeBase = SensorTimeBase.PerSecond;
+        }
+
+        encoder.configAllSettings(config, TIMEOUT_MS);
+    }
 
     /**
      * Get the relative angle of the encoder if it is configured not to use
@@ -33,7 +48,5 @@ public class CANCoderImplementation extends AbsoluteEncoder {
     public Angle getVelocity() {
         return Angle.cwDeg(encoder.getVelocity());
     }
-
-    // TODO: Configuration
 
 }
