@@ -3,6 +3,9 @@ package com.swrobotics.lib.gyro;
 import com.swrobotics.lib.math.Angle;
 import edu.wpi.first.wpilibj.ADIS16448_IMU;
 
+/**
+ * Implementation of the Pigeon IMU gyroscope.
+ */
 public final class ADIS16448Gyroscope extends Gyroscope {
     private final ADIS16448_IMU imu;
 
@@ -12,7 +15,6 @@ public final class ADIS16448Gyroscope extends Gyroscope {
 
     @Override
     public Angle getRawAngle() {
-        // System.out.println(imu.getAngle());
         return Angle.ccwDeg(imu.getAngle());
     }
 }

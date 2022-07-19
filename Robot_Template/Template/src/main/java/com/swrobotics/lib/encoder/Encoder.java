@@ -11,9 +11,12 @@ import com.swrobotics.lib.math.Angle;
 public abstract class Encoder {
 
     private Angle offset = Angle.ccwRad(0); // Subtracted to get angle
+    private int inversionScalar = 1;
+
+    // TODO: Inverted
 
     /**
-     * Get the anglular position of the encoder as an Angle.
+     * Get the angular position of the encoder as an Angle.
      * @return The angle of the sensor with no offset applied.
      */
     public abstract Angle getRawAngle();
