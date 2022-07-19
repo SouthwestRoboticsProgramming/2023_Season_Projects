@@ -2,7 +2,12 @@ package com.swrobotics.lib.encoder;
 
 import com.swrobotics.lib.math.Angle;
 
+/**
+ * Abstraction for encoders with relative sensors;
+ */
 public abstract class RelativeEncoder {
+
+    // TODO: Detect spikes (Like on neo550)
 
     private Angle offset;
 

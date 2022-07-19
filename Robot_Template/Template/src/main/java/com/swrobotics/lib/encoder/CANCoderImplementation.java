@@ -25,6 +25,7 @@ public class CANCoderImplementation extends AbsoluteEncoder {
             config.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
             config.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
             config.sensorTimeBase = SensorTimeBase.PerSecond;
+            config.magnetOffsetDegrees = 0;
         }
 
         encoder.configAllSettings(config, TIMEOUT_MS);

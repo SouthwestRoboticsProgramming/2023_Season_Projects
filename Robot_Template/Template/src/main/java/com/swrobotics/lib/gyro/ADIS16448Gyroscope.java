@@ -15,6 +15,6 @@ public final class ADIS16448Gyroscope extends Gyroscope {
 
     @Override
     public Angle getRawAngle() {
-        return Angle.ccwDeg(imu.getAngle());
+        return Angle.cwDeg(imu.getAngle());
     }
 }

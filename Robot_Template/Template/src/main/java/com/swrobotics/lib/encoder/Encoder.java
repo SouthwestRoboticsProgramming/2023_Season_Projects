@@ -11,7 +11,6 @@ import com.swrobotics.lib.math.Angle;
 public abstract class Encoder {
 
     private Angle offset = Angle.ccwRad(0); // Subtracted to get angle
-    private int inversionScalar = 1;
 
     // TODO: Inverted
 
