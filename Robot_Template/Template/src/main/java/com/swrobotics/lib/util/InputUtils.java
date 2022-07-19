@@ -1,6 +1,6 @@
 package com.swrobotics.lib.util;
 
-import com.swrobotics.lib.math.MathUtil;
+import com.team2129.lib.math.MathUtil;
 
 public class InputUtils {
     public static double applyDeadband(double measurement, double band) {

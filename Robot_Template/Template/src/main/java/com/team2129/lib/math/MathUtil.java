@@ -1,4 +1,4 @@
-package com.swrobotics.lib.math;
+package com.team2129.lib.math;
 
 public final class MathUtil {
     public static double clamp(double value, double min, double max) {

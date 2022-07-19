@@ -1,6 +1,6 @@
 package com.swrobotics.lib.encoder;
 
-import com.swrobotics.lib.math.Angle;
+import com.team2129.lib.math.Angle;
 
 /**
  * A general wrapper for any external encoder

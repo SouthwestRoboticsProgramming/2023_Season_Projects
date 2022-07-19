@@ -5,7 +5,7 @@ import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.ctre.phoenix.sensors.SensorTimeBase;
-import com.swrobotics.lib.math.Angle;
+import com.team2129.lib.math.Angle;
 
 /**
  * A class to configure and implement CANCoders.

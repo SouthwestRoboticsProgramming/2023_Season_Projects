@@ -1,4 +1,4 @@
-package com.swrobotics.lib.math;
+package com.team2129.lib.math;
 
 import java.util.Objects;
 

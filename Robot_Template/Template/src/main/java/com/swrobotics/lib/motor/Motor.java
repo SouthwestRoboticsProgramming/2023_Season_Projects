@@ -1,7 +1,7 @@
 package com.swrobotics.lib.motor;
 
-import com.swrobotics.lib.math.Angle;
 import com.swrobotics.lib.routine.Routine;
+import com.team2129.lib.math.Angle;
 
 import edu.wpi.first.math.controller.BangBangController;
 import edu.wpi.first.math.controller.PIDController;

@@ -1,6 +1,6 @@
 package com.swrobotics.lib.gyro;
 
-import com.swrobotics.lib.math.Angle;
+import com.team2129.lib.math.Angle;
 
 /**
  * Abstraction for angle gyroscopes.

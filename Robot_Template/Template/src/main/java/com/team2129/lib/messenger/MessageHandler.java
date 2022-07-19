@@ -1,4 +1,4 @@
-package com.swrobotics.lib.messenger;
+package com.team2129.lib.messenger;
 
 /**
  * Represents a function called when a message is received.
