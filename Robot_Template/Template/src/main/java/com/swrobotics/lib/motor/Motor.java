@@ -76,7 +76,6 @@ public abstract class Motor extends Routine {
         this.encoder = encoder;
         currentAngle = encoder.getAngle();
         currentVelocity = encoder.getVelocity();
-        System.out.println("I am assigning the encoder " + encoder + " (my encoder is " + this.encoder + ")");
     }
 
     /**
@@ -104,7 +103,7 @@ public abstract class Motor extends Routine {
         controlMode = () -> {
             percent(percent);
         };
-        
+
         setPercent(percent);
     }
 
@@ -135,11 +134,9 @@ public abstract class Motor extends Routine {
         if (isFlywheel) {
             out = bang.calculate(currentVelocity.getCWDeg(), target.getCWDeg())  +  feed.calculate(target.getCWDeg() * 0.9); 
         } else {
-//            System.out.println("PID " + pid + " cur " + currentVelocity + " targ " + target + " feed " + feed);
             double pidOut = pid.calculate(currentVelocity.getCWDeg(), target.getCWDeg());
             double feedOut = feed.calculate(target.getCWDeg() * 0.9);
             out = pidOut  + feedOut ;
-            // System.out.println("Inputs: " + currentVelocity.getCWDeg() + ", " + target.getCWDeg() + " Outputs: " + pidOut + ", " + feedOut + " -> " + out);
         }
 
         setPercent(out);
@@ -165,7 +162,6 @@ public abstract class Motor extends Routine {
         }
 
         double out = pid.calculate(current.getCWDeg(), target.getCWDeg());
-        System.out.println(current.getCWDeg() + " -> " + target.getCWDeg() + " : " + out);
         setPercent(out);
     }
 

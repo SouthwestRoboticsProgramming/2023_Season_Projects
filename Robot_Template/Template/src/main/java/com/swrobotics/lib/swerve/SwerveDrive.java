@@ -73,8 +73,6 @@ public class SwerveDrive {
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds, centerOfRotation.toTranslation2d());
         SwerveDriveKinematics.desaturateWheelSpeeds(states, maxWheelVelocity);
 
-        System.out.println(states[0]);
-
         // Update modules
         for (int i = 0; i < states.length; i++) {
             modules[i].setState(states[i]);

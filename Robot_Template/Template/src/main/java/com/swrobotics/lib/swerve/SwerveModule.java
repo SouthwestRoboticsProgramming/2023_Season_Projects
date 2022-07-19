@@ -101,8 +101,6 @@ public class SwerveModule {
             driveMotor.velocity(Angle.cwRad(state.speedMetersPerSecond * metersToRadians));
             
             currentDesiredState = state;
-
-            // System.out.println("Angle: " + steerEncoder.getRawAngle() + " Pos: " + getPosition());
         }
     }
 
