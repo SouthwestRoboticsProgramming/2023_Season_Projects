@@ -9,6 +9,16 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
+/*
+ * Wheel Layout:
+ * 
+ * w0 ------- w1
+ *  |    ^    |
+ *  |    |    |
+ *  |    |    |
+ * w2 ------- w3
+ */
+
 // TODO: BIG: Odometry
 
 /** A class to manage all of the swerve modules in a swerve drive. */
@@ -39,7 +49,7 @@ public class SwerveDrive {
 
     /**
      * Set a custom center of rotation away from the center of the robot
-     * @param newCenterOfRotation Center of rotatoin relative to the center of the robot
+     * @param newCenterOfRotation Center of rotation relative to the center of the robot
      */
     public void setCenterOfRotation(Vec2d newCenterOfRotation) {
         centerOfRotation = newCenterOfRotation;
@@ -47,19 +57,23 @@ public class SwerveDrive {
 
     /**
      * Set the desired motion of the swerve drive
-     * @param translation Desired veclocity vector in meters per second
+     * @param translation Desired velocity vector in meters per second
      * @param rotationsPerSecond Desired rotational velocity in rotation per second
      */
     public void setMotion(Vec2d translation, Angle rotationsPerSecond) {
         ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-            translation.y, 
-            -translation.x, // Convert from our coordinates to WPILIb
+            -translation.y, 
+            translation.x, // Convert from our coordinates to WPILib
             rotationsPerSecond.getCCWRad(), 
             gyro.getAngle().toRotation2dCCW()
             );
 
+        // speeds = ChassisSpeeds.fromFieldRelativeSpeeds(0.1, 0.1, 0.0, gyro.getAngle().toRotation2dCCW());
+
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds, centerOfRotation.toTranslation2d());
         SwerveDriveKinematics.desaturateWheelSpeeds(states, maxWheelVelocity);
+
+        System.out.println(states[0]);
 
         // Update modules
         for (int i = 0; i < states.length; i++) {
