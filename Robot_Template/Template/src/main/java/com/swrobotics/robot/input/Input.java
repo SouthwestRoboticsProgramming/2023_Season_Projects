@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import static com.swrobotics.robot.Constants.*;
 
 public class Input {
-    private static final double DEADBAND = 0.1;
+    private static final double DEADBAND = 0.2;
 
     private final XboxController controller;
 
@@ -28,20 +28,23 @@ public class Input {
     }
 
     public Vec2d getDriveTranslation() {
+        // Apply deadband
         double x = InputUtils.applyDeadband(controller.getLeftX(), DEADBAND);
-        double y = InputUtils.applyDeadband(controller.getLeftY(), DEADBAND);
+        double y = -InputUtils.applyDeadband(controller.getLeftY(), DEADBAND);
 
         Vec2d raw = new Vec2d(x, y);
 
+        // Extract angle
         Angle angle = raw.angle();
         if (raw.x == 0 && raw.y == 0) {
             angle = Angle.cwDeg(0);
         }
 
-        return new Vec2d(raw.angle(), MathUtil.map(filter.calculate(raw.magnitude()), -Math.sqrt(2), Math.sqrt(2), -MAX_DRIVE_SPEED, MAX_DRIVE_SPEED));
+        // Create a vector with filtered magnitude, and direction.
+        return new Vec2d(angle, MathUtil.clamp(filter.calculate(raw.magnitude()), -MAX_DRIVE_SPEED, MAX_DRIVE_SPEED));
     }
 
     public Angle getDriveRotation() {
-        return Angle.cwDeg(InputUtils.applyDeadband(controller.getRightX(), DEADBAND * MAX_DRIVE_ROTATION));
+        return Angle.cwDeg(InputUtils.applyDeadband(controller.getRightX(), DEADBAND) * MAX_DRIVE_ROTATION);
     }
 }
