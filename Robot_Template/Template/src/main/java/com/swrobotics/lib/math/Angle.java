@@ -184,6 +184,16 @@ public final class Angle {
         return dest;
     }
 
+    public Angle scaleBy(double scalar) {
+        angle *= scalar;
+        return this;
+    }
+
+    public Angle absoluteValue() {
+        angle = Math.abs(angle);
+        return this;
+    }
+
     public Rotation2d toRotation2dCW() {
         return new Rotation2d(getCWRad());
     }

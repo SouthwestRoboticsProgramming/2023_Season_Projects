@@ -5,6 +5,7 @@ import com.swrobotics.lib.encoder.Encoder;
 import com.swrobotics.lib.math.Angle;
 import com.swrobotics.lib.math.Vec2d;
 import com.swrobotics.lib.motor.Motor;
+import com.swrobotics.lib.util.SwerveUtils;
 
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
@@ -20,7 +21,10 @@ public class SwerveModule {
 
     private final double metersToRadians;
 
-    // TODO: Tolerence and odometry
+    private Angle tolerance;
+    private SwerveModuleState currentDesiredState;
+
+    // TODO: Tolerance and odometry
     
     /**
      * A single swerve module capable of both steering and driving.
@@ -43,40 +47,63 @@ public class SwerveModule {
         this.position = position;
 
         metersToRadians = 1.0 / (gearRatio * wheelRadius);
+
+        tolerance = Angle.cwDeg(1);
+        currentDesiredState = new SwerveModuleState();
     }
 
+    // Set the angle that the wheel can be off and stop trying to adjust. (Default is 1 degree)
+    public void setTolerance(Angle tolerance) {
+        this.tolerance = tolerance;
+    }
+
+    /**
+     * Get the vector position of the swerve module.
+     * @return The vector position of the module relative to the center of the robot.
+     */
     public Vec2d getPosition() {
         return position;
     }
 
+    /**
+     * Get if the wheel is within the defined steering tolerance.
+     * @return If the wheel is within tolerance.
+     */
+    public boolean inTolerance() {
+
+        Angle desired = Angle.cwDeg(currentDesiredState.angle.getDegrees());
+        Angle actual = steerEncoder.getAngle();
+        Angle difference = desired.sub(actual);
+
+        boolean normal = difference.lessThan(tolerance) && difference.greaterThan(tolerance.scaleBy(-1));
+        boolean overAxis = difference.lessThan(tolerance.addCWDeg(180)) && difference.greaterThan(tolerance.scaleBy(-1).addCWDeg(180));
+        return normal || overAxis;
+    }
+
+
     public void setState(SwerveModuleState desiredState) {
 
-
+        if (position.x > 0 && position.y < 0 || true) {
         // Normalize current angle to -90 to 90 degrees. (Fix optimization)
-        double rawCurrentAngle = steerEncoder.getAngle().getCWDeg();
-        double currentAngle = rawCurrentAngle;
+        Angle current = steerEncoder.getAngle().normalizeDeg(-90, 90);
 
-        if (rawCurrentAngle < 90) {
-            currentAngle = rawCurrentAngle;
-        } else if (rawCurrentAngle > 270) {
-            currentAngle = rawCurrentAngle - 360;
-        } else if (rawCurrentAngle < 270) {
-            currentAngle = rawCurrentAngle - 180;
+        SwerveModuleState state = SwerveModuleState.optimize(desiredState, current.toRotation2dCW());
+            
+            if (!inTolerance()) {
+                // Set steer angle
+                steerMotor.angle(current, Angle.cwDeg(state.angle.getDegrees()));
+                //steerMotor.percent(0.2);
+            }
+            
+            // Set drive speed
+            driveMotor.velocity(Angle.cwRad(state.speedMetersPerSecond * metersToRadians));
+            
+            currentDesiredState = state;
         }
-
-        Angle current = Angle.cwDeg(currentAngle);
-
-        SwerveModuleState state = SwerveModuleState.optimize(desiredState, current.toRotation2dCW()); // Check angle measurement
-        // Set steer angle
-        steerMotor.angle(Angle.cwDeg(state.angle.getDegrees())); // Check direction
-
-        // Set drive speed
-        driveMotor.velocity(Angle.cwRad(state.speedMetersPerSecond * metersToRadians));
-
     }
 
     public SwerveModuleState getState() {
-        double velocity = driveEncoder.getVelocity().getCWRad() / metersToRadians; // Check direction
+        double velocity = driveEncoder.getVelocity().getCWRad() / metersToRadians;
         Angle angle = steerEncoder.getAngle();
 
         return new SwerveModuleState(velocity, angle.toRotation2dCW());
