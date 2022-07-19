@@ -1,6 +1,8 @@
 package com.swrobotics.robot.subsystem;
 
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.swrobotics.lib.encoder.CANCoderImplementation;
 import com.swrobotics.lib.math.Angle;
@@ -17,11 +19,22 @@ public class SwerveModuleMaker {
 
         TalonFX driveMotor_toWrap = new TalonFX(driveID);
         driveMotor_toWrap.configFactoryDefault();
-        // TODO: Configuration
+        
+        TalonFXConfiguration driveConfig = new TalonFXConfiguration();
+        {
+            SupplyCurrentLimitConfiguration driveSupplyLimit = new SupplyCurrentLimitConfiguration(
+                true,
+                35, // Continuous current limit
+                60, // Peak current limit
+                0.1 // Peak current limit duration
+            );
+
+            driveConfig.supplyCurrLimit = driveSupplyLimit;
+        }
 
         TalonSRX steerMotor_toWrap = new TalonSRX(steerID);
         steerMotor_toWrap.configFactoryDefault();
-        // TODO: Configuration
+        steerMotor_toWrap.setInverted(true);
 
         TalonMotor driveMotor = new TalonMotor(driveMotor_toWrap);
         driveMotor.setPIDController(new PIDController(DRIVE_KP, DRIVE_KI, DRIVE_KD));

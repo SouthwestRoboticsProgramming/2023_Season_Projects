@@ -33,6 +33,11 @@ public class Input {
 
         Vec2d raw = new Vec2d(x, y);
 
+        Angle angle = raw.angle();
+        if (raw.x == 0 && raw.y == 0) {
+            angle = Angle.cwDeg(0);
+        }
+
         return new Vec2d(raw.angle(), MathUtil.map(filter.calculate(raw.magnitude()), -Math.sqrt(2), Math.sqrt(2), -MAX_DRIVE_SPEED, MAX_DRIVE_SPEED));
     }
 
