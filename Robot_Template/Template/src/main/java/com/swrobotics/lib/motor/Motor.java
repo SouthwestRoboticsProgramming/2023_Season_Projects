@@ -101,7 +101,11 @@ public abstract class Motor extends Routine {
      * @param percent The demanded percent out of the motor.
      */
     public void percent(double percent) {
-
+        controlMode = () -> {
+            percent(percent);
+        };
+        
+        setPercent(percent);
     }
 
     /**
@@ -147,19 +151,22 @@ public abstract class Motor extends Routine {
      * @param target The target angle of the motor.
      */
     public void angle(Angle target) {
+        angle(currentAngle, target);
+    }
+    
+    public void angle(Angle current, Angle target) {
         controlMode = () -> {
-            angle(target);
+            angle(current, target);
         };
 
-
+        
         if (encoder == null) {
             DriverStation.reportError("No assigned encoder, cannot control position", true);
         }
 
-        double out = pid.calculate(currentAngle.getCWDeg(), target.getCWDeg());
-        // System.out.println(currentAngle.getCWDeg() + " -> " + target.getCWDeg() + " : " + out);
+        double out = pid.calculate(current.getCWDeg(), target.getCWDeg());
+        System.out.println(current.getCWDeg() + " -> " + target.getCWDeg() + " : " + out);
         setPercent(out);
-
     }
 
     /**
