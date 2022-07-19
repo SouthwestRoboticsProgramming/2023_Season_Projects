@@ -1,14 +1,14 @@
 package com.swrobotics.robot.input;
 
+import static com.swrobotics.robot.Constants.*;
+
 import com.swrobotics.lib.math.Angle;
 import com.swrobotics.lib.math.MathUtil;
 import com.swrobotics.lib.math.Vec2d;
 import com.swrobotics.lib.util.InputUtils;
-
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.XboxController;
 
-import static com.swrobotics.robot.Constants.*;
 
 public class Input {
     private static final double DEADBAND = 0.2;

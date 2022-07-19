@@ -5,10 +5,12 @@ import com.swrobotics.lib.encoder.Encoder;
 import com.swrobotics.lib.math.Angle;
 import com.swrobotics.lib.math.Vec2d;
 import com.swrobotics.lib.motor.Motor;
-import com.swrobotics.lib.util.SwerveUtils;
 
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
+/**
+ * A class to control a single swerve module with both a steer and drive motor, along with an encoder.
+ */
 public class SwerveModule {
 
     private final Motor driveMotor;
@@ -52,7 +54,10 @@ public class SwerveModule {
         currentDesiredState = new SwerveModuleState();
     }
 
-    // Set the angle that the wheel can be off and stop trying to adjust. (Default is 1 degree)
+    /**
+     * Set the angle that the wheel can be off and stop trying to adjust.
+     * @param tolerance Angle tolerance of the module. (Default is 1 degree)
+     */
     public void setTolerance(Angle tolerance) {
         this.tolerance = tolerance;
     }
@@ -70,38 +75,37 @@ public class SwerveModule {
      * @return If the wheel is within tolerance.
      */
     public boolean inTolerance() {
-
         Angle desired = Angle.cwDeg(currentDesiredState.angle.getDegrees());
         Angle actual = steerEncoder.getAngle();
         Angle difference = desired.sub(actual);
 
         boolean normal = difference.lessThan(tolerance) && difference.greaterThan(tolerance.scaleBy(-1));
         boolean overAxis = difference.lessThan(tolerance.addCWDeg(180)) && difference.greaterThan(tolerance.scaleBy(-1).addCWDeg(180));
+
         return normal || overAxis;
     }
 
-
+    /**
+     * Set the desired state of the module.
+     * @param desiredState Desired state of the module, as calculated by a kinematics object.
+     */
     public void setState(SwerveModuleState desiredState) {
-
-        if (position.x > 0 && position.y < 0 || true) {
-        // Normalize current angle to -90 to 90 degrees. (Fix optimization)
         Angle current = steerEncoder.getAngle();
         
         SwerveModuleState state = SwerveModuleState.optimize(desiredState, current.toRotation2dCW());
 
+        // Normalize the angle after optimization for PID.
         current = current.normalizeDeg(-90, 90);
-
-            
-            if (!inTolerance()) {
-                // Set steer angle
-                steerMotor.angle(current, Angle.ccwDeg(state.angle.getDegrees()));
-            }
-            
-            // Set drive speed
-            driveMotor.velocity(Angle.cwRad(state.speedMetersPerSecond * metersToRadians));
-            
-            currentDesiredState = state;
+  
+        if (!inTolerance()) {
+            // Set steer angle
+            steerMotor.angle(current, Angle.ccwDeg(state.angle.getDegrees()));
         }
+        
+        // Set drive speed
+        driveMotor.velocity(Angle.cwRad(state.speedMetersPerSecond * metersToRadians));
+        
+        currentDesiredState = state;
     }
 
     public SwerveModuleState getState() {

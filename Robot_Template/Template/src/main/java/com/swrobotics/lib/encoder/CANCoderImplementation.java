@@ -18,8 +18,17 @@ public class CANCoderImplementation extends AbsoluteEncoder {
 
     public CANCoderImplementation(int id) {
         encoder = new CANCoder(id);
-        encoder.configFactoryDefault();
+        configEncoder(encoder);
+    }
 
+    public CANCoderImplementation(int id, String canbus) {
+        encoder = new CANCoder(id, canbus);
+        configEncoder(encoder);
+    }
+    
+    private void configEncoder(CANCoder encoder) {
+        encoder.configFactoryDefault(TIMEOUT_MS);
+    
         CANCoderConfiguration config = new CANCoderConfiguration();
         {
             config.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
@@ -27,7 +36,7 @@ public class CANCoderImplementation extends AbsoluteEncoder {
             config.sensorTimeBase = SensorTimeBase.PerSecond;
             config.magnetOffsetDegrees = 0;
         }
-
+    
         encoder.configAllSettings(config, TIMEOUT_MS);
     }
 

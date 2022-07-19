@@ -1,5 +1,7 @@
 package com.swrobotics.robot.subsystem;
 
+import static com.swrobotics.robot.Constants.*;
+
 import com.swrobotics.lib.gyro.ADIS16448Gyroscope;
 import com.swrobotics.lib.gyro.Gyroscope;
 import com.swrobotics.lib.math.Angle;
@@ -8,8 +10,6 @@ import com.swrobotics.lib.routine.Routine;
 import com.swrobotics.lib.swerve.SwerveDrive;
 import com.swrobotics.lib.swerve.SwerveModule;
 import com.swrobotics.robot.input.Input;
-
-import static com.swrobotics.robot.Constants.*;
 
 public class Drive extends Routine {
     

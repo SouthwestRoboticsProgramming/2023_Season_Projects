@@ -2,9 +2,6 @@ package com.swrobotics.lib.encoder;
 
 import com.swrobotics.lib.math.Angle;
 
-// TODO: Come up with a standard for which direction the encoder is spinning -> Top or bottom view?
-
-
 /**
  * A general wrapper for any external encoder
  */
@@ -45,11 +42,13 @@ public abstract class Encoder {
         offset = getRawAngle().sub(angle);
     }
 
+    /**
+     * Define what angle needs to be subtracted to achieve the correct angle.
+     * @param offset Offset to be applied to getAngle().
+     */
     public void setOffset(Angle offset) {
         this.offset = offset;
     }
-
-    // Use offset
 
     /**
      * Get the angle of the encoder taking into account any defined offset.

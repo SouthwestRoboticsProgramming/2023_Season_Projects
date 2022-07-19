@@ -1,5 +1,7 @@
 package com.swrobotics.robot.subsystem;
 
+import static com.swrobotics.robot.Constants.*;
+
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
@@ -9,10 +11,7 @@ import com.swrobotics.lib.math.Angle;
 import com.swrobotics.lib.math.Vec2d;
 import com.swrobotics.lib.motor.implementations.TalonMotor;
 import com.swrobotics.lib.swerve.SwerveModule;
-
 import edu.wpi.first.math.controller.PIDController;
-
-import static com.swrobotics.robot.Constants.*;
 
 public class SwerveModuleMaker {
     public static SwerveModule buildModule(int driveID, int steerID, int steerEncoderID, Angle steerOffset, Vec2d position) {
