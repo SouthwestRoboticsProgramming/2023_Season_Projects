@@ -1,11 +1,10 @@
-package com.swrobotics.lib.motor.implementations;
+package com.swrobotics.lib.motor;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
-import com.swrobotics.lib.encoder.Encoder;
 import com.swrobotics.lib.encoder.TalonInternalEncoder;
-
-import com.swrobotics.lib.motor.Motor;
+import com.team2129.lib.drivers.Motor;
+import com.team2129.lib.sensors.Encoder;
 
 /**
  * A wrapper class for CTRE Talon motor controllers.

@@ -1,9 +1,9 @@
-package com.swrobotics.lib.routine;
+package com.team2129.lib.routine;
 
 import java.util.Arrays;
 import java.util.EnumSet;
 
-import com.swrobotics.lib.RobotState;
+import com.team2129.lib.wpilib.RobotState;
 
 // TODO: Add way to remove from scheduler & docs
 public abstract class Routine {

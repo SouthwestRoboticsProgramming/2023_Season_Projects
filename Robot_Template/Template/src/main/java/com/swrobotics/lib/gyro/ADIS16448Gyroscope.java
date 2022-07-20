@@ -1,6 +1,7 @@
 package com.swrobotics.lib.gyro;
 
 import com.team2129.lib.math.Angle;
+import com.team2129.lib.sensors.Gyroscope;
 
 import edu.wpi.first.wpilibj.ADIS16448_IMU;
 

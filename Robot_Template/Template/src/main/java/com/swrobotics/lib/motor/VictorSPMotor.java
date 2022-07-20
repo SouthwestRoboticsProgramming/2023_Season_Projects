@@ -1,6 +1,6 @@
-package com.swrobotics.lib.motor.implementations;
+package com.swrobotics.lib.motor;
 
-import com.swrobotics.lib.motor.Motor;
+import com.team2129.lib.drivers.Motor;
 
 import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
 

@@ -7,8 +7,8 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.swrobotics.lib.encoder.CANCoderImplementation;
-import com.swrobotics.lib.motor.implementations.TalonMotor;
-import com.swrobotics.lib.swerve.SwerveModule;
+import com.swrobotics.lib.motor.TalonMotor;
+import com.team2129.lib.drivers.swerve.SwerveModule;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
 

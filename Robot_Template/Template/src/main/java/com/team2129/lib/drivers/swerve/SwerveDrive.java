@@ -1,8 +1,8 @@
-package com.swrobotics.lib.swerve;
+package com.team2129.lib.drivers.swerve;
 
-import com.swrobotics.lib.gyro.Gyroscope;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
+import com.team2129.lib.sensors.Gyroscope;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;

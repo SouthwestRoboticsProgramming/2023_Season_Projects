@@ -1,4 +1,4 @@
-package com.swrobotics.lib.encoder;
+package com.team2129.lib.sensors;
 
 import com.team2129.lib.math.Angle;
 

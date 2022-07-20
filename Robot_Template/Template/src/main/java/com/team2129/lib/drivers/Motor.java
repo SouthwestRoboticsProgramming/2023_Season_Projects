@@ -1,15 +1,14 @@
-package com.swrobotics.lib.motor;
+package com.team2129.lib.drivers;
 
-import com.swrobotics.lib.routine.Routine;
 import com.team2129.lib.math.Angle;
+import com.team2129.lib.routine.Routine;
+import com.team2129.lib.sensors.Encoder;
 
 import edu.wpi.first.math.controller.BangBangController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
-
-import com.swrobotics.lib.encoder.Encoder;
 
 /**
  * An abstract class to put all motor functions into one interface for better motor controlls and uniform code across all vendors.

@@ -1,10 +1,10 @@
-package com.swrobotics.lib.swerve;
+package com.team2129.lib.drivers.swerve;
 
-import com.swrobotics.lib.encoder.AbsoluteEncoder;
-import com.swrobotics.lib.encoder.Encoder;
-import com.swrobotics.lib.motor.Motor;
+import com.team2129.lib.drivers.Motor;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
+import com.team2129.lib.sensors.AbsoluteEncoder;
+import com.team2129.lib.sensors.Encoder;
 
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
