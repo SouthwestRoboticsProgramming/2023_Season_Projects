@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>2022_Main_Robot_Rewrite</artifactId>
+        <groupId>com.swrobotics</groupId>
+        <version>1.0</version>
+    </parent>
+
+    <artifactId>Bert</artifactId>
+    <packaging>pom</packaging>
+
+    <properties>
+        <rio.gradle.executable>gradlew</rio.gradle.executable>
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>frc-build</id>
+            <properties>
+                <rio.gradle.goal>build</rio.gradle.goal>
+            </properties>
+        </profile>
+        <profile>
+            <id>frc-deploy</id>
+            <properties>
+                <rio.gradle.goal>deploy</rio.gradle.goal>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>rio-gradle-executable-windows</id>
+            <properties>
+                <rio.gradle.executable>gradlew.bat</rio.gradle.executable>
+            </properties>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+        </profile>
+    </profiles>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <executable>${rio.gradle.executable}</executable>
+                    <workingDirectory>${basedir}</workingDirectory>
+                    <environmentVariables>
+                        <JAVA_HOME>${java.home}</JAVA_HOME>
+                    </environmentVariables>
+                    <arguments>
+                        <argument>${rio.gradle.goal}</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
