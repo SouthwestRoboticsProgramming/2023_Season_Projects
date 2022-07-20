@@ -10,7 +10,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.DriverStation;
 
 /**
- * An abstract class to put all motor functions into one interface for better motor controlls and uniform code across all vendors.
+ * An abstract class to put all motor functions into one interface for better motor controls and uniform code across all vendors.
  */
 public abstract class Motor extends Routine {
 
@@ -27,7 +27,11 @@ public abstract class Motor extends Routine {
     private Angle currentAngle;
     private Angle currentVelocity;
 
+    private Angle angleTolerance;
+    private Angle angleTarget;
+
     private Runnable controlMode;
+
 
 
     /**
@@ -48,6 +52,19 @@ public abstract class Motor extends Routine {
         pid = new PIDController(0.0, 0.0, 0.0);
         feed = new SimpleMotorFeedforward(0.0, 0.0);
         bang = new BangBangController();
+    }
+
+    public void setAngleTolerance(Angle angleTolerance) {
+        this.angleTolerance = angleTolerance;
+    }
+
+    public boolean inTolerance() {
+        Angle desired = angleTarget;
+        Angle actual = encoder.getAngle();
+        Angle difference = desired.sub(actual);
+
+        boolean normal = difference.lessThan(angleTolerance) && difference.greaterThan(angleTolerance.scaleBy(-1));
+        return normal;
     }
 
     /**
@@ -165,6 +182,8 @@ public abstract class Motor extends Routine {
 
         double out = pid.calculate(current.getCWDeg(), target.getCWDeg());
         setPercent(out);
+
+        angleTarget = target;
     }
 
     /**
