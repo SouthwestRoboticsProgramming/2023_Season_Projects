@@ -7,7 +7,6 @@ import com.team2129.lib.sensors.Encoder;
 import edu.wpi.first.math.controller.BangBangController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 
 /**
@@ -143,13 +142,17 @@ public abstract class Motor extends Routine {
 
     /**
      * Control the motor to target an angular position.
-     * @param current The current angle of the motor.
      * @param target The target angle of the motor.
      */
     public void angle(Angle target) {
         angle(currentAngle, target);
     }
     
+    /**
+     * Control the motor to target an angular position.
+     * @param current The current position of the motor.
+     * @param target The target angle of the motor.
+     */
     public void angle(Angle current, Angle target) {
         controlMode = () -> {
             angle(current, target);

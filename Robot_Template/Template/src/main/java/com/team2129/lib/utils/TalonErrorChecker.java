@@ -1,7 +1,6 @@
 package com.team2129.lib.utils;
 
 import com.ctre.phoenix.ErrorCode;
-
 import edu.wpi.first.wpilibj.DriverStation;
 
 public class TalonErrorChecker {
