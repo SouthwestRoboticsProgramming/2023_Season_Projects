@@ -29,12 +29,7 @@ public class Drive extends Routine {
         SwerveModule w2 = SwerveModuleMaker.buildModule(1, 13, 6, Angle.cwDeg(310.253 + 180), new Vec2d(centerDistance, -centerDistance));
         SwerveModule w3 = SwerveModuleMaker.buildModule(4, 14, 9, Angle.cwDeg(3.9550 + 180), new Vec2d(centerDistance, centerDistance));
         
-        drive = new SwerveDrive(gyro, MAX_WHEEL_VELOCITY,
-        w0,
-        w1,
-        w2,
-        w3
-        );
+        drive = new SwerveDrive(gyro, MAX_WHEEL_VELOCITY, w0, w1, w2, w3);
     }
 
     @Override

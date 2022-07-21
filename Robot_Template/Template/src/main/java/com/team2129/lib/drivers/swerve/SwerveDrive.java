@@ -56,9 +56,9 @@ public class SwerveDrive {
     }
 
     /**
-     * Set the desired motion of the swerve drive
-     * @param translation Desired velocity vector in meters per second
-     * @param rotationsPerSecond Desired rotational velocity in rotation per second
+     * Set the desired motion of the swerve drive.
+     * @param translation Desired velocity vector in meters per second.
+     * @param rotationsPerSecond Desired rotational velocity in rotation per second.
      */
     public void setMotion(Vec2d translation, Angle rotationsPerSecond) {
         ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -68,11 +68,18 @@ public class SwerveDrive {
             gyro.getAngle().toRotation2dCCW()
             );
 
-        // speeds = ChassisSpeeds.fromFieldRelativeSpeeds(0.1, 0.1, 0.0, gyro.getAngle().toRotation2dCCW());
+        setMotion(speeds);
 
+    }
+    
+    /**
+     * Set the desired motion of the swerve drive.
+     * @param speeds
+     */
+    public void setMotion(ChassisSpeeds speeds) {
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds, centerOfRotation.toTranslation2d());
         SwerveDriveKinematics.desaturateWheelSpeeds(states, maxWheelVelocity);
-
+    
         // Update modules
         for (int i = 0; i < states.length; i++) {
             modules[i].setState(states[i]);

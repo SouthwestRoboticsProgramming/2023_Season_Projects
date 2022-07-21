@@ -14,6 +14,9 @@ import com.team2129.lib.math.Vec2d;
 
 import edu.wpi.first.math.controller.PIDController;
 
+/**
+ * Configures motors and creates a swerve module
+ */
 public class SwerveModuleMaker {
     public static SwerveModule buildModule(int driveID, int steerID, int steerEncoderID, Angle steerOffset, Vec2d position) {
 
