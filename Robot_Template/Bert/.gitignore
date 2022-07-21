@@ -1,0 +1,7 @@
+# Keep Gradle JAR so we can build
+!gradle/wrapper/gradle-wrapper.jar
+
+# ignore .gradle
+.gradle/
+
+build/
