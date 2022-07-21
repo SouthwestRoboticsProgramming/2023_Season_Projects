@@ -5,7 +5,7 @@ public final class Constants {
     public static final double DRIVE_KP = 0.0001;
     public static final double DRIVE_KI = 0;
     public static final double DRIVE_KD = 0;
-    public static final double TURN_KP = 0.007;
+    public static final double TURN_KP = 0.01;
     public static final double TURN_KI = 0.0001;
     public static final double TURN_KD = 0.0;
 
@@ -16,7 +16,7 @@ public final class Constants {
 
 
     public static final double MAX_DRIVE_ROTATION = 0.5 * Math.PI;
-    public static final double MAX_DRIVE_SPEED = 0.02;
+    public static final double MAX_DRIVE_SPEED = 0.2;
 
     public static final double INPUT_ACCELERATION = 2.0; // Units per second
 

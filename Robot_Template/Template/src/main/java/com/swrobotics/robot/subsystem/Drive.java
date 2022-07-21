@@ -37,6 +37,10 @@ public class Drive extends Routine {
         Vec2d translation = input.getDriveTranslation();
         Angle rotation = input.getDriveRotation();
 
-        drive.setMotion(translation, rotation);
+        if (input.getSlowMode()) {
+            translation.mul(0.5);
+        }
+
+        drive.setMotion(translation, rotation, input.getFieldRelative());
     }
 }

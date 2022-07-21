@@ -35,17 +35,27 @@ public class Input {
 
         Vec2d raw = new Vec2d(x, y);
 
-        // Extract angle
+        // Filter drive speed
+        double magnitude = MathUtil.clamp(filter.calculate(raw.magnitude()), -MAX_DRIVE_SPEED, MAX_DRIVE_SPEED);
+        
+        // Set default angle
         Angle angle = raw.angle();
-        if (raw.x == 0 && raw.y == 0) {
+        if (magnitude == 0) {
             angle = Angle.cwDeg(0);
         }
 
-        // Create a vector with filtered magnitude, and direction.
-        return new Vec2d(angle, MathUtil.clamp(filter.calculate(raw.magnitude()), -MAX_DRIVE_SPEED, MAX_DRIVE_SPEED));
+        return new Vec2d(angle, magnitude);
     }
 
     public Angle getDriveRotation() {
         return Angle.cwDeg(InputUtils.applyDeadband(controller.getRightX(), DEADBAND) * MAX_DRIVE_ROTATION);
+    }
+
+    public boolean getFieldRelative() {
+        return !(controller.getLeftTriggerAxis() > 1.0 - DEADBAND);
+    }
+
+    public boolean getSlowMode() {
+        return controller.getRightBumper();
     }
 }

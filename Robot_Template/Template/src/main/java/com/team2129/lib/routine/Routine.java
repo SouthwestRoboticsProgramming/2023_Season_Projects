@@ -6,6 +6,7 @@ import java.util.EnumSet;
 import com.team2129.lib.wpilib.RobotState;
 
 // TODO: Add way to remove from scheduler & docs
+// TODO: End routine from implementation, implement run states
 public abstract class Routine {
     private final EnumSet<RobotState> runStates;
     private boolean running = true;

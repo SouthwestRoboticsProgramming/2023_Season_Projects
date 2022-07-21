@@ -2,11 +2,14 @@ package com.team2129.lib.drivers.swerve;
 
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
+import com.team2129.lib.routine.Routine;
 import com.team2129.lib.sensors.Gyroscope;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 /*
@@ -22,12 +25,14 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 // TODO: BIG: Odometry
 
 /** A class to manage all of the swerve modules in a swerve drive. */
-public class SwerveDrive {
+public class SwerveDrive extends Routine {
     private final Gyroscope gyro;
     private final SwerveModule[] modules;
 
     private final double maxWheelVelocity;
     private final SwerveDriveKinematics kinematics;
+
+    private final SwerveDriveOdometry odometry;
 
     private Vec2d centerOfRotation;
 
@@ -43,6 +48,8 @@ public class SwerveDrive {
 
         kinematics = new SwerveDriveKinematics(positions);
         this.maxWheelVelocity = maxWheelVelocity;
+
+        odometry = new SwerveDriveOdometry(kinematics, gyro.getAngle().toRotation2dCW());
 
         centerOfRotation = new Vec2d(0, 0);
     }
@@ -60,7 +67,7 @@ public class SwerveDrive {
      * @param translation Desired velocity vector in meters per second.
      * @param rotationsPerSecond Desired rotational velocity in rotation per second.
      */
-    public void setMotion(Vec2d translation, Angle rotationsPerSecond) {
+    public void setMotion(Vec2d translation, Angle rotationsPerSecond, boolean isFieldRelative) {
         ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
             -translation.y, 
             translation.x, // Convert from our coordinates to WPILib
@@ -68,13 +75,19 @@ public class SwerveDrive {
             gyro.getAngle().toRotation2dCCW()
             );
 
-        setMotion(speeds);
+        if (!isFieldRelative) {
+            speeds = new ChassisSpeeds(-translation.y,
+            translation.x,
+            rotationsPerSecond.getCCWRad()
+            );
+        }
 
+        setMotion(speeds);
     }
     
     /**
-     * Set the desired motion of the swerve drive.
-     * @param speeds
+     * Set the desired motion of the swerve drive using a custom ChassisSpeeds object.
+     * @param speeds ChassisSpeeds object detailing the desired motion of the swerve drive.
      */
     public void setMotion(ChassisSpeeds speeds) {
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds, centerOfRotation.toTranslation2d());
@@ -84,5 +97,32 @@ public class SwerveDrive {
         for (int i = 0; i < states.length; i++) {
             modules[i].setState(states[i]);
         }
+    }
+
+    public SwerveDriveKinematics getKinematics() {
+        return kinematics;
+    }
+
+    public SwerveModuleState[] getStates() {
+        SwerveModuleState[] states = new SwerveModuleState[modules.length];
+
+        for (int i = 0; i < modules.length; i++) {
+            states[i] = modules[i].getState();
+        }
+
+        return states;
+    }
+
+    public Pose2d getPose() {
+        return odometry.getPoseMeters();
+    }
+
+    public void setOdometryPosition(Pose2d pose) {
+        odometry.resetPosition(pose, gyro.getAngle().toRotation2dCW());
+    }
+
+    @Override
+    public void periodic() {
+        odometry.update(gyro.getAngle().toRotation2dCW(), getStates());
     }
 }
