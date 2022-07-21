@@ -21,6 +21,7 @@ public abstract class Routine {
     public Routine(RobotState... runStates) {
         this.runStates = EnumSet.noneOf(RobotState.class);
         this.runStates.addAll(Arrays.asList(runStates));
+        Scheduler.get().addRoutine(this);
     }
 
     public boolean runsInState(RobotState state) {
