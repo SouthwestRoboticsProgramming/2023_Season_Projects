@@ -1,4 +1,4 @@
-package com.swrobotics.lib.encoder;
+package com.team2129.lib.encoder;
 
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;

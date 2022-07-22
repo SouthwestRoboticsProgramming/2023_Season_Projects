@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 import com.swrobotics.robot.auto.TrajectoryReader;
 import com.swrobotics.robot.auto.routines.FollowPathRoutine;
-import com.team2129.lib.drivers.swerve.SwerveDrive;
+import com.team2129.lib.swerve.SwerveDrive;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.routine.Routine;
 

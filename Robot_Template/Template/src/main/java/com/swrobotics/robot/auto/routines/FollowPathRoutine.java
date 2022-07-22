@@ -69,7 +69,7 @@ public class FollowPathRoutine extends Routine {
     }
 
     @Override
-    public void deconstruct() {
+    public void end() {
         timer.stop();
         outputChassisSpeeds.accept(new ChassisSpeeds());
     }

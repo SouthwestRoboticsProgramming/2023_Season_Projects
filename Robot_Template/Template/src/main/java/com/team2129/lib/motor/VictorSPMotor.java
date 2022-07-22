@@ -1,4 +1,4 @@
-package com.swrobotics.lib.motor;
+package com.team2129.lib.motor;
 
 import com.team2129.lib.drivers.Motor;
 

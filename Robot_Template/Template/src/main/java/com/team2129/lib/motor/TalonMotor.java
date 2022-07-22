@@ -1,8 +1,8 @@
-package com.swrobotics.lib.motor;
+package com.team2129.lib.motor;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
-import com.swrobotics.lib.encoder.TalonInternalEncoder;
+import com.team2129.lib.encoder.TalonInternalEncoder;
 import com.team2129.lib.drivers.Motor;
 import com.team2129.lib.sensors.Encoder;
 
