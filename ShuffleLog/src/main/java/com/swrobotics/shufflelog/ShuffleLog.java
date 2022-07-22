@@ -2,6 +2,7 @@ package com.swrobotics.shufflelog;
 
 import com.swrobotics.messenger.client.MessengerClient;
 import com.swrobotics.shufflelog.profile.Profiler;
+import com.swrobotics.shufflelog.tool.DataLogTool;
 import com.swrobotics.shufflelog.tool.MenuBarTool;
 import com.swrobotics.shufflelog.tool.MessengerTool;
 import com.swrobotics.shufflelog.tool.NetworkTablesTool;
@@ -9,8 +10,8 @@ import com.swrobotics.shufflelog.tool.ShuffleLogProfilerTool;
 import com.swrobotics.shufflelog.tool.Tool;
 import imgui.ImGui;
 import imgui.ImGuiIO;
+import imgui.extension.implot.ImPlot;
 import imgui.flag.ImGuiMouseButton;
-import imgui.gl3.ImGuiImplGl3;
 import processing.core.PApplet;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ public final class ShuffleLog extends PApplet {
     private final ExecutorService threadPool = Executors.newFixedThreadPool(4);
     private ProcessingImGuiBackend gui;
     private MessengerClient msg;
+    private long startTime;
 
     @Override
     public void settings() {
@@ -41,10 +43,20 @@ public final class ShuffleLog extends PApplet {
         gui = new ProcessingImGuiBackend();
         gui.init();
 
+        ImPlot.createContext();
+
         tools.add(new MenuBarTool());
         tools.add(new MessengerTool(this));
-        tools.add(new NetworkTablesTool(threadPool));
+        DataLogTool dataLogTool = new DataLogTool(this);
+        tools.add(dataLogTool);
+        tools.add(new NetworkTablesTool(threadPool, dataLogTool));
         tools.add(new ShuffleLogProfilerTool());
+
+        startTime = System.currentTimeMillis();
+    }
+
+    public double getTimestamp() {
+        return (System.currentTimeMillis() - startTime) / 1000.0;
     }
 
     @Override
