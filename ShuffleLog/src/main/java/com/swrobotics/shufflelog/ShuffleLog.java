@@ -64,6 +64,8 @@ public final class ShuffleLog extends PApplet {
         msg.readMessages();
         Profiler.pop();
 
+        background(210);
+
         for (Tool tool : tools) {
             Profiler.push(tool.getClass().getSimpleName());
             tool.process();
