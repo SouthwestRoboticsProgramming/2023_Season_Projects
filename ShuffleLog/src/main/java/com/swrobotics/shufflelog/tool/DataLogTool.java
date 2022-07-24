@@ -3,6 +3,8 @@ package com.swrobotics.shufflelog.tool;
 import com.swrobotics.shufflelog.ShuffleLog;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import imgui.ImVec2;
+import imgui.extension.implot.flag.ImPlotLocation;
+import imgui.extension.implot.flag.ImPlotOrientation;
 import imgui.flag.ImGuiCond;
 
 import java.util.ArrayList;
@@ -12,8 +14,8 @@ import static imgui.ImGui.*;
 import static imgui.extension.implot.ImPlot.*;
 
 public final class DataLogTool implements Tool {
-    private static final int HISTORY_MAX = 500;
-    private static final double Y_PADDING = 0.05;
+    private static final int HISTORY_RETENTION_TIME = 10; // Seconds
+    private static final double Y_PADDING = 0.05; // Percentage of Y span
 
     private static final class DataPoint {
         double x, y;
@@ -42,9 +44,9 @@ public final class DataLogTool implements Tool {
 
         void addDataPoint(double x, double y) {
             history.add(new DataPoint(x, y));
-            if (history.size() > HISTORY_MAX) {
+            while (x - history.get(0).x > HISTORY_RETENTION_TIME)
                 history.remove(0);
-            }
+
             recalculateYRange();
         }
 
@@ -153,8 +155,13 @@ public final class DataLogTool implements Tool {
         }
 
         double pad = (maxY - minY) * Y_PADDING;
+
+        // When the graph is completely flat, add a bit of padding so the line is visible
+        if (pad < 0.00001) pad = 0.1;
+
         setNextPlotLimits(minX, maxX, minY - pad, maxY + pad, ImGuiCond.Always);
-        if (beginPlot(graph.path, "Time (s)", "Value", GRAPH_SIZE)) {
+        if (beginPlot(graph.path, "Time (s)", "Value", GRAPH_SIZE, 0, 0, 0)) {
+            setLegendLocation(ImPlotLocation.East, ImPlotOrientation.Vertical, true);
             int size = graph.storage.size();
             int i = 0;
             for (DataStorage storage : graph.storage) {
