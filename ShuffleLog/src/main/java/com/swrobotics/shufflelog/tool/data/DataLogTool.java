@@ -21,6 +21,14 @@ public final class DataLogTool implements Tool {
     }
 
     private void addPlot(DataPlot<?> plot) {
+        for (Graph graph : graphs) {
+            for (DataPlot<?> p : graph.getPlots()) {
+                if (p.getPath().equals(plot.getPath())) {
+                    return;
+                }
+            }
+        }
+
         Graph graph = new Graph();
         graph.addPlot(plot);
         graphs.add(graph);
