@@ -1,6 +1,7 @@
-package com.swrobotics.shufflelog.tool;
+package com.swrobotics.shufflelog.tool.data;
 
 import com.swrobotics.shufflelog.ShuffleLog;
+import com.swrobotics.shufflelog.tool.Tool;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import imgui.ImVec2;
 import imgui.extension.implot.flag.ImPlotLocation;
@@ -13,7 +14,7 @@ import java.util.List;
 import static imgui.ImGui.*;
 import static imgui.extension.implot.ImPlot.*;
 
-public final class DataLogTool implements Tool {
+public final class OldDataLogTool implements Tool {
     private static final int HISTORY_RETENTION_TIME = 10; // Seconds
     private static final double Y_PADDING = 0.05; // Percentage of Y span
 
@@ -78,7 +79,7 @@ public final class DataLogTool implements Tool {
     private final ShuffleLog log;
     private final List<Graph> graphs;
 
-    public DataLogTool(ShuffleLog log) {
+    public OldDataLogTool(ShuffleLog log) {
         this.log = log;
         graphs = new ArrayList<>();
     }

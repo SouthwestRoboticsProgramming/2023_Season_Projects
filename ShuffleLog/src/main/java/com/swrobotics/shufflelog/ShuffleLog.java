@@ -2,7 +2,7 @@ package com.swrobotics.shufflelog;
 
 import com.swrobotics.messenger.client.MessengerClient;
 import com.swrobotics.shufflelog.profile.Profiler;
-import com.swrobotics.shufflelog.tool.DataLogTool;
+import com.swrobotics.shufflelog.tool.data.DataLogTool;
 import com.swrobotics.shufflelog.tool.MenuBarTool;
 import com.swrobotics.shufflelog.tool.MessengerTool;
 import com.swrobotics.shufflelog.tool.NetworkTablesTool;
@@ -25,6 +25,8 @@ public final class ShuffleLog extends PApplet {
     private ProcessingImGuiBackend gui;
     private MessengerClient msg;
     private long startTime;
+
+    private boolean leftMouse, middleMouse, rightMouse;
 
     @Override
     public void settings() {
@@ -60,6 +62,24 @@ public final class ShuffleLog extends PApplet {
     }
 
     @Override
+    public void mousePressed() {
+        switch (mouseButton) {
+            case LEFT: leftMouse = true; break;
+            case RIGHT: rightMouse = true; break;
+            case CENTER: middleMouse = true; break;
+        }
+    }
+
+    @Override
+    public void mouseReleased() {
+        switch (mouseButton) {
+            case LEFT: leftMouse = false; break;
+            case RIGHT: rightMouse = false; break;
+            case CENTER: middleMouse = false; break;
+        }
+    }
+
+    @Override
     public void draw() {
         Profiler.beginMeasurements("Root");
 
@@ -68,7 +88,9 @@ public final class ShuffleLog extends PApplet {
         io.setDisplaySize(width, height);
         io.setDeltaTime(1 / 60.0f);
         io.setMousePos(mouseX, mouseY);
-        io.setMouseDown(ImGuiMouseButton.Left, mousePressed);
+        io.setMouseDown(ImGuiMouseButton.Left, leftMouse);
+        io.setMouseDown(ImGuiMouseButton.Middle, middleMouse);
+        io.setMouseDown(ImGuiMouseButton.Right, rightMouse);
         ImGui.newFrame();
         Profiler.pop();
 

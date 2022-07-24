@@ -1,5 +1,6 @@
 package com.swrobotics.shufflelog.tool;
 
+import com.swrobotics.shufflelog.tool.data.DataLogTool;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -159,12 +160,6 @@ public final class NetworkTablesTool implements Tool {
     private final ImDouble d = new ImDouble();
     private final ImString s = new ImString(256);
 
-    private void graphButton(String path, String name, NetworkTableEntry entry) {
-        if (button("Graph " + path)) {
-            dataLog.addGraph(path, name, entry);
-        }
-    }
-
     private void showPrimitiveEntry(String name, NetworkTableEntry entry, String path) {
         tableNextColumn();
         treeNodeEx(name, ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen | ImGuiTreeNodeFlags.SpanFullWidth);
@@ -205,8 +200,13 @@ public final class NetworkTablesTool implements Tool {
         tableNextColumn();
         text(entry.getType().name());
         tableNextColumn();
-        if (graph)
-            graphButton(path, name, entry);
+        if (graph && button("Graph##" + path)) {
+            if (entry.getType() == NetworkTableType.kBoolean) {
+                dataLog.addBooleanPlot(path, name, entry);
+            } else {
+                dataLog.addDoublePlot(path, name, entry);
+            }
+        }
     }
 
     private static final boolean[] EMPTY_BOOL_ARRAY = new boolean[0];
@@ -220,8 +220,6 @@ public final class NetworkTablesTool implements Tool {
         tableNextColumn();
         text(entry.getType().name());
         tableNextColumn();
-        if (entry.getType() == NetworkTableType.kBooleanArray || entry.getType() == NetworkTableType.kDoubleArray)
-            graphButton(path, name, entry);
 
         if (open) {
             switch (entry.getType()) {
@@ -240,6 +238,9 @@ public final class NetworkTablesTool implements Tool {
                         textDisabled("--");
                         val[i] = b.get();
                         tableNextColumn();
+                        if (button("Graph##" + path + "/" + i)) {
+                            dataLog.addBooleanArrayEntryPlot(path + "/" + i, name + "/" + i, entry, i);
+                        }
                     }
                     if (changed) entry.setBooleanArray(val);
                     break;
@@ -259,6 +260,9 @@ public final class NetworkTablesTool implements Tool {
                         textDisabled("--");
                         val[i] = d.get();
                         tableNextColumn();
+                        if (button("Graph##" + path + "/" + i)) {
+                            dataLog.addDoubleArrayEntryPlot(path + "/" + i, name + "/" + i, entry, i);
+                        }
                     }
                     if (changed) entry.setDoubleArray(val);
                     break;
