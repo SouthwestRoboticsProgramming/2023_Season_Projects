@@ -12,16 +12,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
-/*
- * Wheel Layout:
- * 
- * w0 ------- w1
- *  |    ^    |
- *  |    |    |
- *  |    |    |
- * w2 ------- w3
- */
-
 // TODO: BIG: Odometry
 
 /** A class to manage all of the swerve modules in a swerve drive. */
@@ -68,17 +58,18 @@ public class SwerveDrive extends Routine {
      * @param rotationsPerSecond Desired rotational velocity in rotation per second.
      */
     public void setMotion(Vec2d translation, Angle rotationsPerSecond, boolean isFieldRelative) {
-        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-            -translation.y, 
-            translation.x, // Convert from our coordinates to WPILib
-            rotationsPerSecond.getCCWRad(), 
-            gyro.getAngle().toRotation2dCCW()
+        ChassisSpeeds speeds;
+        if (isFieldRelative) {
+            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                -translation.y, 
+                translation.x, // Convert from our coordinates to WPILib
+                rotationsPerSecond.getCCWRad(), 
+                gyro.getAngle().toRotation2dCCW()
             );
-
-        if (!isFieldRelative) {
+        } else {
             speeds = new ChassisSpeeds(-translation.y,
-            translation.x,
-            rotationsPerSecond.getCCWRad()
+                translation.x,
+                rotationsPerSecond.getCCWRad()
             );
         }
 
@@ -111,6 +102,15 @@ public class SwerveDrive extends Routine {
         }
 
         return states;
+    }
+
+    public void printEncoderOffsets() {
+        StringBuilder out = new StringBuilder("Encoder offsets: ");
+        for (SwerveModule module : modules) {
+            out.append(String.format("%3.3f", module.getRawAngle().getCWDeg()));
+            out.append(" ");
+        }
+        System.out.println(out);
     }
 
     public Pose2d getPose() {

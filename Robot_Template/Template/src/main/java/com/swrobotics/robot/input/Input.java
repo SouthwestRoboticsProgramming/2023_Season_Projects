@@ -33,18 +33,7 @@ public class Input {
         double x = InputUtils.applyDeadband(controller.getLeftX(), DEADBAND);
         double y = -InputUtils.applyDeadband(controller.getLeftY(), DEADBAND);
 
-        Vec2d raw = new Vec2d(x, y);
-
-        // Filter drive speed
-        double magnitude = MathUtil.clamp(filter.calculate(raw.magnitude()), -MAX_DRIVE_SPEED, MAX_DRIVE_SPEED);
-        
-        // Set default angle
-        Angle angle = raw.angle();
-        if (magnitude == 0) {
-            angle = Angle.cwDeg(0);
-        }
-
-        return new Vec2d(angle, magnitude);
+        return new Vec2d(x, y).mul(MAX_DRIVE_SPEED);
     }
 
     public Angle getDriveRotation() {

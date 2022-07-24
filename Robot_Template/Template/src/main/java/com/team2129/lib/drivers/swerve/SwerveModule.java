@@ -114,4 +114,8 @@ public class SwerveModule {
 
         return new SwerveModuleState(velocity, angle.toRotation2dCW());
     }
+
+    public Angle getRawAngle() {
+        return steerEncoder.getRawAngle();
+    }
 }
