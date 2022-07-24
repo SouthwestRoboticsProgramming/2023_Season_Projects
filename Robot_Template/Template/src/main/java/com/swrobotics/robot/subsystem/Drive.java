@@ -2,10 +2,10 @@ package com.swrobotics.robot.subsystem;
 
 import static com.swrobotics.robot.Constants.*;
 
-import com.swrobotics.lib.gyro.ADIS16448Gyroscope;
+import com.team2129.lib.gyro.ADIS16448Gyroscope;
 import com.swrobotics.robot.input.Input;
-import com.team2129.lib.drivers.swerve.SwerveDrive;
-import com.team2129.lib.drivers.swerve.SwerveModule;
+import com.team2129.lib.swerve.SwerveDrive;
+import com.team2129.lib.swerve.SwerveModule;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
 import com.team2129.lib.routine.Routine;

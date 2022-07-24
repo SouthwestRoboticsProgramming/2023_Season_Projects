@@ -31,6 +31,7 @@ public final class NetworkTablesTool implements Tool {
 
     private final ExecutorService threadPool;
     private final NetworkTableInstance nt;
+    private final DataLogTool dataLog;
 
     private final ImInt connectionMode;
     private final ImString host;
@@ -39,8 +40,9 @@ public final class NetworkTablesTool implements Tool {
     private Future<?> reconnectFuture;
     private boolean requiresReconnect;
 
-    public NetworkTablesTool(ExecutorService threadPool) {
+    public NetworkTablesTool(ExecutorService threadPool, DataLogTool dataLog) {
         this.threadPool = threadPool;
+        this.dataLog = dataLog;
         nt = NetworkTableInstance.getDefault();
         connectionMode = new ImInt(TEAM_NUMBER);
 
@@ -157,14 +159,22 @@ public final class NetworkTablesTool implements Tool {
     private final ImDouble d = new ImDouble();
     private final ImString s = new ImString(256);
 
-    private void showPrimitiveEntry(String name, NetworkTableEntry entry) {
+    private void graphButton(String path, String name, NetworkTableEntry entry) {
+        if (button("Graph " + path)) {
+            dataLog.addGraph(path, name, entry);
+        }
+    }
+
+    private void showPrimitiveEntry(String name, NetworkTableEntry entry, String path) {
         tableNextColumn();
         treeNodeEx(name, ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen | ImGuiTreeNodeFlags.SpanFullWidth);
         tableNextColumn();
         pushID("nt_value:" + name);
         pushItemWidth(-1);
+        boolean graph = false;
         switch (entry.getType()) {
             case kBoolean: {
+                graph = true;
                 b.set(entry.getBoolean(false));
                 if (checkbox("", b)) {
                     entry.setBoolean(b.get());
@@ -172,6 +182,7 @@ public final class NetworkTablesTool implements Tool {
                 break;
             }
             case kDouble: {
+                graph = true;
                 d.set(entry.getDouble(0.0));
                 if (dragScalar("", ImGuiDataType.Double, d, 0.1f)) {
                     entry.setDouble(d.get());
@@ -193,18 +204,24 @@ public final class NetworkTablesTool implements Tool {
         popID();
         tableNextColumn();
         text(entry.getType().name());
+        tableNextColumn();
+        if (graph)
+            graphButton(path, name, entry);
     }
 
     private static final boolean[] EMPTY_BOOL_ARRAY = new boolean[0];
     private static final double[] EMPTY_DOUBLE_ARRAY = new double[0];
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
-    private void showArrayEntry(String name, NetworkTableEntry entry) {
+    private void showArrayEntry(String name, NetworkTableEntry entry, String path) {
         tableNextColumn();
         boolean open = treeNodeEx(name, ImGuiTreeNodeFlags.SpanFullWidth);
         tableNextColumn();
         textDisabled("--");
         tableNextColumn();
         text(entry.getType().name());
+        tableNextColumn();
+        if (entry.getType() == NetworkTableType.kBooleanArray || entry.getType() == NetworkTableType.kDoubleArray)
+            graphButton(path, name, entry);
 
         if (open) {
             switch (entry.getType()) {
@@ -222,6 +239,7 @@ public final class NetworkTablesTool implements Tool {
                         tableNextColumn();
                         textDisabled("--");
                         val[i] = b.get();
+                        tableNextColumn();
                     }
                     if (changed) entry.setBooleanArray(val);
                     break;
@@ -240,6 +258,7 @@ public final class NetworkTablesTool implements Tool {
                         tableNextColumn();
                         textDisabled("--");
                         val[i] = d.get();
+                        tableNextColumn();
                     }
                     if (changed) entry.setDoubleArray(val);
                     break;
@@ -258,6 +277,7 @@ public final class NetworkTablesTool implements Tool {
                         tableNextColumn();
                         textDisabled("--");
                         val[i] = s.get();
+                        tableNextColumn();
                     }
                     if (changed) entry.setStringArray(val);
                     break;
@@ -270,7 +290,7 @@ public final class NetworkTablesTool implements Tool {
         }
     }
 
-    private void showEntry(String name, NetworkTableEntry entry) {
+    private void showEntry(String name, NetworkTableEntry entry, String path) {
         tableNextRow();
 
         NetworkTableType type = entry.getType();
@@ -280,13 +300,13 @@ public final class NetworkTablesTool implements Tool {
                 type == NetworkTableType.kStringArray;
 
         if (isArray) {
-            showArrayEntry(name, entry);
+            showArrayEntry(name, entry, path);
         } else {
-            showPrimitiveEntry(name, entry);
+            showPrimitiveEntry(name, entry, path);
         }
     }
 
-    private void showTable(String name, NetworkTable table, boolean isRoot) {
+    private void showTable(String name, NetworkTable table, String path, boolean isRoot) {
         tableNextRow();
 
         tableNextColumn();
@@ -298,11 +318,11 @@ public final class NetworkTablesTool implements Tool {
 
         if (open) {
             for (String key : table.getKeys()) {
-                showEntry(key, table.getEntry(key));
+                showEntry(key, table.getEntry(key), path + "/" + key);
             }
 
             for (String subtable : table.getSubTables()) {
-                showTable(subtable, table.getSubTable(subtable), false);
+                showTable(subtable, table.getSubTable(subtable), path + "/" + subtable, false);
             }
 
             treePop();
@@ -315,13 +335,13 @@ public final class NetworkTablesTool implements Tool {
                 | ImGuiTableFlags.Resizable
                 | ImGuiTableFlags.RowBg;
 
-        if (beginTable("nt_tree", 3, flags)) {
+        if (beginTable("nt_tree", 4, flags)) {
             tableSetupColumn("Name", ImGuiTableColumnFlags.WidthFixed, 135);
             tableSetupColumn("Value", ImGuiTableColumnFlags.WidthStretch);
             tableSetupColumn("Type", ImGuiTableColumnFlags.WidthFixed, 110);
             tableHeadersRow();
 
-            showTable("Root", nt.getTable("/"), true);
+            showTable("Root", nt.getTable("/"), "", true);
 
             endTable();
         }

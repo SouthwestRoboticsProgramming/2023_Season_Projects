@@ -1,4 +1,4 @@
-package com.team2129.lib.drivers.swerve;
+package com.team2129.lib.swerve;
 
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;

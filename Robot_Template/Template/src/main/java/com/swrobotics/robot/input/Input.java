@@ -2,7 +2,7 @@ package com.swrobotics.robot.input;
 
 import static com.swrobotics.robot.Constants.*;
 
-import com.swrobotics.lib.util.InputUtils;
+import com.team2129.lib.utils.InputUtils;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.MathUtil;
 import com.team2129.lib.math.Vec2d;
