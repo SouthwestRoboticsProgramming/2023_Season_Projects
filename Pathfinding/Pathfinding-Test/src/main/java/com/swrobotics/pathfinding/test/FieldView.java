@@ -1,14 +1,38 @@
 package com.swrobotics.pathfinding.test;
 
 import com.swrobotics.pathfinding.lib.BitfieldGrid;
+import com.swrobotics.pathfinding.lib.Pathfinder;
 import com.swrobotics.pathfinding.lib.Point;
 import processing.core.PApplet;
 import processing.core.PGraphics;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static imgui.ImGui.*;
 import static processing.core.PConstants.*;
 
 public final class FieldView extends ProcessingView {
+    private static final class FixedPathfinder implements Pathfinder {
+        private Point start;
+        private Point goal;
+
+        @Override
+        public void setStart(Point start) {
+            this.start = start;
+        }
+
+        @Override
+        public void setGoal(Point goal) {
+            this.goal = goal;
+        }
+
+        @Override
+        public List<Point> findPath() {
+            return Arrays.asList(start, goal);
+        }
+    }
+
     private static final int MODE_DRAW = 0;
     private static final int MODE_PATH = 1;
 
@@ -16,6 +40,8 @@ public final class FieldView extends ProcessingView {
 
     private final int[] fieldSize;
     private BitfieldGrid grid;
+    private Pathfinder pathfinder;
+
     private boolean viewportHovered;
     private SmoothFloat posX, posY, scale;
     private boolean hasInitialized;
@@ -32,6 +58,7 @@ public final class FieldView extends ProcessingView {
         fieldSize[0] = 10;
         fieldSize[1] = 10;
         grid = new BitfieldGrid(fieldSize[0], fieldSize[1]);
+        pathfinder = new FixedPathfinder();
 
         viewportHovered = false;
         posX = new SmoothFloat(SMOOTH, -5);
@@ -59,9 +86,12 @@ public final class FieldView extends ProcessingView {
 
     @Override
     public void mousePressed() {
+        if (!viewportHovered)
+            return;
+
         int x = getHoveredCellX();
         int y = getHoveredCellY();
-        boolean valid = viewportHovered && isGridPosValid(x, y);
+        boolean valid = isGridPosValid(x, y);
 
         if (mode == MODE_DRAW && mouseButton == LEFT) {
             boolean currentState = valid && grid.canPass(x, y);
@@ -84,20 +114,24 @@ public final class FieldView extends ProcessingView {
 
     @Override
     public void mouseDragged() {
+        if (!viewportHovered)
+            return;
+
         int x = getHoveredCellX();
         int y = getHoveredCellY();
+        boolean valid = isGridPosValid(x, y);
 
         if (mode == MODE_DRAW) {
             if (mouseButton == LEFT) {
-                if (isGridPosValid(x, y) && viewportHovered)
+                if (valid)
                     grid.set(x, y, paintState);
             } else if (mouseButton == RIGHT || mouseButton == CENTER) {
                 dragView();
             }
         } else if (mode == MODE_PATH) {
-            if (mouseButton == LEFT) {
+            if (mouseButton == LEFT && valid) {
                 start = new Point(x, y);
-            } else if (mouseButton == RIGHT) {
+            } else if (mouseButton == RIGHT && valid) {
                 goal = new Point(x, y);
             } else if (mouseButton == CENTER) {
                 dragView();
@@ -162,12 +196,30 @@ public final class FieldView extends ProcessingView {
         // Points
         strokeWidth(g, 1);
         g.ellipseMode(CENTER);
-        g.stroke(15, 107, 55);
+        g.stroke(27, 196, 101, 128);
         g.fill(27, 196, 101);
-        g.ellipse(start.x + 0.5f, start.y + 0.5f, 0.5f, 0.5f);
-        g.stroke(26, 37, 120);
+        float startSize = start.equals(goal) ? 0.6f : 0.5f;
+        g.ellipse(start.x + 0.5f, start.y + 0.5f, startSize, startSize);
+        g.stroke(44, 62, 199, 128);
         g.fill(44, 62, 199);
         g.ellipse(goal.x + 0.5f, goal.y + 0.5f, 0.5f, 0.5f);
+
+        // Path
+        pathfinder.setStart(start);
+        pathfinder.setGoal(goal);
+        List<Point> path = pathfinder.findPath();
+        strokeWidth(g, 4);
+        g.stroke(214, 196, 32, 128);
+        g.beginShape(LINE_STRIP);
+        for (Point p : path)
+            g.vertex(p.x + 0.5f, p.y + 0.5f);
+        g.endShape();
+        strokeWidth(g, 2);
+        g.stroke(214, 196, 32);
+        g.beginShape(LINE_STRIP);
+        for (Point p : path)
+            g.vertex(p.x + 0.5f, p.y + 0.5f);
+        g.endShape();
     }
 
     private void resetZoom(boolean now) {

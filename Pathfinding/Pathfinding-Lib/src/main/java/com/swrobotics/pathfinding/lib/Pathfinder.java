@@ -7,6 +7,4 @@ public interface Pathfinder {
     void setGoal(Point goal);
 
     List<Point> findPath();
-
-    void run();
 }

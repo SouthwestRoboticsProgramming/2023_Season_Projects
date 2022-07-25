@@ -60,6 +60,7 @@ public final class PathfindingTest extends PApplet {
 
         background(13, 26, 38);
 
+        ImGui.dockSpaceOverViewport();
         ImGui.showDemoWindow();
         field.drawGui();
 
