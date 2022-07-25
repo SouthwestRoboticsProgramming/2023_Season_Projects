@@ -4,6 +4,7 @@ import com.swrobotics.pathfinding.lib.AStarPathfinder;
 import com.swrobotics.pathfinding.lib.BitfieldGrid;
 import com.swrobotics.pathfinding.lib.Pathfinder;
 import com.swrobotics.pathfinding.lib.Point;
+import com.swrobotics.pathfinding.lib.ThetaStarPathfinder;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 
@@ -15,6 +16,9 @@ import static processing.core.PConstants.*;
 public final class FieldView extends ProcessingView {
     private static final int MODE_DRAW = 0;
     private static final int MODE_PATH = 1;
+
+    private static final int FINDER_A_STAR = 0;
+    private static final int FINDER_THETA_STAR = 1;
 
     private static final float SMOOTH = 12f;
 
@@ -29,6 +33,7 @@ public final class FieldView extends ProcessingView {
     private Point start, goal;
 
     private int mode;
+    private int finderType;
     private boolean paintState;
 
     public FieldView(PApplet app) {
@@ -38,7 +43,6 @@ public final class FieldView extends ProcessingView {
         fieldSize[0] = 10;
         fieldSize[1] = 10;
         grid = new BitfieldGrid(fieldSize[0], fieldSize[1]);
-        pathfinder = new AStarPathfinder(grid);
 
         viewportHovered = false;
         posX = new SmoothFloat(SMOOTH, -5);
@@ -50,6 +54,9 @@ public final class FieldView extends ProcessingView {
         goal = new Point(8, 8);
 
         mode = MODE_DRAW;
+        finderType = FINDER_THETA_STAR;
+
+        createPathfinder();
     }
 
     private int getHoveredCellX() {
@@ -60,8 +67,20 @@ public final class FieldView extends ProcessingView {
         return (int) Math.floor((mouseY - g.height / 2f) / scale.get() - posY.get());
     }
 
-    private boolean isGridPosValid(int x, int y) {
-        return x >= 0 && x < grid.getWidth() && y >= 0 && y < grid.getHeight();
+    private boolean isCellPosValid(int x, int y) {
+        return x >= 0 && x < grid.getCellWidth() && y >= 0 && y < grid.getCellHeight();
+    }
+
+    private int getHoveredPointX() {
+        return (int) Math.floor((mouseX - g.width / 2f) / scale.get() - posX.get() + 0.5);
+    }
+
+    private int getHoveredPointY() {
+        return (int) Math.floor((mouseY - g.height / 2f) / scale.get() - posY.get() + 0.5);
+    }
+
+    private boolean isPointPosValid(int x, int y) {
+        return x >= 0 && x < grid.getPointWidth() && y >= 0 && y < grid.getPointHeight();
     }
 
     @Override
@@ -69,20 +88,26 @@ public final class FieldView extends ProcessingView {
         if (!viewportHovered)
             return;
 
-        int x = getHoveredCellX();
-        int y = getHoveredCellY();
-        boolean valid = isGridPosValid(x, y);
-
         if (mode == MODE_DRAW && mouseButton == LEFT) {
-            boolean currentState = valid && grid.canPass(x, y);
+            int x = getHoveredCellX();
+            int y = getHoveredCellY();
+            boolean valid = isCellPosValid(x, y);
+
+            boolean currentState = valid && grid.canCellPass(x, y);
             paintState = !currentState;
             if (valid)
                 grid.set(x, y, paintState);
         } else if (mode == MODE_PATH) {
-            if (mouseButton == LEFT) {
-                start = new Point(x, y);
-            } else if (mouseButton == RIGHT) {
-                goal = new Point(x, y);
+            int x = getHoveredPointX();
+            int y = getHoveredPointY();
+            boolean valid = isPointPosValid(x, y);
+
+            if (valid) {
+                if (mouseButton == LEFT) {
+                    start = new Point(x, y);
+                } else if (mouseButton == RIGHT) {
+                    goal = new Point(x, y);
+                }
             }
         }
     }
@@ -97,11 +122,11 @@ public final class FieldView extends ProcessingView {
         if (!viewportHovered)
             return;
 
-        int x = getHoveredCellX();
-        int y = getHoveredCellY();
-        boolean valid = isGridPosValid(x, y);
-
         if (mode == MODE_DRAW) {
+            int x = getHoveredCellX();
+            int y = getHoveredCellY();
+            boolean valid = isCellPosValid(x, y);
+
             if (mouseButton == LEFT) {
                 if (valid)
                     grid.set(x, y, paintState);
@@ -109,6 +134,10 @@ public final class FieldView extends ProcessingView {
                 dragView();
             }
         } else if (mode == MODE_PATH) {
+            int x = getHoveredPointX();
+            int y = getHoveredPointY();
+            boolean valid = isPointPosValid(x, y);
+
             if (mouseButton == LEFT && valid) {
                 start = new Point(x, y);
             } else if (mouseButton == RIGHT && valid) {
@@ -150,9 +179,9 @@ public final class FieldView extends ProcessingView {
         int hoverX = getHoveredCellX();
         int hoverY = getHoveredCellY();
         g.noStroke();
-        for (int x = 0; x < grid.getWidth(); x++) {
-            for (int y = 0; y < grid.getHeight(); y++) {
-                if (!grid.canPass(x, y))
+        for (int x = 0; x < grid.getCellWidth(); x++) {
+            for (int y = 0; y < grid.getCellHeight(); y++) {
+                if (!grid.canCellPass(x, y))
                     g.fill(201, 101, 18);
                 else if (x == hoverX && y == hoverY)
                     g.fill(255, 255, 255, 32);
@@ -166,11 +195,11 @@ public final class FieldView extends ProcessingView {
         // Edges
         strokeWidth(g, 1.5f);
         g.stroke(128, 128, 128, 255);
-        for (int x = 0; x <= grid.getWidth(); x++) {
-            g.line(x, 0, x, grid.getHeight());
+        for (int x = 0; x < grid.getPointWidth(); x++) {
+            g.line(x, 0, x, grid.getCellHeight());
         }
-        for (int y = 0; y <= grid.getHeight(); y++) {
-            g.line(0, y, grid.getWidth(), y);
+        for (int y = 0; y < grid.getPointHeight(); y++) {
+            g.line(0, y, grid.getCellWidth(), y);
         }
 
         // Points
@@ -179,10 +208,10 @@ public final class FieldView extends ProcessingView {
         g.stroke(27, 196, 101, 128);
         g.fill(27, 196, 101);
         float startSize = start.equals(goal) ? 0.6f : 0.5f;
-        g.ellipse(start.x + 0.5f, start.y + 0.5f, startSize, startSize);
+        g.ellipse(start.x, start.y, startSize, startSize);
         g.stroke(44, 62, 199, 128);
         g.fill(44, 62, 199);
-        g.ellipse(goal.x + 0.5f, goal.y + 0.5f, 0.5f, 0.5f);
+        g.ellipse(goal.x, goal.y, 0.5f, 0.5f);
 
         // Path
         pathfinder.setStart(start);
@@ -193,26 +222,42 @@ public final class FieldView extends ProcessingView {
             g.stroke(214, 196, 32, 128);
             g.beginShape(LINE_STRIP);
             for (Point p : path)
-                g.vertex(p.x + 0.5f, p.y + 0.5f);
+                g.vertex(p.x, p.y);
             g.endShape();
             strokeWidth(g, 2);
             g.stroke(214, 196, 32);
             g.beginShape(LINE_STRIP);
             for (Point p : path)
-                g.vertex(p.x + 0.5f, p.y + 0.5f);
+                g.vertex(p.x, p.y);
             g.endShape();
         }
     }
 
     private void resetZoom(boolean now) {
-        float requiredScaleX = g.width / (float) (grid.getWidth() + 2);
-        float requiredScaleY = g.height / (float) (grid.getHeight() + 2);
+        float requiredScaleX = g.width / (float) (grid.getCellWidth() + 2);
+        float requiredScaleY = g.height / (float) (grid.getCellHeight() + 2);
         float min = Math.min(requiredScaleX, requiredScaleY);
 
         if (now)
             scale.setNow(min);
         else
             scale.set(min);
+    }
+
+    private void clampStartAndEnd() {
+        start = new Point(Math.min(start.x, grid.getPointWidth() - 1), Math.min(start.y, grid.getPointHeight() - 1));
+        goal = new Point(Math.min(goal.x, grid.getPointWidth() - 1), Math.min(goal.y, grid.getPointHeight() - 1));
+    }
+
+    private void createPathfinder() {
+        switch (finderType) {
+            case FINDER_A_STAR:
+                pathfinder = new AStarPathfinder(grid);
+                break;
+            case FINDER_THETA_STAR:
+                pathfinder = new ThetaStarPathfinder(grid);
+                break;
+        }
     }
 
     @Override
@@ -225,7 +270,8 @@ public final class FieldView extends ProcessingView {
             BitfieldGrid temp = grid;
             grid = new BitfieldGrid(fieldSize[0], fieldSize[1]);
             grid.copyFrom(temp);
-            pathfinder = new AStarPathfinder(grid);
+            pathfinder = new ThetaStarPathfinder(grid);
+            clampStartAndEnd();
         }
 
         text("View:");
@@ -242,15 +288,15 @@ public final class FieldView extends ProcessingView {
         if (button("Reset Zoom"))
             resetZoom = true;
         if (resetPos) {
-            posX.set(-grid.getWidth() / 2.0f);
-            posY.set(-grid.getHeight() / 2.0f);
+            posX.set(-grid.getCellWidth() / 2.0f);
+            posY.set(-grid.getCellHeight() / 2.0f);
         }
         if (resetZoom)
             resetZoom(false);
 
         if (!hasInitialized && g != null) {
-            posX.set(-grid.getWidth() / 2.0f);
-            posY.set(-grid.getHeight() / 2.0f);
+            posX.set(-grid.getCellWidth() / 2.0f);
+            posY.set(-grid.getCellHeight() / 2.0f);
             resetZoom(true);
 
             hasInitialized = true;
@@ -266,6 +312,22 @@ public final class FieldView extends ProcessingView {
 
         if (button("Clear grid"))
             grid.clear();
+        sameLine();
+        text("Pathfinder algorithm: ");
+        sameLine();
+        boolean finderChanged = false;
+        if (radioButton("A*", finderType == FINDER_A_STAR)) {
+            finderType = FINDER_A_STAR;
+            finderChanged = true;
+        }
+        sameLine();
+        if (radioButton("Theta*", finderType == FINDER_THETA_STAR)) {
+            finderType = FINDER_THETA_STAR;
+            finderChanged = true;
+        }
+        if (finderChanged) {
+            createPathfinder();
+        }
 
         drawViewport();
         viewportHovered = isItemHovered();

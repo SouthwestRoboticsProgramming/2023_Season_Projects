@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
 
-public final class AStarPathfinder implements Pathfinder {
-    private final Grid grid;
-    private Node[][] nodes;
+public class AStarPathfinder implements Pathfinder {
+    protected final Grid grid;
 
+    private Node[][] nodes;
     private Point startPoint, goalPoint;
 
     public AStarPathfinder(Grid grid) {
@@ -26,44 +26,27 @@ public final class AStarPathfinder implements Pathfinder {
         goalPoint = goal;
     }
 
-    // Since nodes are stored in a fixed array and never change,
-    // identity equals() and hashCode() are fine
-    private static class Node implements Comparable<Node> {
+    protected static final class Node implements Comparable<Node> {
         Point position;
-        int priority;
-        Node cameFrom;
-        int costSoFar = Integer.MAX_VALUE;
+        double priority;
+        double cost;
+        Node parent;
 
         @Override
         public int compareTo(Node o) {
-            return priority - o.priority;
+            return Double.compare(priority, o.priority);
         }
     }
 
-    private int getNeighbors(Node current, Node[] neighbors) {
-        int i = 0;
-
-        int w = grid.getWidth();
-        int h = grid.getHeight();
-        for (int x = -1; x <= 1; x++) {
-            for (int y = -1; y <= 1; y++) {
-                if (x == 0 && y == 0)
-                    continue;
-
-                int px = current.position.x + x;
-                int py = current.position.y + y;
-                if (px >= 0 && px < w && py >= 0 && py < h && grid.canPass(px, py)) {
-                    neighbors[i++] = nodes[px][py];
-                }
-            }
-        }
-
-        return i;
+    protected double getHeuristic(Node node) {
+        int dx = node.position.x - goalPoint.x;
+        int dy = node.position.y - goalPoint.y;
+        return Math.sqrt(dx * dx + dy * dy);
     }
 
-    private static final int DIAGONAL_COST = 14;
-    private static final int STRAIGHT_COST = 10;
-    private int getCost(Node current, Node next) {
+    private static final double DIAGONAL_COST = Math.sqrt(2);
+    private static final double STRAIGHT_COST = 1;
+    protected double getCost(Node current, Node next) {
         // Will never be checking against self or non-neighbor
 
         int dx = current.position.x - next.position.x;
@@ -72,42 +55,79 @@ public final class AStarPathfinder implements Pathfinder {
         return dx != 0 && dy != 0 ? DIAGONAL_COST : STRAIGHT_COST;
     }
 
-    private int getHeuristic(Node node) {
-        int dx = node.position.x - goalPoint.x;
-        int dy = node.position.y - goalPoint.y;
-        return Math.round(10 * (float) Math.sqrt(dx * dx + dy * dy));
+    private List<Point> extractPath(Node node) {
+        List<Point> out = new ArrayList<>();
+        while (node != null) {
+            out.add(0, node.position);
+            node = node.parent;
+        }
+        return out;
+    }
+
+    private int getNeighbors(Node current, Node[] neighbors) {
+        int i = 0;
+
+        int w = grid.getPointWidth();
+        int h = grid.getPointHeight();
+        for (int x = -1; x <= 1; x++) {
+            for (int y = -1; y <= 1; y++) {
+                if (x == 0 && y == 0)
+                    continue;
+
+                int px = current.position.x + x;
+                int py = current.position.y + y;
+                if (px >= 0 && px < w && py >= 0 && py < h && grid.canEdgePass(current.position, nodes[px][py].position)) {
+                    neighbors[i++] = nodes[px][py];
+                }
+            }
+        }
+
+        return i;
+    }
+
+    protected void computeCost(Node current, Node next) {
+        double cost = current.cost + getCost(current, next);
+        if (cost < next.cost) {
+            next.parent = current;
+            next.cost = cost;
+        }
+    }
+
+    private void updateVertex(PriorityQueue<Node> open, Node current, Node next) {
+        double oldCost = next.cost;
+        computeCost(current, next);
+        if (next.cost < oldCost) {
+            open.remove(next);
+            next.priority = next.cost + getHeuristic(next);
+            open.add(next);
+        }
     }
 
     @Override
     public List<Point> findPath() {
-        nodes = new Node[grid.getWidth()][grid.getHeight()];
-        for (int x = 0; x < grid.getWidth(); x++) {
-            for (int y = 0; y < grid.getHeight(); y++) {
+        int width = grid.getPointWidth();
+        int height = grid.getPointHeight();
+        nodes = new Node[width][height];
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
                 Node node = new Node();
                 node.position = new Point(x, y);
                 nodes[x][y] = node;
             }
         }
-
         Node start = nodes[startPoint.x][startPoint.y];
         Node goal = nodes[goalPoint.x][goalPoint.y];
 
+        PriorityQueue<Node> open = new PriorityQueue<>();
         Set<Node> closed = new HashSet<>();
-        PriorityQueue<Node> frontier = new PriorityQueue<>();
-        start.priority = 0;
-        frontier.add(start);
+        start.priority = start.cost + getHeuristic(start);
+        open.add(start);
 
-        Node[] neighbors = new Node[8]; // Maximum neighbor count is 8
-        while (!frontier.isEmpty()) {
-            Node current = frontier.remove();
+        Node[] neighbors = new Node[8];
+        while (!open.isEmpty()) {
+            Node current = open.remove();
             if (current == goal) {
-                Node node = current;
-                List<Point> out = new ArrayList<>();
-                while (node != null) {
-                    out.add(0, node.position);
-                    node = node.cameFrom;
-                }
-                return out;
+                return extractPath(current);
             }
 
             closed.add(current);
@@ -115,20 +135,16 @@ public final class AStarPathfinder implements Pathfinder {
             int count = getNeighbors(current, neighbors);
             for (int i = 0; i < count; i++) {
                 Node next = neighbors[i];
-                if (closed.contains(next))
-                    continue;
-
-                int newCost = current.costSoFar + getCost(current, next);
-                if (newCost < next.costSoFar) {
-                    next.costSoFar = newCost;
-                    next.priority = newCost + getHeuristic(next);
-                    frontier.add(next);
-                    next.cameFrom = current;
+                if (!closed.contains(next)) {
+                    if (!open.contains(next)) {
+                        next.cost = Double.POSITIVE_INFINITY;
+                        next.parent = null;
+                    }
+                    updateVertex(open, current, next);
                 }
             }
         }
 
-        // No path found
         return null;
     }
 }

@@ -18,11 +18,13 @@ public final class BitfieldGrid extends Grid {
     public void copyFrom(BitfieldGrid other) {
         for (int x = 0; x < width && x < other.width; x++)
             for (int y = 0; y < height && y < other.height; y++)
-                set(x, y, other.canPass(x, y));
+                set(x, y, other.canCellPass(x, y));
     }
 
     @Override
-    public boolean canPass(int x, int y) {
+    public boolean canCellPass(int x, int y) {
+        if (x < 0 || y < 0 || x >= width || y >= width)
+            return true;
         return data.get(x + y * width);
     }
 
