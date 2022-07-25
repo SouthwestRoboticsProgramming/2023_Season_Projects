@@ -270,7 +270,7 @@ public final class FieldView extends ProcessingView {
             BitfieldGrid temp = grid;
             grid = new BitfieldGrid(fieldSize[0], fieldSize[1]);
             grid.copyFrom(temp);
-            pathfinder = new ThetaStarPathfinder(grid);
+            createPathfinder();
             clampStartAndEnd();
         }
 
