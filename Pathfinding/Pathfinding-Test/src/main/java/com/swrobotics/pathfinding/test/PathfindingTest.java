@@ -43,7 +43,7 @@ public final class PathfindingTest extends PApplet {
         imGuiGlfw.newFrame();
         ImGui.newFrame();
 
-        background(0);
+        background(13, 26, 38);
 
         ImGui.showDemoWindow();
         field.drawGui();

@@ -10,6 +10,7 @@ import static processing.core.PConstants.P2D;
 
 public abstract class ProcessingView {
     private final PApplet app;
+    private final String title;
     private PGraphicsOpenGL g;
     private int pTexture;
 
@@ -17,7 +18,8 @@ public abstract class ProcessingView {
     protected float mouseX, mouseY;
     protected int mouseButton;
 
-    public ProcessingView(PApplet app) {
+    public ProcessingView(PApplet app, String title) {
+        this.title = title;
         this.app = app;
         pTexture = -1;
     }
@@ -30,7 +32,8 @@ public abstract class ProcessingView {
         return true;
     }
 
-    protected abstract void drawContent(PGraphics g);
+    // Important: Mouse data is only valid within this method and mouse events
+    protected abstract void drawViewportContent(PGraphics g);
 
     public final void setMouseInfo(float x, float y, int button) { mouseX = x - originX; mouseY = y - originY; mouseButton = button; }
     protected void mousePressed() {}
@@ -38,37 +41,52 @@ public abstract class ProcessingView {
     protected void mouseMoved() {}
     protected void mouseDragged() {}
 
+    protected final void drawViewport() {
+        ImVec2 size = getContentRegionAvail();
+        drawViewport(size.x, size.y);
+    }
+
+    protected final void drawViewport(float w, float h) {
+        updateMouseOrigin();
+        if (w > 0 && h > 0) {
+            boolean shouldShowThisFrame = prepareGraphics((int) w, (int) h);
+
+            g.beginDraw();
+            drawViewportContent(g);
+            g.endDraw();
+
+            // PGraphicsOpenGL seems to require one frame to get started, so
+            // use the previous frame if we just created a new graphics object
+            int texId;
+            if (shouldShowThisFrame)
+                texId = g.getTexture().glName;
+            else
+                texId = pTexture;
+
+            if (texId != -1)
+                imageButton(texId, w, h, 0, 1, 1, 0, 0);
+
+            pTexture = texId;
+        }
+    }
+
+    protected final void updateMouseOrigin() {
+        ImVec2 window = getWindowPos();
+        originX = window.x;
+        originY = window.y;
+
+        ImVec2 cursor = getCursorPos();
+        originX += cursor.x;
+        originY += cursor.y;
+    }
+
+    protected void drawGuiContent() {
+        drawViewport();
+    }
+
     public final void drawGui() {
-        if (begin("Field View")) {
-            ImVec2 window = getWindowPos();
-            originX = window.x;
-            originY = window.y;
-
-            ImVec2 cursor = getCursorPos();
-            originX += cursor.x;
-            originY += cursor.y;
-
-            ImVec2 size = getContentRegionAvail();
-            if (size.x > 0 && size.y > 0) {
-                boolean shouldShowThisFrame = prepareGraphics((int) size.x, (int) size.y);
-
-                g.beginDraw();
-                drawContent(g);
-                g.endDraw();
-
-                // PGraphicsOpenGL seems to require one frame to get started, so
-                // use the previous frame if we just created a new graphics object
-                int texId;
-                if (shouldShowThisFrame)
-                    texId = g.getTexture().glName;
-                else
-                    texId = pTexture;
-
-                if (texId != -1)
-                    imageButton(texId, size.x, size.y, 0, 1, 1, 0, 0);
-
-                pTexture = texId;
-            }
+        if (begin(title)) {
+            drawGuiContent();
         }
         end();
     }
