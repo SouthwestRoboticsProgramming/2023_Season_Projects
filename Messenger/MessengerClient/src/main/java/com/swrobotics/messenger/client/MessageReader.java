@@ -141,6 +141,21 @@ public final class MessageReader {
     }
 
     /**
+     * Reads all remaining data as a {@code byte} array.
+     *
+     * @return data read
+     */
+    public byte[] readAllData() {
+        try {
+            byte[] buf = new byte[in.available()];
+            in.readFully(buf);
+            return buf;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read data", e);
+        }
+    }
+
+    /**
      * Closes the reader when done reading.
      */
     public void close() {

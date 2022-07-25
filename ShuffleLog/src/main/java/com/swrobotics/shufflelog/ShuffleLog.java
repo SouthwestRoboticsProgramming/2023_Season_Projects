@@ -4,21 +4,24 @@ import com.swrobotics.messenger.client.MessengerClient;
 import com.swrobotics.shufflelog.profile.Profiler;
 import com.swrobotics.shufflelog.tool.data.DataLogTool;
 import com.swrobotics.shufflelog.tool.MenuBarTool;
-import com.swrobotics.shufflelog.tool.MessengerTool;
+import com.swrobotics.shufflelog.tool.messenger.MessengerTool;
 import com.swrobotics.shufflelog.tool.NetworkTablesTool;
 import com.swrobotics.shufflelog.tool.ShuffleLogProfilerTool;
 import com.swrobotics.shufflelog.tool.Tool;
 import imgui.ImGui;
 import imgui.ImGuiIO;
 import imgui.extension.implot.ImPlot;
+import imgui.flag.ImGuiKey;
 import imgui.flag.ImGuiMouseButton;
 import processing.core.PApplet;
+import processing.event.MouseEvent;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+// TODO: Use proper ImGui backend
 public final class ShuffleLog extends PApplet {
     private final List<Tool> tools = new ArrayList<>();
     private final ExecutorService threadPool = Executors.newFixedThreadPool(4);
@@ -41,6 +44,25 @@ public final class ShuffleLog extends PApplet {
         ImGuiIO io = ImGui.getIO();
         io.setIniFilename("layout.ini");
         Styles.applyDark();
+
+        int[] keyMap = new int[ImGuiKey.COUNT];
+        keyMap[ImGuiKey.Tab] = imKey(TAB);
+        keyMap[ImGuiKey.LeftArrow] = imKeyCode(LEFT);
+        keyMap[ImGuiKey.RightArrow] = imKeyCode(RIGHT);
+        keyMap[ImGuiKey.UpArrow] = imKeyCode(UP);
+        keyMap[ImGuiKey.DownArrow] = imKeyCode(DOWN);
+        keyMap[ImGuiKey.Delete] = imKey(DELETE);
+        keyMap[ImGuiKey.Backspace] = imKey(BACKSPACE);
+        keyMap[ImGuiKey.Space] = imKey(' ');
+        keyMap[ImGuiKey.Enter] = imKey(ENTER);
+        keyMap[ImGuiKey.Escape] = imKey(ESC);
+        keyMap[ImGuiKey.A] = imKey('a');
+        keyMap[ImGuiKey.C] = imKey('c');
+        keyMap[ImGuiKey.V] = imKey('v');
+        keyMap[ImGuiKey.X] = imKey('x');
+        keyMap[ImGuiKey.Y] = imKey('y');
+        keyMap[ImGuiKey.Z] = imKey('z');
+        io.setKeyMap(keyMap);
 
         gui = new ProcessingImGuiBackend();
         gui.init();
@@ -77,6 +99,56 @@ public final class ShuffleLog extends PApplet {
             case RIGHT: rightMouse = false; break;
             case CENTER: middleMouse = false; break;
         }
+    }
+
+    @Override
+    public void keyTyped() {
+        ImGui.getIO().addInputCharacter(key);
+    }
+
+    private int imKeyCode(int code) {
+        if (code > 0x7F)
+            System.out.println("Warning: truncated keycode");
+        return (code & 0x7F) | 0x80;
+    }
+
+    private int imKey(int key) {
+        if (key == RETURN)
+            key = ENTER;
+
+        if (key > 0x7F)
+            System.out.println("Warning: truncated key");
+        return key & 0x7F;
+    }
+
+    private int convertKey() {
+        return key == CODED ? imKeyCode(keyCode) : imKey(key);
+    }
+
+    private void keyEvent(boolean down) {
+        ImGuiIO io = ImGui.getIO();
+        io.setKeysDown(convertKey(), down);
+
+        io.setKeyCtrl(io.getKeysDown(imKeyCode(CONTROL)));
+        io.setKeyShift(io.getKeysDown(imKeyCode(SHIFT)));
+        io.setKeyAlt(io.getKeysDown(imKeyCode(ALT)));
+    }
+
+    @Override
+    public void keyPressed() {
+        keyEvent(true);
+    }
+
+    @Override
+    public void keyReleased() {
+        keyEvent(false);
+    }
+
+    @Override
+    public void mouseWheel(MouseEvent event) {
+        float e = event.getCount();
+        ImGuiIO io = ImGui.getIO();
+        io.setMouseWheel(io.getMouseWheel() + e);
     }
 
     @Override

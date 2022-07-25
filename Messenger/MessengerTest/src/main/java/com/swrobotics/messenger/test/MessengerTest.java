@@ -3,8 +3,8 @@ package com.swrobotics.messenger.test;
 import com.swrobotics.messenger.client.MessengerClient;
 
 public final class MessengerTest {
-    private static void sleepWithRead(MessengerClient msg) {
-        for (int i = 0; i < 10; i++) {
+    private static void sleepWithRead(MessengerClient msg, int iterations) {
+        for (int i = 0; i < iterations; i++) {
             msg.readMessages();
 
             try {
@@ -34,7 +34,7 @@ public final class MessengerTest {
                     .addInt(i)
                     .send();
 
-            sleepWithRead(msg);
+            sleepWithRead(msg, 10);
         }
 
         for (int i = 0; i < 5; i++) {
@@ -42,7 +42,15 @@ public final class MessengerTest {
                     .addInt(i)
                     .send();
 
-            sleepWithRead(msg);
+            sleepWithRead(msg, 10);
+        }
+
+        for (int i = 0; i < 100; i++) {
+            msg.prepare("FastTest")
+                    .addInt(i)
+                    .send();
+
+            sleepWithRead(msg, 1);
         }
 
         msg.disconnect();
