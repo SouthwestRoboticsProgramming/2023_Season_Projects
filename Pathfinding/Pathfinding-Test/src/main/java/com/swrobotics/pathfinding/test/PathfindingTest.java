@@ -4,12 +4,15 @@ import imgui.ImGui;
 import imgui.flag.ImGuiConfigFlags;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWScrollCallback;
 import processing.core.PApplet;
 import processing.event.MouseEvent;
 
 public final class PathfindingTest extends PApplet {
     private ImGuiImplGlfw imGuiGlfw = new ImGuiImplGlfw();
     private ImGuiImplGl3 imGuiGl3 = new ImGuiImplGl3();
+    private GLFWScrollCallback prevScrollCallback;
 
     private FieldView field;
 
@@ -26,6 +29,10 @@ public final class PathfindingTest extends PApplet {
 
         ImGui.createContext();
         ImGui.getIO().setConfigFlags(ImGuiConfigFlags.DockingEnable);
+
+        // Custom scroll handler because the Processing handler is bad
+        prevScrollCallback = GLFW.glfwSetScrollCallback(windowHandle, this::scrollCallback);
+
         imGuiGlfw.init(windowHandle, true);
         imGuiGl3.init();
 
@@ -36,6 +43,14 @@ public final class PathfindingTest extends PApplet {
         // the window
         // Note: This will not work if viewports are enabled
         imGuiGlfw.cursorEnterCallback(windowHandle, true);
+    }
+
+    private void scrollCallback(long win, double x, double y) {
+        if (prevScrollCallback != null)
+            prevScrollCallback.invoke(win, x, y);
+
+        updateMouseInfo();
+        field.mouseScrolled((float) x, (float) y);
     }
 
     @Override
@@ -54,7 +69,7 @@ public final class PathfindingTest extends PApplet {
     }
 
     private void updateMouseInfo() {
-        field.setMouseInfo(mouseX, mouseY, mouseButton);
+        field.setMouseInfo(mouseX, mouseY, pmouseX, pmouseY, mouseButton);
     }
 
     @Override
