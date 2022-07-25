@@ -1,38 +1,18 @@
 package com.swrobotics.pathfinding.test;
 
+import com.swrobotics.pathfinding.lib.AStarPathfinder;
 import com.swrobotics.pathfinding.lib.BitfieldGrid;
 import com.swrobotics.pathfinding.lib.Pathfinder;
 import com.swrobotics.pathfinding.lib.Point;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static imgui.ImGui.*;
 import static processing.core.PConstants.*;
 
 public final class FieldView extends ProcessingView {
-    private static final class FixedPathfinder implements Pathfinder {
-        private Point start;
-        private Point goal;
-
-        @Override
-        public void setStart(Point start) {
-            this.start = start;
-        }
-
-        @Override
-        public void setGoal(Point goal) {
-            this.goal = goal;
-        }
-
-        @Override
-        public List<Point> findPath() {
-            return Arrays.asList(start, goal);
-        }
-    }
-
     private static final int MODE_DRAW = 0;
     private static final int MODE_PATH = 1;
 
@@ -58,7 +38,7 @@ public final class FieldView extends ProcessingView {
         fieldSize[0] = 10;
         fieldSize[1] = 10;
         grid = new BitfieldGrid(fieldSize[0], fieldSize[1]);
-        pathfinder = new FixedPathfinder();
+        pathfinder = new AStarPathfinder(grid);
 
         viewportHovered = false;
         posX = new SmoothFloat(SMOOTH, -5);
@@ -208,18 +188,20 @@ public final class FieldView extends ProcessingView {
         pathfinder.setStart(start);
         pathfinder.setGoal(goal);
         List<Point> path = pathfinder.findPath();
-        strokeWidth(g, 4);
-        g.stroke(214, 196, 32, 128);
-        g.beginShape(LINE_STRIP);
-        for (Point p : path)
-            g.vertex(p.x + 0.5f, p.y + 0.5f);
-        g.endShape();
-        strokeWidth(g, 2);
-        g.stroke(214, 196, 32);
-        g.beginShape(LINE_STRIP);
-        for (Point p : path)
-            g.vertex(p.x + 0.5f, p.y + 0.5f);
-        g.endShape();
+        if (path != null) {
+            strokeWidth(g, 4);
+            g.stroke(214, 196, 32, 128);
+            g.beginShape(LINE_STRIP);
+            for (Point p : path)
+                g.vertex(p.x + 0.5f, p.y + 0.5f);
+            g.endShape();
+            strokeWidth(g, 2);
+            g.stroke(214, 196, 32);
+            g.beginShape(LINE_STRIP);
+            for (Point p : path)
+                g.vertex(p.x + 0.5f, p.y + 0.5f);
+            g.endShape();
+        }
     }
 
     private void resetZoom(boolean now) {
@@ -243,6 +225,7 @@ public final class FieldView extends ProcessingView {
             BitfieldGrid temp = grid;
             grid = new BitfieldGrid(fieldSize[0], fieldSize[1]);
             grid.copyFrom(temp);
+            pathfinder = new AStarPathfinder(grid);
         }
 
         text("View:");
