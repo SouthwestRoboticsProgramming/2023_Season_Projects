@@ -1,6 +1,7 @@
 package com.swrobotics.pathfinding.test;
 
 import com.swrobotics.pathfinding.lib.BitfieldGrid;
+import com.swrobotics.pathfinding.lib.Point;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 
@@ -19,6 +20,8 @@ public final class FieldView extends ProcessingView {
     private SmoothFloat posX, posY, scale;
     private boolean hasInitialized;
 
+    private Point start, goal;
+
     private int mode;
     private boolean paintState;
 
@@ -35,6 +38,9 @@ public final class FieldView extends ProcessingView {
         posY = new SmoothFloat(SMOOTH, -5);
         scale = new SmoothFloat(SMOOTH, 1);
         hasInitialized = false;
+
+        start = new Point(1, 1);
+        goal = new Point(8, 8);
 
         mode = MODE_DRAW;
     }
@@ -62,7 +68,18 @@ public final class FieldView extends ProcessingView {
             paintState = !currentState;
             if (valid)
                 grid.set(x, y, paintState);
+        } else if (mode == MODE_PATH) {
+            if (mouseButton == LEFT) {
+                start = new Point(x, y);
+            } else if (mouseButton == RIGHT) {
+                goal = new Point(x, y);
+            }
         }
+    }
+
+    private void dragView() {
+        posX.set(posX.getTarget() + (mouseX - pmouseX) / scale.get());
+        posY.set(posY.getTarget() + (mouseY - pmouseY) / scale.get());
     }
 
     @Override
@@ -75,8 +92,15 @@ public final class FieldView extends ProcessingView {
                 if (isGridPosValid(x, y) && viewportHovered)
                     grid.set(x, y, paintState);
             } else if (mouseButton == RIGHT || mouseButton == CENTER) {
-                posX.set(posX.getTarget() + (mouseX - pmouseX) / scale.get());
-                posY.set(posY.getTarget() + (mouseY - pmouseY) / scale.get());
+                dragView();
+            }
+        } else if (mode == MODE_PATH) {
+            if (mouseButton == LEFT) {
+                start = new Point(x, y);
+            } else if (mouseButton == RIGHT) {
+                goal = new Point(x, y);
+            } else if (mouseButton == CENTER) {
+                dragView();
             }
         }
     }
@@ -134,6 +158,16 @@ public final class FieldView extends ProcessingView {
         for (int y = 0; y <= grid.getHeight(); y++) {
             g.line(0, y, grid.getWidth(), y);
         }
+
+        // Points
+        strokeWidth(g, 1);
+        g.ellipseMode(CENTER);
+        g.stroke(15, 107, 55);
+        g.fill(27, 196, 101);
+        g.ellipse(start.x + 0.5f, start.y + 0.5f, 0.5f, 0.5f);
+        g.stroke(26, 37, 120);
+        g.fill(44, 62, 199);
+        g.ellipse(goal.x + 0.5f, goal.y + 0.5f, 0.5f, 0.5f);
     }
 
     private void resetZoom(boolean now) {
