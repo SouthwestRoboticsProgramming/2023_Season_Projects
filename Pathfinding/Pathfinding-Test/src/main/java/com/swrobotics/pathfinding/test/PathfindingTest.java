@@ -1,16 +1,12 @@
 package com.swrobotics.pathfinding.test;
 
-import com.swrobotics.pathfinding.lib.BitfieldGrid;
-import com.swrobotics.pathfinding.lib.Point;
 import imgui.ImGui;
 import imgui.flag.ImGuiConfigFlags;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
-import org.lwjgl.glfw.GLFW;
 import processing.core.PApplet;
 import processing.event.MouseEvent;
 
-// TODO: Merge this entire module with ShuffleLog
 public final class PathfindingTest extends PApplet {
     private ImGuiImplGlfw imGuiGlfw = new ImGuiImplGlfw();
     private ImGuiImplGl3 imGuiGl3 = new ImGuiImplGl3();
@@ -57,8 +53,33 @@ public final class PathfindingTest extends PApplet {
         imGuiGl3.renderDrawData(ImGui.getDrawData());
     }
 
+    private void updateMouseInfo() {
+        field.setMouseInfo(mouseX, mouseY, mouseButton);
+    }
+
     @Override
-    public void mouseDragged(MouseEvent event) {}
+    public void mousePressed() {
+        updateMouseInfo();
+        field.mousePressed();
+    }
+
+    @Override
+    public void mouseReleased() {
+        updateMouseInfo();
+        field.mouseReleased();
+    }
+
+    @Override
+    public void mouseMoved() {
+        updateMouseInfo();
+        field.mouseMoved();
+    }
+
+    @Override
+    public void mouseDragged() {
+        updateMouseInfo();
+        field.mouseDragged();
+    }
 
     public static void main(String[] args) {
         PApplet.main(PathfindingTest.class);
