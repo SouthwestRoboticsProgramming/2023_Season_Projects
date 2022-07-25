@@ -31,4 +31,7 @@ Vision/Test.py
 
 # Emacs temporary files
 *~
-ShuffleLog/imgui.ini
+
+# ImGui storage files
+**/layout.ini
+**/imgui.ini

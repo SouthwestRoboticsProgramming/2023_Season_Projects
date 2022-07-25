@@ -13,6 +13,7 @@
         <module>Messenger</module>
         <module>ShuffleLog</module>
         <module>MathLib</module>
+        <module>Pathfinding</module>
     </modules>
 
     <properties>

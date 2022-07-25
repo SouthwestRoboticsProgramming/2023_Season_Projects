@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>Pathfinding</artifactId>
+        <groupId>com.swrobotics</groupId>
+        <version>2023</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>Pathfinding-Test</artifactId>
+
+    <properties>
+        <p5x.version>0.353.0-beta-3</p5x.version>
+        <lwjgl.version>3.2.3</lwjgl.version>
+        <imgui.java.version>1.86.4</imgui.java.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.swrobotics</groupId>
+            <artifactId>Pathfinding-Lib</artifactId>
+            <version>2023</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.praxislive.libp5x</groupId>
+            <artifactId>processing-core</artifactId>
+            <version>${p5x.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.praxislive.libp5x</groupId>
+            <artifactId>processing-lwjgl</artifactId>
+            <version>${p5x.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.spair</groupId>
+            <artifactId>imgui-java-binding</artifactId>
+            <version>${imgui.java.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.spair</groupId>
+            <artifactId>imgui-java-lwjgl3</artifactId>
+            <version>${imgui.java.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.lwjgl</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.github.spair</groupId>
+            <artifactId>imgui-java-natives-linux</artifactId>
+            <version>${imgui.java.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.spair</groupId>
+            <artifactId>imgui-java-natives-macos</artifactId>
+            <version>${imgui.java.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.spair</groupId>
+            <artifactId>imgui-java-natives-windows</artifactId>
+            <version>${imgui.java.version}</version>
+        </dependency>
+
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl</artifactId>       <version>${lwjgl.version}</version><classifier>natives-linux</classifier></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-assimp</artifactId><version>${lwjgl.version}</version><classifier>natives-linux</classifier></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-glfw</artifactId>  <version>${lwjgl.version}</version><classifier>natives-linux</classifier></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-opengl</artifactId><version>${lwjgl.version}</version><classifier>natives-linux</classifier></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-stb</artifactId>   <version>${lwjgl.version}</version><classifier>natives-linux</classifier></dependency>
+
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl</artifactId>       <version>${lwjgl.version}</version><classifier>natives-linux-arm64</classifier></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-assimp</artifactId><version>${lwjgl.version}</version><classifier>natives-linux-arm64</classifier></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-glfw</artifactId>  <version>${lwjgl.version}</version><classifier>natives-linux-arm64</classifier></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-opengl</artifactId><version>${lwjgl.version}</version><classifier>natives-linux-arm64</classifier></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-stb</artifactId>   <version>${lwjgl.version}</version><classifier>natives-linux-arm64</classifier></dependency>
+
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl</artifactId>       <version>${lwjgl.version}</version><classifier>natives-linux-arm32</classifier></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-assimp</artifactId><version>${lwjgl.version}</version><classifier>natives-linux-arm32</classifier></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-glfw</artifactId>  <version>${lwjgl.version}</version><classifier>natives-linux-arm32</classifier></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-opengl</artifactId><version>${lwjgl.version}</version><classifier>natives-linux-arm32</classifier></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-stb</artifactId>   <version>${lwjgl.version}</version><classifier>natives-linux-arm32</classifier></dependency>
+
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl</artifactId>       <version>${lwjgl.version}</version><classifier>natives-macos</classifier></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-assimp</artifactId><version>${lwjgl.version}</version><classifier>natives-macos</classifier></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-glfw</artifactId>  <version>${lwjgl.version}</version><classifier>natives-macos</classifier></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-opengl</artifactId><version>${lwjgl.version}</version><classifier>natives-macos</classifier></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-stb</artifactId>   <version>${lwjgl.version}</version><classifier>natives-macos</classifier></dependency>
+
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl</artifactId>       <version>${lwjgl.version}</version><classifier>natives-windows</classifier></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-assimp</artifactId><version>${lwjgl.version}</version><classifier>natives-windows</classifier></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-glfw</artifactId>  <version>${lwjgl.version}</version><classifier>natives-windows</classifier></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-opengl</artifactId><version>${lwjgl.version}</version><classifier>natives-windows</classifier></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-stb</artifactId>   <version>${lwjgl.version}</version><classifier>natives-windows</classifier></dependency>
+
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl</artifactId>       <version>${lwjgl.version}</version><classifier>natives-windows-x86</classifier></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-assimp</artifactId><version>${lwjgl.version}</version><classifier>natives-windows-x86</classifier></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-glfw</artifactId>  <version>${lwjgl.version}</version><classifier>natives-windows-x86</classifier></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-opengl</artifactId><version>${lwjgl.version}</version><classifier>natives-windows-x86</classifier></dependency>
+        <dependency><groupId>org.lwjgl</groupId><artifactId>lwjgl-stb</artifactId>   <version>${lwjgl.version}</version><classifier>natives-windows-x86</classifier></dependency>
+    </dependencies>
+</project>
