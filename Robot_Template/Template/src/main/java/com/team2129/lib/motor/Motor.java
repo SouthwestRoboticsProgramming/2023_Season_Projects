@@ -2,7 +2,7 @@ package com.team2129.lib.motor;
 
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.schedule.Scheduler;
-import com.team2129.lib.schedule.subsystem.Subsystem;
+import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.sensors.Encoder;
 
 import edu.wpi.first.math.controller.BangBangController;

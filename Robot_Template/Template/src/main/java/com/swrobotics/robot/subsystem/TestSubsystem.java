@@ -1,6 +1,6 @@
 package com.swrobotics.robot.subsystem;
 
-import com.team2129.lib.schedule.subsystem.Subsystem;
+import com.team2129.lib.schedule.Subsystem;
 
 public final class TestSubsystem implements Subsystem {
     @Override

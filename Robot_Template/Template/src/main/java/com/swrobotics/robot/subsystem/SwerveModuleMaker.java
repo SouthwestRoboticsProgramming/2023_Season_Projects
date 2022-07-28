@@ -8,7 +8,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.team2129.lib.encoder.CANCoderImplementation;
 import com.team2129.lib.motor.TalonMotor;
-import com.team2129.lib.schedule.subsystem.Subsystem;
+import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.swerve.SwerveModule;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;

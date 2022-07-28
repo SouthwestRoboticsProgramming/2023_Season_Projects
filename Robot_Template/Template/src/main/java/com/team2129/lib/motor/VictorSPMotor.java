@@ -1,6 +1,6 @@
 package com.team2129.lib.motor;
 
-import com.team2129.lib.schedule.subsystem.Subsystem;
+import com.team2129.lib.schedule.Subsystem;
 import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
 
 /**

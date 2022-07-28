@@ -1,6 +1,6 @@
 package com.team2129.lib.messenger;
 
-import com.team2129.lib.schedule.subsystem.Subsystem;
+import com.team2129.lib.schedule.Subsystem;
 
 public final class ReadMessages implements Subsystem {
     private final MessengerClient msg;

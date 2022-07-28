@@ -1,4 +1,4 @@
-package com.team2129.lib.schedule.subsystem;
+package com.team2129.lib.schedule;
 
 public interface Subsystem {
     default void onAdd() {}

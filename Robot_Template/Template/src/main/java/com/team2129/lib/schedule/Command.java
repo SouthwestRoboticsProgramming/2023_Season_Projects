@@ -1,4 +1,4 @@
-package com.team2129.lib.schedule.command;
+package com.team2129.lib.schedule;
 
 import com.team2129.lib.time.Duration;
 import com.team2129.lib.time.TimeUnit;

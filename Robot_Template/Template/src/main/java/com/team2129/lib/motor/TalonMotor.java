@@ -3,7 +3,7 @@ package com.team2129.lib.motor;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 import com.team2129.lib.encoder.TalonInternalEncoder;
-import com.team2129.lib.schedule.subsystem.Subsystem;
+import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.sensors.Encoder;
 
 /**

@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 
 import com.team2129.lib.math.Angle;
 
-import com.team2129.lib.schedule.command.Command;
+import com.team2129.lib.schedule.Command;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
