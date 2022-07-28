@@ -3,10 +3,12 @@ package com.team2129.lib.schedule;
 import com.team2129.lib.messenger.MessengerClient;
 import com.team2129.lib.schedule.command.Command;
 import com.team2129.lib.schedule.subsystem.Subsystem;
+import com.team2129.lib.time.Repeater;
 import com.team2129.lib.wpilib.RobotState;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public final class Scheduler {
     private static final Scheduler INSTANCE = new Scheduler();
@@ -16,6 +18,7 @@ public final class Scheduler {
 
     private static final class SubsystemWrapper {
         Subsystem subsystem;
+        UUID id;
 
         SubsystemWrapper parent;
         List<SubsystemWrapper> children = new ArrayList<>();
@@ -24,6 +27,7 @@ public final class Scheduler {
         public SubsystemWrapper(SubsystemWrapper parent, Subsystem subsystem) {
             this.parent = parent;
             this.subsystem = subsystem;
+            id = UUID.randomUUID();
         }
 
         void init(RobotState state) {
@@ -46,8 +50,27 @@ public final class Scheduler {
         }
     }
 
+    private static final class CommandWrapper {
+        Command command;
+        UUID id;
+        Repeater repeater;
+
+        boolean done = false;
+
+        public CommandWrapper(Command command) {
+            this.command = command;
+            id = UUID.randomUUID();
+            repeater = new Repeater(command.getInterval(), () -> done = command.run());
+        }
+
+        public boolean run() {
+            repeater.tick();
+            return done;
+        }
+    }
+
     private final List<SubsystemWrapper> subsystems;
-    private final List<Command> commands;
+    private final List<CommandWrapper> commands;
 
     // Prevents ConcurrentModificationException
     private final List<Runnable> deferredChanges;
@@ -65,10 +88,20 @@ public final class Scheduler {
 
     }
 
-    private SubsystemWrapper lookUpWrapper(Subsystem s) {
+    private SubsystemWrapper lookUpSubsystemWrapper(Subsystem s) {
         SubsystemWrapper wrapper = null;
         for (SubsystemWrapper w : subsystems) {
             if (w.subsystem == s) {
+                wrapper = w;
+            }
+        }
+        return wrapper;
+    }
+
+    private CommandWrapper lookUpCommandWrapper(Command cmd) {
+        CommandWrapper wrapper = null;
+        for (CommandWrapper w : commands) {
+            if (w.command == cmd) {
                 wrapper = w;
             }
         }
@@ -90,7 +123,7 @@ public final class Scheduler {
     public void addSubsystem(Subsystem parent, Subsystem s) {
         s.onAdd();
 
-        SubsystemWrapper wrapper = new SubsystemWrapper(lookUpWrapper(parent), s);
+        SubsystemWrapper wrapper = new SubsystemWrapper(lookUpSubsystemWrapper(parent), s);
         if (shouldDeferChanges)
             deferredChanges.add(() -> subsystems.add(wrapper));
         else
@@ -123,26 +156,32 @@ public final class Scheduler {
      * @param s subsystem to remove
      */
     public void removeSubsystem(Subsystem s) {
-        removeSubsystem(lookUpWrapper(s));
+        removeSubsystem(lookUpSubsystemWrapper(s));
     }
 
     public void addCommand(Command cmd) {
         cmd.init();
 
+        CommandWrapper wrapper = new CommandWrapper(cmd);
+
         if (shouldDeferChanges)
-            deferredChanges.add(() -> commands.add(cmd));
+            deferredChanges.add(() -> commands.add(wrapper));
         else
-            commands.add(cmd);
+            commands.add(wrapper);
+    }
+
+    private void removeCommand(CommandWrapper wrapper) {
+        if (commands.contains(wrapper))
+            wrapper.command.end(true);
+
+        if (shouldDeferChanges)
+            deferredChanges.add(() -> commands.remove(wrapper));
+        else
+            commands.remove(wrapper);
     }
 
     public void removeCommand(Command cmd) {
-        if (commands.contains(cmd))
-            cmd.end(true);
-
-        if (shouldDeferChanges)
-            deferredChanges.add(() -> commands.remove(cmd));
-        else
-            commands.remove(cmd);
+        removeCommand(lookUpCommandWrapper(cmd));
     }
 
     public void initState(RobotState state) {
@@ -154,15 +193,15 @@ public final class Scheduler {
     }
 
     public void periodicState(RobotState state) {
-        List<Command> endedCommands = new ArrayList<>();
+        List<CommandWrapper> endedCommands = new ArrayList<>();
         beginCoModProtection();
-        for (Command cmd : commands) {
-            if (!cmd.run()) {
+        for (CommandWrapper cmd : commands) {
+            if (cmd.run()) {
                 endedCommands.add(cmd);
             }
         }
-        for (Command ended : endedCommands) {
-            ended.end(false);
+        for (CommandWrapper ended : endedCommands) {
+            ended.command.end(false);
             commands.remove(ended);
         }
         endCoModProtection();

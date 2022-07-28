@@ -1,13 +1,20 @@
 package com.team2129.lib.wpilib;
 
+import com.team2129.lib.time.Duration;
 import com.team2129.lib.messenger.MessengerClient;
 import com.team2129.lib.messenger.ReadMessages;
 import com.team2129.lib.schedule.Scheduler;
 
+import com.team2129.lib.time.Repeater;
+import com.team2129.lib.time.TimeUnit;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public abstract class AbstractRobot extends RobotBase {
+    public static boolean isSimulation() {
+        return !isReal();
+    }
+
     private static AbstractRobot INSTANCE = null;
     public static AbstractRobot get() {
         return INSTANCE;
@@ -16,7 +23,8 @@ public abstract class AbstractRobot extends RobotBase {
     private final double periodicPerSecond;
 
     private MessengerClient msg;
-    private boolean running = false;
+    private boolean running;
+    private RobotState lastState;
 
     public AbstractRobot(double periodicPerSecond) {
         this.periodicPerSecond = periodicPerSecond;
@@ -24,6 +32,8 @@ public abstract class AbstractRobot extends RobotBase {
         if (INSTANCE != null)
             throw new IllegalStateException("Robot already initialized");
         INSTANCE = this;
+
+        running = false;
     }
 
     protected abstract void addSubsystems();
@@ -50,32 +60,27 @@ public abstract class AbstractRobot extends RobotBase {
         System.out.println("**** Robot program startup complete ****");
         HAL.observeUserProgramStarting();
 
-        long lastTime = System.nanoTime();
-        double secondsPerPeriodic = 1.0 / periodicPerSecond;
-        double unprocessedTime = 0;
-
         // The robot always starts disabled
-        RobotState lastState = RobotState.DISABLED;
+        lastState = RobotState.DISABLED;
         Scheduler.get().initState(RobotState.DISABLED);
+
+        // Initialize periodic repeater
+        Repeater repeater = new Repeater(
+                new Duration(1 / periodicPerSecond, TimeUnit.SECONDS),
+                () -> {
+                    RobotState state = getCurrentState();
+                    if (state != lastState) {
+                        Scheduler.get().initState(state);
+                    }
+                    lastState = state;
+
+                    Scheduler.get().periodicState(state);
+                }
+        );
 
         Thread currentThread = Thread.currentThread();
         while (running && !currentThread.isInterrupted()) {
-            long currentTime = System.nanoTime();
-            long elapsedTime = currentTime - lastTime;
-            unprocessedTime += elapsedTime / 1_000_000_000.0;
-            lastTime = currentTime;
-
-            while (unprocessedTime > secondsPerPeriodic) {
-                unprocessedTime -= secondsPerPeriodic;
-
-                RobotState state = getCurrentState();
-                if (state != lastState) {
-                    Scheduler.get().initState(state);
-                }
-                lastState = state;
-
-                Scheduler.get().periodicState(state);
-            }
+            repeater.tick();
         }
     }
 
@@ -91,5 +96,9 @@ public abstract class AbstractRobot extends RobotBase {
         if (isTest()) return RobotState.TEST;
 
         throw new IllegalStateException("Illegal robot state");
+    }
+
+    public final double getPeriodicPerSecond() {
+        return periodicPerSecond;
     }
 }
