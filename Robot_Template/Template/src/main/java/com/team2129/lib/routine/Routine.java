@@ -9,8 +9,7 @@ import com.team2129.lib.wpilib.RobotState;
 // TODO: End routine from implementation, implement run states
 public abstract class Routine {
     private final EnumSet<RobotState> runStates;
-    private boolean running = true;
-
+    private boolean running = false;
     // Run in all states (default)
     public Routine() {
         runStates = EnumSet.allOf(RobotState.class);
@@ -32,5 +31,31 @@ public abstract class Routine {
     protected void init() {}
     protected void end() {}
     protected void periodic() {}
-    protected void deconstruct() {}
+
+    public final void cancel(boolean canRestartOnStateChange) {
+        running = false;
+        end();
+
+        // If this routine will never start again, the
+        // scheduler no longer needs to keep track of it.
+        // If this routine can restart, it stays in the
+        // scheduler, but periodic is not called.
+        if (!canRestartOnStateChange)
+            Scheduler.get().removeRoutine(this);
+    }
+
+    public final void onStateChange(RobotState newState) {
+        boolean newRunning = runsInState(newState);
+        if (running && !newRunning)
+            end();
+        if (!running && newRunning)
+            init();
+        running = newRunning;
+    }
+
+    public final void doPeriodic() {
+        if (running) {
+            periodic();
+        }
+    }
 }
