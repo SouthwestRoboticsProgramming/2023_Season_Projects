@@ -1,4 +1,4 @@
-package com.swrobotics.shufflelog.tool;
+package com.swrobotics.shufflelog.tool.profile;
 
 import com.swrobotics.shufflelog.profile.ProfileNode;
 import com.swrobotics.shufflelog.profile.Profiler;

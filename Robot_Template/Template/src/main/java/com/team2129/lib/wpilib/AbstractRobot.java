@@ -1,5 +1,8 @@
 package com.team2129.lib.wpilib;
 
+import com.team2129.lib.messenger.MessageBuilder;
+import com.team2129.lib.profile.ProfileNode;
+import com.team2129.lib.profile.Profiler;
 import com.team2129.lib.time.Duration;
 import com.team2129.lib.messenger.MessengerClient;
 import com.team2129.lib.messenger.ReadMessages;
@@ -59,14 +62,12 @@ public abstract class AbstractRobot extends RobotBase {
         System.out.println("**** Robot program startup complete ****");
         HAL.observeUserProgramStarting();
 
-        // The robot always starts disabled
-        lastState = RobotState.DISABLED;
-        Scheduler.get().initState(RobotState.DISABLED);
-
         // Initialize periodic repeater
         Repeater repeater = new Repeater(
                 new Duration(1 / periodicPerSecond, TimeUnit.SECONDS),
                 () -> {
+                    Profiler.beginMeasurements("Root");
+
                     RobotState state = getCurrentState();
                     if (state != lastState) {
                         Scheduler.get().initState(state);
@@ -74,6 +75,13 @@ public abstract class AbstractRobot extends RobotBase {
                     lastState = state;
 
                     Scheduler.get().periodicState(state);
+
+                    Profiler.endMeasurements();
+                    if (msg != null) {
+                        MessageBuilder builder = msg.prepare("Profiler:Data");
+                        encodeProfileNode(builder, Profiler.getLastData());
+                        builder.send();
+                    }
                 }
         );
 
@@ -99,5 +107,13 @@ public abstract class AbstractRobot extends RobotBase {
 
     public final double getPeriodicPerSecond() {
         return periodicPerSecond;
+    }
+
+    private void encodeProfileNode(MessageBuilder builder, ProfileNode node) {
+        builder.addString(node.getName());
+        builder.addLong(node.getElapsedTimeNanoseconds());
+        builder.addInt(node.getChildren().size());
+        for (ProfileNode child : node.getChildren())
+            encodeProfileNode(builder, child);
     }
 }

@@ -1,6 +1,7 @@
-package com.swrobotics.shufflelog.tool;
+package com.swrobotics.shufflelog.tool.profile;
 
 import com.swrobotics.shufflelog.profile.ProfileNode;
+import com.swrobotics.shufflelog.tool.Tool;
 import imgui.ImDrawList;
 import imgui.ImGui;
 import imgui.ImGuiIO;
@@ -98,7 +99,7 @@ public abstract class ProfilerTool implements Tool {
             double angle = 0;
             int i = 0;
             for (ProfileNode child : children) {
-                double angle2 = angle + (double) child.getElapsedTimeNanoseconds() / totalTime * Math.PI * 2;
+                double angle2 = children.size() == 1 ? Math.PI * 2 : angle + (double) child.getElapsedTimeNanoseconds() / totalTime * Math.PI * 2;
                 drawPieSlice(draw, angle, angle2, min.x + 75, min.y + 75, 75, PIE_COLORS[i % PIE_COLORS.length]);
                 angle = angle2;
                 i++;

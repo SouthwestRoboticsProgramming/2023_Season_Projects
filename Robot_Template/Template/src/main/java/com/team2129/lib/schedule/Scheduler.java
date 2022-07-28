@@ -2,6 +2,7 @@ package com.team2129.lib.schedule;
 
 import com.team2129.lib.messenger.MessageBuilder;
 import com.team2129.lib.messenger.MessengerClient;
+import com.team2129.lib.profile.Profiler;
 import com.team2129.lib.time.Repeater;
 import com.team2129.lib.wpilib.RobotState;
 
@@ -209,31 +210,41 @@ public final class Scheduler {
     }
 
     public void initState(RobotState state) {
+        Profiler.push("Init");
         beginCoModProtection();
         for (SubsystemWrapper subsystem : subsystems) {
             subsystem.init(state);
         }
         endCoModProtection();
+        Profiler.pop();
     }
 
     public void periodicState(RobotState state) {
         List<CommandWrapper> endedCommands = new ArrayList<>();
         beginCoModProtection();
+        Profiler.push("Command");
         for (CommandWrapper cmd : commands) {
+            Profiler.push(cmd.command.getClass().getSimpleName() + " " + cmd.id);
             if (cmd.run()) {
                 endedCommands.add(cmd);
             }
+            Profiler.pop();
         }
         for (CommandWrapper ended : endedCommands) {
             ended.command.end(false);
             commands.remove(ended);
         }
+        Profiler.pop();
         endCoModProtection();
 
         beginCoModProtection();
+        Profiler.push("Subsystem");
         for (SubsystemWrapper subsystem : subsystems) {
+            Profiler.push(subsystem.subsystem.getClass().getSimpleName() + " " + subsystem.id);
             subsystem.periodic(state);
+            Profiler.pop();
         }
+        Profiler.pop();
         endCoModProtection();
     }
 

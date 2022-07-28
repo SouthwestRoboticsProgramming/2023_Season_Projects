@@ -44,7 +44,7 @@ public class Drive implements Subsystem {
 
     @Override
     public void periodic() {
-        drive.printEncoderOffsets();
+//        drive.printEncoderOffsets();
     }
 
     @Override

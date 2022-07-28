@@ -1,4 +1,4 @@
-package com.swrobotics.shufflelog.profile;
+package com.team2129.lib.profile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +45,7 @@ public final class ProfileNode {
     }
 
     public List<ProfileNode> getChildren() {
-        // Intentionally not defensively copied
+        // Intentionally not defensively copied for performance
         return children;
     }
 
