@@ -13,17 +13,15 @@ public abstract class Routine {
     // Run in all states (default)
     public Routine() {
         runStates = EnumSet.allOf(RobotState.class);
-        Scheduler.get().addRoutine(this);
     }
 
     // Run in specified states
     public Routine(RobotState... runStates) {
         this.runStates = EnumSet.noneOf(RobotState.class);
         this.runStates.addAll(Arrays.asList(runStates));
-        Scheduler.get().addRoutine(this);
     }
 
-    public boolean runsInState(RobotState state) {
+    public final boolean runsInState(RobotState state) {
         return runStates.contains(state);
     }
 
@@ -32,15 +30,19 @@ public abstract class Routine {
     protected void end() {}
     protected void periodic() {}
 
-    public final void cancel(boolean canRestartOnStateChange) {
+    // This should be called by implementations to indicate that they
+    // are done running.
+    protected final void finish() {
+        cancel(true);
+    }
+
+    public final void cancel(boolean removeFromScheduler) {
         running = false;
         end();
 
-        // If this routine will never start again, the
-        // scheduler no longer needs to keep track of it.
-        // If this routine can restart, it stays in the
-        // scheduler, but periodic is not called.
-        if (!canRestartOnStateChange)
+        // We don't need to check if this routine is actually in the scheduler
+        // because removing a routine that is not present does nothing
+        if (removeFromScheduler)
             Scheduler.get().removeRoutine(this);
     }
 
@@ -57,5 +59,9 @@ public abstract class Routine {
         if (running) {
             periodic();
         }
+    }
+
+    public final boolean isRunning() {
+        return running;
     }
 }
