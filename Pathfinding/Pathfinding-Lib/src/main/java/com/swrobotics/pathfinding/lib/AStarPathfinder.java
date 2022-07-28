@@ -44,15 +44,11 @@ public class AStarPathfinder implements Pathfinder {
         return Math.sqrt(dx * dx + dy * dy);
     }
 
-    private static final double DIAGONAL_COST = Math.sqrt(2);
-    private static final double STRAIGHT_COST = 1;
     protected double getCost(Node current, Node next) {
-        // Will never be checking against self or non-neighbor
-
         int dx = current.position.x - next.position.x;
         int dy = current.position.y - next.position.y;
 
-        return dx != 0 && dy != 0 ? DIAGONAL_COST : STRAIGHT_COST;
+        return Math.sqrt(dx * dx + dy * dy);
     }
 
     private List<Point> extractPath(Node node) {
@@ -76,7 +72,7 @@ public class AStarPathfinder implements Pathfinder {
 
                 int px = current.position.x + x;
                 int py = current.position.y + y;
-                if (px >= 0 && px < w && py >= 0 && py < h && grid.canEdgePass(current.position, nodes[px][py].position)) {
+                if (px >= 0 && px < w && py >= 0 && py < h && grid.lineOfSight(current.position, nodes[px][py].position)) {
                     neighbors[i++] = nodes[px][py];
                 }
             }

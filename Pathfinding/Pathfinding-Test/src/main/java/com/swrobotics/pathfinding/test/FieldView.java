@@ -5,6 +5,7 @@ import com.swrobotics.pathfinding.lib.BitfieldGrid;
 import com.swrobotics.pathfinding.lib.Pathfinder;
 import com.swrobotics.pathfinding.lib.Point;
 import com.swrobotics.pathfinding.lib.ThetaStarPathfinder;
+import imgui.type.ImFloat;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 
@@ -15,7 +16,8 @@ import static processing.core.PConstants.*;
 
 public final class FieldView extends ProcessingView {
     private static final int MODE_DRAW = 0;
-    private static final int MODE_PATH = 1;
+    private static final int MODE_FILL = 1;
+    private static final int MODE_PATH = 2;
 
     private static final int FINDER_A_STAR = 0;
     private static final int FINDER_THETA_STAR = 1;
@@ -35,6 +37,12 @@ public final class FieldView extends ProcessingView {
     private int mode;
     private int finderType;
     private boolean paintState;
+    private int downX, downY;
+    private boolean down;
+
+    private float[] randomFillPercent;
+
+    private FollowerTest follower = new FollowerTest();
 
     public FieldView(PApplet app) {
         super(app, "Field View");
@@ -55,6 +63,8 @@ public final class FieldView extends ProcessingView {
 
         mode = MODE_DRAW;
         finderType = FINDER_THETA_STAR;
+
+        randomFillPercent = new float[] {50};
 
         createPathfinder();
     }
@@ -97,6 +107,17 @@ public final class FieldView extends ProcessingView {
             paintState = !currentState;
             if (valid)
                 grid.set(x, y, paintState);
+        } else if (mode == MODE_FILL) {
+            int x = getHoveredCellX();
+            int y = getHoveredCellY();
+            boolean valid = isCellPosValid(x, y);
+            boolean currentState = valid && grid.canCellPass(x, y);
+            paintState = !currentState;
+            if (valid) {
+                downX = x;
+                downY = y;
+                down = true;
+            }
         } else if (mode == MODE_PATH) {
             int x = getHoveredPointX();
             int y = getHoveredPointY();
@@ -104,11 +125,37 @@ public final class FieldView extends ProcessingView {
 
             if (valid) {
                 if (mouseButton == LEFT) {
-                    start = new Point(x, y);
+                    follower.reset(x, y);
                 } else if (mouseButton == RIGHT) {
                     goal = new Point(x, y);
                 }
             }
+        }
+    }
+
+    @Override
+    public void mouseReleased() {
+        down = false;
+
+        if (!viewportHovered)
+            return;
+
+        if (mode == MODE_FILL) {
+            down = false;
+
+            int x = getHoveredCellX();
+            int y = getHoveredCellY();
+            boolean valid = isCellPosValid(x, y);
+            if (!valid) return;
+
+            int minX = Math.min(x, downX);
+            int maxX = Math.max(x, downX);
+            int minY = Math.min(y, downY);
+            int maxY = Math.max(y, downY);
+
+            for (int r = minY; r <= maxY; r++)
+                for (int c = minX; c <= maxX; c++)
+                    grid.set(c, r, paintState);
         }
     }
 
@@ -139,7 +186,7 @@ public final class FieldView extends ProcessingView {
             boolean valid = isPointPosValid(x, y);
 
             if (mouseButton == LEFT && valid) {
-                start = new Point(x, y);
+                follower.reset(x, y);
             } else if (mouseButton == RIGHT && valid) {
                 goal = new Point(x, y);
             } else if (mouseButton == CENTER) {
@@ -170,6 +217,8 @@ public final class FieldView extends ProcessingView {
         posY.step();
         scale.step();
 
+        start = new Point((int) Math.round(follower.getX()), (int) Math.round(follower.getY()));
+
         g.background(32);
         g.translate(g.width / 2f, g.height / 2f);
         g.scale(scale.get());
@@ -189,6 +238,24 @@ public final class FieldView extends ProcessingView {
                     g.noFill();
 
                 g.rect(x, y, 1, 1);
+            }
+        }
+
+        if (down) {
+            int x = getHoveredCellX();
+            int y = getHoveredCellY();
+            boolean valid = isCellPosValid(x, y);
+            if (valid) {
+                int minX = Math.min(x, downX);
+                int maxX = Math.max(x, downX);
+                int minY = Math.min(y, downY);
+                int maxY = Math.max(y, downY);
+
+                g.fill(255, 255, 255, 32);
+                g.noStroke();
+                for (int r = minY; r <= maxY; r++)
+                    for (int c = minX; c <= maxX; c++)
+                        g.rect(c, r, 1, 1);
             }
         }
 
@@ -218,6 +285,9 @@ public final class FieldView extends ProcessingView {
         pathfinder.setGoal(goal);
         List<Point> path = pathfinder.findPath();
         if (path != null) {
+            if (path.size() >= 2)
+                follower.update(g, path.get(1));
+
             strokeWidth(g, 4);
             g.stroke(214, 196, 32, 128);
             g.beginShape(LINE_STRIP);
@@ -266,12 +336,20 @@ public final class FieldView extends ProcessingView {
         text("Field size:");
         sameLine();
         setNextItemWidth(-1);
-        if (sliderInt2("##size_input", fieldSize, 1, 100)) {
+        if (sliderInt2("##size_input", fieldSize, 1, 250)) {
             BitfieldGrid temp = grid;
             grid = new BitfieldGrid(fieldSize[0], fieldSize[1]);
             grid.copyFrom(temp);
             createPathfinder();
             clampStartAndEnd();
+        }
+
+        alignTextToFramePadding();
+        text("Follower drive speed:");
+        sameLine();
+        float[] driveSpeed = {(float) follower.getDriveSpeed()};
+        if (sliderFloat("##drive_speed", driveSpeed, 0, 25)) {
+            follower.setDriveSpeed(driveSpeed[0]);
         }
 
         text("View:");
@@ -307,12 +385,28 @@ public final class FieldView extends ProcessingView {
         if (radioButton("Draw", mode == MODE_DRAW))
             mode = MODE_DRAW;
         sameLine();
+        if (radioButton("Fill", mode == MODE_FILL))
+            mode = MODE_FILL;
+        sameLine();
         if (radioButton("Path", mode == MODE_PATH))
             mode = MODE_PATH;
 
         if (button("Clear grid"))
             grid.clear();
         sameLine();
+        if (button("Randomly fill grid")) {
+            for (int x = 0; x < grid.getCellWidth(); x++) {
+                for (int y = 0; y < grid.getCellHeight(); y++) {
+                    grid.set(x, y, Math.random() > randomFillPercent[0]/100f);
+                }
+            }
+        }
+        sameLine();
+        text("Random percent:");
+        sameLine();
+        setNextItemWidth(-1);
+        sliderFloat("##random_percent", randomFillPercent, 0, 100);
+
         text("Pathfinder algorithm: ");
         sameLine();
         boolean finderChanged = false;

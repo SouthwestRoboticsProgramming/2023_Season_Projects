@@ -39,64 +39,71 @@ public abstract class Grid {
         }
     }
 
-    public boolean canLinePass(Point p1, Point p2) {
-        // DDA algorithm
+    public boolean lineOfSight(Point s, Point sp) {
+        int x0 = s.x;
+        int y0 = s.y;
+        int x1 = sp.x;
+        int y1 = sp.y;
+        int dy = y1 - y0;
+        int dx = x1 - x0;
+        int f = 0;
 
-        float dirX = p2.x - p1.x;
-        float dirY = p2.y - p1.y;
-        float dirLen = (float) Math.sqrt(dirX*dirX + dirY*dirY);
-        dirX /= dirLen;
-        dirY /= dirLen;
+        int sy;
+        int sx;
 
-        double posX = p1.x + EPSILON;
-        double posY = p1.y + EPSILON;
-
-        int mapX = p1.x;
-        int mapY = p1.y;
-
-        double sideDistX;
-        double sideDistY;
-
-        double deltaDistX = (dirX == 0) ? 1e30 : Math.abs(1 / dirX);
-        double deltaDistY = (dirY == 0) ? 1e30 : Math.abs(1 / dirY);
-
-        int stepX;
-        int stepY;
-
-        boolean hit = false;
-
-        if (dirX < 0) {
-            stepX = -1;
-            sideDistX = (posX - mapX) * deltaDistX;
+        if (dy < 0) {
+            dy = -dy;
+            sy = -1;
         } else {
-            stepX = 1;
-            sideDistX = (mapX + 1.0 - posX) * deltaDistX;
-        }
-        if (dirY < 0) {
-            stepY = -1;
-            sideDistY = (posY - mapY) * deltaDistY;
-        } else {
-            stepY = 1;
-            sideDistY = (mapY + 1.0 - posY) * deltaDistY;
+            sy = 1;
         }
 
-        while (!hit) {
-            if (sideDistX < sideDistY) {
-                sideDistX += deltaDistX;
-                mapX += stepX;
-            } else {
-                sideDistY += deltaDistY;
-                mapY += stepY;
+        if (dx < 0) {
+            dx = -dx;
+            sx = -1;
+        } else {
+            sx = 1;
+        }
+
+        if (dx >= dy) {
+            while (x0 != x1) {
+                f = f + dy;
+                if (f >= dx) {
+                    if (!canCellPass(x0 + ((sx - 1)/2), y0 + ((sy - 1)/2))) {
+                        return false;
+                    }
+                    y0 = y0 + sy;
+                    f = f - dx;
+                }
+                if (f != 0 && !canCellPass(x0 + ((sx - 1)/2), y0 + ((sy - 1)/2))) {
+                    return false;
+                }
+                if (dy == 0 && !canCellPass(x0 + ((sx - 1)/2), y0) && !canCellPass(x0 + ((sx - 1)/2), y0 - 1)) {
+                    return false;
+                }
+                x0 = x0 + sx;
             }
-
-            if (!canCellPass(mapX, mapY))
-                hit = true;
-
-            if (mapX == p2.x && mapY == p2.y)
-                break;
+        } else {
+            while (y0 != y1) {
+                f = f + dx;
+                if (f >= dy) {
+                    if (!canCellPass(x0 + ((sx - 1)/2), y0 + ((sy - 1)/2))) {
+                        return false;
+                    }
+                    x0 = x0 + sx;
+                    f = f - dy;
+                }
+                if (f != 0 && !canCellPass(x0 + ((sx - 1)/2), y0 + ((sy - 1)/2))) {
+                    return false;
+                }
+                if (dx == 0 && !canCellPass(x0, y0 + ((sy - 1)/2)) && !canCellPass(x0 - 1, y0 + ((sy - 1)/2))) {
+                    return false;
+                }
+                y0 = y0 + sy;
+            }
         }
 
-        return !hit;
+        return true;
     }
 
     public int getCellWidth() {

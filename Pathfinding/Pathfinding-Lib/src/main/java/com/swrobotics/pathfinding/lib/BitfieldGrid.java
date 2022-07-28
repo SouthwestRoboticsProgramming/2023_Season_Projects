@@ -24,7 +24,7 @@ public final class BitfieldGrid extends Grid {
     @Override
     public boolean canCellPass(int x, int y) {
         if (x < 0 || y < 0 || x >= width || y >= width)
-            return true;
+            return false;
         return data.get(x + y * width);
     }
 
