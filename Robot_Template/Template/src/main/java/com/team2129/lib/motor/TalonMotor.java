@@ -3,7 +3,7 @@ package com.team2129.lib.motor;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 import com.team2129.lib.encoder.TalonInternalEncoder;
-import com.team2129.lib.drivers.Motor;
+import com.team2129.lib.schedule.subsystem.Subsystem;
 import com.team2129.lib.sensors.Encoder;
 
 /**
@@ -25,7 +25,8 @@ public class TalonMotor extends Motor {
      * }
      * @param talon CTRE motor controller to wrap. Note: This does include the Victor SPX.
      */
-    public TalonMotor(BaseTalon talon) {
+    public TalonMotor(Subsystem parent, BaseTalon talon) {
+        super(parent);
         this.talon = talon;
     }
 

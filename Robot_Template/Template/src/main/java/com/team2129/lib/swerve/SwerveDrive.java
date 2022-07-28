@@ -2,7 +2,7 @@ package com.team2129.lib.swerve;
 
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
-import com.team2129.lib.routine.Routine;
+import com.team2129.lib.schedule.subsystem.Subsystem;
 import com.team2129.lib.sensors.Gyroscope;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -15,7 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 // TODO: BIG: Odometry
 
 /** A class to manage all of the swerve modules in a swerve drive. */
-public class SwerveDrive extends Routine {
+public class SwerveDrive implements Subsystem {
     private final Gyroscope gyro;
     private final SwerveModule[] modules;
 
@@ -105,7 +105,7 @@ public class SwerveDrive extends Routine {
     }
 
     public void printEncoderOffsets() {
-        StringBuilder out = new StringBuilder("Encoder offsets: ");
+        StringBuilder out = new StringBuilder("Encoder offsets (cw deg): ");
         for (SwerveModule module : modules) {
             out.append(String.format("%3.3f", module.getRawAngle().getCWDeg()));
             out.append(" ");

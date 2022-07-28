@@ -1,6 +1,6 @@
 package com.team2129.lib.swerve;
 
-import com.team2129.lib.drivers.Motor;
+import com.team2129.lib.motor.Motor;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
 import com.team2129.lib.sensors.AbsoluteEncoder;

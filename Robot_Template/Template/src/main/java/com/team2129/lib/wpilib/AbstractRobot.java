@@ -1,8 +1,8 @@
 package com.team2129.lib.wpilib;
 
 import com.team2129.lib.messenger.MessengerClient;
-import com.team2129.lib.messenger.MessengerReadRoutine;
-import com.team2129.lib.routine.Scheduler;
+import com.team2129.lib.messenger.ReadMessages;
+import com.team2129.lib.schedule.Scheduler;
 
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -30,7 +30,7 @@ public abstract class AbstractRobot extends RobotBase {
 
     protected final void initMessenger(String host, int port, String name) {
         msg = new MessengerClient(host, port, name);
-        Scheduler.get().addRoutine(new MessengerReadRoutine(msg));
+        Scheduler.get().addSubsystem(new ReadMessages(msg));
         Scheduler.get().registerMessengerQueryHook(msg);
     }
 
@@ -56,7 +56,7 @@ public abstract class AbstractRobot extends RobotBase {
 
         // The robot always starts disabled
         RobotState lastState = RobotState.DISABLED;
-        Scheduler.get().onStateSwitch(RobotState.DISABLED);
+        Scheduler.get().initState(RobotState.DISABLED);
 
         Thread currentThread = Thread.currentThread();
         while (running && !currentThread.isInterrupted()) {
@@ -68,13 +68,13 @@ public abstract class AbstractRobot extends RobotBase {
             while (unprocessedTime > secondsPerPeriodic) {
                 unprocessedTime -= secondsPerPeriodic;
 
-                Scheduler.get().periodic();
-
                 RobotState state = getCurrentState();
                 if (state != lastState) {
-                    Scheduler.get().onStateSwitch(state);
+                    Scheduler.get().initState(state);
                 }
                 lastState = state;
+
+                Scheduler.get().periodicState(state);
             }
         }
     }

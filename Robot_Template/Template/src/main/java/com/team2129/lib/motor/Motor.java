@@ -1,7 +1,8 @@
-package com.team2129.lib.drivers;
+package com.team2129.lib.motor;
 
 import com.team2129.lib.math.Angle;
-import com.team2129.lib.routine.Routine;
+import com.team2129.lib.schedule.Scheduler;
+import com.team2129.lib.schedule.subsystem.Subsystem;
 import com.team2129.lib.sensors.Encoder;
 
 import edu.wpi.first.math.controller.BangBangController;
@@ -10,10 +11,9 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.DriverStation;
 
 /**
- * An abstract class to put all motor functions into one interface for better motor controlls and uniform code across all vendors.
+ * An abstract class to put all motor functions into one interface for better motor controls and uniform code across all vendors.
  */
-public abstract class Motor extends Routine {
-
+public abstract class Motor implements Subsystem {
     private PIDController pid;
     private SimpleMotorFeedforward feed;
     private final BangBangController bang;
@@ -39,15 +39,15 @@ public abstract class Motor extends Routine {
      * motor.assignEncoder();
      * }
      */
-    public Motor() {
-
-        controlMode = () -> {
-            return;
-        };
+    public Motor(Subsystem parent) {
+        controlMode = () -> {};
 
         pid = new PIDController(0.0, 0.0, 0.0);
         feed = new SimpleMotorFeedforward(0.0, 0.0);
         bang = new BangBangController();
+
+        // Schedule this and attach to parent subsystem
+        Scheduler.get().addSubsystem(parent, this);
     }
 
     /**
@@ -114,7 +114,6 @@ public abstract class Motor extends Routine {
 
     /**
      * Control the motor to spin at a specified speed.
-     * @param current The current velocity of the motor.
      * @param target The target velocity of the motor.
      */
     public void velocity(Angle target) {

@@ -1,7 +1,6 @@
 package com.team2129.lib.motor;
 
-import com.team2129.lib.drivers.Motor;
-
+import com.team2129.lib.schedule.subsystem.Subsystem;
 import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
 
 /**
@@ -15,7 +14,8 @@ public class VictorSPMotor extends Motor {
      * Create a VictorSPMotor using an already configured VictorSP.
      * @param victor VictorSP to wrap. NOTE: This should already be configured with inversion etc.
      */
-    public VictorSPMotor(VictorSP victor) {
+    public VictorSPMotor(Subsystem parent, VictorSP victor) {
+        super(parent);
         this.victor = victor;
     }
 

@@ -2,7 +2,8 @@ package com.swrobotics.robot;
 
 import com.swrobotics.robot.input.Input;
 import com.swrobotics.robot.subsystem.Drive;
-import com.team2129.lib.routine.Scheduler;
+import com.swrobotics.robot.subsystem.TestSubsystem;
+import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.wpilib.AbstractRobot;
 
 public final class Robot extends AbstractRobot {
@@ -18,6 +19,7 @@ public final class Robot extends AbstractRobot {
         Drive drive = new Drive(input);
 
         Scheduler scheduler = Scheduler.get();
-        scheduler.addRoutine(drive);
+        scheduler.addSubsystem(drive);
+//        scheduler.addSubsystem(new TestSubsystem());
     }
 }

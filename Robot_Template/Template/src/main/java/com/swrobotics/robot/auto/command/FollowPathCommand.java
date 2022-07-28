@@ -1,11 +1,11 @@
-package com.swrobotics.robot.auto.routines;
+package com.swrobotics.robot.auto.command;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.team2129.lib.math.Angle;
-import com.team2129.lib.routine.Routine;
 
+import com.team2129.lib.schedule.command.Command;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -15,7 +15,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.wpilibj.Timer;
 
-public class FollowPathRoutine extends Routine {
+public class FollowPathCommand implements Command {
     private final Timer timer;
     private final HolonomicDriveController follower; // Lets swerve drive follow a path
 
@@ -26,7 +26,7 @@ public class FollowPathRoutine extends Routine {
     
     private final Consumer<ChassisSpeeds> outputChassisSpeeds;
 
-    public FollowPathRoutine(
+    public FollowPathCommand(
         Trajectory trajectory,
 
         PIDController xController,
@@ -57,7 +57,7 @@ public class FollowPathRoutine extends Routine {
     }
 
     @Override
-    public void periodic() {
+    public boolean run() {
         double currentTime = timer.get();
         State desiredChassisState = trajectory.sample(currentTime);
         Angle desiredRotation = desiredAngle.get();
@@ -66,10 +66,13 @@ public class FollowPathRoutine extends Routine {
 
         // Output
         outputChassisSpeeds.accept(targetChassisSpeeds);
+
+        // TODO-Mason: Return true when path is done
+        return false;
     }
 
     @Override
-    public void end() {
+    public void end(boolean cancelled) {
         timer.stop();
         outputChassisSpeeds.accept(new ChassisSpeeds());
     }
@@ -77,6 +80,4 @@ public class FollowPathRoutine extends Routine {
     public Pose2d getInitialPose() {
         return trajectory.getInitialPose();
     }
-
-    // TODO: End early
 }

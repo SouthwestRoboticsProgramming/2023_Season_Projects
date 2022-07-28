@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.team2129.lib.encoder.CANCoderImplementation;
 import com.team2129.lib.motor.TalonMotor;
+import com.team2129.lib.schedule.subsystem.Subsystem;
 import com.team2129.lib.swerve.SwerveModule;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
@@ -18,7 +19,7 @@ import edu.wpi.first.math.controller.PIDController;
  * Configures motors and creates a swerve module
  */
 public class SwerveModuleMaker {
-    public static SwerveModule buildModule(int driveID, int steerID, int steerEncoderID, Angle steerOffset, Vec2d position) {
+    public static SwerveModule buildModule(Subsystem parent, int driveID, int steerID, int steerEncoderID, Angle steerOffset, Vec2d position) {
 
         TalonFX driveMotor_toWrap = new TalonFX(driveID);
         driveMotor_toWrap.configFactoryDefault();
@@ -39,10 +40,10 @@ public class SwerveModuleMaker {
         steerMotor_toWrap.configFactoryDefault();
         steerMotor_toWrap.setInverted(true);
 
-        TalonMotor driveMotor = new TalonMotor(driveMotor_toWrap);
+        TalonMotor driveMotor = new TalonMotor(parent, driveMotor_toWrap);
         driveMotor.setPIDController(new PIDController(DRIVE_KP, DRIVE_KI, DRIVE_KD));
 
-        TalonMotor steerMotor = new TalonMotor(steerMotor_toWrap);
+        TalonMotor steerMotor = new TalonMotor(parent, steerMotor_toWrap);
 
         PIDController steerPID = new PIDController(TURN_KP, TURN_KI, TURN_KD);
         steerPID.enableContinuousInput(-90, 90);
