@@ -41,7 +41,6 @@ public abstract class AbstractRobot extends RobotBase {
     protected final void initMessenger(String host, int port, String name) {
         msg = new MessengerClient(host, port, name);
         Scheduler.get().addSubsystem(new ReadMessages(msg));
-        Scheduler.get().registerMessengerQueryHook(msg);
     }
 
     public boolean hasMessenger() {

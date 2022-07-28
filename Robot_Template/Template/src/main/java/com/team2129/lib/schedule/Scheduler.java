@@ -10,12 +10,12 @@ import java.util.List;
 import java.util.UUID;
 
 public final class Scheduler {
-    private static final String MSG_IN_QUERY = "Scheduler:Query";
-    private static final String MSG_OUT_QUERY_RESPONSE = "Scheduler:QueryResponse";
-    private static final String MSG_OUT_SUBSYSTEM_ADDED = "Scheduler:SubsystemAdded";
-    private static final String MSG_OUT_SUBSYSTEM_REMOVED = "Scheduler:SubsystemRemoved";
-    private static final String MSG_OUT_COMMAND_ADDED = "Scheduler:CommandAdded";
-    private static final String MSG_OUT_COMMAND_REMOVED = "Scheduler:CommandRemoved";
+    private static final String MSG_QUERY = "Scheduler:Query";
+    private static final String MSG_QUERY_RESPONSE = "Scheduler:QueryResponse";
+    private static final String MSG_SUBSYSTEM_ADDED = "Scheduler:SubsystemAdded";
+    private static final String MSG_SUBSYSTEM_REMOVED = "Scheduler:SubsystemRemoved";
+    private static final String MSG_COMMAND_ADDED = "Scheduler:CommandAdded";
+    private static final String MSG_COMMAND_REMOVED = "Scheduler:CommandRemoved";
 
     private static final Scheduler INSTANCE = new Scheduler();
     public static Scheduler get() {
@@ -31,7 +31,6 @@ public final class Scheduler {
         boolean childrenLocked = false; // To prevent ConcurrentModificationException
 
         public SubsystemWrapper(SubsystemWrapper parent, Subsystem subsystem) {
-            this.parent = parent;
             this.subsystem = subsystem;
             id = UUID.randomUUID();
         }
@@ -92,85 +91,18 @@ public final class Scheduler {
         shouldDeferChanges = false;
     }
 
-    private void addUUID(MessageBuilder builder, UUID id) {
-        builder.addLong(id.getLeastSignificantBits());
-        builder.addLong(id.getMostSignificantBits());
+    private void writeUUID(MessageBuilder builder, UUID uuid) {
+        builder.addLong(uuid.getLeastSignificantBits());
+        builder.addLong(uuid.getMostSignificantBits());
     }
 
-    private void describeCommand(MessageBuilder builder, CommandWrapper c) {
-        addUUID(builder, c.id);
-        builder.addString(c.command.getClass().getSimpleName());
-        builder.addDouble(c.command.getInterval().getDurationNanos());
-    }
-
-    private void describeSubsystem(MessageBuilder builder, SubsystemWrapper s) {
-        addUUID(builder, s.id);
+    private void writeSubsystemTree(MessageBuilder builder, SubsystemWrapper s) {
+        writeUUID(builder, s.id);
         builder.addString(s.subsystem.getClass().getSimpleName());
-    }
-
-    public void registerMessengerQueryHook(MessengerClient msg) {
-        this.msg = msg;
-
-        msg.addHandler(MSG_IN_QUERY, (type, reader) -> {
-            MessageBuilder builder = msg.prepare(MSG_OUT_QUERY_RESPONSE);
-
-            builder.addInt(subsystems.size());
-            for (SubsystemWrapper s : subsystems) {
-                describeSubsystem(builder, s);
-
-                // Children only need to be sent once
-                builder.addInt(s.children.size());
-                for (SubsystemWrapper child : s.children) {
-                    addUUID(builder, child.id);
-                }
-            }
-
-            builder.addInt(commands.size());
-            for (CommandWrapper c : commands) {
-                describeCommand(builder, c);
-            }
-
-            builder.send();
-        });
-    }
-
-    private void reportSubsystemAdd(SubsystemWrapper s) {
-        if (msg == null) return;
-
-        MessageBuilder builder = msg.prepare(MSG_OUT_SUBSYSTEM_ADDED);
-
-        // Specify parent so receiver can link it
-        if (s.parent == null)
-            builder.addLong(0).addLong(0);
-        else
-            addUUID(builder, s.parent.id);
-
-        describeSubsystem(builder, s);
-        builder.send();
-    }
-
-    private void reportSubsystemRemove(SubsystemWrapper s) {
-        if (msg == null) return;
-
-        MessageBuilder builder = msg.prepare(MSG_OUT_SUBSYSTEM_REMOVED);
-        addUUID(builder, s.id);
-        builder.send();
-    }
-
-    private void reportCommandAdd(CommandWrapper c) {
-        if (msg == null) return;
-
-        MessageBuilder builder = msg.prepare(MSG_OUT_COMMAND_ADDED);
-        describeCommand(builder, c);
-        builder.send();
-    }
-
-    private void reportCommandRemove(CommandWrapper c) {
-        if (msg == null) return;
-
-        MessageBuilder builder = msg.prepare(MSG_OUT_COMMAND_REMOVED);
-        addUUID(builder, c.id);
-        builder.send();
+        builder.addInt(s.children.size());
+        for (SubsystemWrapper child : s.children) {
+            writeSubsystemTree(builder, child);
+        }
     }
 
     private SubsystemWrapper lookUpSubsystemWrapper(Subsystem s) {
@@ -208,13 +140,18 @@ public final class Scheduler {
     public void addSubsystem(Subsystem parent, Subsystem s) {
         s.onAdd();
 
-        SubsystemWrapper wrapper = new SubsystemWrapper(lookUpSubsystemWrapper(parent), s);
+        SubsystemWrapper parentWrapper = lookUpSubsystemWrapper(parent);
+        if (parentWrapper == null) {
+            // FIXME: Should be able to attach to non-scheduled parent, and be removed
+            //        if parent is scheduled and removed
+            //        Useful for things like motors which could be added before their parents
+        }
+
+        SubsystemWrapper wrapper = new SubsystemWrapper(parentWrapper, s);
         if (shouldDeferChanges)
             deferredChanges.add(() -> subsystems.add(wrapper));
         else
             subsystems.add(wrapper);
-
-        reportSubsystemAdd(wrapper);
     }
 
     private void removeSubsystem(SubsystemWrapper wrapper) {
@@ -235,8 +172,6 @@ public final class Scheduler {
         } else {
             subsystems.remove(wrapper);
         }
-
-        reportSubsystemRemove(wrapper);
     }
 
     /**
@@ -257,8 +192,6 @@ public final class Scheduler {
             deferredChanges.add(() -> commands.add(wrapper));
         else
             commands.add(wrapper);
-
-        reportCommandAdd(wrapper);
     }
 
     private void removeCommand(CommandWrapper wrapper) {
@@ -269,8 +202,6 @@ public final class Scheduler {
             deferredChanges.add(() -> commands.remove(wrapper));
         else
             commands.remove(wrapper);
-
-        reportCommandRemove(wrapper);
     }
 
     public void removeCommand(Command cmd) {
