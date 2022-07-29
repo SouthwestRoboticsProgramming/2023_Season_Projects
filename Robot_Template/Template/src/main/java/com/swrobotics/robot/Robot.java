@@ -10,6 +10,10 @@ public final class Robot extends AbstractRobot {
 
     public Robot() {
 	    super(PERIODIC_PER_SECOND);
+
+	    // Provide connection parameters and enable Messenger
+        // Important: This does not prevent the code from working without Messenger!
+        //            It only tells the Messenger client to try to connect.
 	    initMessenger("localhost", 5805, "Robot");
     }
     

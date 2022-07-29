@@ -1,16 +1,22 @@
 package com.team2129.lib.schedule;
 
 import com.team2129.lib.messenger.MessageBuilder;
+import com.team2129.lib.messenger.MessageReader;
 import com.team2129.lib.messenger.MessengerClient;
 import com.team2129.lib.profile.Profiler;
-import com.team2129.lib.time.Repeater;
 import com.team2129.lib.wpilib.RobotState;
+import edu.wpi.first.wpilibj.DriverStation;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public final class Scheduler {
+    // Message names
     private static final String MSG_QUERY = "Scheduler:Query";
     private static final String MSG_QUERY_RESPONSE = "Scheduler:QueryResponse";
     private static final String MSG_SUBSYSTEM_ADDED = "Scheduler:SubsystemAdded";
@@ -18,247 +24,288 @@ public final class Scheduler {
     private static final String MSG_COMMAND_ADDED = "Scheduler:CommandAdded";
     private static final String MSG_COMMAND_REMOVED = "Scheduler:CommandRemoved";
 
+    // Node type codes for sending tree
+    private static final byte TYPE_CODE_SUBSYSTEM = 0;
+    private static final byte TYPE_CODE_COMMAND = 1;
+
+    // --- Singleton management ---
+
     private static final Scheduler INSTANCE = new Scheduler();
     public static Scheduler get() {
         return INSTANCE;
     }
 
-    private static final class SubsystemWrapper {
-        Subsystem subsystem;
-        UUID id;
+    // --- Node type definitions ---
 
-        SubsystemWrapper parent;
-        List<SubsystemWrapper> children = new ArrayList<>();
-        boolean childrenLocked = false; // To prevent ConcurrentModificationException
+    /*
+     * Example Schedule Tree:
+     * Only subsystems can have children
+     *
+     * Drive [subsystem]
+     *  |- TalonMotor [subsystem]
+     *  |- TalonMotor [subsystem]
+     *  |- ...
+     * PathFollower [subsystem]
+     *  |- DriveToPointCommand [command]
+     */
 
-        public SubsystemWrapper(SubsystemWrapper parent, Subsystem subsystem) {
+    private static abstract class ScheduleNode {
+        // Unique identifier for Messenger API
+        public final UUID id = UUID.randomUUID();
+
+        public SubsystemNode parent;
+
+        public abstract void periodicState(RobotState state);
+        public abstract void remove(Scheduler sch);
+    }
+
+    private static final class SubsystemNode extends ScheduleNode {
+        private final Subsystem subsystem;
+        private final List<ScheduleNode> children;
+
+        public SubsystemNode(Subsystem subsystem) {
             this.subsystem = subsystem;
-            id = UUID.randomUUID();
+            children = new ArrayList<>();
         }
 
-        void init(RobotState state) {
+        public void initState(RobotState state) {
             switch (state) {
                 case DISABLED:   subsystem.disabledInit();   break;
                 case AUTONOMOUS: subsystem.autonomousInit(); break;
                 case TELEOP:     subsystem.teleopInit();     break;
                 case TEST:       subsystem.testInit();       break;
             }
+
+            for (ScheduleNode node : children) {
+                if (node instanceof SubsystemNode) {
+                    ((SubsystemNode) node).initState(state);
+                }
+            }
         }
 
-        void periodic(RobotState state) {
+        @Override
+        public void periodicState(RobotState state) {
             subsystem.periodic();
+
             switch (state) {
                 case DISABLED:   subsystem.disabledPeriodic();   break;
                 case AUTONOMOUS: subsystem.autonomousPeriodic(); break;
                 case TELEOP:     subsystem.teleopPeriodic();     break;
                 case TEST:       subsystem.testPeriodic();       break;
             }
+
+            for (ScheduleNode node : children) {
+                Profiler.push(node.toString());
+                node.periodicState(state);
+                Profiler.pop();
+            }
+        }
+
+        @Override
+        public void remove(Scheduler sch) {
+            sch.removeSubsystem(subsystem);
+        }
+
+        @Override
+        public String toString() {
+            return subsystem.getClass().getSimpleName() + " " + id;
         }
     }
 
-    private static final class CommandWrapper {
-        Command command;
-        UUID id;
-        Repeater repeater;
+    private static final class CommandNode extends ScheduleNode {
+        private final Command command;
 
-        boolean done = false;
-
-        public CommandWrapper(Command command) {
+        public CommandNode(Command command) {
             this.command = command;
-            id = UUID.randomUUID();
-            repeater = new Repeater(command.getInterval(), () -> done = command.run());
         }
 
-        public boolean run() {
-            repeater.tick();
-            return done;
+        @Override
+        public void periodicState(RobotState state) {
+            boolean finished = command.run();
+            if (finished) {
+                INSTANCE.removeCommand(command);
+            }
+        }
+
+        @Override
+        public void remove(Scheduler sch) {
+            sch.removeCommand(command);
+        }
+
+        @Override
+        public String toString() {
+            return command.getClass().getSimpleName() + " " + id;
         }
     }
 
-    private final List<SubsystemWrapper> subsystems;
-    private final List<CommandWrapper> commands;
+    private final List<SubsystemNode> rootSubsystems;
+    private final Map<Subsystem, SubsystemNode> subsystemNodes;
 
-    // Prevents ConcurrentModificationException
-    private final List<Runnable> deferredChanges;
-    private boolean shouldDeferChanges;
+    private final List<CommandNode> rootCommands;
+    private final Map<Command, CommandNode> commandNodes;
+
+    private final Map<Subsystem, Set<ScheduleNode>> unsatisfiedParentLinks;
 
     private MessengerClient msg;
 
     public Scheduler() {
-        subsystems = new ArrayList<>();
-        commands = new ArrayList<>();
+        rootSubsystems = new ArrayList<>();
+        subsystemNodes = new IdentityHashMap<>();
+        unsatisfiedParentLinks = new IdentityHashMap<>();
 
-        deferredChanges = new ArrayList<>();
-        shouldDeferChanges = false;
+        rootCommands = new ArrayList<>();
+        commandNodes = new IdentityHashMap<>();
     }
 
-    private void writeUUID(MessageBuilder builder, UUID uuid) {
+    // --- Node management functions ---
+
+    private void linkNodes(Subsystem parent, ScheduleNode node) {
+        SubsystemNode parentNode = subsystemNodes.get(parent);
+        if (parentNode != null) {
+            parentNode.children.add(node);
+            node.parent = parentNode;
+        } else {
+            unsatisfiedParentLinks.computeIfAbsent(parent, (p) -> new HashSet<>())
+                    .add(node);
+        }
+    }
+
+    // Adding a subsystem or command as a child of a subsystem links
+    // it with the parent subsystem. This means that when the parent
+    // is removed, all of its children will also be removed.
+
+    public void addSubsystem(Subsystem s) { addSubsystem(null, s); }
+    public void addSubsystem(Subsystem parent, Subsystem ss) {
+        SubsystemNode node = new SubsystemNode(ss);
+
+        if (parent != null) {
+            linkNodes(parent, node);
+        } else {
+            rootSubsystems.add(node);
+        }
+
+        subsystemNodes.put(ss, node);
+        if (unsatisfiedParentLinks.containsKey(ss)) {
+            for (ScheduleNode child : unsatisfiedParentLinks.remove(ss)) {
+                node.children.add(child);
+                child.parent = node;
+            }
+        }
+    }
+
+    public void removeSubsystem(Subsystem s) {
+        SubsystemNode node = subsystemNodes.get(s);
+        for (ScheduleNode child : node.children) {
+            child.remove(this);
+        }
+        subsystemNodes.remove(s);
+        node.parent.children.remove(node);
+    }
+
+    public void addCommand(Command cmd) { addCommand(null, cmd); }
+    public void addCommand(Subsystem parent, Command cmd) {
+        CommandNode node = new CommandNode(cmd);
+
+        if (parent != null) {
+            linkNodes(parent, node);
+        } else {
+            rootCommands.add(node);
+        }
+
+        commandNodes.put(cmd, node);
+    }
+
+    public void removeCommand(Command cmd) {
+        CommandNode node = commandNodes.remove(cmd);
+        node.parent.children.remove(node);
+    }
+
+    // --- Main functions ---
+
+    public void initState(RobotState state) {
+        for (SubsystemNode node : rootSubsystems) {
+            node.initState(state);
+        }
+
+        if (!unsatisfiedParentLinks.isEmpty()) {
+            DriverStation.reportWarning("Unsatisfied parent link after init, some nodes are not running!", false);
+        }
+    }
+
+    public void periodicState(RobotState state) {
+        for (CommandNode cmd : rootCommands) {
+            Profiler.push(cmd.toString());
+            cmd.periodicState(state);
+            Profiler.pop();
+        }
+
+        for (SubsystemNode node : rootSubsystems) {
+            Profiler.push(node.toString());
+            node.periodicState(state);
+            Profiler.pop();
+        }
+
+        if (!unsatisfiedParentLinks.isEmpty()) {
+            DriverStation.reportWarning("Unsatisfied parent link after periodic, some nodes are not running!", false);
+        }
+    }
+
+    // --- Messenger API definitions ---
+
+    public void initMessenger(MessengerClient msg) {
+        this.msg = msg;
+        msg.addHandler(MSG_QUERY, this::handleQuery);
+    }
+
+    private void addUUID(MessageBuilder builder, UUID uuid) {
         builder.addLong(uuid.getLeastSignificantBits());
         builder.addLong(uuid.getMostSignificantBits());
     }
 
-    private void writeSubsystemTree(MessageBuilder builder, SubsystemWrapper s) {
-        writeUUID(builder, s.id);
-        builder.addString(s.subsystem.getClass().getSimpleName());
-        builder.addInt(s.children.size());
-        for (SubsystemWrapper child : s.children) {
-            writeSubsystemTree(builder, child);
+    private void handleQuery(String type, MessageReader reader) {
+        MessageBuilder builder = msg.prepare(MSG_QUERY_RESPONSE);
+
+        // Commands and subsystems are combined into one data array
+        builder.addInt(rootCommands.size() + rootSubsystems.size());
+
+        for (CommandNode cmd : rootCommands) {
+            writeCommandNode(builder, cmd);
+        }
+
+        for (SubsystemNode ss : rootSubsystems) {
+            writeSubsystemNode(builder, ss);
+        }
+
+        builder.send();
+    }
+
+    private String getTypeName(Object obj) {
+        return obj.getClass().getSimpleName();
+    }
+
+    private void writeSubsystemNode(MessageBuilder builder, SubsystemNode node) {
+        addUUID(builder, node.id);
+        builder.addString(getTypeName(node.subsystem));
+        builder.addByte(TYPE_CODE_SUBSYSTEM);
+
+        builder.addInt(node.children.size());
+        for (ScheduleNode child : node.children) {
+            writeScheduleNode(builder, child);
         }
     }
 
-    private SubsystemWrapper lookUpSubsystemWrapper(Subsystem s) {
-        SubsystemWrapper wrapper = null;
-        for (SubsystemWrapper w : subsystems) {
-            if (w.subsystem == s) {
-                wrapper = w;
-            }
-        }
-        return wrapper;
+    private void writeCommandNode(MessageBuilder builder, CommandNode node) {
+        addUUID(builder, node.id);
+        builder.addString(getTypeName(node.command));
+        builder.addByte(TYPE_CODE_COMMAND);
+
+        // TODO: Interval
     }
 
-    private CommandWrapper lookUpCommandWrapper(Command cmd) {
-        CommandWrapper wrapper = null;
-        for (CommandWrapper w : commands) {
-            if (w.command == cmd) {
-                wrapper = w;
-            }
-        }
-        return wrapper;
-    }
-
-    public void addSubsystem(Subsystem s) {
-        addSubsystem(null, s);
-    }
-
-    /**
-     * Adds a subsystem to the scheduler and attaches it to a parent
-     * subsystem. This link means that when the parent subsystem is
-     * removed, the specified subsystem will be removed as well.
-     *
-     * @param parent parent subsystem
-     * @param s subsystem to add
-     */
-    public void addSubsystem(Subsystem parent, Subsystem s) {
-        s.onAdd();
-
-        SubsystemWrapper parentWrapper = lookUpSubsystemWrapper(parent);
-        if (parentWrapper == null) {
-            // FIXME: Should be able to attach to non-scheduled parent, and be removed
-            //        if parent is scheduled and removed
-            //        Useful for things like motors which could be added before their parents
-        }
-
-        SubsystemWrapper wrapper = new SubsystemWrapper(parentWrapper, s);
-        if (shouldDeferChanges)
-            deferredChanges.add(() -> subsystems.add(wrapper));
+    private void writeScheduleNode(MessageBuilder builder, ScheduleNode node) {
+        if (node instanceof SubsystemNode)
+            writeSubsystemNode(builder, (SubsystemNode) node);
         else
-            subsystems.add(wrapper);
-    }
-
-    private void removeSubsystem(SubsystemWrapper wrapper) {
-        wrapper.subsystem.onRemove();
-
-        if (wrapper.parent != null && !wrapper.parent.childrenLocked)
-            wrapper.parent.children.remove(wrapper);
-
-        wrapper.childrenLocked = true;
-        for (SubsystemWrapper child : wrapper.children) {
-            removeSubsystem(child);
-        }
-        wrapper.childrenLocked = false;
-
-        if (shouldDeferChanges) {
-            final SubsystemWrapper finalWrapper = wrapper;
-            deferredChanges.add(() -> subsystems.remove(finalWrapper));
-        } else {
-            subsystems.remove(wrapper);
-        }
-    }
-
-    /**
-     * Removes a subsystem and its children from the scheduler.
-     *
-     * @param s subsystem to remove
-     */
-    public void removeSubsystem(Subsystem s) {
-        removeSubsystem(lookUpSubsystemWrapper(s));
-    }
-
-    public void addCommand(Command cmd) {
-        cmd.init();
-
-        CommandWrapper wrapper = new CommandWrapper(cmd);
-
-        if (shouldDeferChanges)
-            deferredChanges.add(() -> commands.add(wrapper));
-        else
-            commands.add(wrapper);
-    }
-
-    private void removeCommand(CommandWrapper wrapper) {
-        if (commands.contains(wrapper))
-            wrapper.command.end(true);
-
-        if (shouldDeferChanges)
-            deferredChanges.add(() -> commands.remove(wrapper));
-        else
-            commands.remove(wrapper);
-    }
-
-    public void removeCommand(Command cmd) {
-        removeCommand(lookUpCommandWrapper(cmd));
-    }
-
-    public void initState(RobotState state) {
-        Profiler.push("Init");
-        beginCoModProtection();
-        for (SubsystemWrapper subsystem : subsystems) {
-            subsystem.init(state);
-        }
-        endCoModProtection();
-        Profiler.pop();
-    }
-
-    public void periodicState(RobotState state) {
-        List<CommandWrapper> endedCommands = new ArrayList<>();
-        beginCoModProtection();
-        Profiler.push("Command");
-        for (CommandWrapper cmd : commands) {
-            Profiler.push(cmd.command.getClass().getSimpleName() + " " + cmd.id);
-            if (cmd.run()) {
-                endedCommands.add(cmd);
-            }
-            Profiler.pop();
-        }
-        for (CommandWrapper ended : endedCommands) {
-            ended.command.end(false);
-            commands.remove(ended);
-        }
-        Profiler.pop();
-        endCoModProtection();
-
-        beginCoModProtection();
-        Profiler.push("Subsystem");
-        for (SubsystemWrapper subsystem : subsystems) {
-            Profiler.push(subsystem.subsystem.getClass().getSimpleName() + " " + subsystem.id);
-            subsystem.periodic(state);
-            Profiler.pop();
-        }
-        Profiler.pop();
-        endCoModProtection();
-    }
-
-    private void beginCoModProtection() {
-        shouldDeferChanges = true;
-        deferredChanges.clear();
-    }
-
-    private void endCoModProtection() {
-        shouldDeferChanges = false;
-
-        // Apply all changes that happened within the protection block
-        for (Runnable change : deferredChanges) {
-            change.run();
-        }
+            writeCommandNode(builder, (CommandNode) node);
     }
 }
