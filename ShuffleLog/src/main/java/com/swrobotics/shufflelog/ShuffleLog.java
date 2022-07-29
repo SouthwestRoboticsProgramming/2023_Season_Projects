@@ -14,12 +14,8 @@ import imgui.ImGui;
 import imgui.ImGuiIO;
 import imgui.extension.implot.ImPlot;
 import imgui.flag.ImGuiConfigFlags;
-import imgui.flag.ImGuiKey;
-import imgui.flag.ImGuiMouseButton;
 import imgui.gl3.ImGuiImplGl3;
-import imgui.glfw.ImGuiImplGlfw;
 import processing.core.PApplet;
-import processing.event.MouseEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +31,6 @@ public final class ShuffleLog extends PApplet {
     private final ExecutorService threadPool = Executors.newFixedThreadPool(4);
     private MessengerClient msg;
     private long startTime;
-
-    private boolean leftMouse, middleMouse, rightMouse;
 
     @Override
     public void settings() {
@@ -68,12 +62,6 @@ public final class ShuffleLog extends PApplet {
         tools.add(new SchedulerTool(msg));
 
         startTime = System.currentTimeMillis();
-
-        // Hack to fix bug in ImGui GLFW implementation where cursor
-        // position is not registered until it leaves and re-enters
-        // the window
-        // Note: This will not work if viewports are enabled
-        imGuiGlfw.cursorEnterCallback(windowHandle, true);
     }
 
     public double getTimestamp() {
@@ -81,28 +69,11 @@ public final class ShuffleLog extends PApplet {
     }
 
     @Override
-    public void mousePressed() {
-        switch (mouseButton) {
-            case LEFT: leftMouse = true; break;
-            case RIGHT: rightMouse = true; break;
-            case CENTER: middleMouse = true; break;
-        }
-    }
-
-    @Override
-    public void mouseReleased() {
-        switch (mouseButton) {
-            case LEFT: leftMouse = false; break;
-            case RIGHT: rightMouse = false; break;
-            case CENTER: middleMouse = false; break;
-        }
-    }
-
-    @Override
     public void draw() {
         Profiler.beginMeasurements("Root");
 
         Profiler.push("Begin GUI frame");
+        imGuiGlfw.flushEvents();
         imGuiGlfw.newFrame();
         ImGui.newFrame();
         Profiler.pop();
