@@ -9,7 +9,7 @@ import com.team2129.lib.swerve.SwerveDrive;
 import com.team2129.lib.swerve.SwerveModule;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
-import com.team2129.lib.sensors.Gyroscope;
+import com.team2129.lib.gyro.Gyroscope;
 
 /*
  * Wheel Layout:

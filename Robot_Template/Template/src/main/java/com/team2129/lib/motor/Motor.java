@@ -3,7 +3,7 @@ package com.team2129.lib.motor;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.schedule.Subsystem;
-import com.team2129.lib.sensors.Encoder;
+import com.team2129.lib.encoder.Encoder;
 
 import edu.wpi.first.math.controller.BangBangController;
 import edu.wpi.first.math.controller.PIDController;
@@ -187,7 +187,6 @@ public abstract class Motor implements Subsystem {
 
         velocity(Angle.cwDeg(0));
     }
-
 
     /**
      * Set the motor to hold the current position. If it is moved, it will target the initial position.

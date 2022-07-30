@@ -1,4 +1,4 @@
-package com.team2129.lib.sensors;
+package com.team2129.lib.gyro;
 
 import com.team2129.lib.math.Angle;
 

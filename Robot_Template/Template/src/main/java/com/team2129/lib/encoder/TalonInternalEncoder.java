@@ -2,7 +2,6 @@ package com.team2129.lib.encoder;
 
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 import com.team2129.lib.math.Angle;
-import com.team2129.lib.sensors.Encoder;
 
 public class TalonInternalEncoder extends Encoder {
 

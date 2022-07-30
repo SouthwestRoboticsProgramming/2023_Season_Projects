@@ -3,7 +3,7 @@ package com.team2129.lib.swerve;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
 import com.team2129.lib.schedule.Subsystem;
-import com.team2129.lib.sensors.Gyroscope;
+import com.team2129.lib.gyro.Gyroscope;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
