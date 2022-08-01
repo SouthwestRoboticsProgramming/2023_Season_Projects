@@ -140,6 +140,16 @@ public final class MessageReader {
         }
     }
 
+    public byte[] readRaw(int length) {
+        try {
+            byte[] buf = new byte[length];
+            in.readFully(buf);
+            return buf;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read data", e);
+        }
+    }
+
     /**
      * Reads all remaining data as a {@code byte} array.
      *
@@ -147,9 +157,7 @@ public final class MessageReader {
      */
     public byte[] readAllData() {
         try {
-            byte[] buf = new byte[in.available()];
-            in.readFully(buf);
-            return buf;
+            return readRaw(in.available());
         } catch (IOException e) {
             throw new RuntimeException("Failed to read data", e);
         }

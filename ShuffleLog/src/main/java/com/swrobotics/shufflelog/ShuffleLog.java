@@ -10,6 +10,7 @@ import com.swrobotics.shufflelog.tool.profile.RobotProfilerTool;
 import com.swrobotics.shufflelog.tool.profile.ShuffleLogProfilerTool;
 import com.swrobotics.shufflelog.tool.Tool;
 import com.swrobotics.shufflelog.tool.scheduler.SchedulerTool;
+import com.swrobotics.shufflelog.tool.taskmanager.TaskManagerTool;
 import imgui.ImGui;
 import imgui.ImGuiIO;
 import imgui.extension.implot.ImPlot;
@@ -60,6 +61,7 @@ public final class ShuffleLog extends PApplet {
         tools.add(new ShuffleLogProfilerTool());
         tools.add(new RobotProfilerTool(msg));
         tools.add(new SchedulerTool(msg));
+        tools.add(new TaskManagerTool(msg, "TaskManager"));
 
         startTime = System.currentTimeMillis();
     }

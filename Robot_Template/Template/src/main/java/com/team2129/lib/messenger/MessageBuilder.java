@@ -163,4 +163,13 @@ public final class MessageBuilder {
         }
         return this;
     }
+
+    public MessageBuilder addRaw(byte[] b) {
+        try {
+            out.write(b);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to write raw data", e);
+        }
+        return this;
+    }
 }

@@ -4,7 +4,6 @@ import com.ctre.phoenix.ErrorCode;
 import edu.wpi.first.wpilibj.DriverStation;
 
 public class TalonErrorChecker {
-    
     /**
      * Checks if the error code has issues
      * 

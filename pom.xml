@@ -14,6 +14,7 @@
         <module>ShuffleLog</module>
         <module>MathLib</module>
         <module>Pathfinding</module>
+        <module>TaskManager</module>
     </modules>
 
     <properties>
