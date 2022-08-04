@@ -5,6 +5,7 @@ import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.encoder.Encoder;
 
+import com.team2129.lib.wpilib.AbstractRobot;
 import edu.wpi.first.math.controller.BangBangController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -42,7 +43,7 @@ public abstract class Motor implements Subsystem {
     public Motor(Subsystem parent) {
         controlMode = () -> {};
 
-        pid = new PIDController(0.0, 0.0, 0.0);
+        pid = new PIDController(0.0, 0.0, 0.0, 1 / AbstractRobot.get().getPeriodicPerSecond());
         feed = new SimpleMotorFeedforward(0.0, 0.0);
         bang = new BangBangController();
 
