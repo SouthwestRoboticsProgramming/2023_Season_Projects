@@ -1,0 +1,10 @@
+{
+  "Test": {
+    "workingDirectory": "tasks",
+    "command": [
+      "hello",
+      "world"
+    ],
+    "enabled": true
+  }
+}

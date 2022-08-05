@@ -26,10 +26,10 @@ public final class TaskManager {
 
     public TaskManager() {
         TaskManagerConfiguration config = TaskManagerConfiguration.load(CONFIG_FILE);
-        api = new TaskManagerAPI(config);
+        api = new TaskManagerAPI(this, config);
         tasks = loadTasks();
 
-        tasks.put("Test", new Task(config.getTasksRoot(), new String[]{"hello", "world"}, true));
+        saveTasks();
     }
 
     private Map<String, Task> loadTasks() {
@@ -46,11 +46,31 @@ public final class TaskManager {
 
     private void saveTasks() {
         try {
-            GSON.toJson(tasks, new FileWriter(TASKS_FILE));
+            FileWriter writer = new FileWriter(TASKS_FILE);
+            GSON.toJson(tasks, writer);
+            writer.close();
         } catch (Exception e) {
             System.err.println("Failed to save tasks file");
             e.printStackTrace();
         }
+    }
+
+    public void addTask(String name, Task task) {
+        tasks.put(name, task);
+        saveTasks();
+    }
+
+    public Task getTask(String name) {
+        return tasks.get(name);
+    }
+
+    public void removeTask(String name) {
+        tasks.remove(name);
+        saveTasks();
+    }
+
+    public Map<String, Task> getTasks() {
+        return new HashMap<>(tasks);
     }
 
     public void run() {

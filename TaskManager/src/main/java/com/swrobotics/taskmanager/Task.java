@@ -20,4 +20,16 @@ public final class Task {
         running = false;
         startupAttemptCount = 0;
     }
+
+    public File getWorkingDirectory() {
+        return workingDirectory;
+    }
+
+    public String[] getCommand() {
+        return command;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
 }

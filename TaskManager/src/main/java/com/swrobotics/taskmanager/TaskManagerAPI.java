@@ -10,8 +10,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Map;
 
 public final class TaskManagerAPI {
+    // Filesystem API
     private static final String MSG_LIST_FILES     = ":ListFiles";
     private static final String MSG_READ_FILE      = ":ReadFile";
     private static final String MSG_WRITE_FILE     = ":WriteFile";
@@ -23,16 +25,27 @@ public final class TaskManagerAPI {
     private static final String MSG_DELETE_CONFIRM = ":DeleteConfirm";
     private static final String MSG_MKDIR_CONFIRM  = ":MkdirConfirm";
 
+    // Tasks API
+    private static final String MSG_LIST_TASKS  = ":ListTasks";
+    private static final String MSG_CREATE_TASK = ":CreateTask";
+    private static final String MSG_DELETE_TASK = ":DeleteTask";
+    private static final String MSG_TASKS       = ":Tasks";
+
+    private final TaskManager mgr;
     private final MessengerClient msg;
+
     private final String msgFiles;
     private final String msgFileContent;
     private final String msgWriteConfirm;
     private final String msgDeleteConfirm;
     private final String msgMkdirConfirm;
+    private final String msgTasks;
 
     private final File tasksRoot;
 
-    public TaskManagerAPI(TaskManagerConfiguration config) {
+    public TaskManagerAPI(TaskManager mgr, TaskManagerConfiguration config) {
+        this.mgr = mgr;
+
         System.out.println("Connecting to Messenger at " + config.getMessengerHost() + ":" + config.getMessengerPort() + " as " + config.getMessengerName());
         msg = new MessengerClient(
                 config.getMessengerHost(),
@@ -46,12 +59,16 @@ public final class TaskManagerAPI {
         String msgWriteFile  = prefix + MSG_WRITE_FILE;
         String msgDeleteFile = prefix + MSG_DELETE_FILE;
         String msgMkdir      = prefix + MSG_MKDIR;
+        String msgListTasks  = prefix + MSG_LIST_TASKS;
+        String msgCreateTask = prefix + MSG_CREATE_TASK;
+        String msgDeleteTask = prefix + MSG_DELETE_TASK;
 
         msgFiles         = prefix + MSG_FILES;
         msgFileContent   = prefix + MSG_FILE_CONTENT;
         msgWriteConfirm  = prefix + MSG_WRITE_CONFIRM;
         msgDeleteConfirm = prefix + MSG_DELETE_CONFIRM;
         msgMkdirConfirm  = prefix + MSG_MKDIR_CONFIRM;
+        msgTasks         = prefix + MSG_TASKS;
 
         tasksRoot = config.getTasksRoot();
 
@@ -60,6 +77,9 @@ public final class TaskManagerAPI {
         msg.addHandler(msgWriteFile,  this::onWriteFile);
         msg.addHandler(msgDeleteFile, this::onDeleteFile);
         msg.addHandler(msgMkdir,      this::onMkdir);
+        msg.addHandler(msgListTasks,  this::onListTasks);
+        msg.addHandler(msgCreateTask, this::onCreateTask);
+        msg.addHandler(msgDeleteTask, this::onDeleteTask);
     }
 
     private String localizePath(String path) {
@@ -90,6 +110,22 @@ public final class TaskManagerAPI {
             }
         }
         return file.delete();
+    }
+
+    private String removeTrailingSeparator(String path) {
+        if (path.endsWith(File.separator))
+            return path.substring(0, path.length() - 1);
+        return path;
+    }
+
+    private String getTaskPath(File file) {
+        String rootAbsolute = removeTrailingSeparator(tasksRoot.getAbsolutePath());
+        String fileAbsolute = removeTrailingSeparator(file.getAbsolutePath());
+
+        if (!fileAbsolute.startsWith(rootAbsolute))
+            throw new AssertionError("File is not a task tile: " + file);
+
+        return fileAbsolute.substring(rootAbsolute.length());
     }
 
     private void onListFiles(String type, MessageReader reader) {
@@ -222,6 +258,50 @@ public final class TaskManagerAPI {
                 .addString(path)
                 .addBoolean(result)
                 .send();
+    }
+
+    private void onListTasks(String type, MessageReader reader) {
+        MessageBuilder out = msg.prepare(msgTasks);
+        Map<String, Task> tasks = mgr.getTasks();
+
+        out.addInt(tasks.size());
+        for (Map.Entry<String, Task> entry : tasks.entrySet()) {
+            out.addString(entry.getKey());
+
+            Task task = entry.getValue();
+            out.addString(getTaskPath(task.getWorkingDirectory()));
+            String[] command = task.getCommand();
+            out.addInt(command.length);
+            for (String token : command)
+                out.addString(token);
+            out.addBoolean(task.isEnabled());
+        }
+
+        out.send();
+    }
+
+    // Can also be used to modify a task by overwriting an existing one
+    private void onCreateTask(String type, MessageReader reader) {
+        String name = reader.readString();
+        String workingDirPath = reader.readString();
+        File workingDir = new File(tasksRoot, workingDirPath);
+        int commandSize = reader.readInt();
+        String[] command = new String[commandSize];
+        for (int i = 0; i < commandSize; i++) {
+            command[i] = reader.readString();
+        }
+        boolean enabled = reader.readBoolean();
+        Task task = new Task(workingDir, command, enabled);
+
+        // Remove old task
+        if (mgr.getTask(name) != null)
+            mgr.removeTask(name);
+
+        mgr.addTask(name, task);
+    }
+
+    private void onDeleteTask(String type, MessageReader reader) {
+        mgr.removeTask(reader.readString());
     }
 
     public void read() {
