@@ -3,6 +3,7 @@ package com.swrobotics.shufflelog.tool.taskmanager;
 import com.swrobotics.messenger.client.MessageBuilder;
 import com.swrobotics.messenger.client.MessageReader;
 import com.swrobotics.messenger.client.MessengerClient;
+import com.swrobotics.shufflelog.ShuffleLog;
 import com.swrobotics.shufflelog.tool.Tool;
 import com.swrobotics.shufflelog.util.Cooldown;
 import com.swrobotics.shufflelog.util.FileChooser;
@@ -11,7 +12,6 @@ import imgui.flag.ImGuiInputTextFlags;
 import imgui.flag.ImGuiTableFlags;
 import imgui.flag.ImGuiTreeNodeFlags;
 import imgui.flag.ImGuiWindowFlags;
-import imgui.type.ImBoolean;
 import imgui.type.ImString;
 
 import java.io.ByteArrayOutputStream;
@@ -19,29 +19,36 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static imgui.ImGui.*;
 
 public final class TaskManagerTool implements Tool {
     // Filesystem API
-    private static final String MSG_LIST_FILES     = ":ListFiles";
-    private static final String MSG_READ_FILE      = ":ReadFile";
-    private static final String MSG_WRITE_FILE     = ":WriteFile";
-    private static final String MSG_DELETE_FILE    = ":DeleteFile";
-    private static final String MSG_MKDIR          = ":Mkdir";
-    private static final String MSG_FILES          = ":Files";
-    private static final String MSG_FILE_CONTENT   = ":FileContent";
-    private static final String MSG_WRITE_CONFIRM  = ":WriteConfirm";
-    private static final String MSG_DELETE_CONFIRM = ":DeleteConfirm";
-    private static final String MSG_MKDIR_CONFIRM  = ":MkdirConfirm";
+    public static final String MSG_LIST_FILES     = ":ListFiles";
+    public static final String MSG_READ_FILE      = ":ReadFile";
+    public static final String MSG_WRITE_FILE     = ":WriteFile";
+    public static final String MSG_DELETE_FILE    = ":DeleteFile";
+    public static final String MSG_MKDIR          = ":Mkdir";
+    public static final String MSG_FILES          = ":Files";
+    public static final String MSG_FILE_CONTENT   = ":FileContent";
+    public static final String MSG_WRITE_CONFIRM  = ":WriteConfirm";
+    public static final String MSG_DELETE_CONFIRM = ":DeleteConfirm";
+    public static final String MSG_MKDIR_CONFIRM  = ":MkdirConfirm";
 
     // Tasks API
-    private static final String MSG_LIST_TASKS  = ":ListTasks";
-    private static final String MSG_CREATE_TASK = ":CreateTask";
-    private static final String MSG_DELETE_TASK = ":DeleteTask";
-    private static final String MSG_TASKS       = ":Tasks";
+    public static final String MSG_LIST_TASKS  = ":ListTasks";
+    public static final String MSG_CREATE_TASK = ":CreateTask";
+    public static final String MSG_DELETE_TASK = ":DeleteTask";
+    public static final String MSG_TASKS       = ":Tasks";
 
+    // Logging
+    public static final String MSG_STDOUT = ":StdOut:";
+    public static final String MSG_STDERR = ":StdErr:";
+
+    private final ShuffleLog log;
     private final MessengerClient msg;
     private final String name;
 
@@ -53,8 +60,11 @@ public final class TaskManagerTool implements Tool {
     private final List<Task> tasks;
     private boolean receivedTasks;
 
-    public TaskManagerTool(MessengerClient msg, String name) {
-        this.msg = msg;
+    private final Map<String, TaskLogTool> logTools;
+
+    public TaskManagerTool(ShuffleLog log, String name) {
+        this.log = log;
+        this.msg = log.getMsg();
         this.name = name;
 
         reqContentCooldown = new Cooldown(500_000_000L);
@@ -70,6 +80,7 @@ public final class TaskManagerTool implements Tool {
         msg.addHandler(name + MSG_TASKS, this::onTasks);
 
         mkdirName = new ImString(64);
+        logTools = new HashMap<>();
 
         receivedTasks = false;
     }
@@ -327,6 +338,13 @@ public final class TaskManagerTool implements Tool {
 
             boolean open = collapsingHeader(name);
             if (beginPopupContextItem("task_ctx")) {
+                if (selectable("Open Log")) {
+                    TaskLogTool tool = logTools.computeIfAbsent(name, (n) -> new TaskLogTool(this.name, n, log));
+                    if (!tool.isOpen()) {
+                        tool.setOpen();
+                        log.addTool(tool);
+                    }
+                }
                 if (selectable("Delete")) {
                     msg.prepare(this.name + MSG_DELETE_TASK)
                             .addString(name)

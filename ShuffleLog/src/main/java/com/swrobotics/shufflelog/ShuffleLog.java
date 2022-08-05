@@ -29,6 +29,8 @@ public final class ShuffleLog extends PApplet {
     private final ImGuiImplGl3 imGuiGl3 = new ImGuiImplGl3();
 
     private final List<Tool> tools = new ArrayList<>();
+    private final List<Tool> addedTools = new ArrayList<>();
+    private final List<Tool> removedTools = new ArrayList<>();
     private final ExecutorService threadPool = Executors.newFixedThreadPool(4);
     private MessengerClient msg;
     private long startTime;
@@ -61,7 +63,7 @@ public final class ShuffleLog extends PApplet {
         tools.add(new ShuffleLogProfilerTool());
         tools.add(new RobotProfilerTool(msg));
         tools.add(new SchedulerTool(msg));
-        tools.add(new TaskManagerTool(msg, "TaskManager"));
+        tools.add(new TaskManagerTool(this, "TaskManager"));
 
         startTime = System.currentTimeMillis();
     }
@@ -93,6 +95,10 @@ public final class ShuffleLog extends PApplet {
             tool.process();
             Profiler.pop();
         }
+        tools.addAll(addedTools);
+        tools.removeAll(removedTools);
+        addedTools.clear();
+        removedTools.clear();
 
         Profiler.push("Render GUI");
         Profiler.push("Flush");
@@ -105,6 +111,14 @@ public final class ShuffleLog extends PApplet {
         Profiler.pop();
 
         Profiler.endMeasurements();
+    }
+
+    public void addTool(Tool tool) {
+        addedTools.add(tool);
+    }
+
+    public void removeTool(Tool tool) {
+        removedTools.add(tool);
     }
 
     public MessengerClient getMsg() {

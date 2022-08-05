@@ -2,5 +2,6 @@
   "messengerHost": "localhost",
   "messengerPort": 5805,
   "messengerName": "TaskManager",
-  "tasksRoot": "tasks"
+  "tasksRoot": "tasks",
+  "maxFailCount": 10
 }

@@ -12,22 +12,31 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class TaskManager {
-    public static final Gson GSON = new GsonBuilder()
-            .registerTypeAdapter(File.class, new FileTypeAdapter())
-            .setPrettyPrinting()
-            .create();
     private static final Type TASKS_MAP_TYPE = new TypeToken<Map<String, Task>>(){}.getType();
 
     private static final File CONFIG_FILE = new File("config.json");
     private static final File TASKS_FILE = new File("tasks.json");
 
+    private final Gson tasksGson;
     private final TaskManagerAPI api;
     private final Map<String, Task> tasks;
 
     public TaskManager() {
         TaskManagerConfiguration config = TaskManagerConfiguration.load(CONFIG_FILE);
         api = new TaskManagerAPI(this, config);
+        tasksGson = new GsonBuilder()
+                .registerTypeAdapter(File.class, new FileTypeAdapter())
+                .registerTypeAdapter(Task.class, new TaskSerializer(api, config))
+                .setPrettyPrinting()
+                .create();
+
         tasks = loadTasks();
+
+        for (Map.Entry<String, Task> entry : tasks.entrySet()) {
+            Task task = entry.getValue();
+            task.setName(entry.getKey());
+            task.start();
+        }
 
         saveTasks();
     }
@@ -38,7 +47,7 @@ public final class TaskManager {
             return new HashMap<>();
 
         try {
-            return GSON.fromJson(new FileReader(TASKS_FILE), TASKS_MAP_TYPE);
+            return tasksGson.fromJson(new FileReader(TASKS_FILE), TASKS_MAP_TYPE);
         } catch (Exception e) {
             throw new RuntimeException("Failed to load tasks file");
         }
@@ -47,7 +56,7 @@ public final class TaskManager {
     private void saveTasks() {
         try {
             FileWriter writer = new FileWriter(TASKS_FILE);
-            GSON.toJson(tasks, writer);
+            tasksGson.toJson(tasks, writer);
             writer.close();
         } catch (Exception e) {
             System.err.println("Failed to save tasks file");
@@ -55,8 +64,8 @@ public final class TaskManager {
         }
     }
 
-    public void addTask(String name, Task task) {
-        tasks.put(name, task);
+    public void addTask(Task task) {
+        tasks.put(task.getName(), task);
         saveTasks();
     }
 
@@ -65,8 +74,11 @@ public final class TaskManager {
     }
 
     public void removeTask(String name) {
-        tasks.remove(name);
-        saveTasks();
+        Task removed = tasks.remove(name);
+        if (removed != null) {
+            removed.forceStop();
+            saveTasks();
+        }
     }
 
     public Map<String, Task> getTasks() {
@@ -76,6 +88,9 @@ public final class TaskManager {
     public void run() {
         while (true) {
             api.read();
+            for (Task task : tasks.values()) {
+                task.restartIfProcessEnded();
+            }
 
             try {
                 Thread.sleep(1000 / 50);

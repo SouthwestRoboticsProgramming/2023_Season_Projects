@@ -31,7 +31,12 @@ public final class TaskManagerAPI {
     private static final String MSG_DELETE_TASK = ":DeleteTask";
     private static final String MSG_TASKS       = ":Tasks";
 
+    // Logging
+    private static final String MSG_STDOUT = ":StdOut:";
+    private static final String MSG_STDERR = ":StdErr:";
+
     private final TaskManager mgr;
+    private final TaskManagerConfiguration config;
     private final MessengerClient msg;
 
     private final String msgFiles;
@@ -40,11 +45,14 @@ public final class TaskManagerAPI {
     private final String msgDeleteConfirm;
     private final String msgMkdirConfirm;
     private final String msgTasks;
+    private final String msgStdOut;
+    private final String msgStdErr;
 
     private final File tasksRoot;
 
     public TaskManagerAPI(TaskManager mgr, TaskManagerConfiguration config) {
         this.mgr = mgr;
+        this.config = config;
 
         System.out.println("Connecting to Messenger at " + config.getMessengerHost() + ":" + config.getMessengerPort() + " as " + config.getMessengerName());
         msg = new MessengerClient(
@@ -69,6 +77,8 @@ public final class TaskManagerAPI {
         msgDeleteConfirm = prefix + MSG_DELETE_CONFIRM;
         msgMkdirConfirm  = prefix + MSG_MKDIR_CONFIRM;
         msgTasks         = prefix + MSG_TASKS;
+        msgStdOut        = prefix + MSG_STDOUT;
+        msgStdErr        = prefix + MSG_STDERR;
 
         tasksRoot = config.getTasksRoot();
 
@@ -291,17 +301,23 @@ public final class TaskManagerAPI {
             command[i] = reader.readString();
         }
         boolean enabled = reader.readBoolean();
-        Task task = new Task(workingDir, command, enabled);
+        Task task = new Task(workingDir, command, enabled, this, config.getMaxFailCount(), name);
 
         // Remove old task
         if (mgr.getTask(name) != null)
             mgr.removeTask(name);
 
-        mgr.addTask(name, task);
+        mgr.addTask(task);
     }
 
     private void onDeleteTask(String type, MessageReader reader) {
         mgr.removeTask(reader.readString());
+    }
+
+    public void broadcastTaskOutput(Task task, LogOutputType type, String line) {
+        msg.prepare((type == LogOutputType.STDOUT ? msgStdOut : msgStdErr) + task.getName())
+                .addString(line)
+                .send();
     }
 
     public void read() {
