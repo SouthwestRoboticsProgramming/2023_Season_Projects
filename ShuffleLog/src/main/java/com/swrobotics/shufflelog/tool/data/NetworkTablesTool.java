@@ -1,5 +1,6 @@
-package com.swrobotics.shufflelog.tool;
+package com.swrobotics.shufflelog.tool.data;
 
+import com.swrobotics.shufflelog.tool.Tool;
 import com.swrobotics.shufflelog.tool.data.DataLogTool;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;

@@ -5,7 +5,7 @@ import com.swrobotics.shufflelog.profile.Profiler;
 import com.swrobotics.shufflelog.tool.data.DataLogTool;
 import com.swrobotics.shufflelog.tool.MenuBarTool;
 import com.swrobotics.shufflelog.tool.messenger.MessengerTool;
-import com.swrobotics.shufflelog.tool.NetworkTablesTool;
+import com.swrobotics.shufflelog.tool.data.NetworkTablesTool;
 import com.swrobotics.shufflelog.tool.profile.RobotProfilerTool;
 import com.swrobotics.shufflelog.tool.profile.ShuffleLogProfilerTool;
 import com.swrobotics.shufflelog.tool.Tool;
