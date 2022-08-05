@@ -41,7 +41,7 @@ public final class Graph {
         if (pad < 0.00001) pad = 0.1;
 
         ImPlot.setNextPlotLimits(minX, maxX, minY - pad, maxY + pad, ImGuiCond.Always);
-        if (ImPlot.beginPlot(getName(), "Time (s)", "Value", GRAPH_SIZE, ImPlotFlags.NoMenus, 0, 0)) {
+        if (ImPlot.beginPlot(getName(), "Time (s)", "Value", GRAPH_SIZE, ImPlotFlags.NoMenus | ImPlotFlags.NoChild, 0, 0)) {
             ImPlot.setLegendLocation(ImPlotLocation.East, ImPlotOrientation.Vertical, true);
             for (DataPlot<?> plot : plots) {
                 plot.plot(plots.size() > 1);

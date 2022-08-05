@@ -2,6 +2,7 @@ package com.swrobotics.shufflelog.tool.data;
 
 import com.swrobotics.shufflelog.tool.Tool;
 import com.swrobotics.shufflelog.tool.data.DataLogTool;
+import com.swrobotics.shufflelog.tool.data.PlotDef.Type;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -164,6 +165,14 @@ public final class NetworkTablesTool implements Tool {
     private void showPrimitiveEntry(String name, NetworkTableEntry entry, String path) {
         tableNextColumn();
         treeNodeEx(name, ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen | ImGuiTreeNodeFlags.SpanFullWidth);
+        if ((entry.getType() == NetworkTableType.kBoolean || entry.getType() == NetworkTableType.kDouble) && beginDragDropSource()) {
+            text(name);
+            setDragDropPayload("NT_DRAG_VALUE", new PlotDef(
+                    entry.getType() == NetworkTableType.kBoolean ? Type.BOOLEAN : Type.DOUBLE,
+                    path, name, entry
+            ));
+            endDragDropSource();
+        }
         tableNextColumn();
         pushID("nt_value:" + name);
         pushItemWidth(-1);
@@ -230,6 +239,13 @@ public final class NetworkTablesTool implements Tool {
                     for (int i = 0; i < val.length; i++) {
                         tableNextColumn();
                         treeNodeEx(String.valueOf(i), ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen | ImGuiTreeNodeFlags.SpanFullWidth);
+                        if (beginDragDropSource()) {
+                            text(name + "[" + i + "]");
+                            setDragDropPayload("NT_DRAG_VALUE", new PlotDef(
+                                    Type.BOOLEAN_ARRAY_ENTRY, path + "/" + i, name + "/" + i, entry, i
+                            ));
+                            endDragDropSource();
+                        }
                         tableNextColumn();
                         b.set(val[i]);
                         pushItemWidth(-1);
@@ -252,6 +268,13 @@ public final class NetworkTablesTool implements Tool {
                     for (int i = 0; i < val.length; i++) {
                         tableNextColumn();
                         treeNodeEx(String.valueOf(i), ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen | ImGuiTreeNodeFlags.SpanFullWidth);
+                        if (beginDragDropSource()) {
+                            text(name + "[" + i + "]");
+                            setDragDropPayload("NT_DRAG_VALUE", new PlotDef(
+                                    Type.DOUBLE_ARRAY_ENTRY, path + "/" + i, name + "/" + i, entry, i
+                            ));
+                            endDragDropSource();
+                        }
                         tableNextColumn();
                         d.set(val[i]);
                         pushItemWidth(-1);

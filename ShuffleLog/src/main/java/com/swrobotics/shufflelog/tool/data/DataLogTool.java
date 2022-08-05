@@ -60,83 +60,106 @@ public final class DataLogTool implements Tool {
         double time = log.getTimestamp();
 
         if (begin("Data Log")) {
-            List<Graph> graphsCopy = new ArrayList<>(graphs);
-            for (Graph graph : graphsCopy) {
-                if (graph.getPlots().isEmpty()) {
-                    graphs.remove(graph);
-                    continue;
-                }
-
-                String name = graph.getName();
-
-                pushID(name);
-                showGraph(graph, time);
-
-                if (beginPopupContextItem(name)) {
-                    if (selectable("Remove graph")) {
+            if (beginChild("drag_target")) {
+                List<Graph> graphsCopy = new ArrayList<>(graphs);
+                for (Graph graph : graphsCopy) {
+                    if (graph.getPlots().isEmpty()) {
                         graphs.remove(graph);
+                        continue;
                     }
 
-                    if (graph.getPlots().size() > 1) {
-                        separator();
+                    String name = graph.getName();
 
-                        List<DataPlot<?>> split = new ArrayList<>();
-                        for (DataPlot<?> plot : graph.getPlots()) {
-                            if (selectable("Split '" + plot.getName() + "'")) {
-                                split.add(plot);
-                            }
+                    pushID(name);
+                    showGraph(graph, time);
+
+                    if (beginPopupContextItem(name)) {
+                        if (selectable("Remove graph")) {
+                            graphs.remove(graph);
                         }
 
-                        if (selectable("Split all")) {
-                            boolean shouldSplit = false;
+                        if (graph.getPlots().size() > 1) {
+                            separator();
+
+                            List<DataPlot<?>> split = new ArrayList<>();
                             for (DataPlot<?> plot : graph.getPlots()) {
-                                // Keep the first plot in the current graph
-                                if (!shouldSplit) {
-                                    shouldSplit = true;
-                                    continue;
+                                if (selectable("Split '" + plot.getName() + "'")) {
+                                    split.add(plot);
                                 }
-
-                                split.add(plot);
                             }
-                        }
 
-                        for (DataPlot<?> plot : split) {
-                            graph.removePlot(plot);
-                            addPlot(plot);
-                        }
+                            if (selectable("Split all")) {
+                                boolean shouldSplit = false;
+                                for (DataPlot<?> plot : graph.getPlots()) {
+                                    // Keep the first plot in the current graph
+                                    if (!shouldSplit) {
+                                        shouldSplit = true;
+                                        continue;
+                                    }
 
-                        separator();
-
-                        DataPlot<?> removed = null;
-                        for (DataPlot<?> plot : graph.getPlots()) {
-                            if (selectable("Remove '" + plot.getName() + "'")) {
-                                removed = plot;
+                                    split.add(plot);
+                                }
                             }
+
+                            for (DataPlot<?> plot : split) {
+                                graph.removePlot(plot);
+                                addPlot(plot);
+                            }
+
+                            separator();
+
+                            DataPlot<?> removed = null;
+                            for (DataPlot<?> plot : graph.getPlots()) {
+                                if (selectable("Remove '" + plot.getName() + "'")) {
+                                    removed = plot;
+                                }
+                            }
+
+                            if (removed != null)
+                                graph.removePlot(removed);
                         }
 
-                        if (removed != null)
-                            graph.removePlot(removed);
+                        endPopup();
                     }
 
-                    endPopup();
-                }
-
-                if (beginDragDropSource()) {
-                    text(name);
-                    setDragDropPayload("DATALOG_DRAG_GRAPH", graph);
-                    endDragDropSource();
-                }
-
-                if (beginDragDropTarget()) {
-                    Graph payload = acceptDragDropPayload("DATALOG_DRAG_GRAPH");
-                    if (payload != null) {
-                        graphs.remove(payload);
-                        graph.addPlots(payload.getPlots());
-                        payload.clearPlots();
+                    if (beginDragDropSource()) {
+                        text(name);
+                        setDragDropPayload("DATALOG_DRAG_GRAPH", graph);
+                        endDragDropSource();
                     }
-                    endDragDropTarget();
+
+                    if (beginDragDropTarget()) {
+                        Graph payload = acceptDragDropPayload("DATALOG_DRAG_GRAPH");
+                        if (payload != null) {
+                            graphs.remove(payload);
+                            graph.addPlots(payload.getPlots());
+                            payload.clearPlots();
+                        }
+                        endDragDropTarget();
+                    }
+                    popID();
                 }
-                popID();
+                endChild();
+            }
+            if (beginDragDropTarget()) {
+                PlotDef plotDef = acceptDragDropPayload("NT_DRAG_VALUE");
+                if (plotDef != null) {
+                    switch (plotDef.getType()) {
+                        case DOUBLE:
+                            addDoublePlot(plotDef.getPath(), plotDef.getName(), plotDef.getEntry());
+                            break;
+                        case BOOLEAN:
+                            addBooleanPlot(plotDef.getPath(), plotDef.getName(), plotDef.getEntry());
+                            break;
+                        case DOUBLE_ARRAY_ENTRY:
+                            addDoubleArrayEntryPlot(plotDef.getPath(), plotDef.getName(), plotDef.getEntry(), plotDef.getIndex());
+                            break;
+                        case BOOLEAN_ARRAY_ENTRY:
+                            addBooleanArrayEntryPlot(plotDef.getPath(), plotDef.getName(), plotDef.getEntry(), plotDef.getIndex());
+                            break;
+                    }
+                }
+                endDragDropTarget();
             }
         }
         end();
