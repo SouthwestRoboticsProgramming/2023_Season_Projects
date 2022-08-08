@@ -33,12 +33,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.swrobotics</groupId>
-            <artifactId>Pathfinding-Lib</artifactId>
-            <version>2023</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.praxislive.libp5x</groupId>
             <artifactId>processing-core</artifactId>
             <version>${p5x.version}</version>

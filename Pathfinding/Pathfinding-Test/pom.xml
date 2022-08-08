@@ -20,7 +20,7 @@
     <dependencies>
         <dependency>
             <groupId>com.swrobotics</groupId>
-            <artifactId>Pathfinding-Lib</artifactId>
+            <artifactId>Pathfinding-Task</artifactId>
             <version>2023</version>
             <scope>compile</scope>
         </dependency>

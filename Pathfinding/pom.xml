@@ -12,7 +12,7 @@
     <artifactId>Pathfinding</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>Pathfinding-Lib</module>
+        <module>Pathfinding-Task</module>
         <module>Pathfinding-Test</module>
     </modules>
 </project>
