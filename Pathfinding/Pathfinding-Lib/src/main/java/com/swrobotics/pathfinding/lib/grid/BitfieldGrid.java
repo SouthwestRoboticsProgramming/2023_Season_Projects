@@ -2,7 +2,7 @@ package com.swrobotics.pathfinding.lib.grid;
 
 import java.util.BitSet;
 
-public final class BitfieldGrid extends Grid {
+public class BitfieldGrid extends Grid {
     private final BitSet data;
 
     public BitfieldGrid(int width, int height) {

@@ -1,10 +1,14 @@
 package com.swrobotics.pathfinding.test;
 
+import com.swrobotics.pathfinding.lib.Field;
 import com.swrobotics.pathfinding.lib.finder.AStarPathfinder;
+import com.swrobotics.pathfinding.lib.geom.Circle;
 import com.swrobotics.pathfinding.lib.grid.BitfieldGrid;
 import com.swrobotics.pathfinding.lib.finder.Pathfinder;
 import com.swrobotics.pathfinding.lib.Point;
 import com.swrobotics.pathfinding.lib.finder.ThetaStarPathfinder;
+import com.swrobotics.pathfinding.lib.grid.GridUnion;
+import com.swrobotics.pathfinding.lib.grid.ShapeGrid;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 
@@ -24,7 +28,9 @@ public final class FieldView extends ProcessingView {
     private static final float SMOOTH = 12f;
 
     private final int[] fieldSize;
-    private BitfieldGrid grid;
+    private ShapeGrid shapeGrid;
+    private BitfieldGrid bitfieldGrid;
+    private GridUnion grid;
     private Pathfinder pathfinder;
 
     private boolean viewportHovered;
@@ -46,10 +52,21 @@ public final class FieldView extends ProcessingView {
     public FieldView(PApplet app) {
         super(app, "Field View");
 
+        Field field = new Field(0.1f, 2, 2, 0.5, 0.5);
+
         fieldSize = new int[2];
-        fieldSize[0] = 10;
-        fieldSize[1] = 10;
-        grid = new BitfieldGrid(fieldSize[0], fieldSize[1]);
+        fieldSize[0] = field.getCellsX();
+        fieldSize[1] = field.getCellsY();
+        bitfieldGrid = new BitfieldGrid(fieldSize[0], fieldSize[1]);
+
+        Circle robot = new Circle(0, 0, 0.001);
+        Circle obstacle = new Circle(0, 0, 1);
+        shapeGrid = new ShapeGrid(fieldSize[0], fieldSize[1], field, robot);
+        shapeGrid.addShape(obstacle);
+
+        grid = new GridUnion(fieldSize[0], fieldSize[1]);
+        grid.addGrid(bitfieldGrid);
+        grid.addGrid(shapeGrid);
 
         viewportHovered = false;
         posX = new SmoothFloat(SMOOTH, -5);
@@ -77,7 +94,7 @@ public final class FieldView extends ProcessingView {
     }
 
     private boolean isCellPosValid(int x, int y) {
-        return x >= 0 && x < grid.getCellWidth() && y >= 0 && y < grid.getCellHeight();
+        return x >= 0 && x < bitfieldGrid.getCellWidth() && y >= 0 && y < bitfieldGrid.getCellHeight();
     }
 
     private int getHoveredPointX() {
@@ -89,7 +106,7 @@ public final class FieldView extends ProcessingView {
     }
 
     private boolean isPointPosValid(int x, int y) {
-        return x >= 0 && x < grid.getPointWidth() && y >= 0 && y < grid.getPointHeight();
+        return x >= 0 && x < bitfieldGrid.getPointWidth() && y >= 0 && y < bitfieldGrid.getPointHeight();
     }
 
     @Override
@@ -102,15 +119,15 @@ public final class FieldView extends ProcessingView {
             int y = getHoveredCellY();
             boolean valid = isCellPosValid(x, y);
 
-            boolean currentState = valid && grid.canCellPass(x, y);
+            boolean currentState = valid && bitfieldGrid.canCellPass(x, y);
             paintState = !currentState;
             if (valid)
-                grid.set(x, y, paintState);
+                bitfieldGrid.set(x, y, paintState);
         } else if (mode == MODE_FILL) {
             int x = getHoveredCellX();
             int y = getHoveredCellY();
             boolean valid = isCellPosValid(x, y);
-            boolean currentState = valid && grid.canCellPass(x, y);
+            boolean currentState = valid && bitfieldGrid.canCellPass(x, y);
             paintState = !currentState;
             if (valid) {
                 downX = x;
@@ -154,7 +171,7 @@ public final class FieldView extends ProcessingView {
 
             for (int r = minY; r <= maxY; r++)
                 for (int c = minX; c <= maxX; c++)
-                    grid.set(c, r, paintState);
+                    bitfieldGrid.set(c, r, paintState);
         }
     }
 
@@ -175,7 +192,7 @@ public final class FieldView extends ProcessingView {
 
             if (mouseButton == LEFT) {
                 if (valid)
-                    grid.set(x, y, paintState);
+                    bitfieldGrid.set(x, y, paintState);
             } else if (mouseButton == RIGHT || mouseButton == CENTER) {
                 dragView();
             }
@@ -261,11 +278,11 @@ public final class FieldView extends ProcessingView {
         // Edges
         strokeWidth(g, 1.5f);
         g.stroke(128, 128, 128, 255);
-        for (int x = 0; x < grid.getPointWidth(); x++) {
-            g.line(x, 0, x, grid.getCellHeight());
+        for (int x = 0; x < bitfieldGrid.getPointWidth(); x++) {
+            g.line(x, 0, x, bitfieldGrid.getCellHeight());
         }
-        for (int y = 0; y < grid.getPointHeight(); y++) {
-            g.line(0, y, grid.getCellWidth(), y);
+        for (int y = 0; y < bitfieldGrid.getPointHeight(); y++) {
+            g.line(0, y, bitfieldGrid.getCellWidth(), y);
         }
 
         // Points
@@ -303,8 +320,8 @@ public final class FieldView extends ProcessingView {
     }
 
     private void resetZoom(boolean now) {
-        float requiredScaleX = g.width / (float) (grid.getCellWidth() + 2);
-        float requiredScaleY = g.height / (float) (grid.getCellHeight() + 2);
+        float requiredScaleX = g.width / (float) (bitfieldGrid.getCellWidth() + 2);
+        float requiredScaleY = g.height / (float) (bitfieldGrid.getCellHeight() + 2);
         float min = Math.min(requiredScaleX, requiredScaleY);
 
         if (now)
@@ -314,8 +331,8 @@ public final class FieldView extends ProcessingView {
     }
 
     private void clampStartAndEnd() {
-        start = new Point(Math.min(start.x, grid.getPointWidth() - 1), Math.min(start.y, grid.getPointHeight() - 1));
-        goal = new Point(Math.min(goal.x, grid.getPointWidth() - 1), Math.min(goal.y, grid.getPointHeight() - 1));
+        start = new Point(Math.min(start.x, bitfieldGrid.getPointWidth() - 1), Math.min(start.y, bitfieldGrid.getPointHeight() - 1));
+        goal = new Point(Math.min(goal.x, bitfieldGrid.getPointWidth() - 1), Math.min(goal.y, bitfieldGrid.getPointHeight() - 1));
     }
 
     private void createPathfinder() {
@@ -336,9 +353,9 @@ public final class FieldView extends ProcessingView {
         sameLine();
         setNextItemWidth(-1);
         if (sliderInt2("##size_input", fieldSize, 1, 250)) {
-            BitfieldGrid temp = grid;
-            grid = new BitfieldGrid(fieldSize[0], fieldSize[1]);
-            grid.copyFrom(temp);
+            BitfieldGrid temp = bitfieldGrid;
+            bitfieldGrid = new BitfieldGrid(fieldSize[0], fieldSize[1]);
+            bitfieldGrid.copyFrom(temp);
             createPathfinder();
             clampStartAndEnd();
         }
@@ -365,15 +382,15 @@ public final class FieldView extends ProcessingView {
         if (button("Reset Zoom"))
             resetZoom = true;
         if (resetPos) {
-            posX.set(-grid.getCellWidth() / 2.0f);
-            posY.set(-grid.getCellHeight() / 2.0f);
+            posX.set(-bitfieldGrid.getCellWidth() / 2.0f);
+            posY.set(-bitfieldGrid.getCellHeight() / 2.0f);
         }
         if (resetZoom)
             resetZoom(false);
 
         if (!hasInitialized && g != null) {
-            posX.set(-grid.getCellWidth() / 2.0f);
-            posY.set(-grid.getCellHeight() / 2.0f);
+            posX.set(-bitfieldGrid.getCellWidth() / 2.0f);
+            posY.set(-bitfieldGrid.getCellHeight() / 2.0f);
             resetZoom(true);
 
             hasInitialized = true;
@@ -391,12 +408,12 @@ public final class FieldView extends ProcessingView {
             mode = MODE_PATH;
 
         if (button("Clear grid"))
-            grid.clear();
+            bitfieldGrid.clear();
         sameLine();
         if (button("Randomly fill grid")) {
-            for (int x = 0; x < grid.getCellWidth(); x++) {
-                for (int y = 0; y < grid.getCellHeight(); y++) {
-                    grid.set(x, y, Math.random() > randomFillPercent[0]/100f);
+            for (int x = 0; x < bitfieldGrid.getCellWidth(); x++) {
+                for (int y = 0; y < bitfieldGrid.getCellHeight(); y++) {
+                    bitfieldGrid.set(x, y, Math.random() > randomFillPercent[0]/100f);
                 }
             }
         }
