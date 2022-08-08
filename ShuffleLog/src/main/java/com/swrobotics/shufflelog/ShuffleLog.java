@@ -4,6 +4,7 @@ import com.swrobotics.messenger.client.MessengerClient;
 import com.swrobotics.shufflelog.profile.Profiler;
 import com.swrobotics.shufflelog.tool.data.DataLogTool;
 import com.swrobotics.shufflelog.tool.MenuBarTool;
+import com.swrobotics.shufflelog.tool.field.FieldViewTool;
 import com.swrobotics.shufflelog.tool.messenger.MessengerTool;
 import com.swrobotics.shufflelog.tool.data.NetworkTablesTool;
 import com.swrobotics.shufflelog.tool.profile.RobotProfilerTool;
@@ -64,6 +65,7 @@ public final class ShuffleLog extends PApplet {
         tools.add(new RobotProfilerTool(msg));
         tools.add(new SchedulerTool(msg));
         tools.add(new TaskManagerTool(this, "TaskManager"));
+        tools.add(new FieldViewTool(this));
 
         startTime = System.currentTimeMillis();
     }
