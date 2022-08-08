@@ -92,7 +92,7 @@ public abstract class ProfilerTool implements Tool {
             ImVec2 min = ImGui.getItemRectMin();
             ImVec2 max = ImGui.getItemRectMax();
             ImDrawList draw = ImGui.getWindowDrawList();
-            draw.pushClipRect(min.x, min.y, max.x, max.y);
+            draw.pushClipRect(min.x, min.y, max.x, max.y, true);
             long totalTime = 0;
             for (ProfileNode child : children)
                 totalTime += child.getElapsedTimeNanoseconds();
