@@ -1,6 +1,7 @@
 package com.team2129.lib.net;
 
 import edu.wpi.first.networktables.EntryListenerFlags;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
@@ -25,7 +26,12 @@ public abstract class NTEntry<T> {
      */
     public NTEntry(String path) {
         changeListeners = new HashSet<>();
-        entry = NetworkTableInstance.getDefault().getEntry(path);
+        NetworkTable table = NetworkTableInstance.getDefault().getTable("");
+        String[] parts = path.split("/");
+        for (int i = 0; i < parts.length - 1; i++) {
+            table = table.getSubTable(parts[i]);
+        }
+        entry = table.getEntry(parts[parts.length - 1]);
         entry.setPersistent();
         entry.addListener((event) -> {
             fireOnChanged();
