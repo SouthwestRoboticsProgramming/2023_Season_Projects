@@ -1,4 +1,6 @@
-package com.swrobotics.pathfinding.lib;
+package com.swrobotics.pathfinding.lib.finder;
+
+import com.swrobotics.pathfinding.lib.Point;
 
 import java.util.List;
 

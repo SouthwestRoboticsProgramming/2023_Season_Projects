@@ -1,11 +1,10 @@
 package com.swrobotics.pathfinding.test;
 
-import com.swrobotics.pathfinding.lib.AStarPathfinder;
-import com.swrobotics.pathfinding.lib.BitfieldGrid;
-import com.swrobotics.pathfinding.lib.Pathfinder;
+import com.swrobotics.pathfinding.lib.finder.AStarPathfinder;
+import com.swrobotics.pathfinding.lib.grid.BitfieldGrid;
+import com.swrobotics.pathfinding.lib.finder.Pathfinder;
 import com.swrobotics.pathfinding.lib.Point;
-import com.swrobotics.pathfinding.lib.ThetaStarPathfinder;
-import imgui.type.ImFloat;
+import com.swrobotics.pathfinding.lib.finder.ThetaStarPathfinder;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 

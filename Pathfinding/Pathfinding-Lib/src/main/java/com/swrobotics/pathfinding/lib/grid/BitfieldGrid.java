@@ -1,4 +1,4 @@
-package com.swrobotics.pathfinding.lib;
+package com.swrobotics.pathfinding.lib.grid;
 
 import java.util.BitSet;
 
