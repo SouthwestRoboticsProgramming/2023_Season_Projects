@@ -2,9 +2,9 @@
   "Test": {
     "workingDirectory": "tasks",
     "command": [
-      "cmd.exe",
-      "/c",
-      "dir"
+      "echo",
+      "Hello",
+      "world"
     ],
     "enabled": true
   }

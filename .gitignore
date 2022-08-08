@@ -35,3 +35,6 @@ Vision/Test.py
 # ImGui storage files
 **/layout.ini
 **/imgui.ini
+
+# Maven shade output
+**/dependency-reduced-pom.xml
