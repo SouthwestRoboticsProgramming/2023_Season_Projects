@@ -1,14 +1,14 @@
 package com.swrobotics.pathfinding.test;
 
-import com.swrobotics.pathfinding.lib.Field;
-import com.swrobotics.pathfinding.lib.finder.AStarPathfinder;
-import com.swrobotics.pathfinding.lib.geom.Circle;
-import com.swrobotics.pathfinding.lib.grid.BitfieldGrid;
-import com.swrobotics.pathfinding.lib.finder.Pathfinder;
-import com.swrobotics.pathfinding.lib.Point;
-import com.swrobotics.pathfinding.lib.finder.ThetaStarPathfinder;
-import com.swrobotics.pathfinding.lib.grid.GridUnion;
-import com.swrobotics.pathfinding.lib.grid.ShapeGrid;
+import com.swrobotics.pathfinding.Field;
+import com.swrobotics.pathfinding.finder.AStarPathfinder;
+import com.swrobotics.pathfinding.geom.Circle;
+import com.swrobotics.pathfinding.grid.BitfieldGrid;
+import com.swrobotics.pathfinding.finder.Pathfinder;
+import com.swrobotics.pathfinding.Point;
+import com.swrobotics.pathfinding.finder.ThetaStarPathfinder;
+import com.swrobotics.pathfinding.grid.GridUnion;
+import com.swrobotics.pathfinding.grid.ShapeGrid;
 import processing.core.PApplet;
 import processing.core.PGraphics;
 

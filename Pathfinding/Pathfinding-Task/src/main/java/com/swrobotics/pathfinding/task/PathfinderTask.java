@@ -1,12 +1,12 @@
-package com.swrobotics.pathfinding.lib.task;
+package com.swrobotics.pathfinding.task;
 
 import com.swrobotics.messenger.client.MessageBuilder;
 import com.swrobotics.messenger.client.MessageReader;
 import com.swrobotics.messenger.client.MessengerClient;
-import com.swrobotics.pathfinding.lib.Field;
-import com.swrobotics.pathfinding.lib.Point;
-import com.swrobotics.pathfinding.lib.finder.Pathfinder;
-import com.swrobotics.pathfinding.lib.grid.GridUnion;
+import com.swrobotics.pathfinding.Field;
+import com.swrobotics.pathfinding.Point;
+import com.swrobotics.pathfinding.finder.Pathfinder;
+import com.swrobotics.pathfinding.grid.GridUnion;
 
 import java.io.File;
 import java.util.List;

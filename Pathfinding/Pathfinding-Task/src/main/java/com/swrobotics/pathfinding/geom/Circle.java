@@ -1,4 +1,4 @@
-package com.swrobotics.pathfinding.lib.geom;
+package com.swrobotics.pathfinding.geom;
 
 public final class Circle implements RobotShape {
     private double x;

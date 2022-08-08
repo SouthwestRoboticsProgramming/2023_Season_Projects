@@ -1,4 +1,4 @@
-package com.swrobotics.pathfinding.lib;
+package com.swrobotics.pathfinding;
 
 public final class Field {
     private final double cellSize; // meters

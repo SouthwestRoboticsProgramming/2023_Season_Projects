@@ -1,9 +1,9 @@
-package com.swrobotics.pathfinding.lib.task;
+package com.swrobotics.pathfinding.task;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.swrobotics.messenger.client.MessengerClient;
-import com.swrobotics.pathfinding.lib.Field;
+import com.swrobotics.pathfinding.Field;
 
 import java.io.File;
 import java.io.FileNotFoundException;

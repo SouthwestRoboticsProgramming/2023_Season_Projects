@@ -1,6 +1,6 @@
-package com.swrobotics.pathfinding.lib.finder;
+package com.swrobotics.pathfinding.finder;
 
-import com.swrobotics.pathfinding.lib.grid.Grid;
+import com.swrobotics.pathfinding.grid.Grid;
 
 public final class ThetaStarPathfinder extends AStarPathfinder {
     public ThetaStarPathfinder(Grid grid) {

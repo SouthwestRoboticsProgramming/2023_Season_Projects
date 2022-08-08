@@ -1,6 +1,6 @@
-package com.swrobotics.pathfinding.lib.grid;
+package com.swrobotics.pathfinding.grid;
 
-import com.swrobotics.pathfinding.lib.Point;
+import com.swrobotics.pathfinding.Point;
 
 public abstract class Grid {
     private static final double EPSILON = 0.00001;

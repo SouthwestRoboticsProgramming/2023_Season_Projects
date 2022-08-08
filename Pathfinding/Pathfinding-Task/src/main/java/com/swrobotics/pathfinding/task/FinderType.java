@@ -1,9 +1,9 @@
-package com.swrobotics.pathfinding.lib.task;
+package com.swrobotics.pathfinding.task;
 
-import com.swrobotics.pathfinding.lib.finder.AStarPathfinder;
-import com.swrobotics.pathfinding.lib.finder.Pathfinder;
-import com.swrobotics.pathfinding.lib.finder.ThetaStarPathfinder;
-import com.swrobotics.pathfinding.lib.grid.Grid;
+import com.swrobotics.pathfinding.finder.AStarPathfinder;
+import com.swrobotics.pathfinding.finder.Pathfinder;
+import com.swrobotics.pathfinding.finder.ThetaStarPathfinder;
+import com.swrobotics.pathfinding.grid.Grid;
 
 public enum FinderType {
     A_STAR {

@@ -1,7 +1,7 @@
-package com.swrobotics.pathfinding.lib.finder;
+package com.swrobotics.pathfinding.finder;
 
-import com.swrobotics.pathfinding.lib.Point;
-import com.swrobotics.pathfinding.lib.grid.Grid;
+import com.swrobotics.pathfinding.Point;
+import com.swrobotics.pathfinding.grid.Grid;
 
 import java.util.ArrayList;
 import java.util.HashSet;

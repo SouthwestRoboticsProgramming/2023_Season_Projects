@@ -1,4 +1,4 @@
-package com.swrobotics.pathfinding.lib;
+package com.swrobotics.pathfinding;
 
 import java.util.Objects;
 

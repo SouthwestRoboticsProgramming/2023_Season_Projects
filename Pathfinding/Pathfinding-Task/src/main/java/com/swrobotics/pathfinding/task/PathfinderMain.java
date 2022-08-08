@@ -1,4 +1,4 @@
-package com.swrobotics.pathfinding.lib.task;
+package com.swrobotics.pathfinding.task;
 
 public final class PathfinderMain {
     public static void main(String[] args) {

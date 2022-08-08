@@ -1,8 +1,8 @@
-package com.swrobotics.pathfinding.lib.grid;
+package com.swrobotics.pathfinding.grid;
 
-import com.swrobotics.pathfinding.lib.Field;
-import com.swrobotics.pathfinding.lib.geom.RobotShape;
-import com.swrobotics.pathfinding.lib.geom.Shape;
+import com.swrobotics.pathfinding.geom.RobotShape;
+import com.swrobotics.pathfinding.geom.Shape;
+import com.swrobotics.pathfinding.Field;
 
 import java.util.HashSet;
 import java.util.Set;

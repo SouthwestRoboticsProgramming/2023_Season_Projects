@@ -1,6 +1,6 @@
 package com.swrobotics.pathfinding.test;
 
-import com.swrobotics.pathfinding.lib.Point;
+import com.swrobotics.pathfinding.Point;
 import processing.core.PGraphics;
 
 import static processing.core.PConstants.*;
