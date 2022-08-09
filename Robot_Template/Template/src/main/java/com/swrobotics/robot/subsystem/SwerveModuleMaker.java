@@ -8,6 +8,8 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.team2129.lib.encoder.CANCoderImplementation;
 import com.team2129.lib.motor.TalonMotor;
+import com.team2129.lib.net.NTDouble;
+import com.team2129.lib.net.NTUtils;
 import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.swerve.SwerveModule;
 import com.team2129.lib.math.Angle;
@@ -19,6 +21,23 @@ import edu.wpi.first.math.controller.PIDController;
  * Configures motors and creates a swerve module
  */
 public class SwerveModuleMaker {
+    /*
+    public static final double DRIVE_KP = 0.0001;
+    public static final double DRIVE_KI = 0;
+    public static final double DRIVE_KD = 0;
+    public static final double TURN_KP = 0.01;
+    public static final double TURN_KI = 0.0001;
+    public static final double TURN_KD = 0.0;
+     */
+
+    private static final NTDouble DRIVE_KP = new NTDouble("Swerve/Drive/kP", 0.0001);
+    private static final NTDouble DRIVE_KI = new NTDouble("Swerve/Drive/kI", 0);
+    private static final NTDouble DRIVE_KD = new NTDouble("Swerve/Drive/kD", 0);
+
+    private static final NTDouble TURN_KP = new NTDouble("Swerve/Turn/kP", 0.01);
+    private static final NTDouble TURN_KI = new NTDouble("Swerve/Turn/kI", 0.0001);
+    private static final NTDouble TURN_KD = new NTDouble("Swerve/Turn/kD", 0);
+
     public static SwerveModule buildModule(Subsystem parent, int driveID, int steerID, int steerEncoderID, Angle steerOffset, Vec2d position) {
 
         TalonFX driveMotor_toWrap = new TalonFX(driveID);
@@ -41,11 +60,11 @@ public class SwerveModuleMaker {
         steerMotor_toWrap.setInverted(true);
 
         TalonMotor driveMotor = new TalonMotor(parent, driveMotor_toWrap);
-        driveMotor.setPIDController(new PIDController(DRIVE_KP, DRIVE_KI, DRIVE_KD));
+        driveMotor.setPIDController(NTUtils.makeAutoTunedPID(DRIVE_KP, DRIVE_KI, DRIVE_KD));
 
         TalonMotor steerMotor = new TalonMotor(parent, steerMotor_toWrap);
 
-        PIDController steerPID = new PIDController(TURN_KP, TURN_KI, TURN_KD);
+        PIDController steerPID = NTUtils.makeAutoTunedPID(TURN_KP, TURN_KI, TURN_KD);
         steerPID.enableContinuousInput(-90, 90);
         steerMotor.setPIDController(steerPID);
 
