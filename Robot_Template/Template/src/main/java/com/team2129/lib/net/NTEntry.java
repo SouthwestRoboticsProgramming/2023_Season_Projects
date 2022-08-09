@@ -24,7 +24,7 @@ public abstract class NTEntry<T> {
      *
      * @param path path
      */
-    public NTEntry(String path) {
+    public NTEntry(String path, T defaultVal) {
         changeListeners = new HashSet<>();
         NetworkTable table = NetworkTableInstance.getDefault().getTable("");
         String[] parts = path.split("/");
@@ -32,6 +32,11 @@ public abstract class NTEntry<T> {
             table = table.getSubTable(parts[i]);
         }
         entry = table.getEntry(parts[parts.length - 1]);
+
+        // Ensure entry actually exists so it is editable
+        if (!entry.exists())
+            set(defaultVal);
+
         entry.setPersistent();
         entry.addListener((event) -> {
             fireOnChanged();

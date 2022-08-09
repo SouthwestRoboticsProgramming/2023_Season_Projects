@@ -11,13 +11,8 @@ public final class NTDouble extends NTEntry<Double> {
      * @param path path
      */
     public NTDouble(String path, double defaultVal) {
-        super(path);
+        super(path, defaultVal);
         this.defaultVal = defaultVal;
-
-        // Ensure entry actually exists so it is editable
-        if (!entry.exists()) {
-            entry.setDouble(defaultVal);
-        }
     }
 
     @Override
