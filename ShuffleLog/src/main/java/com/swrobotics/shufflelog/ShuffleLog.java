@@ -19,13 +19,21 @@ import imgui.flag.ImGuiConfigFlags;
 import imgui.gl3.ImGuiImplGl3;
 import processing.core.PApplet;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 // TODO: Use proper ImGui backend
 public final class ShuffleLog extends PApplet {
+    private static final String LAYOUT_FILE = "layout.ini";
+    private static final String DEFAULT_LAYOUT_FILE = "default-layout.ini";
+
     private final ImGuiImplGlfw imGuiGlfw = new ImGuiImplGlfw();
     private final ImGuiImplGl3 imGuiGl3 = new ImGuiImplGl3();
 
@@ -46,10 +54,12 @@ public final class ShuffleLog extends PApplet {
         surface.setResizable(true);
         long windowHandle = (long) surface.getNative();
 
+        saveDefaultLayout();
+
         ImGui.createContext();
         ImPlot.createContext();
         ImGuiIO io = ImGui.getIO();
-        io.setIniFilename("layout.ini");
+        io.setIniFilename(LAYOUT_FILE);
         io.setConfigFlags(ImGuiConfigFlags.DockingEnable);
         Styles.applyDark();
 
@@ -133,6 +143,18 @@ public final class ShuffleLog extends PApplet {
 
     public ExecutorService getThreadPool() {
         return threadPool;
+    }
+
+    private void saveDefaultLayout() {
+        File file = new File(LAYOUT_FILE);
+        if (!file.exists()) {
+            try {
+                InputStream stream = ShuffleLog.class.getClassLoader().getResourceAsStream(DEFAULT_LAYOUT_FILE);
+                StreamUtil.copy(Objects.requireNonNull(stream), new FileOutputStream(file));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public static void main(String[] args) {
