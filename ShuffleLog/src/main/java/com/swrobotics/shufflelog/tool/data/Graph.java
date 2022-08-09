@@ -38,7 +38,7 @@ public final class Graph {
         double pad = (maxY - minY) * Y_PADDING;
 
         // When the graph is completely flat, add a bit of padding so the line is visible
-        if (pad < 0.00001) pad = 0.1;
+        if (pad < 10 * Double.MIN_VALUE) pad = 0.1;
 
         ImPlot.setNextPlotLimits(minX, maxX, minY - pad, maxY + pad, ImGuiCond.Always);
         if (ImPlot.beginPlot(getName(), "Time (s)", "Value", GRAPH_SIZE, ImPlotFlags.NoMenus | ImPlotFlags.NoChild, 0, 0)) {
