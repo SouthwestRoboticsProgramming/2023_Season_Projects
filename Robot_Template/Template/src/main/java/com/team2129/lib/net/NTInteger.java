@@ -13,6 +13,11 @@ public final class NTInteger extends NTEntry<Integer> {
     public NTInteger(String path, int defaultVal) {
         super(path);
         this.defaultVal = defaultVal;
+
+        // Ensure entry actually exists so it is editable
+        if (!entry.exists()) {
+            entry.setDouble(defaultVal);
+        }
     }
 
     @Override
