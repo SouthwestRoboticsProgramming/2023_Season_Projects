@@ -15,6 +15,11 @@ public final class Constants {
 
     public static final double INPUT_ACCELERATION = 2.0; // Units per second
 
+
+    // Intake
+    public static final int INTAKE_MOTOR_ID = 3432;
+    public static final double INTAKE_ON_PERCENT = 0.5; // Guess
+
     private Constants() {
         throw new AssertionError();
     }

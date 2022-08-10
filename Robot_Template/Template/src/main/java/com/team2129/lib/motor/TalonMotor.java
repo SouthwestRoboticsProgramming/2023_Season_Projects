@@ -2,6 +2,7 @@ package com.team2129.lib.motor;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team2129.lib.encoder.TalonInternalEncoder;
 import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.encoder.Encoder;
@@ -28,6 +29,11 @@ public class TalonMotor extends Motor {
     public TalonMotor(Subsystem parent, BaseTalon talon) {
         super(parent);
         this.talon = talon;
+
+        // Set default encoder for Falcon500s
+        if (talon instanceof TalonFX) {
+            this.assignEncoder(getInternalEncoder(2048));
+        }
     }
 
     /**

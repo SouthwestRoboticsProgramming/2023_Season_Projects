@@ -47,4 +47,10 @@ public class Input {
     public boolean getSlowMode() {
         return controller.getRightBumper();
     }
+
+
+    // Intake
+    public boolean getIntakeOn() {
+        return true;
+    }
 }
