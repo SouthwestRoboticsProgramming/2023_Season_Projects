@@ -2,6 +2,8 @@ package com.swrobotics.robot;
 
 public final class Constants {
 
+    public static final String CANIVORE = "Gerald";
+
     public static final double MAX_WHEEL_VELOCITY = 4.11;
     public static final double GEAR_RATIO = 1 / 8.14;
     public static final double WHEEL_RADIUS = 0.05;
