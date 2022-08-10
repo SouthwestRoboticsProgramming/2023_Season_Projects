@@ -165,6 +165,18 @@
             <version>${wpilib.version}</version>
             <classifier>osxx86-64</classifier>
         </dependency>
+
+        <dependency>
+            <groupId>edu.wpi.first.fieldImages</groupId>
+            <artifactId>fieldImages-java</artifactId>
+            <version>${wpilib.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.9.0</version>
+        </dependency>
       </dependencies>
 
       <build>
