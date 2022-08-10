@@ -58,8 +58,8 @@ public final class PathfinderConfigFile {
 
     public static final class FieldParams {
         // Standard FRC field size
-        private double width = 16.4592;
-        private double height = 8.2296;
+        private double width = 8.2296;
+        private double height = 16.4592;
 
         // Six inches per cell
         private double cellSize = 0.1524;

@@ -1,5 +1,10 @@
 package com.swrobotics.pathfinding;
 
+/**
+ * Cell coordinates have +X right and +Y down, and 1 unit corresponds to
+ * 1 cell. Meter coordinates have +X right and +Y up, and 1 unit corresponds
+ * to 1 meter.
+ */
 public final class Field {
     private final double cellSize; // meters
     private final double width, height; // meters
@@ -13,8 +18,8 @@ public final class Field {
      * @param cellSize size of each cell in meters
      * @param width width of the field in meters
      * @param height height of the field in meters
-     * @param originX origin X as percentage of width (lower is left)
-     * @param originY origin Y as percentage of height (lower is down)
+     * @param originX origin X as percentage of width in cell space (lower is left)
+     * @param originY origin Y as percentage of height in cell space (lower is up)
      */
     public Field(double cellSize, double width, double height, double originX, double originY) {
         this.cellSize = cellSize;
@@ -31,7 +36,7 @@ public final class Field {
     }
 
     public double convertCellToMetersY(double cell) {
-        return (cell - originY) * cellSize;
+        return -(cell - originY) * cellSize;
     }
 
     public double convertMetersToCellX(double x) {
@@ -39,7 +44,7 @@ public final class Field {
     }
 
     public double convertMetersToCellY(double y) {
-        return y / cellSize + originY;
+        return originY - y / cellSize;
     }
 
     /**

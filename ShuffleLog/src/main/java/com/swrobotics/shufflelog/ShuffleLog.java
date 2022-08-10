@@ -29,7 +29,6 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-// TODO: Use proper ImGui backend
 public final class ShuffleLog extends PApplet {
     private static final String LAYOUT_FILE = "layout.ini";
     private static final String DEFAULT_LAYOUT_FILE = "default-layout.ini";

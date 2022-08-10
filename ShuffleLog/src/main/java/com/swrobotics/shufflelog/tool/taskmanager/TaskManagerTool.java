@@ -5,6 +5,7 @@ import com.swrobotics.messenger.client.MessageReader;
 import com.swrobotics.messenger.client.MessengerClient;
 import com.swrobotics.shufflelog.ShuffleLog;
 import com.swrobotics.shufflelog.tool.Tool;
+import com.swrobotics.shufflelog.tool.ToolConstants;
 import com.swrobotics.shufflelog.util.Cooldown;
 import com.swrobotics.shufflelog.util.FileChooser;
 import imgui.ImGuiViewport;
@@ -67,10 +68,10 @@ public final class TaskManagerTool implements Tool {
         this.msg = log.getMsg();
         this.name = name;
 
-        reqContentCooldown = new Cooldown(500_000_000L);
+        reqContentCooldown = new Cooldown(ToolConstants.MSG_QUERY_COOLDOWN_TIME);
         remoteRoot = new RemoteDirectory("");
 
-        reqTasksCooldown = new Cooldown(500_000_000L);
+        reqTasksCooldown = new Cooldown(ToolConstants.MSG_QUERY_COOLDOWN_TIME);
         tasks = new ArrayList<>();
 
         msg.addHandler(name + MSG_FILES, this::onFiles);

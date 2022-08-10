@@ -3,6 +3,7 @@ package com.swrobotics.shufflelog.tool.scheduler;
 import com.swrobotics.messenger.client.MessageReader;
 import com.swrobotics.messenger.client.MessengerClient;
 import com.swrobotics.shufflelog.tool.Tool;
+import com.swrobotics.shufflelog.tool.ToolConstants;
 import com.swrobotics.shufflelog.util.Cooldown;
 import imgui.flag.ImGuiTableFlags;
 import imgui.flag.ImGuiTreeNodeFlags;
@@ -15,6 +16,7 @@ import java.util.UUID;
 
 import static imgui.ImGui.*;
 
+// TODO: Finish
 public final class SchedulerTool implements Tool {
     private static final String MSG_QUERY = "Scheduler:Query";
     private static final String MSG_QUERY_RESPONSE = "Scheduler:QueryResponse";
@@ -31,7 +33,7 @@ public final class SchedulerTool implements Tool {
     private final Map<UUID, ScheduleNode> nodesById;
 
     private boolean receivedInitialData;
-    private Cooldown queryCooldown;
+    private final Cooldown queryCooldown;
 
     public SchedulerTool(MessengerClient msg) {
         this.msg = msg;
@@ -39,7 +41,7 @@ public final class SchedulerTool implements Tool {
         nodesById = new HashMap<>();
 
         receivedInitialData = false;
-        queryCooldown = new Cooldown(500_000_000L);
+        queryCooldown = new Cooldown(ToolConstants.MSG_QUERY_COOLDOWN_TIME);
 
         msg.addHandler(MSG_QUERY_RESPONSE, this::onQueryResponse);
     }

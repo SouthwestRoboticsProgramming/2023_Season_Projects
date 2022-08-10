@@ -14,12 +14,18 @@ import static processing.core.PConstants.P2D;
 public abstract class ViewportTool implements Tool {
     private final PApplet app;
     private final String title;
+    private final int windowFlags;
     private int pTexture;
     private PGraphicsOpenGL g;
 
     public ViewportTool(PApplet app, String title) {
+        this(app, title, 0);
+    }
+
+    public ViewportTool(PApplet app, String title, int windowFlags) {
         this.app = app;
         this.title = title;
+        this.windowFlags = windowFlags;
         pTexture = -1;
     }
 
@@ -67,7 +73,7 @@ public abstract class ViewportTool implements Tool {
 
     @Override
     public void process() {
-        if (begin(title)) {
+        if (begin(title, windowFlags)) {
             drawGuiContent();
         }
         end();
