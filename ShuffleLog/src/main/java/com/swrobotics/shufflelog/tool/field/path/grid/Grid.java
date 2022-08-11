@@ -1,6 +1,7 @@
 package com.swrobotics.shufflelog.tool.field.path.grid;
 
 import com.swrobotics.messenger.client.MessageReader;
+import com.swrobotics.shufflelog.tool.field.path.PathfindingLayer;
 
 import java.util.UUID;
 
@@ -21,6 +22,9 @@ public abstract class Grid {
     }
 
     public abstract void readContent(MessageReader reader);
+    public void register(PathfindingLayer layer) {
+        layer.registerGrid(this);
+    }
 
     public static Grid read(MessageReader reader) {
         long idMsb = reader.readLong();

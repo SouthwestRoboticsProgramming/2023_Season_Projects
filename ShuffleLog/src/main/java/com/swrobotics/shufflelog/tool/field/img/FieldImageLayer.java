@@ -24,7 +24,7 @@ public final class FieldImageLayer implements FieldLayer {
         config = FieldImageConfig.load(CONFIG_PATH);
         img = config.loadFieldImage();
 
-        show = new ImBoolean(true);
+        show = new ImBoolean(false);
     }
 
     @Override

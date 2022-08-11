@@ -3,6 +3,7 @@ package com.swrobotics.shufflelog.tool.field;
 import com.swrobotics.shufflelog.ShuffleLog;
 import com.swrobotics.shufflelog.tool.ViewportTool;
 import com.swrobotics.shufflelog.tool.field.img.FieldImageLayer;
+import com.swrobotics.shufflelog.tool.field.img.FieldVectorLayer;
 import com.swrobotics.shufflelog.tool.field.path.PathfindingLayer;
 import com.swrobotics.shufflelog.util.SmoothFloat;
 import imgui.ImGuiIO;
@@ -34,6 +35,7 @@ public final class FieldViewTool extends ViewportTool {
         layers = new ArrayList<>();
 
         layers.add(new FieldImageLayer());
+        layers.add(new FieldVectorLayer());
         layers.add(new PathfindingLayer(log.getMsg()));
 
         posX = new SmoothFloat(12, 0);

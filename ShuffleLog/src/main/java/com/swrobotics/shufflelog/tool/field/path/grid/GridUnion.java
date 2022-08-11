@@ -1,6 +1,7 @@
 package com.swrobotics.shufflelog.tool.field.path.grid;
 
 import com.swrobotics.messenger.client.MessageReader;
+import com.swrobotics.shufflelog.tool.field.path.PathfindingLayer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,14 @@ public final class GridUnion extends Grid {
         int count = reader.readInt();
         for (int i = 0; i < count; i++) {
             children.add(Grid.read(reader));
+        }
+    }
+
+    @Override
+    public void register(PathfindingLayer layer) {
+        super.register(layer);
+        for (Grid child : children) {
+            child.register(layer);
         }
     }
 }

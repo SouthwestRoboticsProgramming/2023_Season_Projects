@@ -1,6 +1,7 @@
 package com.swrobotics.shufflelog.tool.field.path.shape;
 
 import com.swrobotics.messenger.client.MessageReader;
+import com.swrobotics.shufflelog.tool.field.path.PathfindingLayer;
 
 import java.util.UUID;
 
@@ -18,6 +19,9 @@ public abstract class Shape {
     }
 
     protected abstract void readContent(MessageReader reader);
+    public void register(PathfindingLayer layer) {
+        layer.registerShape(this);
+    }
 
     public static Shape read(MessageReader reader) {
         long idMsb = reader.readLong();

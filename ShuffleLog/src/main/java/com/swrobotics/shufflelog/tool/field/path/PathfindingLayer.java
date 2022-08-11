@@ -18,7 +18,10 @@ import processing.core.PConstants;
 import processing.core.PGraphics;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static imgui.ImGui.*;
 
@@ -51,6 +54,8 @@ public final class PathfindingLayer implements FieldLayer {
     private final ImBoolean showShapes;
     private final ImBoolean showPath;
 
+    private final Map<UUID, Grid> idToGrid;
+    private final Map<UUID, Shape> idToShape;
     private FieldInfo fieldInfo;
     private List<Point> path;
     private Grid grid;
@@ -73,6 +78,8 @@ public final class PathfindingLayer implements FieldLayer {
         showShapes = new ImBoolean(true);
         showPath = new ImBoolean(true);
 
+        idToGrid = new HashMap<>();
+        idToShape = new HashMap<>();
         fieldInfo = null;
         path = null;
         grid = null;
@@ -105,6 +112,9 @@ public final class PathfindingLayer implements FieldLayer {
 
     private void onGrids(String type, MessageReader reader) {
         grid = Grid.read(reader);
+        idToGrid.clear();
+        idToShape.clear();
+        grid.register(this);
     }
 
     private void onCellData(String type, MessageReader reader) {
@@ -161,7 +171,7 @@ public final class PathfindingLayer implements FieldLayer {
 
             // Show cell data content
             if (cells) {
-                g.fill(201, 101, 18, 196);
+                g.fill(200, 0, 0, 196);
                 g.noStroke();
                 for (int y = 0; y < cellsY; y++) {
                     for (int x = 0; x < cellsX; x++) {
@@ -176,7 +186,7 @@ public final class PathfindingLayer implements FieldLayer {
             // Show grid lines
             if (lines) {
                 g.strokeWeight(1.5f * cellStrokeMul);
-                g.stroke(128);
+                g.stroke(96);
 
                 for (int x = 0; x <= cellsX; x++) {
                     g.line(x, 0, x, cellsY);
@@ -187,6 +197,28 @@ public final class PathfindingLayer implements FieldLayer {
             }
         }
         g.popMatrix();
+
+        // Show shapes
+        if (shapes) {
+            for (Shape shape : idToShape.values()) {
+                if (shape instanceof Circle) {
+                    Circle c = (Circle) shape;
+                    g.ellipseMode(PConstants.CENTER);
+                    g.noFill();
+
+                    float x = (float) c.x.get();
+                    float y = (float) c.y.get();
+                    float d = (float) (2 * c.radius.get());
+
+                    g.strokeWeight(4 * strokeMul);
+                    g.stroke(201, 101, 18, 128);
+                    g.ellipse(x, y, d, d);
+                    g.strokeWeight(2 * strokeMul);
+                    g.stroke(201, 101, 18);
+                    g.ellipse(x, y, d, d);
+                }
+            }
+        }
 
         // Show path
         if (path && this.path != null) {
@@ -320,5 +352,13 @@ public final class PathfindingLayer implements FieldLayer {
                 endTable();
             }
         }
+    }
+
+    public void registerGrid(Grid grid) {
+        idToGrid.put(grid.getId(), grid);
+    }
+
+    public void registerShape(Shape shape) {
+        idToShape.put(shape.getId(), shape);
     }
 }

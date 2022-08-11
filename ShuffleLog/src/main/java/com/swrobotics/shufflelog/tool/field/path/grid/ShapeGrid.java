@@ -1,6 +1,7 @@
 package com.swrobotics.shufflelog.tool.field.path.grid;
 
 import com.swrobotics.messenger.client.MessageReader;
+import com.swrobotics.shufflelog.tool.field.path.PathfindingLayer;
 import com.swrobotics.shufflelog.tool.field.path.shape.Shape;
 
 import java.util.HashSet;
@@ -24,6 +25,14 @@ public final class ShapeGrid extends Grid {
         int count = reader.readInt();
         for (int i = 0; i < count; i++) {
             shapes.add(Shape.read(reader));
+        }
+    }
+
+    @Override
+    public void register(PathfindingLayer layer) {
+        super.register(layer);
+        for (Shape shape : shapes) {
+            shape.register(layer);
         }
     }
 }

@@ -35,8 +35,8 @@ import org.lwjgl.glfw.GLFWWindowFocusCallback;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
-import java.util.ArrayDeque;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
@@ -115,7 +115,7 @@ public class ImGuiImplGlfw {
     private long mouseWindowPtr;
 
     // Event queue
-    private final Queue<Runnable> eventQueue = new ArrayDeque<>();
+    private final Queue<Runnable> eventQueue = new ConcurrentLinkedQueue<>();
 
     public void flushEvents() {
         for (Runnable r : eventQueue)
