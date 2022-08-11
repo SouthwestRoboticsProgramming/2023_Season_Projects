@@ -34,6 +34,7 @@ public class AStarPathfinder implements Pathfinder {
         double priority;
         double cost;
         Node parent;
+        boolean closed = false;
 
         @Override
         public int compareTo(Node o) {
@@ -118,7 +119,6 @@ public class AStarPathfinder implements Pathfinder {
         Node goal = nodes[goalPoint.x][goalPoint.y];
 
         PriorityQueue<Node> open = new PriorityQueue<>();
-        Set<Node> closed = new HashSet<>();
         start.priority = start.cost + getHeuristic(start);
         open.add(start);
 
@@ -129,12 +129,12 @@ public class AStarPathfinder implements Pathfinder {
                 return extractPath(current);
             }
 
-            closed.add(current);
+            current.closed = true;
 
             int count = getNeighbors(current, neighbors);
             for (int i = 0; i < count; i++) {
                 Node next = neighbors[i];
-                if (!closed.contains(next)) {
+                if (!next.closed) {
                     if (!open.contains(next)) {
                         next.cost = Double.POSITIVE_INFINITY;
                         next.parent = null;

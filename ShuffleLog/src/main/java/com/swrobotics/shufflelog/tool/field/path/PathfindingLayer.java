@@ -11,6 +11,7 @@ import com.swrobotics.shufflelog.tool.field.path.grid.ShapeGrid;
 import com.swrobotics.shufflelog.tool.field.path.shape.Circle;
 import com.swrobotics.shufflelog.tool.field.path.shape.Shape;
 import com.swrobotics.shufflelog.util.Cooldown;
+import com.swrobotics.shufflelog.util.SmoothFloat;
 import imgui.flag.ImGuiTableFlags;
 import imgui.flag.ImGuiTreeNodeFlags;
 import imgui.type.ImBoolean;
@@ -62,6 +63,9 @@ public final class PathfindingLayer implements FieldLayer {
     private BitfieldGrid cellData;
     private boolean needsRefreshCellData;
 
+    private double startX, startY;
+    private double goalX, goalY;
+
     public PathfindingLayer(MessengerClient msg) {
         this.msg = msg;
         reqFieldInfoCooldown = new Cooldown(ToolConstants.MSG_QUERY_COOLDOWN_TIME);
@@ -72,6 +76,8 @@ public final class PathfindingLayer implements FieldLayer {
         msg.addHandler(MSG_FIELD_INFO, this::onFieldInfo);
         msg.addHandler(MSG_GRIDS, this::onGrids);
         msg.addHandler(MSG_CELL_DATA, this::onCellData);
+        msg.addHandler(MSG_SET_POS, this::onSetPos);
+        msg.addHandler(MSG_SET_GOAL, this::onSetGoal);
 
         showGridLines = new ImBoolean(true);
         showGridCells = new ImBoolean(true);
@@ -123,10 +129,25 @@ public final class PathfindingLayer implements FieldLayer {
         needsRefreshCellData = false;
     }
 
+    private void onSetPos(String type, MessageReader reader) {
+        startX = reader.readDouble();
+        startY = reader.readDouble();
+    }
+
+    private void onSetGoal(String type, MessageReader reader) {
+        goalX = reader.readDouble();
+        goalY = reader.readDouble();
+    }
+
     @Override
     public String getName() {
         return "Pathfinding";
     }
+
+    private final SmoothFloat posX = new SmoothFloat(6, 0);
+    private final SmoothFloat posY = new SmoothFloat(6, 0);
+    private final SmoothFloat goalPosX = new SmoothFloat(6, 0);
+    private final SmoothFloat goalPosY = new SmoothFloat(6, 0);
 
     @Override
     public void draw(PGraphics g, float metersScale) {
@@ -143,13 +164,25 @@ public final class PathfindingLayer implements FieldLayer {
         }
 
         // Wavy ends go wheeeeeeee (for testing latency)
+        posX.step();
+        posY.step();
+        goalPosX.step();
+        goalPosY.step();
+        if (Math.abs(posX.get() - posX.getTarget()) < 0.1 && Math.abs(posY.get() - posY.getTarget()) < 0.1) {
+            double w = fieldInfo.getFieldWidth();
+            double h = fieldInfo.getFieldHeight();
+            posX.set((float) (w * Math.random() - w/2));
+            posY.set((float) (h * Math.random() - h/2));
+            goalPosX.set((float) (w * Math.random() - w/2));
+            goalPosY.set((float) (h * Math.random() - h/2));
+        }
         msg.prepare(MSG_SET_POS)
-                .addDouble(3 * Math.sin((System.currentTimeMillis() % 1000) / 1000.0 * Math.PI * 2))
-                .addDouble(-6)
+                .addDouble(posX.get())
+                .addDouble(posY.get())
                 .send();
         msg.prepare(MSG_SET_GOAL)
-                .addDouble(3 * Math.cos(((System.currentTimeMillis() * 1.253) % 1000 / 1000.0) * Math.PI * 2))
-                .addDouble(6)
+                .addDouble(goalPosX.get())
+                .addDouble(goalPosY.get())
                 .send();
 
         boolean lines = showGridLines.get();
@@ -221,20 +254,33 @@ public final class PathfindingLayer implements FieldLayer {
         }
 
         // Show path
-        if (path && this.path != null) {
-            g.strokeWeight(4 * strokeMul);
-            g.stroke(214, 196, 32, 128);
-            g.beginShape(PConstants.LINE_STRIP);
-            for (Point p : this.path)
-                g.vertex((float) p.x, (float) p.y);
-            g.endShape();
+        if (path) {
+            if (this.path != null) {
+                g.strokeWeight(4 * strokeMul);
+                g.stroke(214, 196, 32, 128);
+                g.beginShape(PConstants.LINE_STRIP);
+                for (Point p : this.path)
+                    g.vertex((float) p.x, (float) p.y);
+                g.endShape();
 
-            g.strokeWeight(2 * strokeMul);
-            g.stroke(214, 196, 32);
-            g.beginShape(PConstants.LINE_STRIP);
-            for (Point p : this.path)
-                g.vertex((float) p.x, (float) p.y);
-            g.endShape();
+                g.strokeWeight(2 * strokeMul);
+                g.stroke(214, 196, 32);
+                g.beginShape(PConstants.LINE_STRIP);
+                for (Point p : this.path)
+                    g.vertex((float) p.x, (float) p.y);
+                g.endShape();
+            }
+
+            // Show endpoints
+            g.strokeWeight(strokeMul);
+            g.ellipseMode(PConstants.CENTER);
+            g.stroke(27, 196, 101, 128);
+            g.fill(27, 196, 101);
+            float startSize = startX == goalX && startY == goalY ? 12*strokeMul : 10*strokeMul;
+            g.ellipse((float) startX, (float) startY, startSize, startSize);
+            g.stroke(44, 62, 199, 128);
+            g.fill(44, 62, 199);
+            g.ellipse((float) goalX, (float) goalY, 10*strokeMul, 10*strokeMul);
         }
     }
 
@@ -296,7 +342,7 @@ public final class PathfindingLayer implements FieldLayer {
     }
 
     private void showCircle(Circle circle) {
-        String id = "Circle##" + grid.getId();
+        String id = "Circle##" + circle.getId();
 
         tableNextColumn();
         boolean open = treeNodeEx(id, ImGuiTreeNodeFlags.SpanFullWidth);

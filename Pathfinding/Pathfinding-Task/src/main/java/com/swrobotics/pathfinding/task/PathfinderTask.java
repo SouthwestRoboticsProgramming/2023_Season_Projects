@@ -54,7 +54,6 @@ public final class PathfinderTask {
         BitfieldGrid bitGrid = new BitfieldGrid(field.getCellsX(), field.getCellsY());
         ShapeGrid shapeGrid = new ShapeGrid(field.getCellsX(), field.getCellsY(), field, new Circle(0, 0, 0.5));
         shapeGrid.addShape(new Circle(0, 3.5, 1));
-        shapeGrid.addShape(new Circle(0, 0, 2));
         shapeGrid.addShape(new Circle(0, -3.5, 1));
 
         grids.addGrid(bitGrid);
