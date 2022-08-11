@@ -8,9 +8,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class MessengerServer {
     private static final MessengerServer INSTANCE = new MessengerServer();
@@ -22,7 +21,7 @@ public final class MessengerServer {
 
     private MessengerServer() {
         config = MessengerConfiguration.loadFromFile(new File("config.properties"));
-        clients = Collections.synchronizedSet(new HashSet<>());
+        clients = ConcurrentHashMap.newKeySet();
 
         if (config.getLogFile() == null) {
             log = new NoOpLogger();
@@ -59,7 +58,6 @@ public final class MessengerServer {
     }
 
     private void dispatchMessage(Message msg) {
-        // FIXME: apparently it is possible to have a ConcurrentModificationException here
         for (Client client : clients) {
             if (client.listensTo(msg.getType())) {
                 client.sendMessage(msg);
