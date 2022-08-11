@@ -20,6 +20,7 @@ public final class RemoteClient implements Client, Runnable {
     private static final long TIMEOUT = 5000; // Max time in milliseconds between heartbeats
 
     private final Queue<Message> outgoingMessages;
+    private final Socket socket;
     private final DataInputStream in;
     private final DataOutputStream out;
     private final Set<String> listening;
@@ -32,6 +33,7 @@ public final class RemoteClient implements Client, Runnable {
 
     public RemoteClient(Socket socket) throws IOException {
         outgoingMessages = new ConcurrentLinkedQueue<>();
+        this.socket = socket;
         in = new DataInputStream(socket.getInputStream());
         out = new DataOutputStream(socket.getOutputStream());
 
@@ -135,6 +137,10 @@ public final class RemoteClient implements Client, Runnable {
                     e.printStackTrace();
                 }
             }
+
+            // Disconnect socket if not already
+            if (!socket.isClosed())
+                socket.close();
         } catch (IOException e) {
             System.err.println("Exception in remote client connection " + name + ":");
             e.printStackTrace();
