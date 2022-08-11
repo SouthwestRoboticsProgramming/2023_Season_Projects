@@ -4,7 +4,15 @@ import com.swrobotics.messenger.client.MessageReader;
 import com.swrobotics.messenger.client.MessengerClient;
 import com.swrobotics.shufflelog.tool.ToolConstants;
 import com.swrobotics.shufflelog.tool.field.FieldLayer;
+import com.swrobotics.shufflelog.tool.field.path.grid.BitfieldGrid;
+import com.swrobotics.shufflelog.tool.field.path.grid.Grid;
+import com.swrobotics.shufflelog.tool.field.path.grid.GridUnion;
+import com.swrobotics.shufflelog.tool.field.path.grid.ShapeGrid;
+import com.swrobotics.shufflelog.tool.field.path.shape.Circle;
+import com.swrobotics.shufflelog.tool.field.path.shape.Shape;
 import com.swrobotics.shufflelog.util.Cooldown;
+import imgui.flag.ImGuiTableFlags;
+import imgui.flag.ImGuiTreeNodeFlags;
 import imgui.type.ImBoolean;
 import processing.core.PConstants;
 import processing.core.PGraphics;
@@ -15,15 +23,28 @@ import java.util.List;
 import static imgui.ImGui.*;
 
 public final class PathfindingLayer implements FieldLayer {
+    // Main API
     private static final String MSG_SET_POS  = "Pathfinder:SetPos";
     private static final String MSG_SET_GOAL = "Pathfinder:SetGoal";
     private static final String MSG_PATH = "Pathfinder:Path";
 
+    // ShuffleLog API
     private static final String MSG_GET_FIELD_INFO = "Pathfinder:GetFieldInfo";
+    private static final String MSG_GET_GRIDS = "Pathfinder:GetGrids";
+    private static final String MSG_GET_CELL_DATA = "Pathfinder:GetCellData";
+    private static final String MSG_ADD_GRID = "Pathfinder:AddGrid";
+    private static final String MSG_REMOVE_GRID = "Pathfinder:RemoveGrid";
+    private static final String MSG_ADD_SHAPE = "Pathfinder:AddShape";
+    private static final String MSG_REMOVE_SHAPE = "Pathfinder:RemoveShape";
+
     private static final String MSG_FIELD_INFO = "Pathfinder:FieldInfo";
+    private static final String MSG_GRIDS = "Pathfinder:Grids";
+    private static final String MSG_CELL_DATA = "Pathfinder:CellData";
 
     private final MessengerClient msg;
     private final Cooldown reqFieldInfoCooldown;
+    private final Cooldown reqGridsCooldown;
+    private final Cooldown reqCellDataCooldown;
 
     private final ImBoolean showGridLines;
     private final ImBoolean showGridCells;
@@ -32,13 +53,20 @@ public final class PathfindingLayer implements FieldLayer {
 
     private FieldInfo fieldInfo;
     private List<Point> path;
+    private Grid grid;
+    private BitfieldGrid cellData;
+    private boolean needsRefreshCellData;
 
     public PathfindingLayer(MessengerClient msg) {
         this.msg = msg;
         reqFieldInfoCooldown = new Cooldown(ToolConstants.MSG_QUERY_COOLDOWN_TIME);
+        reqGridsCooldown = new Cooldown(ToolConstants.MSG_QUERY_COOLDOWN_TIME);
+        reqCellDataCooldown = new Cooldown(ToolConstants.MSG_QUERY_COOLDOWN_TIME);
 
         msg.addHandler(MSG_PATH, this::onPath);
         msg.addHandler(MSG_FIELD_INFO, this::onFieldInfo);
+        msg.addHandler(MSG_GRIDS, this::onGrids);
+        msg.addHandler(MSG_CELL_DATA, this::onCellData);
 
         showGridLines = new ImBoolean(true);
         showGridCells = new ImBoolean(true);
@@ -47,6 +75,9 @@ public final class PathfindingLayer implements FieldLayer {
 
         fieldInfo = null;
         path = null;
+        grid = null;
+        cellData = null;
+        needsRefreshCellData = true;
     }
 
     private void onPath(String type, MessageReader reader) {
@@ -72,6 +103,16 @@ public final class PathfindingLayer implements FieldLayer {
         fieldInfo = new FieldInfo(reader);
     }
 
+    private void onGrids(String type, MessageReader reader) {
+        grid = Grid.read(reader);
+    }
+
+    private void onCellData(String type, MessageReader reader) {
+        cellData = new BitfieldGrid(null);
+        cellData.readContent(reader);
+        needsRefreshCellData = false;
+    }
+
     @Override
     public String getName() {
         return "Pathfinding";
@@ -79,24 +120,26 @@ public final class PathfindingLayer implements FieldLayer {
 
     @Override
     public void draw(PGraphics g, float metersScale) {
+        if (grid == null && reqGridsCooldown.request()) {
+            msg.send(MSG_GET_GRIDS);
+        }
+        if (needsRefreshCellData && reqCellDataCooldown.request()) {
+            msg.send(MSG_GET_CELL_DATA);
+        }
         if (fieldInfo == null) {
             if (reqFieldInfoCooldown.request())
                 msg.send(MSG_GET_FIELD_INFO);
-
-            g.fill(255, 0, 0);
-            g.noStroke();
-            g.rect(0, 0, 1, 1);
             return;
         }
 
+        // Wavy ends go wheeeeeeee (for testing latency)
         msg.prepare(MSG_SET_POS)
-                .addDouble(0)
-                .addDouble(0)
+                .addDouble(3 * Math.sin((System.currentTimeMillis() % 1000) / 1000.0 * Math.PI * 2))
+                .addDouble(-6)
                 .send();
-
         msg.prepare(MSG_SET_GOAL)
-                .addDouble(1)
-                .addDouble(1)
+                .addDouble(3 * Math.cos(((System.currentTimeMillis() * 1.253) % 1000 / 1000.0) * Math.PI * 2))
+                .addDouble(6)
                 .send();
 
         boolean lines = showGridLines.get();
@@ -115,6 +158,20 @@ public final class PathfindingLayer implements FieldLayer {
 
             int cellsX = fieldInfo.getCellsX();
             int cellsY = fieldInfo.getCellsY();
+
+            // Show cell data content
+            if (cells) {
+                g.fill(201, 101, 18, 196);
+                g.noStroke();
+                for (int y = 0; y < cellsY; y++) {
+                    for (int x = 0; x < cellsX; x++) {
+                        boolean passable = cellData.get(x, y);
+                        if (!passable) {
+                            g.rect(x, y, 1, 1);
+                        }
+                    }
+                }
+            }
 
             // Show grid lines
             if (lines) {
@@ -149,11 +206,119 @@ public final class PathfindingLayer implements FieldLayer {
         }
     }
 
+    private void showGridUnion(GridUnion union, boolean isRoot) {
+        String id = "Grid Union##" + union.getId();
+        int flags = ImGuiTreeNodeFlags.SpanFullWidth;
+        if (isRoot) {
+            flags |= ImGuiTreeNodeFlags.DefaultOpen;
+        }
+
+        tableNextColumn();
+        boolean open = treeNodeEx(id, flags);
+        tableNextColumn();
+        textDisabled(union.getId().toString());
+
+        if (open) {
+            for (Grid grid : union.getChildren()) {
+                showGrid(grid, false);
+            }
+            treePop();
+        }
+    }
+
+    private void showBitfieldGrid(BitfieldGrid grid) {
+        String id = "Bitfield Grid##" + grid.getId();
+        tableNextColumn();
+        treeNodeEx(id, ImGuiTreeNodeFlags.SpanFullWidth | ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen);
+        tableNextColumn();
+        textDisabled(grid.getId().toString());
+    }
+
+    private void showShapeGrid(ShapeGrid grid, boolean isRoot) {
+        String id = "Shape Grid##" + grid.getId();
+        int flags = ImGuiTreeNodeFlags.SpanFullWidth;
+        if (isRoot) {
+            flags |= ImGuiTreeNodeFlags.DefaultOpen;
+        }
+
+        tableNextColumn();
+        boolean open = treeNodeEx(id, flags);
+        tableNextColumn();
+        textDisabled(grid.getId().toString());
+
+        if (open) {
+            for (Shape shape : grid.getShapes()) {
+                showShape(shape);
+            }
+            treePop();
+        }
+    }
+
+    private void showGrid(Grid grid, boolean isRoot) {
+        if (grid instanceof GridUnion)
+            showGridUnion((GridUnion) grid, isRoot);
+        else if (grid instanceof BitfieldGrid)
+            showBitfieldGrid((BitfieldGrid) grid);
+        else if (grid instanceof ShapeGrid)
+            showShapeGrid((ShapeGrid) grid, isRoot);
+    }
+
+    private void showCircle(Circle circle) {
+        String id = "Circle##" + grid.getId();
+
+        tableNextColumn();
+        boolean open = treeNodeEx(id, ImGuiTreeNodeFlags.SpanFullWidth);
+        tableNextColumn();
+        textDisabled(circle.getId().toString());
+
+        if (open) {
+            boolean changed;
+            tableNextColumn();
+            alignTextToFramePadding();
+            treeNodeEx("X", ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen | ImGuiTreeNodeFlags.SpanFullWidth);
+            tableNextColumn();
+            setNextItemWidth(-1);
+            changed = inputDouble("##x", circle.x);
+
+            tableNextColumn();
+            alignTextToFramePadding();
+            treeNodeEx("Y", ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen | ImGuiTreeNodeFlags.SpanFullWidth);
+            tableNextColumn();
+            setNextItemWidth(-1);
+            changed |= inputDouble("##y", circle.y);
+
+            tableNextColumn();
+            alignTextToFramePadding();
+            treeNodeEx("Radius", ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen | ImGuiTreeNodeFlags.SpanFullWidth);
+            tableNextColumn();
+            setNextItemWidth(-1);
+            changed |= inputDouble("##radius", circle.radius);
+
+            if (changed) {
+                // TODO: Send update over Messenger
+            }
+
+            treePop();
+        }
+    }
+
+    private void showShape(Shape shape) {
+        if (shape instanceof Circle)
+            showCircle((Circle) shape);
+    }
+
     @Override
     public void showGui() {
         checkbox("Show grid lines", showGridLines);
         checkbox("Show grid cells", showGridCells);
         checkbox("Show shapes", showShapes);
         checkbox("Show path", showPath);
+        separator();
+        if (grid != null) {
+            if (beginTable("grids", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable)) {
+                showGrid(grid, true);
+                endTable();
+            }
+        }
     }
 }

@@ -1,20 +1,33 @@
 package com.swrobotics.pathfinding.grid;
 
+import com.swrobotics.messenger.client.MessageBuilder;
 import com.swrobotics.pathfinding.Point;
+
+import java.util.UUID;
 
 public abstract class Grid {
     private static final double EPSILON = 0.00001;
 
+    private final UUID id;
     protected final int width;
     protected final int height;
 
     // Sizes are in number of cells, points is one larger
     public Grid(int width, int height) {
+        id = UUID.randomUUID();
         this.width = width;
         this.height = height;
     }
 
     public abstract boolean canCellPass(int x, int y);
+    public abstract void writeToMessenger(MessageBuilder builder);
+
+    public void addToMessenger(MessageBuilder builder) {
+        builder.addLong(id.getMostSignificantBits());
+        builder.addLong(id.getLeastSignificantBits());
+        writeToMessenger(builder);
+    }
+
     public boolean canCellPass(Point p) {
         return canCellPass(p.x, p.y);
     }

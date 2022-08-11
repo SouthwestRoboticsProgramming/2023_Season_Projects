@@ -1,5 +1,6 @@
 package com.swrobotics.pathfinding.grid;
 
+import com.swrobotics.messenger.client.MessageBuilder;
 import com.swrobotics.pathfinding.geom.RobotShape;
 import com.swrobotics.pathfinding.geom.Shape;
 import com.swrobotics.pathfinding.Field;
@@ -57,5 +58,14 @@ public final class ShapeGrid extends BitfieldGrid {
             regenerateBitfield();
 
         return super.canCellPass(x, y);
+    }
+
+    @Override
+    public void writeToMessenger(MessageBuilder builder) {
+        builder.addByte(GridTypeIds.SHAPE);
+        builder.addInt(shapes.size());
+        for (Shape shape : shapes) {
+            shape.writeToMessenger(builder);
+        }
     }
 }

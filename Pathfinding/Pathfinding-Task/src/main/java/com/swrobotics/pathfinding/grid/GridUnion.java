@@ -1,5 +1,7 @@
 package com.swrobotics.pathfinding.grid;
 
+import com.swrobotics.messenger.client.MessageBuilder;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,6 +22,15 @@ public final class GridUnion extends Grid {
             }
         }
         return true;
+    }
+
+    @Override
+    public void writeToMessenger(MessageBuilder builder) {
+        builder.addByte(GridTypeIds.UNION);
+        builder.addInt(children.size());
+        for (Grid child : children) {
+            child.addToMessenger(builder);
+        }
     }
 
     public void addGrid(Grid grid) {

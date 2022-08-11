@@ -59,6 +59,7 @@ public final class MessengerServer {
     }
 
     private void dispatchMessage(Message msg) {
+        // FIXME: apparently it is possible to have a ConcurrentModificationException here
         for (Client client : clients) {
             if (client.listensTo(msg.getType())) {
                 client.sendMessage(msg);

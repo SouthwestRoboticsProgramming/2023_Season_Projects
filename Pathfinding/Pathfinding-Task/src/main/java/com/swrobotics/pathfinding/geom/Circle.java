@@ -1,6 +1,8 @@
 package com.swrobotics.pathfinding.geom;
 
-public final class Circle implements RobotShape {
+import com.swrobotics.messenger.client.MessageBuilder;
+
+public final class Circle extends RobotShape {
     private double x;
     private double y;
     private double radius;
@@ -28,5 +30,14 @@ public final class Circle implements RobotShape {
     @Override
     public boolean collidesWith(RobotShape robot, double robotX, double robotY) {
         return CollisionChecks.checkCircleVsCircleRobot(this, (Circle) robot, robotX, robotY);
+    }
+
+    @Override
+    public void writeToMessenger(MessageBuilder builder) {
+        super.writeToMessenger(builder);
+        builder.addByte(ShapeTypeIds.CIRCLE);
+        builder.addDouble(x);
+        builder.addDouble(y);
+        builder.addDouble(radius);
     }
 }
