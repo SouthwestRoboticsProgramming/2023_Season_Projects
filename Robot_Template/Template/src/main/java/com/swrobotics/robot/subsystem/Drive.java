@@ -3,7 +3,7 @@ package com.swrobotics.robot.subsystem;
 import static com.swrobotics.robot.Constants.*;
 
 import com.team2129.lib.gyro.ADIS16448Gyroscope;
-import com.swrobotics.robot.input.Input;
+import com.swrobotics.robot.control.Input;
 import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.swerve.SwerveDrive;
 import com.team2129.lib.swerve.SwerveModule;
