@@ -16,21 +16,30 @@ public class Flywheel implements Subsystem { // TODO: Why was the old one final?
     private static final NTDouble KI = new NTDouble("Thrower/Flywheel/kI", 0);
     private static final NTDouble KD = new NTDouble("Thrower/Flywheel/kD", 0);
 
+    private static final NTDouble IDLE_VELOCITY = new NTDouble("Thrower/Flywheel/Idle_RPM", 750);
+
     private static final int FLYWHEEL_MOTOR_ID = 30;
 
     private final TalonMotor motor;
+
+    private Angle velocity = Angle.cwDeg(0);
     
     public Flywheel() {
         TalonFX talon_toWrap = new TalonFX(FLYWHEEL_MOTOR_ID, CANIVORE);
         LazyTalonFXConfiguration.configureDefaultTalon(talon_toWrap);
         talon_toWrap.setNeutralMode(NeutralMode.Coast);
+        talon_toWrap.setInverted(true);
 
         motor = new TalonMotor(this, talon_toWrap);
         motor.setPIDController(NTUtils.makeAutoTunedPID(KP, KI, KD));
     }
 
     public void setFlywheelVelocity(Angle velocity) {
-        motor.velocity(velocity);
+        this.velocity = velocity;
+    }
+
+    public void idle() {
+        velocity = Angle.cwRot(IDLE_VELOCITY.get());
     }
 
     @Override 

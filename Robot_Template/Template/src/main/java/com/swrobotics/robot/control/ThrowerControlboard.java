@@ -4,8 +4,21 @@ import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import com.team2129.lib.math.MathUtil;
+import com.team2129.lib.net.NTDouble;
 
 import edu.wpi.first.wpilibj.DriverStation;
+
+/*
+ * For my memory:
+ * Have an enum with 3 different settings
+ * 1. Default (mura tuning)
+ * 2. Last match tuning
+ * 3. 2 matches ago tuning (for if last match was a fluke)
+ * 
+ * These 3 sets of settings are in networktables / messanger?
+ * Keep default tuning in a file for if networktables won't connect
+ * Read data from networktables and put those values into the tree map
+ */
 
 public class ThrowerControlboard {
     private static final int MIN_HIGH_HUB_DISTANCE = 1;
@@ -17,74 +30,75 @@ public class ThrowerControlboard {
     private final TreeMap<Double, Double> highHubMap;
     private final TreeMap<Double, Double> lowHubMap;
 
+
     public ThrowerControlboard() {
         highHubMap = new TreeMap<Double, Double>();
         lowHubMap = new TreeMap<Double, Double>();
     }
 
-    private double calculateHood(double distance, boolean aimHighHub) {
+    private double[] calculateAim(double distance, boolean aimHighHub, boolean forceHubChoice) {
+        double rpm;
         double hood;
-        if (aimHighHub) {
-            double raw = MathUtil.map(distance, MIN_HIGH_HUB_DISTANCE, MAX_HIGH_HUB_DISTANCE, 0, 1);
-            hood = MathUtil.clamp(raw, 0, 1);
 
-            if (distance < 10) { hood -= 0.5;}
+        TreeMap<Double, Double> map;
+        if (aimHighHub) {
+            map = highHubMap; // Should I use clone?
         } else {
-            double raw = MathUtil.map(distance, MIN_LOW_HUB_DISTANCE, MAX_LOW_HUB_DISTANCE, 0, 1);
-            hood = MathUtil.clamp(raw, 0, 1);
+            map = lowHubMap;
         }
 
-        return hood;
-    }
-
-    private double calculateRPM(double distance, boolean aimHighHub) {
-        Entry<Double, Double> lowerEntry;
-        Entry<Double, Double> upperEntry;
-
-        // Extract values
-        if (aimHighHub) {
-            lowerEntry = highHubMap.ceilingEntry(distance);
-            upperEntry = highHubMap.ceilingEntry(distance);
-        } else {
-            lowerEntry = lowHubMap.ceilingEntry(distance);
-            upperEntry = lowHubMap.ceilingEntry(distance);
-        }
+        if (lowHubMap.isEmpty() && aimHighHub) {forceHubChoice = true;}
+        if (highHubMap.isEmpty() && !aimHighHub) {forceHubChoice = true;}
 
         // Check that there are values in the map
-        if (lowerEntry == null && upperEntry == null) {
-            DriverStation.reportError("No tuning values for throwing HIGH HUB: " + aimHighHub, true);
-            return 0; // TODO: Shoot at other hub without creating loop
+        if (map.isEmpty()) {
+            if (forceHubChoice) {
+                DriverStation.reportError("No values in thrower tuning maps", true);
+                return new double[]{0,0};
+            } else {
+                return calculateAim(distance, !aimHighHub, true);
+            }
         }
 
+        Entry<Double, Double> lowerEntry = map.floorEntry(distance);
+        Entry<Double, Double> upperEntry = map.ceilingEntry(distance);
+
         if (lowerEntry == null) { // Too close to hub
-            if (aimHighHub) {
-                return calculateRPM(distance, false); // If too close to shoot high, shoot low
+            if (aimHighHub && !forceHubChoice) {
+                return calculateAim(distance, !aimHighHub, true);
             } else {
-                return lowHubMap.firstEntry().getValue();
+                rpm = map.firstEntry().getValue();
             }
         }
 
         if (upperEntry == null) { // Further than last tuning
-            Entry<Double, Double> firstEntry;
-            Entry<Double, Double> lastEntry;
-            
-            if (aimHighHub) {
-                firstEntry = highHubMap.firstEntry();
-                lastEntry = highHubMap.lastEntry();
-            } else {
-                firstEntry = lowHubMap.firstEntry();
-                lastEntry = lowHubMap.lastEntry();
+            if (!aimHighHub && !forceHubChoice) { // Aim high
+                return calculateAim(distance, aimHighHub, true);
             }
 
-            double rise = firstEntry.getValue() - lastEntry.getValue();
-            double run = firstEntry.getKey() - lastEntry.getKey();
+            // If distance is beyond last key, approximate using slope of entire map
+            double rise = map.firstEntry().getValue() - map.lastEntry().getValue();
+            double run = map.firstKey() - map.lastKey();
             double slope = rise / run;
 
-            // If distance beyond last key, approximate using slope of the entire tuning.
-            return lastEntry.getValue() + slope * (distance - lastEntry.getKey());
+            rpm = map.lastEntry().getValue() + slope * (distance - map.lastKey());
         }
 
-        // If within the map, linearly interpolate between the closest points.
-        return MathUtil.map(distance, lowerEntry.getKey(), upperEntry.getKey(), lowerEntry.getValue(), upperEntry.getValue());
+        // If within the map, linearly interpolate
+        rpm = MathUtil.map(distance, lowerEntry.getKey(), upperEntry.getKey(), lowerEntry.getValue(), upperEntry.getValue());
+
+        /* Calculate hood angle */
+        if (aimHighHub) {
+            hood = MathUtil.clamp(MathUtil.map(distance, MIN_HIGH_HUB_DISTANCE, MAX_HIGH_HUB_DISTANCE, 0, 1), 0, 1);
+            if (distance < 10.0) {hood -= 0.15;}
+        } else {
+            hood = MathUtil.clamp(MathUtil.map(distance, MIN_LOW_HUB_DISTANCE, MAX_LOW_HUB_DISTANCE, 0, 1), 0, 1);
+        }
+
+        return new double[]{rpm, hood};
+    }
+
+    private double[] calculateAim(double distance, boolean aimHighHub) {
+        return calculateAim(distance, aimHighHub, false);
     }
 }

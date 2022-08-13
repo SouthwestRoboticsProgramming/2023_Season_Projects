@@ -19,6 +19,14 @@ public final class Angle {
         return new Angle(Math.toRadians(angle));
     }
 
+    public static Angle cwRot(double rotations) {
+        return new Angle(-2 * Math.PI * rotations);
+    } // TODO: Double check
+
+    public static Angle ccwRot(double rotations) {
+        return new Angle(2 * Math.PI * rotations);
+    }
+
     private double angle;
 
     private Angle(double angle) {
