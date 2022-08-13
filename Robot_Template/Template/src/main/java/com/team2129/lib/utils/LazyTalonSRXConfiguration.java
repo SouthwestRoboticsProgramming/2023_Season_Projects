@@ -12,7 +12,7 @@ public class LazyTalonSRXConfiguration {
         {
             config.continuousCurrentLimit = 35;
             config.peakCurrentLimit = 60;
-            config.peakCurrentDuration = 1; // Dunno if this is right
+            config.peakCurrentDuration = 100;
         }
 
         talon.configFactoryDefault(100);

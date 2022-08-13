@@ -26,12 +26,14 @@ public class Flywheel implements Subsystem { // TODO: Why was the old one final?
     
     public Flywheel() {
         TalonFX talon_toWrap = new TalonFX(FLYWHEEL_MOTOR_ID, CANIVORE);
-        LazyTalonFXConfiguration.configureDefaultTalon(talon_toWrap);
+        LazyTalonFXConfiguration.configureDefaultTalon(talon_toWrap); // TODO: Be less lazy
         talon_toWrap.setNeutralMode(NeutralMode.Coast);
         talon_toWrap.setInverted(true);
 
         motor = new TalonMotor(this, talon_toWrap);
         motor.setPIDController(NTUtils.makeAutoTunedPID(KP, KI, KD));
+        motor.setFlywheelMode(true);
+        // TODO: IMPORTANT: Configure and tune a feedforward controller
     }
 
     public void setFlywheelVelocity(Angle velocity) {
@@ -45,5 +47,6 @@ public class Flywheel implements Subsystem { // TODO: Why was the old one final?
     @Override 
     public void periodic() {
         // TODO: Log temperature, speed, etc...
+        motor.velocity(velocity);
     }
 }

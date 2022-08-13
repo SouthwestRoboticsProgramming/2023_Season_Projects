@@ -27,6 +27,10 @@ public final class Angle {
         return new Angle(2 * Math.PI * rotations);
     }
 
+    public static Angle zero() {
+        return new Angle(0);
+    }
+
     private double angle;
 
     private Angle(double angle) {
