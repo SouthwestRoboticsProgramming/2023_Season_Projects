@@ -205,7 +205,7 @@ public final class PathfindingLayer implements FieldLayer {
             int cellsY = fieldInfo.getCellsY();
 
             // Show cell data content
-            if (cells) {
+            if (cells && cellData != null) {
                 g.fill(200, 0, 0, 196);
                 g.noStroke();
                 for (int y = 0; y < cellsY; y++) {
