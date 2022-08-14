@@ -1,12 +1,10 @@
-package com.swrobotics.robot.control;
+package com.swrobotics.robot.subsystem.thrower;
 
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
+import com.swrobotics.robot.control.Input;
 import com.swrobotics.robot.subsystem.Localization;
-import com.swrobotics.robot.subsystem.thrower.Flywheel;
-import com.swrobotics.robot.subsystem.thrower.Hood;
-import com.swrobotics.robot.subsystem.thrower.Hopper;
 import com.swrobotics.robot.subsystem.thrower.commands.ShootCommand;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.MathUtil;
