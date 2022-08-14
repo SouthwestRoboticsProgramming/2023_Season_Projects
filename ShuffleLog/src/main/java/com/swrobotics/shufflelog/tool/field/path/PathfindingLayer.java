@@ -146,11 +146,6 @@ public final class PathfindingLayer implements FieldLayer {
         return "Pathfinding";
     }
 
-    private final SmoothFloat posX = new SmoothFloat(6, 0);
-    private final SmoothFloat posY = new SmoothFloat(6, 0);
-    private final SmoothFloat goalPosX = new SmoothFloat(6, 0);
-    private final SmoothFloat goalPosY = new SmoothFloat(6, 0);
-
     @Override
     public void draw(PGraphics g, float metersScale) {
         if (grid == null && reqGridsCooldown.request()) {
@@ -166,25 +161,13 @@ public final class PathfindingLayer implements FieldLayer {
         }
 
         // Wavy ends go wheeeeeeee (for testing latency)
-        posX.step();
-        posY.step();
-        goalPosX.step();
-        goalPosY.step();
-        if (Math.abs(posX.get() - posX.getTarget()) < 0.1 && Math.abs(posY.get() - posY.getTarget()) < 0.1) {
-            double w = fieldInfo.getFieldWidth();
-            double h = fieldInfo.getFieldHeight();
-            posX.set((float) (w * Math.random() - w/2));
-            posY.set((float) (h * Math.random() - h/2));
-            goalPosX.set((float) (w * Math.random() - w/2));
-            goalPosY.set((float) (h * Math.random() - h/2));
-        }
         msg.prepare(MSG_SET_POS)
-                .addDouble(posX.get())
-                .addDouble(posY.get())
+                .addDouble(3 * Math.sin((System.currentTimeMillis() % 1000) / 1000.0 * Math.PI * 2))
+                .addDouble(-6)
                 .send();
         msg.prepare(MSG_SET_GOAL)
-                .addDouble(goalPosX.get())
-                .addDouble(goalPosY.get())
+                .addDouble(3 * Math.cos(((System.currentTimeMillis() * 1.253) % 1000 / 1000.0) * Math.PI * 2))
+                .addDouble(6)
                 .send();
 
         boolean lines = showGridLines.get();
