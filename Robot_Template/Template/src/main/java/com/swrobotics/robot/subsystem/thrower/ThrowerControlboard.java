@@ -10,6 +10,7 @@ import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.MathUtil;
 import com.team2129.lib.net.NTBoolean;
 import com.team2129.lib.net.NTDouble;
+import com.team2129.lib.net.NTEnum;
 import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.schedule.Subsystem;
 
@@ -37,6 +38,8 @@ public class ThrowerControlboard implements Subsystem {
 
     private static final NTDouble FLYWHEEL_SHUTOFF_SECONDS = new NTDouble("Thrower/Flywheel/Shutoff_Time", 1.0);
     private static final NTBoolean STRICT_AIM = new NTBoolean("Thrower/Strict_Aim", false);
+
+    private static final NTEnum<ThrowerTuneSelector> TUNE_SELECTOR = new NTEnum<>("Thrower/Tunning/Tune_Select", ThrowerTuneSelector.class, ThrowerTuneSelector.DEFAULT);
 
     private final Input input;
     private final Localization loc;
