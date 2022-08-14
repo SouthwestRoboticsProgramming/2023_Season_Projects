@@ -8,6 +8,8 @@ public class NTEnum<T extends Enum<T>> extends NTEntry<T> {
         super(path, defaultVal);
         this.type = type;
         this.defaultVal = defaultVal;
+
+        // TODO: Set metadata so ShuffleLog can properly limit values
     }
 
     @Override
@@ -22,7 +24,5 @@ public class NTEnum<T extends Enum<T>> extends NTEntry<T> {
     @Override
     public void set(T value) {
         entry.setString(value.toString());
-        
     }
-    
 }

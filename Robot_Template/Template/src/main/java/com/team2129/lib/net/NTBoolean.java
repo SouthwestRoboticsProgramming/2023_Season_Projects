@@ -16,7 +16,5 @@ public class NTBoolean extends NTEntry<Boolean> {
     @Override
     public void set(Boolean value) {
         entry.setBoolean(value);
-        
     }
-    
 }
