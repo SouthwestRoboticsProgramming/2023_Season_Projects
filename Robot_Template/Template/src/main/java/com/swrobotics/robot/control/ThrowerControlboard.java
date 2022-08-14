@@ -43,10 +43,10 @@ public class ThrowerControlboard {
 
         // Extract values
         if (aimHighHub) {
-            lowerEntry = highHubMap.ceilingEntry(distance);
+            lowerEntry = highHubMap.floorEntry(distance);
             upperEntry = highHubMap.ceilingEntry(distance);
         } else {
-            lowerEntry = lowHubMap.ceilingEntry(distance);
+            lowerEntry = lowHubMap.floorEntry(distance);
             upperEntry = lowHubMap.ceilingEntry(distance);
         }
 
