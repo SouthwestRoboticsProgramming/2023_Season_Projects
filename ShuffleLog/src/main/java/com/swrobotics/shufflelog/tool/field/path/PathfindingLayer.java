@@ -1,5 +1,6 @@
 package com.swrobotics.shufflelog.tool.field.path;
 
+import com.swrobotics.messenger.client.MessageBuilder;
 import com.swrobotics.messenger.client.MessageReader;
 import com.swrobotics.messenger.client.MessengerClient;
 import com.swrobotics.shufflelog.tool.ToolConstants;
@@ -39,6 +40,7 @@ public final class PathfindingLayer implements FieldLayer {
     private static final String MSG_ADD_GRID = "Pathfinder:AddGrid";
     private static final String MSG_REMOVE_GRID = "Pathfinder:RemoveGrid";
     private static final String MSG_ADD_SHAPE = "Pathfinder:AddShape";
+    private static final String MSG_ALTER_SHAPE = "Pathfinder:AlterShape";
     private static final String MSG_REMOVE_SHAPE = "Pathfinder:RemoveShape";
 
     private static final String MSG_FIELD_INFO = "Pathfinder:FieldInfo";
@@ -321,12 +323,35 @@ public final class PathfindingLayer implements FieldLayer {
 
         tableNextColumn();
         boolean open = treeNodeEx(id, flags);
+        if (beginPopupContextItem()) {
+            Shape addedShape = null;
+            if (selectable("Add Circle")) {
+                Circle c = new Circle(UUID.randomUUID());
+                c.register(this);
+                c.x.set(0);
+                c.y.set(0);
+                c.radius.set(1);
+                addedShape = c;
+            }
+
+            if (addedShape != null) {
+                grid.getShapes().add(addedShape);
+                MessageBuilder builder = msg.prepare(MSG_ADD_SHAPE);
+                builder.addLong(grid.getId().getMostSignificantBits());
+                builder.addLong(grid.getId().getLeastSignificantBits());
+                addedShape.write(builder);
+                builder.send();
+                needsRefreshCellData = true;
+            }
+
+            endPopup();
+        }
         tableNextColumn();
         textDisabled(grid.getId().toString());
 
         if (open) {
-            for (Shape shape : grid.getShapes()) {
-                showShape(shape);
+            for (Shape shape : new ArrayList<>(grid.getShapes())) {
+                showShape(grid, shape);
             }
             treePop();
         }
@@ -341,11 +366,26 @@ public final class PathfindingLayer implements FieldLayer {
             showShapeGrid((ShapeGrid) grid, isRoot);
     }
 
-    private void showCircle(Circle circle) {
+    private void removeShape(ShapeGrid grid, Shape shape) {
+        grid.getShapes().remove(shape);
+        idToShape.remove(shape.getId());
+        msg.prepare(MSG_REMOVE_SHAPE)
+                .addLong(shape.getId().getMostSignificantBits())
+                .addLong(shape.getId().getLeastSignificantBits())
+                .send();
+    }
+
+    private void showCircle(ShapeGrid grid, Circle circle) {
         String id = "Circle##" + circle.getId();
 
         tableNextColumn();
         boolean open = treeNodeEx(id, ImGuiTreeNodeFlags.SpanFullWidth);
+        if (beginPopupContextItem()) {
+            if (selectable("Delete")) {
+                removeShape(grid, circle);
+            }
+            endPopup();
+        }
         tableNextColumn();
         textDisabled(circle.getId().toString());
 
@@ -373,16 +413,19 @@ public final class PathfindingLayer implements FieldLayer {
             changed |= inputDouble("##radius", circle.radius);
 
             if (changed) {
-                // TODO: Send update over Messenger
+                MessageBuilder builder = msg.prepare(MSG_ALTER_SHAPE);
+                circle.write(builder);
+                builder.send();
+                needsRefreshCellData = true;
             }
 
             treePop();
         }
     }
 
-    private void showShape(Shape shape) {
+    private void showShape(ShapeGrid grid, Shape shape) {
         if (shape instanceof Circle)
-            showCircle((Circle) shape);
+            showCircle(grid, (Circle) shape);
     }
 
     @Override

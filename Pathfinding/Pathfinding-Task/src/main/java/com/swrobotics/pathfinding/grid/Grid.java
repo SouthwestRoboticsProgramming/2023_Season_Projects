@@ -2,15 +2,17 @@ package com.swrobotics.pathfinding.grid;
 
 import com.swrobotics.messenger.client.MessageBuilder;
 import com.swrobotics.pathfinding.Point;
+import com.swrobotics.pathfinding.task.PathfinderTask;
 
 import java.util.UUID;
 
 public abstract class Grid {
     private static final double EPSILON = 0.00001;
 
-    private final UUID id;
     protected final int width;
     protected final int height;
+    private GridUnion parent;
+    private UUID id;
 
     // Sizes are in number of cells, points is one larger
     public Grid(int width, int height) {
@@ -19,8 +21,27 @@ public abstract class Grid {
         this.height = height;
     }
 
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public GridUnion getParent() {
+        return parent;
+    }
+
+    public void setParent(GridUnion parent) {
+        this.parent = parent;
+    }
+
     public abstract boolean canCellPass(int x, int y);
     public abstract void writeToMessenger(MessageBuilder builder);
+    public void register(PathfinderTask task) {
+        task.registerGrid(this);
+    }
 
     public void addToMessenger(MessageBuilder builder) {
         builder.addLong(id.getMostSignificantBits());

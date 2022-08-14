@@ -1,7 +1,9 @@
 package com.swrobotics.shufflelog.tool.field.path.shape;
 
+import com.swrobotics.messenger.client.MessageBuilder;
 import com.swrobotics.messenger.client.MessageReader;
 import com.swrobotics.shufflelog.tool.field.path.PathfindingLayer;
+import com.swrobotics.shufflelog.tool.field.path.grid.ShapeGrid;
 
 import java.util.UUID;
 
@@ -40,5 +42,10 @@ public abstract class Shape {
         shape.readContent(reader);
 
         return shape;
+    }
+
+    public void write(MessageBuilder builder) {
+        builder.addLong(id.getMostSignificantBits());
+        builder.addLong(id.getLeastSignificantBits());
     }
 }

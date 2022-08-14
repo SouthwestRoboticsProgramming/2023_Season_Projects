@@ -1,6 +1,7 @@
 package com.swrobotics.pathfinding.grid;
 
 import com.swrobotics.messenger.client.MessageBuilder;
+import com.swrobotics.pathfinding.task.PathfinderTask;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -38,9 +39,23 @@ public final class GridUnion extends Grid {
             throw new IllegalArgumentException("Grid size is not compatible");
 
         children.add(grid);
+        grid.setParent(this);
     }
 
     public void removeGrid(Grid grid) {
         children.remove(grid);
+        grid.setParent(null);
+    }
+
+    public Set<Grid> getChildren() {
+        return children;
+    }
+
+    @Override
+    public void register(PathfinderTask task) {
+        super.register(task);
+        for (Grid child : children) {
+            child.register(task);
+        }
     }
 }
