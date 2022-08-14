@@ -9,14 +9,18 @@ import com.team2129.lib.schedule.Subsystem;
  */
 public class BallDetector implements Subsystem {
 
+    // TODO: Debounce filter?
+
     private static final int BEAM_BREAK_ID = 9;
 
     private final DigitalInput beamBreak;
     private boolean ballDetected;
+    private boolean lastDetected;
 
     public BallDetector() {
         beamBreak = new DigitalInput(BEAM_BREAK_ID);
         ballDetected = false;
+        lastDetected = false;
     }
 
     @Override
@@ -28,6 +32,14 @@ public class BallDetector implements Subsystem {
 
     public boolean isBallDetected() {
         return ballDetected;
+    }
+
+    /**
+     * Reads if the ball was there last tick and now is not
+     * @return
+     */
+    public boolean isBallGone() {
+        return !ballDetected && lastDetected;
     }
 
     @Override

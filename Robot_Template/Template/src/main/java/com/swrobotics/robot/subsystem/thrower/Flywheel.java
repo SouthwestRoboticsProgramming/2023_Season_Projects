@@ -22,7 +22,7 @@ public class Flywheel implements Subsystem { // TODO: Why was the old one final?
 
     private final TalonMotor motor;
 
-    private Angle velocity = Angle.cwDeg(0);
+    private Runnable motorMode;
     
     public Flywheel() {
         TalonFX talon_toWrap = new TalonFX(FLYWHEEL_MOTOR_ID, CANIVORE);
@@ -33,20 +33,30 @@ public class Flywheel implements Subsystem { // TODO: Why was the old one final?
         motor = new TalonMotor(this, talon_toWrap);
         motor.setPIDController(NTUtils.makeAutoTunedPID(KP, KI, KD));
         motor.setFlywheelMode(true);
+
+        motorMode = () -> motor.percent(0);
         // TODO: IMPORTANT: Configure and tune a feedforward controller
     }
 
+    /**
+     * 
+     * @param velocity Angle/Second
+     */
     public void setFlywheelVelocity(Angle velocity) {
-        this.velocity = velocity;
+        motorMode = () -> motor.velocity(velocity);
     }
 
     public void idle() {
-        velocity = Angle.cwRot(IDLE_VELOCITY.get());
+        motorMode = () -> motor.velocity(Angle.cwRot(IDLE_VELOCITY.get()));
+    }
+
+    public void stop() {
+        motorMode = () -> motor.percent(0);
     }
 
     @Override 
     public void periodic() {
         // TODO: Log temperature, speed, etc...
-        motor.velocity(velocity);
+        motorMode.run();
     }
 }

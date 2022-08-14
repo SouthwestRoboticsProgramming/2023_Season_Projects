@@ -18,7 +18,7 @@ public abstract class Encoder {
     public abstract Angle getRawAngle();
 
     /**
-     * Get the anglular velocity of the encoder.
+     * Get the angular velocity of the encoder.
      * @return The velocity of the encoder in Angle/Second.
      */
     public abstract Angle getVelocity();

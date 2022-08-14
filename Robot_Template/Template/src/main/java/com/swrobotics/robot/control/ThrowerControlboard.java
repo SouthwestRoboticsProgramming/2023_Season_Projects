@@ -3,10 +3,20 @@ package com.swrobotics.robot.control;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
+import com.swrobotics.robot.subsystem.Localization;
+import com.swrobotics.robot.subsystem.thrower.Flywheel;
+import com.swrobotics.robot.subsystem.thrower.Hood;
+import com.swrobotics.robot.subsystem.thrower.Hopper;
+import com.swrobotics.robot.subsystem.thrower.commands.ShootCommand;
+import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.MathUtil;
+import com.team2129.lib.net.NTBoolean;
 import com.team2129.lib.net.NTDouble;
+import com.team2129.lib.schedule.Scheduler;
+import com.team2129.lib.schedule.Subsystem;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 
 /*
  * For my memory:
@@ -20,20 +30,42 @@ import edu.wpi.first.wpilibj.DriverStation;
  * Read data from networktables and put those values into the tree map
  */
 
-public class ThrowerControlboard {
+public class ThrowerControlboard implements Subsystem {
     private static final int MIN_HIGH_HUB_DISTANCE = 1;
     private static final int MAX_HIGH_HUB_DISTANCE = 18;
 
     private static final int MIN_LOW_HUB_DISTANCE = 0;  // Guess
     private static final int MAX_LOW_HUB_DISTANCE = 10; // Guess
 
+    private static final NTDouble FLYWHEEL_SHUTOFF_SECONDS = new NTDouble("Thrower/Flywheel/Shutoff_Time", 1.0);
+    private static final NTBoolean STRICT_AIM = new NTBoolean("Thrower/Strict_Aim", false);
+
+    private final Input input;
+    private final Localization loc;
+    private final Hopper hopper;
+    private final Hood hood;
+    private final Flywheel flywheel;
+
+    private final Timer flywheelShutoff;
+
     private final TreeMap<Double, Double> highHubMap;
     private final TreeMap<Double, Double> lowHubMap;
 
+    private boolean isClimbing;
 
-    public ThrowerControlboard() {
+
+    public ThrowerControlboard(Input input, Localization loc, Hopper hopper, Flywheel flywheel, Hood hood) {
         highHubMap = new TreeMap<Double, Double>();
         lowHubMap = new TreeMap<Double, Double>();
+
+        this.input = input;
+        this.loc = loc;
+        this.hopper = hopper;
+        this.hood = hood;
+        this.flywheel = flywheel;
+
+        flywheelShutoff = new Timer();
+        isClimbing = false;
     }
 
     private double[] calculateAim(double distance, boolean aimHighHub, boolean forceHubChoice) {
@@ -98,7 +130,43 @@ public class ThrowerControlboard {
         return new double[]{rpm, hood};
     }
 
-    private double[] calculateAim(double distance, boolean aimHighHub) {
-        return calculateAim(distance, aimHighHub, false);
+    public void setClimbing(boolean isClimbing) {
+        this.isClimbing = isClimbing;
     }
+
+    @Override
+    public void periodic() {
+        double distance = loc.getMetersToHub();
+
+        if (isClimbing) {
+            hood.calibrate();
+            flywheel.stop();
+            return;
+        }
+
+        if (hopper.isBallGone()) {
+            flywheelShutoff.reset();
+            flywheelShutoff.start();
+        }
+
+        if (hopper.isBallDetected() || !flywheelShutoff.hasElapsed(FLYWHEEL_SHUTOFF_SECONDS.get())) {
+            if (loc.isLookingAtTarget() || input.getAim()) { // Prepare to fire
+                double[] aim = calculateAim(distance, true, STRICT_AIM.get());
+                flywheel.setFlywheelVelocity(Angle.cwRot(aim[0] / 60)); // Convert rpm to Angle/second
+                hood.setPosition(aim[1]);
+            } else {
+                hood.calibrate();
+                flywheel.idle();
+            }
+        } else { // If no ball for the duration of the timer
+            hood.calibrate();
+            flywheel.stop();
+        }
+
+        if (input.getShoot()) {
+            Scheduler.get().addCommand(new ShootCommand(hopper));
+        }
+    }
+
+
 }

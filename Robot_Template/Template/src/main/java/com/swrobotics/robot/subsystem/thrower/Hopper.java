@@ -41,6 +41,18 @@ public class Hopper implements Subsystem {
     public boolean isBallDetected() {
         return ballDetector.isBallDetected();
     }
+
+    /**
+     * Reads if the ball was there last tick and now isn't
+     * @return
+     */
+    public boolean isBallGone() {
+        return ballDetector.isBallGone();
+    }
+
+    public void setIndexSpeed(double percent) {
+        indexMotor.percent(percent);
+    }
     
     @Override
     public void periodic() {
