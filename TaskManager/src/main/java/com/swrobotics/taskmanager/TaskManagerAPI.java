@@ -18,11 +18,13 @@ public final class TaskManagerAPI {
     private static final String MSG_READ_FILE      = ":ReadFile";
     private static final String MSG_WRITE_FILE     = ":WriteFile";
     private static final String MSG_DELETE_FILE    = ":DeleteFile";
+    private static final String MSG_MOVE_FILE      = ":MoveFile";
     private static final String MSG_MKDIR          = ":Mkdir";
     private static final String MSG_FILES          = ":Files";
     private static final String MSG_FILE_CONTENT   = ":FileContent";
     private static final String MSG_WRITE_CONFIRM  = ":WriteConfirm";
     private static final String MSG_DELETE_CONFIRM = ":DeleteConfirm";
+    private static final String MSG_MOVE_CONFIRM   = ":MoveConfirm";
     private static final String MSG_MKDIR_CONFIRM  = ":MkdirConfirm";
 
     // Tasks API
@@ -43,6 +45,7 @@ public final class TaskManagerAPI {
     private final String msgFileContent;
     private final String msgWriteConfirm;
     private final String msgDeleteConfirm;
+    private final String msgMoveConfirm;
     private final String msgMkdirConfirm;
     private final String msgTasks;
     private final String msgStdOut;
@@ -66,6 +69,7 @@ public final class TaskManagerAPI {
         String msgReadFile   = prefix + MSG_READ_FILE;
         String msgWriteFile  = prefix + MSG_WRITE_FILE;
         String msgDeleteFile = prefix + MSG_DELETE_FILE;
+        String msgMoveFile   = prefix + MSG_MOVE_FILE;
         String msgMkdir      = prefix + MSG_MKDIR;
         String msgListTasks  = prefix + MSG_LIST_TASKS;
         String msgCreateTask = prefix + MSG_CREATE_TASK;
@@ -75,6 +79,7 @@ public final class TaskManagerAPI {
         msgFileContent   = prefix + MSG_FILE_CONTENT;
         msgWriteConfirm  = prefix + MSG_WRITE_CONFIRM;
         msgDeleteConfirm = prefix + MSG_DELETE_CONFIRM;
+        msgMoveConfirm   = prefix + MSG_MOVE_CONFIRM;
         msgMkdirConfirm  = prefix + MSG_MKDIR_CONFIRM;
         msgTasks         = prefix + MSG_TASKS;
         msgStdOut        = prefix + MSG_STDOUT;
@@ -85,6 +90,7 @@ public final class TaskManagerAPI {
         msg.addHandler(msgListFiles,  this::onListFiles);
         msg.addHandler(msgReadFile,   this::onReadFile);
         msg.addHandler(msgWriteFile,  this::onWriteFile);
+        msg.addHandler(msgMoveFile,   this::onMoveFile);
         msg.addHandler(msgDeleteFile, this::onDeleteFile);
         msg.addHandler(msgMkdir,      this::onMkdir);
         msg.addHandler(msgListTasks,  this::onListTasks);
@@ -120,6 +126,10 @@ public final class TaskManagerAPI {
             }
         }
         return file.delete();
+    }
+
+    private boolean moveFile(File src, File dst) {
+        return src.renameTo(dst);
     }
 
     private String removeTrailingSeparator(String path) {
@@ -244,6 +254,33 @@ public final class TaskManagerAPI {
 
         msg.prepare(msgDeleteConfirm)
                 .addString(path)
+                .addBoolean(result)
+                .send();
+    }
+
+    private void onMoveFile(String type, MessageReader reader) {
+        String srcPath = reader.readString();
+        String dstPath = reader.readString();
+        File srcFile = new File(tasksRoot, localizePath(srcPath));
+        File dstFile = new File(tasksRoot, localizePath(dstPath));
+
+        if (!srcFile.exists() || dstFile.exists()) {
+            msg.prepare(msgMoveConfirm)
+                    .addString(srcPath)
+                    .addString(dstPath)
+                    .addBoolean(false)
+                    .send();
+            return;
+        }
+
+        System.out.println("Moving " + srcPath + " to " + dstPath);
+        boolean result = moveFile(srcFile, dstFile);
+        if (!result)
+            System.err.println("Failed to move " + srcPath + " to " + dstPath);
+
+        msg.prepare(msgMoveConfirm)
+                .addString(srcPath)
+                .addString(dstPath)
                 .addBoolean(result)
                 .send();
     }
