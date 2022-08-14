@@ -2,7 +2,7 @@ package com.swrobotics.robot.subsystem.thrower;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.swrobotics.robot.input.Input;
+import com.swrobotics.robot.control.Input;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.motor.TalonMotor;
 import com.team2129.lib.net.NTDouble;

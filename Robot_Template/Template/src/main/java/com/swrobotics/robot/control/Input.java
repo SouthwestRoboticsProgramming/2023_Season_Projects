@@ -1,4 +1,4 @@
-package com.swrobotics.robot.input;
+package com.swrobotics.robot.control;
 
 import static com.swrobotics.robot.Constants.*;
 

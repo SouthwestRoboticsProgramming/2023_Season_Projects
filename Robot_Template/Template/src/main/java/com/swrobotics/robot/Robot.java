@@ -1,6 +1,6 @@
 package com.swrobotics.robot;
 
-import com.swrobotics.robot.input.Input;
+import com.swrobotics.robot.control.Input;
 import com.swrobotics.robot.subsystem.Drive;
 import com.team2129.lib.net.NTDouble;
 import com.team2129.lib.schedule.Scheduler;
