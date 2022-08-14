@@ -4,7 +4,6 @@ import static com.swrobotics.robot.Constants.*;
 
 import com.team2129.lib.utils.InputUtils;
 import com.team2129.lib.math.Angle;
-import com.team2129.lib.math.MathUtil;
 import com.team2129.lib.math.Vec2d;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -52,5 +51,18 @@ public class Input {
     // Intake
     public boolean getIntakeOn() {
         return true;
+    }
+
+    // Thrower
+    public boolean getAim() {
+        return controller.getLeftTriggerAxis() > DEADBAND;
+    }
+
+    public boolean getShoot() {
+        return controller.getAButtonPressed();
+    }
+
+    public boolean getAimLow() {
+        return controller.getLeftBumper();
     }
 }
