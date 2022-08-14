@@ -161,9 +161,13 @@ public final class TaskManagerTool implements Tool {
                 node = acceptDragDropPayload("TM_" + name + "_DRAG_DIR");
 
             if (node != null && !isChild(node, dir)) {
+                String dstPath = dir.getFullPath();
+                if (!dstPath.equals(""))
+                    dstPath += "/";
+
                 msg.prepare(name + MSG_MOVE_FILE)
                         .addString(node.getFullPath())
-                        .addString(dir.getFullPath() + "/" + node.getName())
+                        .addString(dstPath + node.getName())
                         .send();
             }
 
@@ -337,15 +341,15 @@ public final class TaskManagerTool implements Tool {
         RemoteNode srcNode = evalPath(srcPath);
         srcNode.remove();
 
-        createLocalFile(dstPath);
+        createLocalFile(dstPath, srcNode instanceof RemoteDirectory);
     }
 
-    private void createLocalFile(String path) {
+    private void createLocalFile(String path, boolean directory) {
         String[] entries = path.split("/");
 
         // Ensure all directories are present locally
         RemoteDirectory dir = remoteRoot;
-        for (int i = 0; i < entries.length - 1; i++) {
+        for (int i = 0; i < entries.length - (directory ? 0 : 1); i++) {
             String entry = entries[i];
             RemoteNode node = dir.getChild(entry);
             if (node == null) {
@@ -357,11 +361,13 @@ public final class TaskManagerTool implements Tool {
             }
         }
 
-        // Create the file locally
-        String fileName = entries[entries.length - 1];
-        if (dir.getChild(fileName) == null) {
-            RemoteFile file = new RemoteFile(fileName);
-            dir.addChild(file);
+        if (!directory) {
+            // Create the file locally
+            String fileName = entries[entries.length - 1];
+            if (dir.getChild(fileName) == null) {
+                RemoteFile file = new RemoteFile(fileName);
+                dir.addChild(file);
+            }
         }
     }
 
@@ -373,7 +379,7 @@ public final class TaskManagerTool implements Tool {
             return;
         }
 
-        createLocalFile(path);
+        createLocalFile(path, false);
     }
 
     private void showTasks() {

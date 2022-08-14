@@ -6,15 +6,6 @@
       "Hello",
       "world"
     ],
-    "enabled": true
-  },
-  "Path": {
-    "workingDirectory": "tasks/Pathfinding",
-    "command": [
-      "java",
-      "-jar",
-      "Pathfinding-Task-2023.jar"
-    ],
-    "enabled": true
+    "enabled": false
   }
 }
