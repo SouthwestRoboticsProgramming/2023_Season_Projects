@@ -55,6 +55,8 @@ public final class PathfinderTask {
     private final Map<UUID, Grid> idToGrid;
     private final Map<UUID, Shape> idToShape;
 
+    private boolean needsRecalcPath;
+    
     public PathfinderTask() {
         PathfinderConfigFile config = PathfinderConfigFile.load(CONFIG_FILE);
         msg = config.getMessenger().createClient();
@@ -96,6 +98,8 @@ public final class PathfinderTask {
         pathfinder.setStart(new Point(0, 0));
         pathfinder.setGoal(new Point(0, 0));
 
+	needsRecalcPath = true;
+	
         System.out.println("Pathfinder is running");
     }
 
@@ -104,6 +108,7 @@ public final class PathfinderTask {
         double y = reader.readDouble();
         Point p = field.getNearestPoint(x, y);
         pathfinder.setStart(p);
+	needsRecalcPath = true;
     }
 
     private void onSetGoal(String type, MessageReader reader) {
@@ -111,6 +116,7 @@ public final class PathfinderTask {
         double y = reader.readDouble();
         Point p = field.getNearestPoint(x, y);
         pathfinder.setGoal(p);
+	needsRecalcPath = true;
     }
 
     private void removeUnion(GridUnion union) {
@@ -175,6 +181,7 @@ public final class PathfinderTask {
         grid.setId(gridId);
         parent.addGrid(grid);
         grid.register(this);
+	needsRecalcPath = true;
     }
 
     private void onRemoveGrid(String type, MessageReader reader) {
@@ -182,6 +189,7 @@ public final class PathfinderTask {
         long gridIdLsb = reader.readLong();
         UUID gridId = new UUID(gridIdMsb, gridIdLsb);
         removeGrid(gridId);
+	needsRecalcPath = true;
     }
 
     private void alterShape(ShapeGrid grid, UUID shapeId, MessageReader reader) {
@@ -202,6 +210,7 @@ public final class PathfinderTask {
         shape.setId(shapeId);
         grid.addShape(shape);
         shape.register(this);
+	needsRecalcPath = true;
     }
 
     private void onAlterShape(String type, MessageReader reader) {
@@ -280,28 +289,32 @@ public final class PathfinderTask {
         while (true) {
             msg.readMessages();
 
-            // Find path
-            List<Point> path = pathfinder.findPath();
+	    if (needsRecalcPath) {
+		// Find path
+		List<Point> path = pathfinder.findPath();
+		
+		// Send path
+		MessageBuilder builder = msg.prepare(MSG_PATH);
+		builder.addBoolean(path != null);
+		if (path != null) {
+		    builder.addInt(path.size());
+		    for (Point p : path) {
+			builder.addDouble(field.convertPointX(p));
+			builder.addDouble(field.convertPointY(p));
+		    }
+		}
+		builder.send();
 
-            // Send path
-            MessageBuilder builder = msg.prepare(MSG_PATH);
-            builder.addBoolean(path != null);
-            if (path != null) {
-                builder.addInt(path.size());
-                for (Point p : path) {
-                    builder.addDouble(field.convertPointX(p));
-                    builder.addDouble(field.convertPointY(p));
-                }
-            }
-            builder.send();
-
-            try {
+		needsRecalcPath = false;
+	    }
+	    
+            /*try {
                 Thread.sleep(16);
             } catch (InterruptedException e) {
                 break;
-            }
+	    }*/
         }
-        msg.disconnect();
+        //msg.disconnect();
     }
 
     public void registerGrid(Grid grid) {
