@@ -4,6 +4,7 @@ import com.swrobotics.messenger.client.MessageBuilder;
 import com.swrobotics.pathfinding.geom.RobotShape;
 import com.swrobotics.pathfinding.geom.Shape;
 import com.swrobotics.pathfinding.Field;
+import com.swrobotics.pathfinding.task.PathfinderTask;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -24,11 +25,13 @@ public final class ShapeGrid extends BitfieldGrid {
 
     public void addShape(Shape shape) {
         shapes.add(shape);
+        shape.setParent(this);
         needsRegenerateBitfield = true;
     }
 
     public void removeShape(Shape shape) {
         shapes.remove(shape);
+        shape.setParent(null);
         needsRegenerateBitfield = true;
     }
 
@@ -66,6 +69,14 @@ public final class ShapeGrid extends BitfieldGrid {
         builder.addInt(shapes.size());
         for (Shape shape : shapes) {
             shape.writeToMessenger(builder);
+        }
+    }
+
+    @Override
+    public void register(PathfinderTask task) {
+        super.register(task);
+        for (Shape shape : shapes) {
+            shape.register(task);
         }
     }
 }

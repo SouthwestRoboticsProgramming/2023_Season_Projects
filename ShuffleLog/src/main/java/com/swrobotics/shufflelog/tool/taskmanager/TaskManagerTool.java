@@ -32,11 +32,13 @@ public final class TaskManagerTool implements Tool {
     public static final String MSG_READ_FILE      = ":ReadFile";
     public static final String MSG_WRITE_FILE     = ":WriteFile";
     public static final String MSG_DELETE_FILE    = ":DeleteFile";
+    public static final String MSG_MOVE_FILE      = ":MoveFile";
     public static final String MSG_MKDIR          = ":Mkdir";
     public static final String MSG_FILES          = ":Files";
     public static final String MSG_FILE_CONTENT   = ":FileContent";
     public static final String MSG_WRITE_CONFIRM  = ":WriteConfirm";
     public static final String MSG_DELETE_CONFIRM = ":DeleteConfirm";
+    public static final String MSG_MOVE_CONFIRM   = ":MoveConfirm";
     public static final String MSG_MKDIR_CONFIRM  = ":MkdirConfirm";
 
     // Tasks API
@@ -78,6 +80,7 @@ public final class TaskManagerTool implements Tool {
         msg.addHandler(name + MSG_DELETE_CONFIRM, this::onDeleteConfirm);
         msg.addHandler(name + MSG_MKDIR_CONFIRM, this::onMkdirConfirm);
         msg.addHandler(name + MSG_WRITE_CONFIRM, this::onWriteConfirm);
+        msg.addHandler(name + MSG_MOVE_CONFIRM, this::onMoveConfirm);
         msg.addHandler(name + MSG_TASKS, this::onTasks);
 
         mkdirName = new ImString(64);
@@ -139,6 +142,10 @@ public final class TaskManagerTool implements Tool {
         }
     }
 
+    private boolean isChild(RemoteNode parent, RemoteNode child) {
+        return child.getFullPath().startsWith(parent.getFullPath());
+    }
+
     private void showDirectory(RemoteDirectory dir, boolean isRoot) {
         String dirName = isRoot ? "Tasks Root" : dir.getName();
 
@@ -147,6 +154,24 @@ public final class TaskManagerTool implements Tool {
             text(dirName);
             setDragDropPayload("TM_" + name + "_DRAG_DIR", dir);
             endDragDropSource();
+        }
+        if (beginDragDropTarget()) {
+            RemoteNode node = acceptDragDropPayload("TM_" + name + "_DRAG_FILE");
+            if (node == null)
+                node = acceptDragDropPayload("TM_" + name + "_DRAG_DIR");
+
+            if (node != null && !isChild(node, dir)) {
+                String dstPath = dir.getFullPath();
+                if (!dstPath.equals(""))
+                    dstPath += "/";
+
+                msg.prepare(name + MSG_MOVE_FILE)
+                        .addString(node.getFullPath())
+                        .addString(dstPath + node.getName())
+                        .send();
+            }
+
+            endDragDropTarget();
         }
 
         pushID(dir.getName());
@@ -227,6 +252,11 @@ public final class TaskManagerTool implements Tool {
             }
             endPopup();
         }
+        if (beginDragDropSource()) {
+            text(file.getName());
+            setDragDropPayload("TM_" + this.name + "_DRAG_FILE", file);
+            endDragDropSource();
+        }
         popID();
     }
 
@@ -299,19 +329,27 @@ public final class TaskManagerTool implements Tool {
         }
     }
 
-    private void onWriteConfirm(String type, MessageReader reader) {
-        String path = reader.readString();
+    private void onMoveConfirm(String type, MessageReader reader) {
+        String srcPath = reader.readString();
+        String dstPath = reader.readString();
         boolean success = reader.readBoolean();
         if (!success) {
-            System.err.println("Write failed on " + path);
+            System.err.println("Move failed from " + srcPath + " to " + dstPath);
             return;
         }
 
+        RemoteNode srcNode = evalPath(srcPath);
+        srcNode.remove();
+
+        createLocalFile(dstPath, srcNode instanceof RemoteDirectory);
+    }
+
+    private void createLocalFile(String path, boolean directory) {
         String[] entries = path.split("/");
 
         // Ensure all directories are present locally
         RemoteDirectory dir = remoteRoot;
-        for (int i = 0; i < entries.length - 1; i++) {
+        for (int i = 0; i < entries.length - (directory ? 0 : 1); i++) {
             String entry = entries[i];
             RemoteNode node = dir.getChild(entry);
             if (node == null) {
@@ -323,12 +361,25 @@ public final class TaskManagerTool implements Tool {
             }
         }
 
-        // Create the file locally
-        String fileName = entries[entries.length - 1];
-        if (dir.getChild(fileName) == null) {
-            RemoteFile file = new RemoteFile(fileName);
-            dir.addChild(file);
+        if (!directory) {
+            // Create the file locally
+            String fileName = entries[entries.length - 1];
+            if (dir.getChild(fileName) == null) {
+                RemoteFile file = new RemoteFile(fileName);
+                dir.addChild(file);
+            }
         }
+    }
+
+    private void onWriteConfirm(String type, MessageReader reader) {
+        String path = reader.readString();
+        boolean success = reader.readBoolean();
+        if (!success) {
+            System.err.println("Write failed on " + path);
+            return;
+        }
+
+        createLocalFile(path, false);
     }
 
     private void showTasks() {

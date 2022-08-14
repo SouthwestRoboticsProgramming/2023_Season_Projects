@@ -1,6 +1,8 @@
 package com.swrobotics.shufflelog.tool.field.path.shape;
 
+import com.swrobotics.messenger.client.MessageBuilder;
 import com.swrobotics.messenger.client.MessageReader;
+import com.swrobotics.shufflelog.tool.field.path.grid.ShapeGrid;
 import imgui.type.ImDouble;
 
 import java.util.UUID;
@@ -23,5 +25,14 @@ public final class Circle extends Shape {
         x.set(reader.readDouble());
         y.set(reader.readDouble());
         radius.set(reader.readDouble());
+    }
+
+    @Override
+    public void write(MessageBuilder builder) {
+        super.write(builder);
+        builder.addByte(CIRCLE);
+        builder.addDouble(x.get());
+        builder.addDouble(y.get());
+        builder.addDouble(radius.get());
     }
 }
