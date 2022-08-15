@@ -2,6 +2,7 @@ package com.team2129.lib.swerve;
 
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
+import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.gyro.Gyroscope;
 
@@ -88,6 +89,14 @@ public class SwerveDrive implements Subsystem {
         for (int i = 0; i < states.length; i++) {
             modules[i].setState(states[i]);
         }
+    }
+
+    public SwerveModule getModule(int index) {
+        return modules[index];
+    }
+
+    public void setModule(int index, SwerveModule module) {
+        modules[index] = module;
     }
 
     public SwerveDriveKinematics getKinematics() {

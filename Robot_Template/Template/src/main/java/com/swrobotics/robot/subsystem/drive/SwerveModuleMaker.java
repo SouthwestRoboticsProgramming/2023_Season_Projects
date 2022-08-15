@@ -1,4 +1,4 @@
-package com.swrobotics.robot.subsystem;
+package com.swrobotics.robot.subsystem.drive;
 
 import static com.swrobotics.robot.Constants.*;
 
@@ -21,15 +21,6 @@ import edu.wpi.first.math.controller.PIDController;
  * Configures motors and creates a swerve module
  */
 public class SwerveModuleMaker {
-    /*
-    public static final double DRIVE_KP = 0.0001;
-    public static final double DRIVE_KI = 0;
-    public static final double DRIVE_KD = 0;
-    public static final double TURN_KP = 0.01;
-    public static final double TURN_KI = 0.0001;
-    public static final double TURN_KD = 0.0;
-     */
-
     private static final NTDouble DRIVE_KP = new NTDouble("Swerve/Drive/kP", 0.0001);
     private static final NTDouble DRIVE_KI = new NTDouble("Swerve/Drive/kI", 0);
     private static final NTDouble DRIVE_KD = new NTDouble("Swerve/Drive/kD", 0);
@@ -38,9 +29,9 @@ public class SwerveModuleMaker {
     private static final NTDouble TURN_KI = new NTDouble("Swerve/Turn/kI", 0.0001);
     private static final NTDouble TURN_KD = new NTDouble("Swerve/Turn/kD", 0);
 
-    public static SwerveModule buildModule(Subsystem parent, int driveID, int steerID, int steerEncoderID, Angle steerOffset, Vec2d position) {
+    public static SwerveModule buildModule(Subsystem parent, SwerveModuleDef def, int steerID, Vec2d position) {
 
-        TalonFX driveMotor_toWrap = new TalonFX(driveID);
+        TalonFX driveMotor_toWrap = new TalonFX(def.getDriveId());
         driveMotor_toWrap.configFactoryDefault();
         
         TalonFXConfiguration driveConfig = new TalonFXConfiguration();
@@ -70,9 +61,10 @@ public class SwerveModuleMaker {
 
         driveMotor.assignEncoder(driveMotor.getInternalEncoder(2048));
 
-        CANCoderImplementation canCoder = new CANCoderImplementation(steerEncoderID);
-        canCoder.setOffset(steerOffset);
+        CANCoderImplementation canCoder = new CANCoderImplementation(def.getEncoderId());
+        canCoder.setOffset(Angle.cwDeg(def.getEncoderOffset().get()));
+        def.getEncoderOffset().onChange(() -> canCoder.setOffset(Angle.cwDeg(def.getEncoderOffset().get())));
+
         return new SwerveModule(driveMotor, steerMotor, canCoder, position, GEAR_RATIO, WHEEL_RADIUS);
     }
-    
 }
