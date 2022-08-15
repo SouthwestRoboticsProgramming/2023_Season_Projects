@@ -12,6 +12,7 @@ public class NTEnum<T extends Enum<T>> extends NTEntry<T> {
         this.defaultVal = defaultVal;
 
         NTStringArray metadata = new NTStringArray(METADATA_TABLE + path);
+        metadata.setTemporary();
         T[] values = type.getEnumConstants();
         String[] data = new String[values.length];
         for (int i = 0; i < values.length; i++) {
