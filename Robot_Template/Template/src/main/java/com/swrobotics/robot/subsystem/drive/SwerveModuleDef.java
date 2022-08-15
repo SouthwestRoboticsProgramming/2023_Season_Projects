@@ -5,11 +5,11 @@ import com.team2129.lib.net.NTDouble;
 
 public enum SwerveModuleDef {
     // FIXME: TODO: Fix me
-    MODULE_1(73846, 73846, "Drive/Offsets/Module 1 Offset"),
-    MODULE_2(73846, 73846, "Drive/Offsets/Module 2 Offset"),
-    MODULE_3(73846, 73846, "Drive/Offsets/Module 3 Offset"),
-    MODULE_4(73846, 73846, "Drive/Offsets/Module 4 Offset"),
-    MODULE_5(73846, 73846, "Drive/Offsets/Module 5 Offset");
+    MODULE_1(73846, 73846, "Swerve/Offsets/Module 1 Offset"),
+    MODULE_2(73846, 73846, "Swerve/Offsets/Module 2 Offset"),
+    MODULE_3(73846, 73846, "Swerve/Offsets/Module 3 Offset"),
+    MODULE_4(73846, 73846, "Swerve/Offsets/Module 4 Offset"),
+    MODULE_5(73846, 73846, "Swerve/Offsets/Module 5 Offset");
 
     private final int driveId;
     private final int encoderId;

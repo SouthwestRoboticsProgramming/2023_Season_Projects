@@ -9,6 +9,7 @@ import com.team2129.lib.swerve.SwerveDrive;
 import com.team2129.lib.swerve.SwerveModule;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
+import com.team2129.lib.net.NTBoolean;
 import com.team2129.lib.net.NTEnum;
 import com.team2129.lib.gyro.Gyroscope;
 
@@ -31,17 +32,16 @@ public class Drive implements Subsystem {
     
     // Note: These do not automatically update, the robot code needs to be restarted
     //       for changes to take effect
-    private static final NTEnum<SwerveModuleDef> SLOT_0_MODULE = new NTEnum<SwerveModuleDef>("Drive/Slots/Slot 0", SwerveModuleDef.class, SwerveModuleDef.MODULE_1);
-    private static final NTEnum<SwerveModuleDef> SLOT_1_MODULE = new NTEnum<SwerveModuleDef>("Drive/Slots/Slot 1", SwerveModuleDef.class, SwerveModuleDef.MODULE_2);
-    private static final NTEnum<SwerveModuleDef> SLOT_2_MODULE = new NTEnum<SwerveModuleDef>("Drive/Slots/Slot 2", SwerveModuleDef.class, SwerveModuleDef.MODULE_3);
-    private static final NTEnum<SwerveModuleDef> SLOT_3_MODULE = new NTEnum<SwerveModuleDef>("Drive/Slots/Slot 3", SwerveModuleDef.class, SwerveModuleDef.MODULE_4);
+    private static final NTEnum<SwerveModuleDef> SLOT_0_MODULE = new NTEnum<SwerveModuleDef>("Swerve/Slots/Slot 0", SwerveModuleDef.class, SwerveModuleDef.MODULE_1);
+    private static final NTEnum<SwerveModuleDef> SLOT_1_MODULE = new NTEnum<SwerveModuleDef>("Swerve/Slots/Slot 1", SwerveModuleDef.class, SwerveModuleDef.MODULE_2);
+    private static final NTEnum<SwerveModuleDef> SLOT_2_MODULE = new NTEnum<SwerveModuleDef>("Swerve/Slots/Slot 2", SwerveModuleDef.class, SwerveModuleDef.MODULE_3);
+    private static final NTEnum<SwerveModuleDef> SLOT_3_MODULE = new NTEnum<SwerveModuleDef>("Swerve/Slots/Slot 3", SwerveModuleDef.class, SwerveModuleDef.MODULE_4);
 
     // FIXME: TODO: Fix me
     private static final int TURN_ID_0 = 73846;
     private static final int TURN_ID_1 = 73846;
     private static final int TURN_ID_2 = 73846;
     private static final int TURN_ID_3 = 73846;
-
 
     private final Input input;
     private final Gyroscope gyro;
