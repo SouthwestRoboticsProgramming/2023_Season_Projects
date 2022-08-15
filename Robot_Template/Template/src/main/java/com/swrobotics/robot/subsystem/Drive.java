@@ -34,10 +34,11 @@ public class Drive implements Subsystem {
         
         double centerDistance = WHEEL_SPACING / 2;
 
-        SwerveModule w0 = SwerveModuleMaker.buildModule(this, 5, 11, 10, Angle.cwDeg(24.873 + 180), new Vec2d(-centerDistance, -centerDistance));
-        SwerveModule w1 = SwerveModuleMaker.buildModule(this, 3, 12, 8, Angle.cwDeg(79.541 + 180), new Vec2d(-centerDistance, centerDistance));
-        SwerveModule w2 = SwerveModuleMaker.buildModule(this, 1, 13, 6, Angle.cwDeg(132.188), new Vec2d(centerDistance, -centerDistance));
-        SwerveModule w3 = SwerveModuleMaker.buildModule(this, 4, 14, 9, Angle.cwDeg(183.604), new Vec2d(centerDistance, centerDistance));
+        SwerveModule w0 = SwerveModuleMaker.buildModule(this, 3, 1, 8, Angle.cwDeg(24.873 + 180), new Vec2d(-centerDistance, -centerDistance));
+        SwerveModule w1 = SwerveModuleMaker.buildModule(this, 4, 2, 9, Angle.cwDeg(79.541 + 180), new Vec2d(-centerDistance, centerDistance));
+        SwerveModule w2 = SwerveModuleMaker.buildModule(this, 1, 3, 6, Angle.cwDeg(132.188), new Vec2d(centerDistance, -centerDistance));
+        SwerveModule w3 = SwerveModuleMaker.buildModule(this, 5, 4, 10, Angle.cwDeg(183.604), new Vec2d(centerDistance, centerDistance));
+        // TODO: Module swap
         
         drive = new SwerveDrive(gyro, MAX_WHEEL_VELOCITY, w0, w1, w2, w3);
     }
