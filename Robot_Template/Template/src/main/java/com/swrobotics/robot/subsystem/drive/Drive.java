@@ -43,6 +43,8 @@ public class Drive implements Subsystem {
     private static final int TURN_ID_2 = 73846;
     private static final int TURN_ID_3 = 73846;
 
+    private static final NTBoolean PRINT_ENCODER_OFFSETS = new NTBoolean("Swerve/Print Encoder Offsets", false);
+
     private final Input input;
     private final Gyroscope gyro;
     private final SwerveDrive drive;
@@ -62,7 +64,9 @@ public class Drive implements Subsystem {
 
     @Override
     public void periodic() {
-//        drive.printEncoderOffsets();
+        if (PRINT_ENCODER_OFFSETS.get()) {
+            drive.printEncoderOffsets();
+        }
     }
 
     @Override
