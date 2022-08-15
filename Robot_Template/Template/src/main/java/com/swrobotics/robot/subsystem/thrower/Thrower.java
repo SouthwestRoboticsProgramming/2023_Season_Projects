@@ -62,7 +62,7 @@ public class Thrower implements Subsystem {
         this.loc = loc;
 
         BallDetector ballDetector = new BallDetector();
-        hopper = new Hopper(ballDetector, input);
+        hopper = new Hopper(ballDetector);
         hood = new Hood();
         flywheel = new Flywheel();
 

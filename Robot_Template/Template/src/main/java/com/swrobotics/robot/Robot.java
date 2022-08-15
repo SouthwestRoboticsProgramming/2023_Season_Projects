@@ -4,7 +4,6 @@ import com.swrobotics.robot.control.Input;
 import com.swrobotics.robot.subsystem.Localization;
 import com.swrobotics.robot.subsystem.drive.Drive;
 import com.swrobotics.robot.subsystem.thrower.Thrower;
-import com.team2129.lib.net.NTDouble;
 import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.wpilib.AbstractRobot;
 

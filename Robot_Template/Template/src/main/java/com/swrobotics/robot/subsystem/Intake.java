@@ -9,8 +9,6 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 
-import static com.swrobotics.robot.Constants.*;
-
 
 public class Intake implements Subsystem {
     private static final NTDouble INTAKE_ON_PERCENT = new NTDouble("Intake/Running_Percent_Out", 0.5);
