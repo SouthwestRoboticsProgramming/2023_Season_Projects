@@ -4,7 +4,6 @@ import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
 
 public class Localization {
-
     public static final Vec2d HUB_POS = new Vec2d(2, 5);
     
     public Vec2d getPosition() {

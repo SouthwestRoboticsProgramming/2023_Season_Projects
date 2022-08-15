@@ -29,7 +29,7 @@ import edu.wpi.first.wpilibj.Timer;
  * Read data from networktables and put those values into the tree map
  */
 
-public class ThrowerControlboard implements Subsystem {
+public class Thrower implements Subsystem {
     private static final int MIN_HIGH_HUB_DISTANCE = 1;
     private static final int MAX_HIGH_HUB_DISTANCE = 18;
 
@@ -54,19 +54,31 @@ public class ThrowerControlboard implements Subsystem {
 
     private boolean isClimbing;
 
-
-    public ThrowerControlboard(Input input, Localization loc, Hopper hopper, Flywheel flywheel, Hood hood) {
+    public Thrower(Input input, Localization loc) {
         highHubMap = new TreeMap<Double, Double>();
         lowHubMap = new TreeMap<Double, Double>();
 
         this.input = input;
         this.loc = loc;
-        this.hopper = hopper;
-        this.hood = hood;
-        this.flywheel = flywheel;
+
+        BallDetector ballDetector = new BallDetector();
+        hopper = new Hopper(ballDetector, input);
+        hood = new Hood();
+        flywheel = new Flywheel();
+
+        Scheduler sch = Scheduler.get();
+        sch.addSubsystem(this, ballDetector);
+        sch.addSubsystem(this, hopper);
+        sch.addSubsystem(this, hood);
+        sch.addSubsystem(this, flywheel);
 
         flywheelShutoff = new Timer();
         isClimbing = false;
+
+        highHubMap.put(0.0, 0.0);
+        highHubMap.put(1.0, 1.0);
+        lowHubMap.put(0.0, 0.0);
+        lowHubMap.put(1.0, 1.0);
     }
 
     private double[] calculateAim(double distance, boolean aimHighHub, boolean forceHubChoice) {
@@ -102,9 +114,7 @@ public class ThrowerControlboard implements Subsystem {
             } else {
                 rpm = map.firstEntry().getValue();
             }
-        }
-
-        if (upperEntry == null) { // Further than last tuning
+        } else if (upperEntry == null) { // Further than last tuning
             if (!aimHighHub && !forceHubChoice) { // Aim high
                 return calculateAim(distance, aimHighHub, true);
             }
@@ -115,11 +125,11 @@ public class ThrowerControlboard implements Subsystem {
             double slope = rise / run;
 
             rpm = map.lastEntry().getValue() + slope * (distance - map.lastKey());
+        } else {
+            // If within the map, linearly interpolate
+            rpm = MathUtil.map(distance, lowerEntry.getKey(), upperEntry.getKey(), lowerEntry.getValue(), upperEntry.getValue());
         }
-
-        // If within the map, linearly interpolate
-        rpm = MathUtil.map(distance, lowerEntry.getKey(), upperEntry.getKey(), lowerEntry.getValue(), upperEntry.getValue());
-
+        
         /* Calculate hood angle */
         if (aimHighHub) {
             hood = MathUtil.clamp(MathUtil.map(distance, MIN_HIGH_HUB_DISTANCE, MAX_HIGH_HUB_DISTANCE, 0, 1), 0, 1);

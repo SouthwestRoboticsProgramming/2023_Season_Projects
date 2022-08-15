@@ -2,6 +2,8 @@ package com.swrobotics.robot;
 
 import com.swrobotics.robot.control.Input;
 import com.swrobotics.robot.subsystem.Drive;
+import com.swrobotics.robot.subsystem.Localization;
+import com.swrobotics.robot.subsystem.thrower.Thrower;
 import com.team2129.lib.net.NTDouble;
 import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.wpilib.AbstractRobot;
@@ -23,10 +25,11 @@ public final class Robot extends AbstractRobot {
         Input input = new Input();
         Drive drive = new Drive(input);
 
+        Localization loc = new Localization();
+        Thrower thrower = new Thrower(input, loc);
+
         Scheduler scheduler = Scheduler.get();
         scheduler.addSubsystem(drive);
-//        scheduler.addSubsystem(new TestSubsystem());
-
-        new NTDouble("Some Category/Some Subcategory/Some Value", 123).set(123.0);
+        scheduler.addSubsystem(thrower);
     }
 }
