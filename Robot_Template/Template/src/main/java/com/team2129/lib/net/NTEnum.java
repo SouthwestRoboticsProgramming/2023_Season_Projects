@@ -1,6 +1,8 @@
 package com.team2129.lib.net;
 
 public class NTEnum<T extends Enum<T>> extends NTEntry<T> {
+    private static final String METADATA_TABLE = "ShuffleLog_Meta/";
+
     private final T defaultVal;
     private final Class<T> type;
 
@@ -9,7 +11,13 @@ public class NTEnum<T extends Enum<T>> extends NTEntry<T> {
         this.type = type;
         this.defaultVal = defaultVal;
 
-        // TODO: Set metadata so ShuffleLog can properly limit values
+        NTStringArray metadata = new NTStringArray(METADATA_TABLE + path);
+        T[] values = type.getEnumConstants();
+        String[] data = new String[values.length];
+        for (int i = 0; i < values.length; i++) {
+            data[i] = values[i].toString();
+        }
+        metadata.set(data);
     }
 
     @Override
