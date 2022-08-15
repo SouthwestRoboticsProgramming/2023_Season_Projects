@@ -12,4 +12,9 @@ public final class NTString extends NTEntry<String> {
     public String get() {
         return entry.getString(defaultVal);
     }
+
+    @Override
+    public void set(String value) {
+        entry.setString(value);
+    }
 }
