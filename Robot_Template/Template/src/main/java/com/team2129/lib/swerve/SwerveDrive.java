@@ -2,7 +2,6 @@ package com.team2129.lib.swerve;
 
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
-import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.gyro.Gyroscope;
 
