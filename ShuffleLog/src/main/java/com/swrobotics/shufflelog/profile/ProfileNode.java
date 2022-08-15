@@ -7,29 +7,42 @@ public final class ProfileNode {
     private final String name;
     private final ProfileNode parent;
     private final List<ProfileNode> children;
+    private long total;
     private long accumulator;
-    private long startTime;
+    private long startTime, pauseTime;
 
     public ProfileNode(String name, ProfileNode parent) {
         this.name = name;
         this.parent = parent;
         children = new ArrayList<>();
         accumulator = 0;
+        total = 0;
     }
 
-    public ProfileNode(String name, ProfileNode parent, long accumulator) {
+    public ProfileNode(String name, ProfileNode parent, long accumulator, long total) {
         this.name = name;
         this.parent = parent;
         children = new ArrayList<>();
         this.accumulator = accumulator;
+        this.total = total;
     }
 
     public void begin() {
         startTime = System.nanoTime();
+        unpause();
+    }
+
+    public void pause() {
+        accumulator += System.nanoTime() - pauseTime;
+    }
+
+    public void unpause() {
+        pauseTime = System.nanoTime();
     }
 
     public void end() {
-        accumulator += System.nanoTime() - startTime;
+        pause();
+        total = System.nanoTime() - startTime;
     }
 
     public void addChild(ProfileNode child) {
@@ -49,7 +62,9 @@ public final class ProfileNode {
         return children;
     }
 
-    public long getElapsedTimeNanoseconds() {
+    public long getSelfTimeNanoseconds() {
         return accumulator;
     }
+
+    public long getTotalTimeNanoseconds() { return total; }
 }

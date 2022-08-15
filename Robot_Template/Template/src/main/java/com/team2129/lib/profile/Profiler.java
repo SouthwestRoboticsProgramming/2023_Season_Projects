@@ -15,7 +15,7 @@ public final class Profiler {
 
     public static void push(String name) {
         ProfileNode next = new ProfileNode(name, current);
-        current.end();
+        current.pause();
         current.addChild(next);
         current = next;
         current.begin();
@@ -24,7 +24,7 @@ public final class Profiler {
     public static void pop() {
         current.end();
         current = current.getParent();
-        current.begin();
+        current.unpause();
     }
 
     public static void endMeasurements() {

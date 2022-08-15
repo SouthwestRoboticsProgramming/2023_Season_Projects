@@ -4,10 +4,8 @@ import com.swrobotics.shufflelog.profile.ProfileNode;
 import com.swrobotics.shufflelog.tool.Tool;
 import imgui.ImDrawList;
 import imgui.ImGui;
-import imgui.ImGuiIO;
 import imgui.ImVec2;
 import imgui.ImVec4;
-import imgui.extension.implot.ImPlot;
 import imgui.flag.ImGuiColorEditFlags;
 import imgui.flag.ImGuiCond;
 import imgui.flag.ImGuiTableColumnFlags;
@@ -34,7 +32,7 @@ public abstract class ProfilerTool implements Tool {
     protected abstract ProfileNode getLastData();
 
     private void sortNodes(List<ProfileNode> nodes) {
-        nodes.sort(Comparator.comparingLong((n) -> -n.getElapsedTimeNanoseconds()));
+        nodes.sort(Comparator.comparingLong((n) -> -n.getTotalTimeNanoseconds()));
     }
 
     private static final double RADIANS_PER_POLY = Math.PI / 16;
@@ -79,8 +77,8 @@ public abstract class ProfilerTool implements Tool {
         }
 
         List<ProfileNode> children = new ArrayList<>(node.getChildren());
-        long unspecifiedTime = node.getElapsedTimeNanoseconds();
-        children.add(new ProfileNode("unspecified", null, unspecifiedTime));
+        long unspecifiedTime = node.getSelfTimeNanoseconds();
+        children.add(new ProfileNode("unspecified", null, unspecifiedTime, unspecifiedTime));
         sortNodes(children);
 
         // Ideally this would use ImPlot, but there is a bug in the native
@@ -95,11 +93,11 @@ public abstract class ProfilerTool implements Tool {
             draw.pushClipRect(min.x, min.y, max.x, max.y, true);
             long totalTime = 0;
             for (ProfileNode child : children)
-                totalTime += child.getElapsedTimeNanoseconds();
+                totalTime += child.getTotalTimeNanoseconds();
             double angle = 0;
             int i = 0;
             for (ProfileNode child : children) {
-                double angle2 = children.size() == 1 ? Math.PI * 2 : angle + (double) child.getElapsedTimeNanoseconds() / totalTime * Math.PI * 2;
+                double angle2 = children.size() == 1 ? Math.PI * 2 : angle + (double) child.getTotalTimeNanoseconds() / totalTime * Math.PI * 2;
                 drawPieSlice(draw, angle, angle2, min.x + 75, min.y + 75, 75, PIE_COLORS[i % PIE_COLORS.length]);
                 angle = angle2;
                 i++;
@@ -142,7 +140,9 @@ public abstract class ProfilerTool implements Tool {
         if (ImGui.isItemClicked())
             selectionPath = path;
         ImGui.tableNextColumn();
-        ImGui.text(String.format("%.3f", node.getElapsedTimeNanoseconds() / 1_000_000.0f));
+        ImGui.text(String.format("%.3f", node.getSelfTimeNanoseconds() / 1_000_000.0f));
+        ImGui.tableNextColumn();
+        ImGui.text(String.format("%.3f", node.getTotalTimeNanoseconds() / 1_000_000.0f));
 
         if (open) {
             for (ProfileNode child : children) {
@@ -176,13 +176,14 @@ public abstract class ProfilerTool implements Tool {
                     | ImGuiTableFlags.Resizable
                     | ImGuiTableFlags.RowBg;
 
-            if (ImGui.beginTable("nodes", 2, flags)) {
+            if (ImGui.beginTable("nodes", 3, flags)) {
                 ImVec2 size = new ImVec2();
                 ImGui.calcTextSize(size, "A");
                 float w = size.x;
 
                 ImGui.tableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
-                ImGui.tableSetupColumn("Time (ms)", ImGuiTableColumnFlags.WidthFixed, 120);
+                ImGui.tableSetupColumn("Self (ms)", ImGuiTableColumnFlags.WidthFixed, 120);
+                ImGui.tableSetupColumn("Total (ms)", ImGuiTableColumnFlags.WidthFixed, 120);
                 ImGui.tableHeadersRow();
 
                 showNode(node, "", true);

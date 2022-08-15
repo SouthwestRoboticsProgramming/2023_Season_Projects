@@ -112,7 +112,8 @@ public abstract class AbstractRobot extends RobotBase {
 
     private void encodeProfileNode(MessageBuilder builder, ProfileNode node) {
         builder.addString(node.getName());
-        builder.addLong(node.getElapsedTimeNanoseconds());
+        builder.addLong(node.getSelfTimeNanoseconds());
+        builder.addLong(node.getTotalTimeNanoseconds());
         builder.addInt(node.getChildren().size());
         for (ProfileNode child : node.getChildren())
             encodeProfileNode(builder, child);

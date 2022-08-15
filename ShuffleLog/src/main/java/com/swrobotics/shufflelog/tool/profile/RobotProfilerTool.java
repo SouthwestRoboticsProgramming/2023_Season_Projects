@@ -15,8 +15,9 @@ public final class RobotProfilerTool extends ProfilerTool {
 
     private ProfileNode readProfileNode(MessageReader reader, ProfileNode parent) {
         String name = reader.readString();
-        long time = reader.readLong();
-        ProfileNode node = new ProfileNode(name, parent, time);
+        long self = reader.readLong();
+        long total = reader.readLong();
+        ProfileNode node = new ProfileNode(name, parent, self, total);
 
         int childCount = reader.readInt();
         for (int i = 0; i < childCount; i++) {
