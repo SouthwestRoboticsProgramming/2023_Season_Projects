@@ -229,7 +229,7 @@ public final class NetworkTablesTool implements Tool {
                 break;
             }
             default: {
-                textDisabled("Can't edit");
+                textDisabled("Can't edit (unknown type)");
             }
         }
         popItemWidth();
@@ -362,6 +362,10 @@ public final class NetworkTablesTool implements Tool {
     }
 
     private void showTable(String name, NetworkTable table, String path, boolean isRoot) {
+        // Hide the metadata table so you can't accidentally break things
+        if (path.equals("/" + METADATA_TABLE))
+            return;
+
         tableNextRow();
 
         tableNextColumn();
