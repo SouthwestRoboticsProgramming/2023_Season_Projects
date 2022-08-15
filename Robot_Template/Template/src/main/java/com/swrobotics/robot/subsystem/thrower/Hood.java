@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 public class Hood implements Subsystem {
     private static final int ENCODER_ID_1 = 8;
     private static final int ENCODER_ID_2 = 7;
-    private static final int MOTOR_ID = 31;
+    private static final int MOTOR_ID = 5;
     private static final int LIMIT_SWITCH_ID = 0;
 
     private static final NTDouble KP = new NTDouble("Thrower/Hood/kP", 0.05);

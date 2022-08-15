@@ -18,7 +18,7 @@ public class Flywheel implements Subsystem { // TODO: Why was the old one final?
 
     private static final NTDouble IDLE_VELOCITY = new NTDouble("Thrower/Flywheel/Idle_RPM", 750);
 
-    private static final int FLYWHEEL_MOTOR_ID = 30;
+    private static final int FLYWHEEL_MOTOR_ID = 13;
 
     private final TalonMotor motor;
 

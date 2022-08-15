@@ -11,7 +11,7 @@ import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.utils.LazyTalonFXConfiguration;
 
 public class Hopper implements Subsystem {
-    private static final int INDEX_MOTOR_ID = 33;
+    private static final int INDEX_MOTOR_ID = 12;
 
     private static final NTDouble INDEX_KP = new NTDouble("Thrower/Hopper/Index/kP", 0.0);
     private static final NTDouble INDEX_KI = new NTDouble("Thrower/Hopper/Index/kI", 0.0);

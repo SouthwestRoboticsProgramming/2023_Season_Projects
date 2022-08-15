@@ -12,6 +12,7 @@ import static com.swrobotics.robot.Constants.*;
 
 
 public class Intake implements Subsystem {
+    private static final int MOTOR_ID = 11;
 
     private final TalonMotor motor;
     private final Input input;
@@ -19,7 +20,7 @@ public class Intake implements Subsystem {
     public Intake(Input input) {
         this.input = input;
 
-        TalonFX talon_toWrap = new TalonFX(INTAKE_MOTOR_ID);
+        TalonFX talon_toWrap = new TalonFX(MOTOR_ID);
         talon_toWrap.configFactoryDefault();
 
         TalonFXConfiguration talonConfig = new TalonFXConfiguration();
