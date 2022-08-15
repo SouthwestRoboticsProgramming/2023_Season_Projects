@@ -9,8 +9,6 @@ public abstract class Encoder {
 
     private Angle offset = Angle.ccwRad(0); // Subtracted to get angle
 
-    // TODO: Inverted
-
     /**
      * Get the angular position of the encoder as an Angle.
      * @return The angle of the sensor with no offset applied.
