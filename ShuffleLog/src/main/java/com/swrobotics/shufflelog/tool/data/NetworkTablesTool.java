@@ -32,8 +32,11 @@ public final class NetworkTablesTool implements Tool {
     private static final String DEFAULT_HOST = "localhost";
     private static final int DEFAULT_PORT = NetworkTableInstance.kDefaultPort;
 
+    private static final String METADATA_TABLE = "ShuffleLog_Meta";
+
     private final ExecutorService threadPool;
     private final NetworkTableInstance nt;
+    private final NetworkTable metadata;
     private final DataLogTool dataLog;
 
     private final ImInt connectionMode;
@@ -47,6 +50,7 @@ public final class NetworkTablesTool implements Tool {
         this.threadPool = threadPool;
         this.dataLog = dataLog;
         nt = NetworkTableInstance.getDefault();
+        metadata = nt.getTable(METADATA_TABLE);
         connectionMode = new ImInt(TEAM_NUMBER);
 
         host = new ImString(64);
@@ -160,6 +164,7 @@ public final class NetworkTablesTool implements Tool {
 
     private final ImBoolean b = new ImBoolean();
     private final ImDouble d = new ImDouble();
+    private final ImInt tempInt = new ImInt();
     private final ImString s = new ImString(256);
 
     private void showPrimitiveEntry(String name, NetworkTableEntry entry, String path) {
@@ -195,9 +200,31 @@ public final class NetworkTablesTool implements Tool {
                 break;
             }
             case kString: {
-                s.set(entry.getString(""));
-                if (inputText("", s)) {
-                    entry.setString(s.get());
+                NetworkTableEntry metadataEntry = metadata.getEntry(path.substring(1)); // Substring to remove leading slash
+                if (metadataEntry.exists() && metadataEntry.getType() == NetworkTableType.kStringArray) {
+                    // It is actually an enum
+                    String[] enumValues = metadataEntry.getStringArray(EMPTY_STRING_ARRAY);
+                    String current = entry.getString("");
+
+                    int currentIdx = 0;
+                    for (int i = 0; i < enumValues.length; i++) {
+                        if (enumValues[i].equals(current)) {
+                            currentIdx = i;
+                            break;
+                        }
+                    }
+                    tempInt.set(currentIdx);
+
+                    if (combo("", tempInt, enumValues)) {
+                        int newIdx = tempInt.get();
+                        entry.setString(enumValues[newIdx]);
+                    }
+                } else {
+                    // It is a normal String
+                    s.set(entry.getString(""));
+                    if (inputText("", s)) {
+                        entry.setString(s.get());
+                    }
                 }
                 break;
             }
