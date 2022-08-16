@@ -36,7 +36,7 @@ public class Input {
     }
 
     public Angle getDriveRotation() {
-        return Angle.cwDeg(InputUtils.applyDeadband(controller.getRightX(), DEADBAND) * MAX_DRIVE_ROTATION.get());
+        return Angle.cwRad(InputUtils.applyDeadband(controller.getRightX(), DEADBAND) * MAX_DRIVE_ROTATION.get());
     }
 
     public boolean getFieldRelative() {

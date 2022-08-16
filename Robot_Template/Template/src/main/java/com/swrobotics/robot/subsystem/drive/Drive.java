@@ -31,8 +31,8 @@ public class Drive implements Subsystem {
 
     private static final Vec2d SLOT_0_POS = new Vec2d(-CENTER_DISTANCE, -CENTER_DISTANCE);
     private static final Vec2d SLOT_1_POS = new Vec2d(-CENTER_DISTANCE,  CENTER_DISTANCE);
-    private static final Vec2d SLOT_2_POS = new Vec2d( CENTER_DISTANCE,  CENTER_DISTANCE);
-    private static final Vec2d SLOT_3_POS = new Vec2d( CENTER_DISTANCE, -CENTER_DISTANCE);
+    private static final Vec2d SLOT_2_POS = new Vec2d( CENTER_DISTANCE, -CENTER_DISTANCE);
+    private static final Vec2d SLOT_3_POS = new Vec2d( CENTER_DISTANCE,  CENTER_DISTANCE);
     
     // Note: These do not automatically update, the robot code needs to be restarted
     //       for changes to take effect
