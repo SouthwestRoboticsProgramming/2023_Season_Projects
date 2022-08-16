@@ -98,11 +98,12 @@ public class Thrower implements Subsystem {
             map = lowSelect.getMap();
         }
 
-        if (lowSelect.getMap().isEmpty() && aimHighHub) {forceHubChoice = true;}
-        if (highSelect.getMap().isEmpty() && !aimHighHub) {forceHubChoice = true;}
+        // Force current aim if the other map is empty (Better suboptimal aim than not at all)
+        if ((lowSelect.getMap().isEmpty() || lowSelect.getMap().size() == 1) && aimHighHub) {forceHubChoice = true;}
+        if ((highSelect.getMap().isEmpty() || highSelect.getMap().size() == 1) && !aimHighHub) {forceHubChoice = true;}
 
         // Check that there are values in the map
-        if (map.isEmpty()) {
+        if (map.isEmpty() || map.size() == 1) {
             if (forceHubChoice) {
                 DriverStation.reportError("No values in thrower tuning maps", true);
                 return new double[]{0,0};
