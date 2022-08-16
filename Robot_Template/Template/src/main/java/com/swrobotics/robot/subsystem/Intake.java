@@ -3,15 +3,16 @@ package com.swrobotics.robot.subsystem;
 import com.swrobotics.robot.control.Input;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.motor.TalonMotor;
+import com.team2129.lib.net.NTDouble;
 import com.team2129.lib.schedule.Subsystem;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 
-import static com.swrobotics.robot.Constants.*;
-
 
 public class Intake implements Subsystem {
+    private static final NTDouble INTAKE_ON_PERCENT = new NTDouble("Intake/Running_Percent_Out", 0.5);
+
     private static final int MOTOR_ID = 11;
 
     private final TalonMotor motor;
@@ -33,7 +34,6 @@ public class Intake implements Subsystem {
             );
 
             talonConfig.supplyCurrLimit = talonSupplyLimit;
-            // TODO: Is it inverted?
         }
 
         motor = new TalonMotor(this, talon_toWrap);
@@ -50,7 +50,7 @@ public class Intake implements Subsystem {
     @Override
     public void teleopPeriodic() {
         if (input.getIntakeOn()) {
-            setPercent(INTAKE_ON_PERCENT);
+            setPercent(INTAKE_ON_PERCENT.get());
         } else {
             setPercent(0);
         }

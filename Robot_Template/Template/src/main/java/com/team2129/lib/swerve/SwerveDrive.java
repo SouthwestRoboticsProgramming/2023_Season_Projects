@@ -2,7 +2,6 @@ package com.team2129.lib.swerve;
 
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
-import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.gyro.Gyroscope;
 
@@ -12,8 +11,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-
-// TODO: BIG: Odometry
 
 /** A class to manage all of the swerve modules in a swerve drive. */
 public class SwerveDrive implements Subsystem {
@@ -122,10 +119,18 @@ public class SwerveDrive implements Subsystem {
         System.out.println(out);
     }
 
+    /**
+     * Get the pose estimated by the odometry
+     * @return Estimated pose of the robot
+     */
     public Pose2d getPose() {
         return odometry.getPoseMeters();
     }
 
+    /**
+     * Set the current pose of the odometry to a known value
+     * @param pose Known pose of the robot to reset the odometry to.
+     */
     public void setOdometryPosition(Pose2d pose) {
         odometry.resetPosition(pose, gyro.getAngle().toRotation2dCW());
     }

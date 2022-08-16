@@ -1,7 +1,5 @@
 package com.swrobotics.robot.subsystem.drive;
 
-import static com.swrobotics.robot.Constants.*;
-
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
@@ -29,6 +27,9 @@ public class SwerveModuleMaker {
     private static final NTDouble TURN_KI = new NTDouble("Swerve/Turn/kI", 0.0001);
     private static final NTDouble TURN_KD = new NTDouble("Swerve/Turn/kD", 0);
 
+    public static final double GEAR_RATIO = 1 / 8.14;
+    public static final double WHEEL_RADIUS = 0.05;
+
     public static SwerveModule buildModule(Subsystem parent, SwerveModuleDef def, int steerID, Vec2d position) {
 
         TalonFX driveMotor_toWrap = new TalonFX(def.getDriveId());
@@ -45,6 +46,8 @@ public class SwerveModuleMaker {
 
             driveConfig.supplyCurrLimit = driveSupplyLimit;
         }
+
+        driveMotor_toWrap.configAllSettings(driveConfig);
 
         TalonSRX steerMotor_toWrap = new TalonSRX(steerID);
         steerMotor_toWrap.configFactoryDefault();

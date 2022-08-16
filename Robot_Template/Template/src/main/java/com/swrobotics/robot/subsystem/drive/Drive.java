@@ -1,6 +1,6 @@
 package com.swrobotics.robot.subsystem.drive;
 
-import static com.swrobotics.robot.Constants.*;
+//import static com.swrobotics.robot.Constants.*;
 
 import com.team2129.lib.gyro.ADIS16448Gyroscope;
 import com.swrobotics.robot.control.Input;
@@ -24,7 +24,11 @@ import com.team2129.lib.gyro.Gyroscope;
  */
 
 public class Drive implements Subsystem {
+    private static final double WHEEL_SPACING = 0.4699; // Meters
     private static final double CENTER_DISTANCE = WHEEL_SPACING / 2;
+
+    public static final double MAX_WHEEL_VELOCITY = 4.11;
+
     private static final Vec2d SLOT_0_POS = new Vec2d(-CENTER_DISTANCE, -CENTER_DISTANCE);
     private static final Vec2d SLOT_1_POS = new Vec2d(-CENTER_DISTANCE,  CENTER_DISTANCE);
     private static final Vec2d SLOT_2_POS = new Vec2d( CENTER_DISTANCE,  CENTER_DISTANCE);
@@ -37,11 +41,10 @@ public class Drive implements Subsystem {
     private static final NTEnum<SwerveModuleDef> SLOT_2_MODULE = new NTEnum<SwerveModuleDef>("Swerve/Slots/Slot 2", SwerveModuleDef.class, SwerveModuleDef.MODULE_3);
     private static final NTEnum<SwerveModuleDef> SLOT_3_MODULE = new NTEnum<SwerveModuleDef>("Swerve/Slots/Slot 3", SwerveModuleDef.class, SwerveModuleDef.MODULE_4);
 
-    // FIXME: TODO: Fix me
-    private static final int TURN_ID_0 = 73846;
-    private static final int TURN_ID_1 = 73846;
-    private static final int TURN_ID_2 = 73846;
-    private static final int TURN_ID_3 = 73846;
+    private static final int TURN_ID_0 = 1;
+    private static final int TURN_ID_1 = 2;
+    private static final int TURN_ID_2 = 3;
+    private static final int TURN_ID_3 = 4;
 
     private static final NTBoolean PRINT_ENCODER_OFFSETS = new NTBoolean("Swerve/Print Encoder Offsets", false);
 
