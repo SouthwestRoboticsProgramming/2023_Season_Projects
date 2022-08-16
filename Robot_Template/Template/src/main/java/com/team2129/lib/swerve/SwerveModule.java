@@ -26,7 +26,7 @@ public class SwerveModule {
     private Angle tolerance;
     private SwerveModuleState currentDesiredState;
 
-    // TODO: Tolerance and odometry
+    // TODO: Ryan, do we still want lerp if out of tolerance?
     
     /**
      * A single swerve module capable of both steering and driving.
@@ -108,6 +108,10 @@ public class SwerveModule {
         currentDesiredState = state;
     }
 
+    /**
+     * Get the real state of the module as reported by the sensors onboard.
+     * @return The real state of the module
+     */
     public SwerveModuleState getState() {
         double velocity = driveEncoder.getVelocity().getCWRad() / metersToRadians;
         Angle angle = steerEncoder.getAngle();
@@ -115,6 +119,10 @@ public class SwerveModule {
         return new SwerveModuleState(velocity, angle.toRotation2dCW());
     }
 
+    /**
+     * Get the real angle of the module without the offset applied. (Useful for calibration)
+     * @return The angle of the module before the offset is applied.
+     */
     public Angle getRawAngle() {
         return steerEncoder.getRawAngle();
     }
