@@ -93,13 +93,10 @@ public class SwerveModule {
         Angle current = steerEncoder.getAngle();
         
         SwerveModuleState state = SwerveModuleState.optimize(desiredState, current.toRotation2dCW());
-
-        // Normalize the angle after optimization for PID.
-        current = current.normalizeDeg(-90, 90);
   
         if (!inTolerance()) {
             // Set steer angle
-            steerMotor.angle(current, Angle.ccwDeg(state.angle.getDegrees()));
+            steerMotor.angle(() -> steerEncoder.getAngle().normalizeDeg(-90, 90), Angle.ccwDeg(state.angle.getDegrees()));
         }
         
         // Set drive speed
