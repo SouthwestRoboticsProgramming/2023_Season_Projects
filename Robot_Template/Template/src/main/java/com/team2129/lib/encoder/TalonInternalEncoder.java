@@ -21,12 +21,12 @@ public class TalonInternalEncoder extends Encoder {
     }
 
     @Override
-    public Angle getRawAngle() {
+    public Angle getRawAngleImpl() {
         return Angle.ccwDeg(talon.getSelectedSensorPosition() / (ticksPerRotation / 360));
     }
 
     @Override
-    public Angle getVelocity() {
+    public Angle getVelocityImpl() {
         // 10 is for time conversion from per 100ms to per second
         return Angle.ccwDeg(talon.getSelectedSensorVelocity() / ticksPerRotation * 10);
     }
