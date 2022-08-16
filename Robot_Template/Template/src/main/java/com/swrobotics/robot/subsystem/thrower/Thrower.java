@@ -10,7 +10,6 @@ import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.MathUtil;
 import com.team2129.lib.net.NTBoolean;
 import com.team2129.lib.net.NTDouble;
-import com.team2129.lib.net.NTEnum;
 import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.schedule.Subsystem;
 
@@ -38,8 +37,18 @@ public class Thrower implements Subsystem {
 
     private static final NTDouble FLYWHEEL_SHUTOFF_SECONDS = new NTDouble("Thrower/Flywheel/Shutoff_Time", 1.0);
     private static final NTBoolean STRICT_AIM = new NTBoolean("Thrower/Strict_Aim", false);
+    
+    private static final TreeMap<Double, Double> DEFAULT_HIGH_MAP = new TreeMap<Double, Double>();
+    {
+        DEFAULT_HIGH_MAP.put(0.0, 0.0);
+        DEFAULT_HIGH_MAP.put(1.0, 1.0);
+    }
 
-    private static final NTEnum<ThrowerTuneSelector> TUNE_SELECTOR = new NTEnum<>("Thrower/Tunning/Tune_Select", ThrowerTuneSelector.class, ThrowerTuneSelector.DEFAULT);
+    private static final TreeMap<Double, Double> DEFAULT_LOW_MAP = new TreeMap<Double, Double>();
+    {
+        DEFAULT_LOW_MAP.put(0.0, 0.0);
+        DEFAULT_LOW_MAP.put(1.0, 1.0);
+    }
 
     private final Input input;
     private final Localization loc;
@@ -49,15 +58,14 @@ public class Thrower implements Subsystem {
 
     private final Timer flywheelShutoff;
 
-    private final TreeMap<Double, Double> highHubMap;
-    private final TreeMap<Double, Double> lowHubMap;
+    private final TuneSelect lowSelect;
+    private final TuneSelect highSelect;
 
     private boolean isClimbing;
 
     public Thrower(Input input, Localization loc) {
-        highHubMap = new TreeMap<Double, Double>();
-        lowHubMap = new TreeMap<Double, Double>();
 
+        
         this.input = input;
         this.loc = loc;
 
@@ -75,10 +83,8 @@ public class Thrower implements Subsystem {
         flywheelShutoff = new Timer();
         isClimbing = false;
 
-        highHubMap.put(0.0, 0.0);
-        highHubMap.put(1.0, 1.0);
-        lowHubMap.put(0.0, 0.0);
-        lowHubMap.put(1.0, 1.0);
+        lowSelect = new TuneSelect("Thrower/Tuning/Low", DEFAULT_LOW_MAP);
+        highSelect = new TuneSelect("Thrower/Tuning/High", DEFAULT_HIGH_MAP);
     }
 
     private double[] calculateAim(double distance, boolean aimHighHub, boolean forceHubChoice) {
@@ -87,13 +93,13 @@ public class Thrower implements Subsystem {
 
         TreeMap<Double, Double> map;
         if (aimHighHub) {
-            map = highHubMap; // Should I use clone?
+            map = highSelect.getMap(); // Should I use clone?
         } else {
-            map = lowHubMap;
+            map = lowSelect.getMap();
         }
 
-        if (lowHubMap.isEmpty() && aimHighHub) {forceHubChoice = true;}
-        if (highHubMap.isEmpty() && !aimHighHub) {forceHubChoice = true;}
+        if (lowSelect.getMap().isEmpty() && aimHighHub) {forceHubChoice = true;}
+        if (highSelect.getMap().isEmpty() && !aimHighHub) {forceHubChoice = true;}
 
         // Check that there are values in the map
         if (map.isEmpty()) {
