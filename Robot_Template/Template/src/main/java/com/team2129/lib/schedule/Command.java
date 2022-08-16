@@ -6,7 +6,7 @@ import com.team2129.lib.wpilib.AbstractRobot;
 
 /**
  * An action that runs until it is complete.
- * A command must be scheduled through the sheduler.
+ * A command must be scheduled through the scheduler.
  */
 public interface Command {
     Duration DEFAULT_INTERVAL = new Duration(1 / AbstractRobot.get().getPeriodicPerSecond(), TimeUnit.SECONDS);
