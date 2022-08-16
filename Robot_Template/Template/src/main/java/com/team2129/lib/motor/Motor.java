@@ -24,12 +24,19 @@ public abstract class Motor implements Subsystem {
 
     private Encoder encoder;
     private Angle holdTarget;
-    private boolean isHolding;
 
     private boolean isFlywheel;
 
-    private Runnable controlMode;
+    private Runnable action;
+    private ControlMode controlMode;
     private double kF;
+
+    private enum ControlMode {
+        PERCENT,
+        ANGLE,
+        VELOCITY,
+        HOLD
+    }
 
     /**
      * Create a motor wrapping a vendor-specific motor. <br>
@@ -41,8 +48,6 @@ public abstract class Motor implements Subsystem {
      * }
      */
     public Motor(Subsystem parent) {
-        controlMode = () -> {};
-
         pid = new PIDController(0.0, 0.0, 0.0, 1 / AbstractRobot.get().getPeriodicPerSecond());
         feed = new SimpleMotorFeedforward(0.0, 0.0);
         bang = new BangBangController();
@@ -52,6 +57,8 @@ public abstract class Motor implements Subsystem {
 
         // Schedule this and attach to parent subsystem
         Scheduler.get().addSubsystem(parent, this);
+
+        percent(0);
     }
 
     /**
@@ -108,8 +115,8 @@ public abstract class Motor implements Subsystem {
      * @param percent The demanded percent out of the motor.
      */
     public void percent(double percent) {
-        controlMode = () -> setPercent(percent);
-        isHolding = false;
+        controlMode = ControlMode.PERCENT;
+        action = () -> setPercent(percent);
     }
 
     /**
@@ -122,8 +129,12 @@ public abstract class Motor implements Subsystem {
             return;
         }
 
-        controlMode = () -> setVelocity(target);
-        isHolding = false;
+        if (controlMode != ControlMode.VELOCITY) {
+            pid.reset();
+        }
+        controlMode = ControlMode.VELOCITY;
+
+        action = () -> setVelocity(target);
     }
 
     /**
@@ -145,8 +156,12 @@ public abstract class Motor implements Subsystem {
             return;
         }
 
-        controlMode = () -> setAngle(current, target);
-        isHolding = false;
+        if (controlMode != ControlMode.ANGLE) {
+            pid.reset();
+        }
+        controlMode = ControlMode.ANGLE;
+
+        action = () -> setAngle(current, target);
     }
 
     /**
@@ -172,12 +187,13 @@ public abstract class Motor implements Subsystem {
             return;
         }
 
-        if (!isHolding) {
+        if (controlMode != ControlMode.HOLD) {
             holdTarget = encoder.getAngle();
+            pid.reset();
         }
-        isHolding = true;
+        controlMode = ControlMode.HOLD;
 
-        controlMode = () -> setAngle(encoder::getAngle, holdTarget);
+        action = () -> setAngle(encoder::getAngle, holdTarget);
     }
 
     /**
@@ -195,8 +211,8 @@ public abstract class Motor implements Subsystem {
             out = bang.calculate(currentVelocity.getCWDeg(), target.getCWDeg())  +  feed.calculate(target.getCWDeg() * 0.9); 
         } else {
             double pidOut = pid.calculate(currentVelocity.getCWDeg(), target.getCWDeg());
-            double feedOut = feed.calculate(target.getCWDeg() * 0.9);
-            out = pidOut  + feedOut ;
+            double feedOut = kF * feed.calculate(target.getCWDeg());
+            out = pidOut + feedOut;
         }
 
         setPercent(out);
@@ -209,6 +225,6 @@ public abstract class Motor implements Subsystem {
 
     @Override
     public void periodic() {
-        controlMode.run();
+        action.run();
     }
 }
