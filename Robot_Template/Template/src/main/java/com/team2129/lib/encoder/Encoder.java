@@ -6,8 +6,8 @@ import com.team2129.lib.math.Angle;
  * A general wrapper for any external encoder
  */
 public abstract class Encoder {
-
     private Angle offset = Angle.ccwRad(0); // Subtracted to get angle
+    private OutputFilter filter = (angle) -> angle; // Applied to angle in getAngle()
 
     /**
      * Get the angular position of the encoder as an Angle.
@@ -49,10 +49,20 @@ public abstract class Encoder {
     }
 
     /**
-     * Get the angle of the encoder taking into account any defined offset.
+     * Get the angle of the encoder taking into account any defined offset and
+     * the currently set {@link OutputFilter}.
      * @return The angle of the encoder.
      */
     public Angle getAngle() {
+        return filter.filter(getUnfilteredAngle());
+    }
+
+    /**
+     * Gets the current angle without passing it through the output filter, taking
+     * into account and defined offset.
+     * @return The angle of the encoder
+     */
+    public Angle getUnfilteredAngle() {
         return getRawAngle().sub(offset);
     }
 }
