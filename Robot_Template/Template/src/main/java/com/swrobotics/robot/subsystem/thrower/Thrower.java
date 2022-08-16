@@ -76,12 +76,13 @@ public class Thrower implements Subsystem {
         isClimbing = false;
 
         highHubMap.put(0.0, 0.0);
-        highHubMap.put(1.0, 1.0);
+        highHubMap.put(10.0, 2000.0);
         lowHubMap.put(0.0, 0.0);
         lowHubMap.put(1.0, 1.0);
     }
 
-    private double[] calculateAim(double distance, boolean aimHighHub, boolean forceHubChoice) {
+    private double[] 
+    calculateAim(double distance, boolean aimHighHub, boolean forceHubChoice) {
         double rpm;
         double hood;
 
@@ -147,7 +148,7 @@ public class Thrower implements Subsystem {
 
     @Override
     public void periodic() {
-        double distance = loc.getMetersToHub();
+        double distance = loc.getFeetToHub();
 
         if (isClimbing) {
             hood.calibrate();
@@ -163,20 +164,24 @@ public class Thrower implements Subsystem {
         if (hopper.isBallDetected() || !flywheelShutoff.hasElapsed(FLYWHEEL_SHUTOFF_SECONDS.get())) {
             if (loc.isLookingAtTarget() || input.getAim()) { // Prepare to fire
                 double[] aim = calculateAim(distance, true, STRICT_AIM.get());
-                flywheel.setFlywheelVelocity(Angle.cwRot(aim[0] / 60)); // Convert rpm to Angle/second
+                flywheel.setFlywheelVelocity(Angle.cwRot(/*aim[0] / 60*/2000/60)); // Convert rpm to Angle/second
                 hood.setPosition(aim[1]);
+                // System.out.println("Distance: " + distance + " Hood: " + aim[1] + " Flywheel: " + aim[0]);
             } else {
                 hood.calibrate();
                 flywheel.idle();
+                System.out.println("No target");
             }
         } else { // If no ball for the duration of the timer
             hood.calibrate();
             flywheel.stop();
+            System.out.println("No ball");
         }
 
         if (input.getShoot()) {
             Scheduler.get().addCommand(new ShootCommand(hopper));
         }
+
     }
 
 

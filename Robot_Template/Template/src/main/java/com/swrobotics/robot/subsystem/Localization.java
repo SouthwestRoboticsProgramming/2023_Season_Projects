@@ -11,7 +11,12 @@ public class Localization {
     }
 
     public double getMetersToHub() {
-        return getPosition().set(HUB_POS).magnitude();
+        return 5;
+        //return getPosition().set(HUB_POS).magnitude();
+    }
+
+    public double getFeetToHub() {
+        return 10;
     }
 
     public Angle getAngleToTarget() {

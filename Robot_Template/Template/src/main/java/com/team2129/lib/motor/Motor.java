@@ -130,7 +130,8 @@ public abstract class Motor implements Subsystem {
         double out;
 
         if (isFlywheel) {
-            out = bang.calculate(currentVelocity.getCWDeg(), target.getCWDeg())  +  feed.calculate(target.getCWDeg() * 0.9); 
+            out = bang.calculate(currentVelocity.getCWDeg(), target.getCWDeg())/*  +  feed.calculate(target.getCWDeg()*/ * 0.9; 
+            System.out.println("Out: " + out + " Current: " + currentVelocity.getCWDeg());
         } else {
             double pidOut = pid.calculate(currentVelocity.getCWDeg(), target.getCWDeg());
             double feedOut = feed.calculate(target.getCWDeg() * 0.9);

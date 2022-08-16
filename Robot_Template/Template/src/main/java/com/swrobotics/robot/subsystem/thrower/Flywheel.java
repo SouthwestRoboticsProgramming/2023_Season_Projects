@@ -20,7 +20,7 @@ public class Flywheel implements Subsystem {
     private static final NTDouble KI = new NTDouble("Thrower/Flywheel/kI", 0);
     private static final NTDouble KD = new NTDouble("Thrower/Flywheel/kD", 0);
 
-    private static final NTBoolean FLYWHEEL_MODE = new NTBoolean("Thrower/Flywheel/Use_PID_not_FEED", false);
+    private static final NTBoolean FLYWHEEL_MODE = new NTBoolean("Thrower/Flywheel/Use_FEED_not_PID", true);
 
     private static final NTDouble KS = new NTDouble("Thrower/Flywheel/kS", 0);
     private static final NTDouble KV = new NTDouble("Thrower/Flywheel/kV", 0);
@@ -51,12 +51,14 @@ public class Flywheel implements Subsystem {
         talon_toWrap.configAllSettings(config);
 
         talon_toWrap.setNeutralMode(NeutralMode.Coast);
-        talon_toWrap.setInverted(true);
+        talon_toWrap.setInverted(false);
 
         motor = new TalonMotor(this, talon_toWrap);
         motor.setPIDController(NTUtils.makeAutoTunedPID(KP, KI, KD));
         motor.setFeedforward(new SimpleMotorFeedforward(KS.get(), KV.get()));
         motor.setFlywheelMode(FLYWHEEL_MODE.get());
+
+        motor.getEncoder().
 
         motorMode = () -> motor.percent(0);
 
@@ -79,11 +81,13 @@ public class Flywheel implements Subsystem {
 
     public void stop() {
         motorMode = () -> motor.percent(0);
+        System.out.println("Stop");
     }
 
     @Override 
     public void periodic() {
         // TODO: Log temperature, speed, etc...
-        motorMode.run();
+       // motorMode.run();
+       motor.velocity(Angle.cwDeg(100));
     }
 }
