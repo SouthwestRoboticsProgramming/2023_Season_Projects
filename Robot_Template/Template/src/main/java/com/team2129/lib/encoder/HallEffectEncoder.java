@@ -19,13 +19,13 @@ public class HallEffectEncoder extends Encoder {
     }
 
     @Override
-    public Angle getRawAngle() {
+    public Angle getRawAngleImpl() {
         // FIXME: Check direction
         return Angle.cwRot(encoder.getDistance() / ticksPerRotation);
     }
 
     @Override
-    public Angle getVelocity() {
+    public Angle getVelocityImpl() {
         return Angle.cwRot(encoder.getRate());
     }
     

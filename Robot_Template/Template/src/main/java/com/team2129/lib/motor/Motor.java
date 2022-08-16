@@ -3,6 +3,9 @@ package com.team2129.lib.motor;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.schedule.Subsystem;
+
+import java.util.function.Supplier;
+
 import com.team2129.lib.encoder.Encoder;
 
 import com.team2129.lib.wpilib.AbstractRobot;
@@ -20,16 +23,20 @@ public abstract class Motor implements Subsystem {
     private final BangBangController bang;
 
     private Encoder encoder;
+    private Angle holdTarget;
 
-    private Angle holdAngle; // Recorded to save the angle for the HOLD mode
-    private boolean isHolding; // Record to set the holdAngle to the current.
     private boolean isFlywheel;
 
-    private Angle currentAngle;
-    private Angle currentVelocity;
+    private Runnable action;
+    private ControlMode controlMode;
+    private double kF;
 
-    private Runnable controlMode;
-
+    private enum ControlMode {
+        PERCENT,
+        ANGLE,
+        VELOCITY,
+        HOLD
+    }
 
     /**
      * Create a motor wrapping a vendor-specific motor. <br>
@@ -41,14 +48,17 @@ public abstract class Motor implements Subsystem {
      * }
      */
     public Motor(Subsystem parent) {
-        controlMode = () -> {};
-
         pid = new PIDController(0.0, 0.0, 0.0, 1 / AbstractRobot.get().getPeriodicPerSecond());
         feed = new SimpleMotorFeedforward(0.0, 0.0);
         bang = new BangBangController();
 
+        isFlywheel = false;
+        kF = 0;
+
         // Schedule this and attach to parent subsystem
         Scheduler.get().addSubsystem(parent, this);
+
+        percent(0);
     }
 
     /**
@@ -68,13 +78,19 @@ public abstract class Motor implements Subsystem {
     }
 
     /**
+     * Sets the feedforward coefficient for velocity control.
+     * @param kF Feedforward coefficient
+     */
+    public void setKF(double kF) {
+        this.kF = kF;
+    }
+
+    /**
      * Gives the motor an absolute encoder
      * @param encoder Encoder implementation
      */
     public void assignEncoder(Encoder encoder) {
         this.encoder = encoder;
-        currentAngle = encoder.getAngle();
-        currentVelocity = encoder.getVelocity();
     }
 
     /**
@@ -99,11 +115,85 @@ public abstract class Motor implements Subsystem {
      * @param percent The demanded percent out of the motor.
      */
     public void percent(double percent) {
-        controlMode = () -> {
-            percent(percent);
-        };
+        controlMode = ControlMode.PERCENT;
+        action = () -> setPercent(percent);
+    }
 
-        setPercent(percent);
+    /**
+     * Control the motor to spin at a specified velocity.
+     * @param target The target velocity of the motor.
+     */
+    public void velocity(Angle target) {
+        if (encoder == null) {
+            DriverStation.reportError("No assigned encoder, cannot control velocty", true);
+            return;
+        }
+
+        if (controlMode != ControlMode.VELOCITY) {
+            pid.reset();
+        }
+        controlMode = ControlMode.VELOCITY;
+
+        action = () -> setVelocity(target);
+    }
+
+    /**
+     * Control the motor to target an angular position.
+     * @param target The target angle of the motor.
+     */
+    public void angle(Angle target) {
+        angle(encoder::getAngle, target);
+    }
+
+    /**
+     * Control the motor to target an angular position.
+     * @param current Supplier for the current position of the motor.
+     * @param target The target angle of the motor.
+     */
+    public void angle(Supplier<Angle> current, Angle target) {
+        if (encoder == null) {
+            DriverStation.reportError("No assigned encoder, cannot control position", true);
+            return;
+        }
+
+        if (controlMode != ControlMode.ANGLE) {
+            pid.reset();
+        }
+        controlMode = ControlMode.ANGLE;
+
+        action = () -> setAngle(current, target);
+    }
+
+    /**
+     * Set the motor to 0% power. The motor will slowly wind down.
+     */
+    public void stop() {
+        percent(0);
+    }
+
+    /**
+     * Set the motor to target a velocity of zero.
+     */
+    public void halt() {
+        velocity(Angle.cwDeg(0));
+    }
+
+    /**
+     * Set the motor to hold the current position. If it is moved, it will target the initial position.
+     */
+    public void hold() {
+        if (encoder == null) {
+            DriverStation.reportError("No assigned encoder, cannot hold position", true);
+            return;
+        }
+
+        if (controlMode != ControlMode.HOLD) {
+            holdTarget = encoder.getAngle();
+            pid.reset();
+        }
+        controlMode = ControlMode.HOLD;
+
+        action = () -> setAngle(encoder::getAngle, holdTarget);
     }
 
     /**
@@ -113,112 +203,29 @@ public abstract class Motor implements Subsystem {
      */
     protected abstract void setPercent(double percent);
 
-    /**
-     * Control the motor to spin at a specified speed.
-     * @param target The target velocity of the motor.
-     */
-    public void velocity(Angle target) {
-        controlMode = () -> {
-            velocity(target);
-        };
-
-        if (encoder == null) {
-            DriverStation.reportError("No assigned encoder, cannot control velocty", true);
-            return;
-        }
-
+    private void setVelocity(Angle target) {
         double out;
 
+        Angle currentVelocity = encoder.getVelocity();
         if (isFlywheel) {
             out = bang.calculate(currentVelocity.getCWDeg(), target.getCWDeg())/*  +  feed.calculate(target.getCWDeg()*/ * 0.9; 
             System.out.println("Out: " + out + " Current: " + currentVelocity.getCWDeg());
         } else {
             double pidOut = pid.calculate(currentVelocity.getCWDeg(), target.getCWDeg());
-            double feedOut = feed.calculate(target.getCWDeg() * 0.9);
-            out = pidOut  + feedOut ;
+            double feedOut = kF * feed.calculate(target.getCWDeg());
+            out = pidOut + feedOut;
         }
 
         setPercent(out);
-    }
-
-    /**
-     * Control the motor to target an angular position.
-     * @param target The target angle of the motor.
-     */
-    public void angle(Angle target) {
-        angle(currentAngle, target);
     }
     
-    /**
-     * Control the motor to target an angular position.
-     * @param current The current position of the motor.
-     * @param target The target angle of the motor.
-     */
-    public void angle(Angle current, Angle target) {
-        controlMode = () -> {
-            angle(current, target);
-        };
-
-        
-        if (encoder == null) {
-            DriverStation.reportError("No assigned encoder, cannot control position", true);
-        }
-
-        double out = pid.calculate(current.getCWDeg(), target.getCWDeg());
+    private void setAngle(Supplier<Angle> current, Angle target) {
+        double out = pid.calculate(current.get().getCWDeg(), target.getCWDeg());
         setPercent(out);
-    }
-
-    /**
-     * Set the motor to 0% power. The motor will slowly wind down.
-     */
-    public void stop() {
-        controlMode = () -> {
-            setPercent(0);
-        };
-
-        setPercent(0);
-    }
-
-    /**
-     * Set the motor to target a velocity of zero.
-     */
-    public void halt() {
-        controlMode = () -> {
-            velocity(Angle.cwDeg(0));
-        };
-
-        velocity(Angle.cwDeg(0));
-    }
-
-    /**
-     * Set the motor to hold the current position. If it is moved, it will target the initial position.
-     */
-    public void hold() {
-        controlMode = () -> {
-            angle(holdAngle);
-        };
-
-        if (!isHolding) {
-            holdAngle = currentAngle;
-        }
-
-        isHolding = true;
-        angle(holdAngle);
     }
 
     @Override
     public void periodic() {
-        currentAngle = encoder.getAngle();
-        currentVelocity = encoder.getVelocity();
-
-        controlMode.run();
-
-        isHolding = false;
+        action.run();
     }
-
-    @Override
-    public String toString() {
-        return "Angle: " + currentAngle + "   Velocity: " + currentVelocity + " per second";
-    }
-
 }

@@ -16,8 +16,6 @@ public class CANCoderImplementation extends AbsoluteEncoder {
 
     private final CANCoder encoder;
 
-    private boolean inverted;
-
     public CANCoderImplementation(int id) {
         encoder = new CANCoder(id);
         configEncoder(encoder);
@@ -43,32 +41,21 @@ public class CANCoderImplementation extends AbsoluteEncoder {
     }
 
     /**
-     * Set if the motor should be read as counterclockwise positive (true) or clockwise positive (false).
-     * @param inverted Inversion of the CANCoder
-     */
-    public void setInverted(boolean inverted) {
-        this.inverted = inverted;
-    }
-
-    /**
      * Get the relative angle of the encoder if it is configured not to use
      * absolute angle by default.
      */
     @Override
     public Angle getRelativeAngle() {
-        if (inverted) return Angle.ccwDeg(encoder.getPosition());
         return Angle.cwDeg(encoder.getPosition());
     }
 
     @Override
-    public Angle getRawAngle() {
-        if (inverted) return Angle.ccwDeg(encoder.getAbsolutePosition());
+    public Angle getRawAngleImpl() {
         return Angle.cwDeg(encoder.getAbsolutePosition());
     }
 
     @Override
-    public Angle getVelocity() {
-        if (inverted) return Angle.ccwDeg(encoder.getVelocity());
+    public Angle getVelocityImpl() {
         return Angle.cwDeg(encoder.getVelocity());
     }
 
