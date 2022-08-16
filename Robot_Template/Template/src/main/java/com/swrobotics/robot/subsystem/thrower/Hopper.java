@@ -2,6 +2,7 @@ package com.swrobotics.robot.subsystem.thrower;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.swrobotics.robot.Constants;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.motor.TalonMotor;
 import com.team2129.lib.net.NTDouble;
@@ -26,7 +27,7 @@ public class Hopper implements Subsystem {
     public Hopper(BallDetector ballDetector) {
         this.ballDetector = ballDetector;
 
-        TalonFX index_toWrap = new TalonFX(INDEX_MOTOR_ID);
+        TalonFX index_toWrap = new TalonFX(INDEX_MOTOR_ID, Constants.CANIVORE);
         LazyTalonFXConfiguration.configureDefaultTalon(index_toWrap);
         index_toWrap.setNeutralMode(NeutralMode.Brake);
         index_toWrap.setInverted(true);

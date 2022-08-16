@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.swrobotics.robot.Constants;
 import com.team2129.lib.encoder.CANCoderImplementation;
 import com.team2129.lib.motor.TalonMotor;
 import com.team2129.lib.net.NTDouble;
@@ -32,7 +33,7 @@ public class SwerveModuleMaker {
 
     public static SwerveModule buildModule(Subsystem parent, SwerveModuleDef def, int steerID, Vec2d position) {
 
-        TalonFX driveMotor_toWrap = new TalonFX(def.getDriveId());
+        TalonFX driveMotor_toWrap = new TalonFX(def.getDriveId(), Constants.CANIVORE);
         driveMotor_toWrap.configFactoryDefault();
         
         TalonFXConfiguration driveConfig = new TalonFXConfiguration();
@@ -64,7 +65,7 @@ public class SwerveModuleMaker {
 
         driveMotor.assignEncoder(driveMotor.getInternalEncoder(2048));
 
-        CANCoderImplementation canCoder = new CANCoderImplementation(def.getEncoderId());
+        CANCoderImplementation canCoder = new CANCoderImplementation(def.getEncoderId(), Constants.CANIVORE);
         canCoder.setOffset(Angle.cwDeg(def.getEncoderOffset().get()));
         def.getEncoderOffset().onChange(() -> canCoder.setOffset(Angle.cwDeg(def.getEncoderOffset().get())));
 

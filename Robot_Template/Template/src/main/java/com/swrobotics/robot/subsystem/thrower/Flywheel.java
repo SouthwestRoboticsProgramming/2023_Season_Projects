@@ -13,8 +13,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-
-import static com.swrobotics.robot.Constants.*;
+import com.swrobotics.robot.Constants;
 
 public class Flywheel implements Subsystem {
     private static final NTDouble KP = new NTDouble("Thrower/Flywheel/kP", 0);
@@ -36,7 +35,7 @@ public class Flywheel implements Subsystem {
     private Runnable motorMode;
     
     public Flywheel() {
-        TalonFX talon_toWrap = new TalonFX(FLYWHEEL_MOTOR_ID, CANIVORE);
+        TalonFX talon_toWrap = new TalonFX(FLYWHEEL_MOTOR_ID, Constants.CANIVORE);
         talon_toWrap.configFactoryDefault();
 
         TalonFXConfiguration config = new TalonFXConfiguration();

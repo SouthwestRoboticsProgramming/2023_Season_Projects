@@ -1,5 +1,6 @@
 package com.swrobotics.robot.subsystem;
 
+import com.swrobotics.robot.Constants;
 import com.swrobotics.robot.control.Input;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.motor.TalonMotor;
@@ -21,7 +22,7 @@ public class Intake implements Subsystem {
     public Intake(Input input) {
         this.input = input;
 
-        TalonFX talon_toWrap = new TalonFX(MOTOR_ID);
+        TalonFX talon_toWrap = new TalonFX(MOTOR_ID, Constants.CANIVORE);
         talon_toWrap.configFactoryDefault();
 
         TalonFXConfiguration talonConfig = new TalonFXConfiguration();
