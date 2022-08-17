@@ -2,17 +2,15 @@ package com.team2129.lib.motor;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.team2129.lib.encoder.Encoder;
+import com.team2129.lib.encoder.NullEncoder;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.motor.calculators.PositionCalculator;
 import com.team2129.lib.motor.calculators.VelocityCalculator;
 
-public class UTalonFX extends TalonFX implements IMotor {
-
-    private static final int TICKS_PER_ROT = 2048;
+public class UTalonSRX extends TalonSRX implements IMotor {
 
     private VelocityCalculator velocityCalculator;
     private PositionCalculator positionCalculator;
@@ -20,26 +18,25 @@ public class UTalonFX extends TalonFX implements IMotor {
     private Encoder selectedSensor;
 
     /**
-     * Create a TalonFX.
-     * @param deviceNumber CAN ID of the TalonFX
+     * Create a TalonSRX without the use of a connected sensor. This sensor can be configured later using {@code selectIntegratedSensor()}.
+     * @param deviceNumber CAN ID of the TalonSRX
      */
-    public UTalonFX(int deviceNumber) {
+    public UTalonSRX(int deviceNumber) {
         super(deviceNumber);
-        configMotor();
-
+        configMotor(0);
     }
 
     /**
-     * Create a TalonFX on a seperate canbus
-     * @param deviceNumber CAN ID of the TalonFX
-     * @param canbus Canbus of the TalonFX
+     * Create a TalonSRX using a sensor connected through the sensor port on the top of the SRX.
+     * @param deviceNumber CAN ID of the TalonSRX
+     * @param sensorTicksPerRotation Number of ticks per rotation of the controlled motor.
      */
-    public UTalonFX(int deviceNumber, String canbus) {
-        super(deviceNumber, canbus);
-        configMotor();
+    public UTalonSRX(int deviceNumber, double sensorTicksPerRotation) {
+        super(deviceNumber);
+        configMotor(sensorTicksPerRotation);
     }
 
-    private void configMotor() {
+    private void configMotor(double ticksPerRotation) {
         velocityCalculator = new VelocityCalculator() {
             @Override
             public double calculate(Angle current, Angle target) {
@@ -54,7 +51,7 @@ public class UTalonFX extends TalonFX implements IMotor {
             }
         };
 
-        selectIntegratedSensor();
+        selectIntegratedSensor(ticksPerRotation);
     }
 
     /* Implementations */
@@ -93,7 +90,7 @@ public class UTalonFX extends TalonFX implements IMotor {
 
 
     /**
-     * Set the desired output of the TalonFX
+     * Set the desired output of the TalonSRX
      * @param mode
      * @param outputValue Demanded output in <pre>
      * [PercentOut, percent], 
@@ -104,22 +101,22 @@ public class UTalonFX extends TalonFX implements IMotor {
     public void set(ControlMode mode, double outputValue) {
         switch (mode) {
             case Velocity:
-                super.set(TalonFXControlMode.PercentOutput, velocityCalculator.calculate(getSelectedSensorAngle(), Angle.cwDeg(outputValue)));
+                super.set(TalonSRXControlMode.PercentOutput, velocityCalculator.calculate(getSelectedSensorAngle(), Angle.cwDeg(outputValue)));
                 break;
 
             case Position:
-                super.set(TalonFXControlMode.PercentOutput, positionCalculator.calculate(getSelectedSensorAngularVelocity(), Angle.cwDeg(outputValue)));
+                super.set(TalonSRXControlMode.PercentOutput, positionCalculator.calculate(getSelectedSensorAngularVelocity(), Angle.cwDeg(outputValue)));
                 break;
         
             default:
                 super.set(mode, outputValue);
                 break;
         }
-        super.set(TalonFXControlMode.PercentOutput, outputValue);
+        super.set(TalonSRXControlMode.PercentOutput, outputValue);
     }
 
     /**
-     * Set the desired output of the TalonFX
+     * Set the desired output of the TalonSRX
      * @param mode
      * @param value Demanded output in <pre>
      * [PercentOut, percent], 
@@ -127,7 +124,7 @@ public class UTalonFX extends TalonFX implements IMotor {
      * [Velocity cwDeg per second]
      */
     @Override
-    public void set(TalonFXControlMode mode, double value) {
+    public void set(TalonSRXControlMode mode, double value) {
         switch (mode) {
             case Velocity:
                 set(ControlMode.Velocity, value);
@@ -161,8 +158,8 @@ public class UTalonFX extends TalonFX implements IMotor {
      * @param mode Either ControlMode.Velocity or ControlMode.Position
      * @param outputValue Demanded output in either [Position, angle], or [Velocity, angle per second]
      */
-    public void set(TalonFXControlMode mode, Angle outputValue) throws IllegalArgumentException {
-        if (mode != TalonFXControlMode.Position || mode != TalonFXControlMode.Velocity) {throw new IllegalArgumentException("Wrong TalonFXControlMode for Angle argument");}
+    public void set(TalonSRXControlMode mode, Angle outputValue) throws IllegalArgumentException {
+        if (mode != TalonSRXControlMode.Position || mode != TalonSRXControlMode.Velocity) {throw new IllegalArgumentException("Wrong TalonSRXControlMode for Angle argument");}
         set(mode, outputValue.getCWDeg());
     }
     
@@ -175,33 +172,16 @@ public class UTalonFX extends TalonFX implements IMotor {
     }
 
     /**
-     * Select the default sensor built into the Falcon500.
+     * Select the default sensor to use for position and velocity readings.
+     * @param ticksPerRotation The number of ticks per rotation of the motor.
      */
-    public void selectIntegratedSensor() {
-        UTalonFX motor = this;
-        selectedSensor = new Encoder() {
+    public void selectIntegratedSensor(double ticksPerRotation) {
+        if (ticksPerRotation == 0) {
+            selectedSensor = new NullEncoder();
+            return;
+        }
 
-            @Override
-            protected Angle getRawAngleImpl() {
-                return Angle.cwRot(motor.getSelectedSensorPosition() / TICKS_PER_ROT);
-            }
-
-            @Override
-            protected Angle getVelocityImpl() {
-                return Angle.cwRot(motor.getSelectedSensorVelocity() / TICKS_PER_ROT / 10);
-            }
-            
-        };
-    }
-
-    /**
-     * Select a sensor connected through the sensor port on the top of the Falon500.
-     * @param ticksPerRotation Number of ticks the sensor reads equivelent to one rotation of the motor.
-     */
-    public void selectConnectedSensor(FeedbackDevice sensor, double ticksPerRotation) {
-        // FIXME: Does this work?
-        UTalonFX motor = this;
-        motor.configSelectedFeedbackSensor(sensor);
+        UTalonSRX motor = this;
         selectedSensor = new Encoder() {
 
             @Override
@@ -213,6 +193,7 @@ public class UTalonFX extends TalonFX implements IMotor {
             protected Angle getVelocityImpl() {
                 return Angle.cwRot(motor.getSelectedSensorVelocity() / ticksPerRotation / 10);
             }
+            
         };
     }
     
@@ -271,7 +252,7 @@ public class UTalonFX extends TalonFX implements IMotor {
      */
     @Deprecated
     @Override
-    public void set(TalonFXControlMode mode, double demand0, DemandType demand1Type, double demand1) {
+    public void set(TalonSRXControlMode mode, double demand0, DemandType demand1Type, double demand1) {
         super.set(mode, demand0, demand1Type, demand1);
     }
 }
