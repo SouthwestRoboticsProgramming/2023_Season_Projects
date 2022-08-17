@@ -10,7 +10,6 @@ public class TalonInternalEncoder extends Encoder {
 
     /**
      * Convert an internal encoder on a Falcon500 or a connected encoder on an SRX into an Enocder type
-     * NOTE: Inversion of the sensor should be configured before wrapping the motor.
      * @param talon The motor controller with the sensor attached
      * @param ticksPerRotation The number of sensor ticks that converts into 1 rotation. The direction of this rotatoin
      * determines that direction of clockwise on the sensor.
