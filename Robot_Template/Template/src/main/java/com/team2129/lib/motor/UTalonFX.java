@@ -18,26 +18,16 @@ public class UTalonFX extends TalonFX {
 
     public UTalonFX(int deviceNumber) {
         super(deviceNumber);
-
-        velocityCalculator = new VelocityCalculator() {
-            @Override
-            public double calculate(Angle current, Angle target) {
-                return 0;
-            }
-        };
-
-        positionCalculator = new PositionCalculator() {
-            @Override
-            public double calculate(Angle current, Angle target) {
-                return 0;
-            }
-        };
+        configMotor();
 
     }
 
     public UTalonFX(int deviceNumber, String canbus) {
         super(deviceNumber, canbus);
+        configMotor();
+    }
 
+    private void configMotor() {
         velocityCalculator = new VelocityCalculator() {
             @Override
             public double calculate(Angle current, Angle target) {
@@ -51,7 +41,22 @@ public class UTalonFX extends TalonFX {
                 return 0;
             }
         };
+
+        selectedSensor = new Encoder() {
+
+            @Override
+            protected Angle getRawAngleImpl() {
+                return null; // TODO: How?
+            }
+
+            @Override
+            protected Angle getVelocityImpl() {
+                return null;
+            }
+            
+        }
     }
+
 
     /**
      * Set the desired output of the TalonFX
