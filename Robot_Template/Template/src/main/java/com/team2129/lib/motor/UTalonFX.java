@@ -1,7 +1,9 @@
 package com.team2129.lib.motor;
 
+import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
+import com.ctre.phoenix.motorcontrol.RemoteFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.team2129.lib.encoder.Encoder;
@@ -9,7 +11,9 @@ import com.team2129.lib.math.Angle;
 import com.team2129.lib.motor.calculators.PositionCalculator;
 import com.team2129.lib.motor.calculators.VelocityCalculator;
 
-public class UTalonFX extends TalonFX {
+public class UTalonFX extends TalonFX implements IMotor {
+
+    private static final int TICKS_PER_ROT = 2048;
 
     private VelocityCalculator velocityCalculator;
     private PositionCalculator positionCalculator;
@@ -42,19 +46,41 @@ public class UTalonFX extends TalonFX {
             }
         };
 
-        selectedSensor = new Encoder() {
+        selectIntegratedSensor();
+    }
 
-            @Override
-            protected Angle getRawAngleImpl() {
-                return null; // TODO: How?
-            }
+    /* Implementations */
+    @Override
+    public void percent(double percent) {
+        set(ControlMode.PercentOutput, percent);
+    }
 
-            @Override
-            protected Angle getVelocityImpl() {
-                return null;
-            }
-            
-        }
+    @Override
+    public void velocity(Angle velocity) {
+        set(ControlMode.Velocity, velocity);
+    }
+
+    @Override
+    public void position(Angle position) {
+        set(ControlMode.Position, position);
+    }
+
+    /**
+     * Define the calculations that the motor should to to go from input to output when in position control mode;
+     * @param calculator Calculator to use for position control.
+     * @see PositionCalculator
+     */
+    public void setPositionCalculator(PositionCalculator calculator) {
+        positionCalculator = calculator;
+    }
+
+    /**
+     * Define the calculations that the motor should to to go from input to output when in velocity control mode;
+     * @param calculator Calculator to use for velocity control.
+     * @see VelocityCalculator
+     */
+    public void setVelocityCalculator(VelocityCalculator calculator) {
+        velocityCalculator = calculator;
     }
 
 
@@ -132,23 +158,50 @@ public class UTalonFX extends TalonFX {
         set(mode, outputValue.getCWDeg());
     }
     
+    /**
+     * Select a different sensor for position and velocity readings.
+     * @param sensor Sensor to select.
+     */
     public void setSelectedSensor(Encoder sensor) {
         selectedSensor = sensor;
     }
+
+    public void selectIntegratedSensor() {
+        UTalonFX motor = this;
+        selectedSensor = new Encoder() {
+
+            @Override
+            protected Angle getRawAngleImpl() {
+                return Angle.cwRot(motor.getSelectedSensorPosition() / TICKS_PER_ROT);
+            }
+
+            @Override
+            protected Angle getVelocityImpl() {
+                return Angle.cwRot(motor.getSelectedSensorVelocity() / TICKS_PER_ROT / 10);
+            }
+            
+        };
+    }
     
     /**
-     * Get the angle of the sensor selected by {@code }
-     * @return
+     * Get the angle of the sensor selected by {@code setSelectedSensor()} or by default.
+     * @return Angle read by the selected sensor.
      */
     public Angle getSelectedSensorAngle() {
-        return null;
+        return selectedSensor.getAngle();
     }
     
+
+    /**
+     * Get the velocity of the sensor selected by {@code setSelectedSensor()} or by default.
+     * @return Velocity read by the selected sensor in Angle per second.
+     */
     public Angle getSelectedSensorAngularVelocity() {
-        return null;
+        return selectedSensor.getVelocity();
     }
-    
-    
+
+
+
     /* Old Methods */
     
     /**
