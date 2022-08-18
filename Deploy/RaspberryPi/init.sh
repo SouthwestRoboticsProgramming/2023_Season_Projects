@@ -3,6 +3,10 @@
 # of the Raspberry Pi, then run this script as the pi user to
 # set everything up
 
+# Change these to match your team number!
+radioIP="10.21.29.1"
+staticIP="10.21.29.3"
+
 jreFileName="OpenJDK11U-jre_aarch64_linux_hotspot_11.0.16_8.tar.gz"
 jreDirName="jdk-11.0.16+8-jre"
 
@@ -26,5 +30,15 @@ sudo systemctl enable taskmanager
 echo "Starting services"
 sudo systemctl start messenger
 sudo systemctl start taskmanager
+
+echo "Setting static IP"
+cp /etc/dhcpcd.conf dhcpcd.conf.bak # Make a backup of DHCP config
+dhcpStaticConf="
+interface eth0
+static ip_address=${staticIP}/24
+static routers=${radioIP}
+static domain_name_servers=${radioIP}
+"
+sudo echo "$dhcpStaticConf" >> /etc/dhcpcd.conf
 
 echo "Setup complete!"
