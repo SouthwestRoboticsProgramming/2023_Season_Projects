@@ -40,5 +40,6 @@ static routers=${radioIP}
 static domain_name_servers=${radioIP}
 "
 sudo echo "$dhcpStaticConf" >> /etc/dhcpcd.conf
+sudo systemctl restart dhcpcd
 
 echo "Setup complete!"
