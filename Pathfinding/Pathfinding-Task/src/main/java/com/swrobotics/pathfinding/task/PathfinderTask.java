@@ -9,15 +9,15 @@ import com.swrobotics.pathfinding.finder.Pathfinder;
 import com.swrobotics.pathfinding.geom.Circle;
 import com.swrobotics.pathfinding.geom.RobotShape;
 import com.swrobotics.pathfinding.geom.Shape;
-import com.swrobotics.pathfinding.geom.ShapeTypeIds;
+import com.swrobotics.pathfinding.geom.ShapeType;
 import com.swrobotics.pathfinding.grid.BitfieldGrid;
 import com.swrobotics.pathfinding.grid.Grid;
-import com.swrobotics.pathfinding.grid.GridTypeIds;
+import com.swrobotics.pathfinding.grid.GridType;
 import com.swrobotics.pathfinding.grid.GridUnion;
 import com.swrobotics.pathfinding.grid.ShapeGrid;
 
 import java.io.File;
-import java.util.BitSet;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,9 +25,10 @@ import java.util.UUID;
 
 public final class PathfinderTask {
     private static final File CONFIG_FILE = new File("config.json");
+    private static final File GRIDS_FILE = new File("grids.json");
 
     // Main API
-    private static final String MSG_SET_POS  = "Pathfinder:SetPos";
+    private static final String MSG_SET_POS = "Pathfinder:SetPos";
     private static final String MSG_SET_GOAL = "Pathfinder:SetGoal";
     private static final String MSG_PATH = "Pathfinder:Path";
 
@@ -56,7 +57,7 @@ public final class PathfinderTask {
     private final Map<UUID, Shape> idToShape;
 
     private boolean needsRecalcPath;
-    
+
     public PathfinderTask() {
         PathfinderConfigFile config = PathfinderConfigFile.load(CONFIG_FILE);
         msg = config.getMessenger().createClient();
@@ -79,6 +80,7 @@ public final class PathfinderTask {
 
         grids.addGrid(bitGrid);
         grids.addGrid(shapeGrid);
+        saveGrids();
 
         grids.register(this);
         pathfinder = config.getFinderType().create(grids);
@@ -98,9 +100,14 @@ public final class PathfinderTask {
         pathfinder.setStart(new Point(0, 0));
         pathfinder.setGoal(new Point(0, 0));
 
-	needsRecalcPath = true;
-	
+        needsRecalcPath = true;
+
         System.out.println("Pathfinder is running");
+    }
+
+    private void saveGrids() {
+        GridsFile file = new GridsFile(robot, new ArrayList<>(grids.getChildren()));
+        file.save(GRIDS_FILE);
     }
 
     private void onSetPos(String type, MessageReader reader) {
@@ -108,7 +115,7 @@ public final class PathfinderTask {
         double y = reader.readDouble();
         Point p = field.getNearestPoint(x, y);
         pathfinder.setStart(p);
-	needsRecalcPath = true;
+        needsRecalcPath = true;
     }
 
     private void onSetGoal(String type, MessageReader reader) {
@@ -116,7 +123,7 @@ public final class PathfinderTask {
         double y = reader.readDouble();
         Point p = field.getNearestPoint(x, y);
         pathfinder.setGoal(p);
-	needsRecalcPath = true;
+        needsRecalcPath = true;
     }
 
     private void removeUnion(GridUnion union) {
@@ -165,23 +172,19 @@ public final class PathfinderTask {
         byte typeId = reader.readByte();
         Grid grid;
         int w = grids.getCellWidth(), h = grids.getCellHeight();
-        switch (typeId) {
-            case GridTypeIds.UNION:
-                grid = new GridUnion(w, h);
-                break;
-            case GridTypeIds.BITFIELD:
-                grid = new BitfieldGrid(w, h);
-                break;
-            case GridTypeIds.SHAPE:
-                grid = new ShapeGrid(w, h, field, robot);
-                break;
-            default:
-                return;
+        if (typeId == GridType.UNION.getTypeId()) {
+            grid = new GridUnion(w, h);
+        } else if (typeId == GridType.BITFIELD.getTypeId()) {
+            grid = new BitfieldGrid(w, h);
+        } else if (typeId == GridType.SHAPE.getTypeId()) {
+            grid = new ShapeGrid(w, h, field, robot);
+        } else {
+            return;
         }
         grid.setId(gridId);
         parent.addGrid(grid);
         grid.register(this);
-	needsRecalcPath = true;
+        needsRecalcPath = true;
     }
 
     private void onRemoveGrid(String type, MessageReader reader) {
@@ -189,28 +192,25 @@ public final class PathfinderTask {
         long gridIdLsb = reader.readLong();
         UUID gridId = new UUID(gridIdMsb, gridIdLsb);
         removeGrid(gridId);
-	needsRecalcPath = true;
+        needsRecalcPath = true;
     }
 
     private void alterShape(ShapeGrid grid, UUID shapeId, MessageReader reader) {
         byte typeId = reader.readByte();
         Shape shape;
-        switch (typeId) {
-            case ShapeTypeIds.CIRCLE: {
-                double x = reader.readDouble();
-                double y = reader.readDouble();
-                double radius = reader.readDouble();
-                shape = new Circle(x, y, radius);
-                break;
-            }
-            default:
-                return;
+        if (typeId == ShapeType.CIRCLE.getTypeId()) {
+            double x = reader.readDouble();
+            double y = reader.readDouble();
+            double radius = reader.readDouble();
+            shape = new Circle(x, y, radius);
+        } else {
+            return;
         }
 
         shape.setId(shapeId);
         grid.addShape(shape);
         shape.register(this);
-	needsRecalcPath = true;
+        needsRecalcPath = true;
     }
 
     private void onAlterShape(String type, MessageReader reader) {
@@ -289,32 +289,25 @@ public final class PathfinderTask {
         while (true) {
             msg.readMessages();
 
-	    if (needsRecalcPath) {
-		// Find path
-		List<Point> path = pathfinder.findPath();
-		
-		// Send path
-		MessageBuilder builder = msg.prepare(MSG_PATH);
-		builder.addBoolean(path != null);
-		if (path != null) {
-		    builder.addInt(path.size());
-		    for (Point p : path) {
-			builder.addDouble(field.convertPointX(p));
-			builder.addDouble(field.convertPointY(p));
-		    }
-		}
-		builder.send();
+            if (needsRecalcPath) {
+                // Find path
+                List<Point> path = pathfinder.findPath();
 
-		needsRecalcPath = false;
-	    }
-	    
-            /*try {
-                Thread.sleep(16);
-            } catch (InterruptedException e) {
-                break;
-	    }*/
+                // Send path
+                MessageBuilder builder = msg.prepare(MSG_PATH);
+                builder.addBoolean(path != null);
+                if (path != null) {
+                    builder.addInt(path.size());
+                    for (Point p : path) {
+                        builder.addDouble(field.convertPointX(p));
+                        builder.addDouble(field.convertPointY(p));
+                    }
+                }
+                builder.send();
+
+                needsRecalcPath = false;
+            }
         }
-        //msg.disconnect();
     }
 
     public void registerGrid(Grid grid) {

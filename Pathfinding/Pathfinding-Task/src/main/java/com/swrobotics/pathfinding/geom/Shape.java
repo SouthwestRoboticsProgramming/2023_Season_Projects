@@ -1,9 +1,15 @@
 package com.swrobotics.pathfinding.geom;
 
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.swrobotics.messenger.client.MessageBuilder;
 import com.swrobotics.pathfinding.grid.ShapeGrid;
 import com.swrobotics.pathfinding.task.PathfinderTask;
 
+import java.lang.reflect.Type;
 import java.util.UUID;
 
 public abstract class Shape {
@@ -39,5 +45,14 @@ public abstract class Shape {
 
     public void setParent(ShapeGrid parent) {
         this.parent = parent;
+    }
+
+    public static final class Serializer implements JsonDeserializer<Shape> {
+        @Override
+        public Shape deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            JsonObject obj = json.getAsJsonObject();
+            ShapeType type = ShapeType.valueOf(obj.get("type").getAsString());
+            return context.deserialize(obj, type.getType());
+        }
     }
 }

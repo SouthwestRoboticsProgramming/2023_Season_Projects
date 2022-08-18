@@ -1,8 +1,18 @@
 package com.swrobotics.pathfinding.grid;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import com.swrobotics.messenger.client.MessageBuilder;
+import com.swrobotics.pathfinding.Point;
 import com.swrobotics.pathfinding.task.PathfinderTask;
 
+import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,7 +37,7 @@ public final class GridUnion extends Grid {
 
     @Override
     public void writeToMessenger(MessageBuilder builder) {
-        builder.addByte(GridTypeIds.UNION);
+        builder.addByte(GridType.UNION.getTypeId());
         builder.addInt(children.size());
         for (Grid child : children) {
             child.addToMessenger(builder);
@@ -56,6 +66,34 @@ public final class GridUnion extends Grid {
         super.register(task);
         for (Grid child : children) {
             child.register(task);
+        }
+    }
+
+    public static final class Serializer implements JsonSerializer<GridUnion>, JsonDeserializer<GridUnion> {
+        @Override
+        public GridUnion deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            JsonObject obj = json.getAsJsonObject();
+            JsonArray children = obj.getAsJsonArray("children");
+
+            Grid.DeserializationContext ctx = Grid.DESERIALIZATION_CTX.get();
+            GridUnion union = new GridUnion(ctx.getWidth(), ctx.getHeight());
+            for (JsonElement elem : children) {
+                union.addGrid(context.deserialize(elem, Grid.class));
+            }
+
+            return union;
+        }
+
+        @Override
+        public JsonElement serialize(GridUnion src, Type typeOfSrc, JsonSerializationContext context) {
+            JsonObject obj = new JsonObject();
+            obj.addProperty("type", GridType.UNION.toString());
+            JsonArray children = new JsonArray();
+            for (Grid child : src.children) {
+                children.add(context.serialize(child));
+            }
+            obj.add("children", children);
+            return obj;
         }
     }
 }
