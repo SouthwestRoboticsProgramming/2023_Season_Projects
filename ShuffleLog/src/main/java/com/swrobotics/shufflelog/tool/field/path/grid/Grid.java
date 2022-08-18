@@ -1,11 +1,12 @@
 package com.swrobotics.shufflelog.tool.field.path.grid;
 
 import com.swrobotics.messenger.client.MessageReader;
+import com.swrobotics.shufflelog.tool.field.path.FieldNode;
 import com.swrobotics.shufflelog.tool.field.path.PathfindingLayer;
 
 import java.util.UUID;
 
-public abstract class Grid {
+public abstract class Grid implements FieldNode {
     // Type IDs
     private static final byte UNION = 0;
     private static final byte BITFIELD = 1;

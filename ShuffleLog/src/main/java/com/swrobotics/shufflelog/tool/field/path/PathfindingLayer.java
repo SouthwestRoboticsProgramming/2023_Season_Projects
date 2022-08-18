@@ -12,7 +12,6 @@ import com.swrobotics.shufflelog.tool.field.path.grid.ShapeGrid;
 import com.swrobotics.shufflelog.tool.field.path.shape.Circle;
 import com.swrobotics.shufflelog.tool.field.path.shape.Shape;
 import com.swrobotics.shufflelog.util.Cooldown;
-import com.swrobotics.shufflelog.util.SmoothFloat;
 import imgui.flag.ImGuiTableFlags;
 import imgui.flag.ImGuiTreeNodeFlags;
 import imgui.type.ImBoolean;
@@ -67,6 +66,8 @@ public final class PathfindingLayer implements FieldLayer {
 
     private double startX, startY;
     private double goalX, goalY;
+
+    private FieldNode hoveredNode;
 
     public PathfindingLayer(MessengerClient msg) {
         this.msg = msg;
@@ -218,24 +219,8 @@ public final class PathfindingLayer implements FieldLayer {
 
         // Show shapes
         if (shapes) {
-            for (Shape shape : idToShape.values()) {
-                if (shape instanceof Circle) {
-                    Circle c = (Circle) shape;
-                    g.ellipseMode(PConstants.CENTER);
-                    g.noFill();
-
-                    float x = (float) c.x.get();
-                    float y = (float) c.y.get();
-                    float d = (float) (2 * c.radius.get());
-
-                    g.strokeWeight(4 * strokeMul);
-                    g.stroke(201, 101, 18, 128);
-                    g.ellipse(x, y, d, d);
-                    g.strokeWeight(2 * strokeMul);
-                    g.stroke(201, 101, 18);
-                    g.ellipse(x, y, d, d);
-                }
-            }
+            drawShapes(g, grid, strokeMul, g.color(201, 101, 18), g.color(201, 101, 18, 128));
+            drawShapes(g, hoveredNode, strokeMul, g.color(46, 174, 217), g.color(46, 174, 217, 128));
         }
 
         // Show path
@@ -269,6 +254,39 @@ public final class PathfindingLayer implements FieldLayer {
         }
     }
 
+    private void drawShape(PGraphics g, Shape shape, float strokeMul, int fg, int bg) {
+        if (shape instanceof Circle) {
+            Circle c = (Circle) shape;
+            g.ellipseMode(PConstants.CENTER);
+            g.noFill();
+
+            float x = (float) c.x.get();
+            float y = (float) c.y.get();
+            float d = (float) (2 * c.radius.get());
+
+            g.strokeWeight(4 * strokeMul);
+            g.stroke(bg);
+            g.ellipse(x, y, d, d);
+            g.strokeWeight(2 * strokeMul);
+            g.stroke(fg);
+            g.ellipse(x, y, d, d);
+        }
+    }
+
+    private void drawShapes(PGraphics g, FieldNode node, float strokeMul, int fg, int bg) {
+        if (node instanceof Shape) {
+            drawShape(g, (Shape) node, strokeMul, fg, bg);
+        } else if (node instanceof ShapeGrid) {
+            for (Shape shape : ((ShapeGrid) node).getShapes()) {
+                drawShape(g, shape, strokeMul, fg, bg);
+            }
+        } else if (node instanceof GridUnion) {
+            for (Grid grid : ((GridUnion) node).getChildren()) {
+                drawShapes(g, grid, strokeMul, fg, bg);
+            }
+        }
+    }
+
     private void showGridUnion(GridUnion union, boolean isRoot) {
         String id = "Grid Union##" + union.getId();
         int flags = ImGuiTreeNodeFlags.SpanFullWidth;
@@ -278,6 +296,7 @@ public final class PathfindingLayer implements FieldLayer {
 
         tableNextColumn();
         boolean open = treeNodeEx(id, flags);
+        if (isItemHovered()) hoveredNode = grid;
         tableNextColumn();
         textDisabled(union.getId().toString());
 
@@ -293,6 +312,7 @@ public final class PathfindingLayer implements FieldLayer {
         String id = "Bitfield Grid##" + grid.getId();
         tableNextColumn();
         treeNodeEx(id, ImGuiTreeNodeFlags.SpanFullWidth | ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen);
+        if (isItemHovered()) hoveredNode = grid;
         tableNextColumn();
         textDisabled(grid.getId().toString());
     }
@@ -306,6 +326,7 @@ public final class PathfindingLayer implements FieldLayer {
 
         tableNextColumn();
         boolean open = treeNodeEx(id, flags);
+        if (isItemHovered()) hoveredNode = grid;
         if (beginPopupContextItem()) {
             Shape addedShape = null;
             if (selectable("Add Circle")) {
@@ -363,6 +384,7 @@ public final class PathfindingLayer implements FieldLayer {
 
         tableNextColumn();
         boolean open = treeNodeEx(id, ImGuiTreeNodeFlags.SpanFullWidth);
+        if (isItemHovered()) hoveredNode = circle;
         if (beginPopupContextItem()) {
             if (selectable("Delete")) {
                 removeShape(grid, circle);
@@ -420,6 +442,7 @@ public final class PathfindingLayer implements FieldLayer {
         separator();
         if (grid != null) {
             if (beginTable("grids", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable)) {
+                hoveredNode = null;
                 showGrid(grid, true);
                 endTable();
             }

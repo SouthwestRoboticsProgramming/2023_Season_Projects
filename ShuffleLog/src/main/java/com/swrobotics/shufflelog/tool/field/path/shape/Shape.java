@@ -2,12 +2,13 @@ package com.swrobotics.shufflelog.tool.field.path.shape;
 
 import com.swrobotics.messenger.client.MessageBuilder;
 import com.swrobotics.messenger.client.MessageReader;
+import com.swrobotics.shufflelog.tool.field.path.FieldNode;
 import com.swrobotics.shufflelog.tool.field.path.PathfindingLayer;
 import com.swrobotics.shufflelog.tool.field.path.grid.ShapeGrid;
 
 import java.util.UUID;
 
-public abstract class Shape {
+public abstract class Shape implements FieldNode {
     public static final byte CIRCLE = 0;
 
     private final UUID id;
