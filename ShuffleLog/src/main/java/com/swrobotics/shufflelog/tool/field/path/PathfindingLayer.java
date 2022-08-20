@@ -10,11 +10,13 @@ import com.swrobotics.shufflelog.tool.field.path.grid.Grid;
 import com.swrobotics.shufflelog.tool.field.path.grid.GridUnion;
 import com.swrobotics.shufflelog.tool.field.path.grid.ShapeGrid;
 import com.swrobotics.shufflelog.tool.field.path.shape.Circle;
+import com.swrobotics.shufflelog.tool.field.path.shape.Rectangle;
 import com.swrobotics.shufflelog.tool.field.path.shape.Shape;
 import com.swrobotics.shufflelog.util.Cooldown;
 import imgui.flag.ImGuiTableFlags;
 import imgui.flag.ImGuiTreeNodeFlags;
 import imgui.type.ImBoolean;
+import org.w3c.dom.css.Rect;
 import processing.core.PConstants;
 import processing.core.PGraphics;
 
@@ -270,6 +272,27 @@ public final class PathfindingLayer implements FieldLayer {
             g.strokeWeight(2 * strokeMul);
             g.stroke(fg);
             g.ellipse(x, y, d, d);
+        } else if (shape instanceof Rectangle) {
+            Rectangle r = (Rectangle) shape;
+            float x = (float) r.x.get();
+            float y = (float) r.y.get();
+            float w = (float) r.width.get();
+            float h = (float) r.height.get();
+            float rot = (float) r.rotation.get();
+
+            g.pushMatrix();
+            g.translate(x, y);
+            g.rotate(rot);
+
+            g.noFill();
+            g.strokeWeight(4 * strokeMul);
+            g.stroke(bg);
+            g.rect(-w/2, -h/2, w, h);
+            g.stroke(fg);
+            g.strokeWeight(2 * strokeMul);
+            g.rect(-w/2, -h/2, w, h);
+
+            g.popMatrix();
         }
     }
 
@@ -337,6 +360,16 @@ public final class PathfindingLayer implements FieldLayer {
                 c.radius.set(1);
                 addedShape = c;
             }
+            if (selectable("Add Rectangle")) {
+                Rectangle r = new Rectangle(UUID.randomUUID());
+                r.register(this);
+                r.x.set(0);
+                r.y.set(0);
+                r.width.set(1);
+                r.height.set(1);
+                r.rotation.set(0);
+                addedShape = r;
+            }
 
             if (addedShape != null) {
                 grid.getShapes().add(addedShape);
@@ -379,6 +412,14 @@ public final class PathfindingLayer implements FieldLayer {
                 .send();
     }
 
+    private void fieldHeader(String name) {
+        tableNextColumn();
+        alignTextToFramePadding();
+        treeNodeEx(name, ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen | ImGuiTreeNodeFlags.SpanFullWidth);
+        tableNextColumn();
+        setNextItemWidth(-1);
+    }
+
     private void showCircle(ShapeGrid grid, Circle circle) {
         String id = "Circle##" + circle.getId();
 
@@ -396,26 +437,10 @@ public final class PathfindingLayer implements FieldLayer {
 
         if (open) {
             boolean changed;
-            tableNextColumn();
-            alignTextToFramePadding();
-            treeNodeEx("X", ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen | ImGuiTreeNodeFlags.SpanFullWidth);
-            tableNextColumn();
-            setNextItemWidth(-1);
-            changed = inputDouble("##x", circle.x);
 
-            tableNextColumn();
-            alignTextToFramePadding();
-            treeNodeEx("Y", ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen | ImGuiTreeNodeFlags.SpanFullWidth);
-            tableNextColumn();
-            setNextItemWidth(-1);
-            changed |= inputDouble("##y", circle.y);
-
-            tableNextColumn();
-            alignTextToFramePadding();
-            treeNodeEx("Radius", ImGuiTreeNodeFlags.Leaf | ImGuiTreeNodeFlags.NoTreePushOnOpen | ImGuiTreeNodeFlags.SpanFullWidth);
-            tableNextColumn();
-            setNextItemWidth(-1);
-            changed |= inputDouble("##radius", circle.radius);
+            fieldHeader("X"); changed = inputDouble("##x", circle.x);
+            fieldHeader("Y"); changed |= inputDouble("##y", circle.y);
+            fieldHeader("Radius"); changed |= inputDouble("##radius", circle.radius);
 
             if (changed) {
                 MessageBuilder builder = msg.prepare(MSG_ALTER_SHAPE);
@@ -428,9 +453,45 @@ public final class PathfindingLayer implements FieldLayer {
         }
     }
 
+    private void showRectangle(ShapeGrid grid, Rectangle rect) {
+        String id = "Rectangle##" + rect.getId();
+
+        tableNextColumn();
+        boolean open = treeNodeEx(id, ImGuiTreeNodeFlags.SpanFullWidth);
+        if (isItemHovered()) hoveredNode = rect;
+        if (beginPopupContextItem()) {
+            if (selectable("Delete")) {
+                removeShape(grid, rect);
+            }
+            endPopup();
+        }
+        tableNextColumn();
+        textDisabled(rect.getId().toString());
+
+        if (open) {
+            boolean changed;
+            fieldHeader("X"); changed = inputDouble("##x", rect.x);
+            fieldHeader("Y"); changed |= inputDouble("##y", rect.y);
+            fieldHeader("Width"); changed |= inputDouble("##width", rect.width);
+            fieldHeader("Height"); changed |= inputDouble("##height", rect.height);
+            fieldHeader("Rotation"); changed |= inputDouble("##rotation", rect.rotation);
+
+            if (changed) {
+                MessageBuilder builder = msg.prepare(MSG_ALTER_SHAPE);
+                rect.write(builder);
+                builder.send();
+                needsRefreshCellData = true;
+            }
+
+            treePop();
+        }
+    }
+
     private void showShape(ShapeGrid grid, Shape shape) {
         if (shape instanceof Circle)
             showCircle(grid, (Circle) shape);
+        else if (shape instanceof Rectangle)
+            showRectangle(grid, (Rectangle) shape);
     }
 
     @Override

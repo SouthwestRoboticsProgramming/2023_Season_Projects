@@ -10,6 +10,7 @@ import java.util.UUID;
 
 public abstract class Shape implements FieldNode {
     public static final byte CIRCLE = 0;
+    public static final byte RECTANGLE = 1;
 
     private final UUID id;
 
@@ -36,6 +37,9 @@ public abstract class Shape implements FieldNode {
         switch (type) {
             case CIRCLE:
                 shape = new Circle(id);
+                break;
+            case RECTANGLE:
+                shape = new Rectangle(id);
                 break;
             default:
                 throw new RuntimeException("Unknown type id: " + type);

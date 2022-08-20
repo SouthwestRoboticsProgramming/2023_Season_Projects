@@ -7,6 +7,7 @@ import com.swrobotics.pathfinding.Field;
 import com.swrobotics.pathfinding.Point;
 import com.swrobotics.pathfinding.finder.Pathfinder;
 import com.swrobotics.pathfinding.geom.Circle;
+import com.swrobotics.pathfinding.geom.Rectangle;
 import com.swrobotics.pathfinding.geom.RobotShape;
 import com.swrobotics.pathfinding.geom.Shape;
 import com.swrobotics.pathfinding.geom.ShapeType;
@@ -198,6 +199,13 @@ public final class PathfinderTask {
             double y = reader.readDouble();
             double radius = reader.readDouble();
             shape = new Circle(x, y, radius);
+        } else if (typeId == ShapeType.RECTANGLE.getTypeId()) {
+            double x = reader.readDouble();
+            double y = reader.readDouble();
+            double width = reader.readDouble();
+            double height = reader.readDouble();
+            double rotation = reader.readDouble();
+            shape = new Rectangle(x, y, width, height, rotation);
         } else {
             return;
         }
@@ -206,6 +214,8 @@ public final class PathfinderTask {
         grid.addShape(shape);
         shape.register(this);
         needsRecalcPath = true;
+
+        System.out.println("Shape changed: " + shape);
     }
 
     private void onAlterShape(String type, MessageReader reader) {

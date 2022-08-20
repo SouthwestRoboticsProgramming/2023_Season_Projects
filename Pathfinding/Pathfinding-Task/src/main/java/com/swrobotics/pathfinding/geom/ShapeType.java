@@ -1,7 +1,8 @@
 package com.swrobotics.pathfinding.geom;
 
 public enum ShapeType {
-    CIRCLE((byte) 0, Circle.class);
+    CIRCLE((byte) 0, Circle.class),
+    RECTANGLE((byte) 1, Rectangle.class);
 
     private final byte typeId;
     private final Class<? extends Shape> type;

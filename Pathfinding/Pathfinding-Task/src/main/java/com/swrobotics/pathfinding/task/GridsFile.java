@@ -11,6 +11,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.swrobotics.pathfinding.Field;
 import com.swrobotics.pathfinding.geom.Circle;
+import com.swrobotics.pathfinding.geom.Rectangle;
 import com.swrobotics.pathfinding.geom.RobotShape;
 import com.swrobotics.pathfinding.geom.Shape;
 import com.swrobotics.pathfinding.grid.BitfieldGrid;
@@ -37,6 +38,7 @@ public final class GridsFile {
             .registerTypeAdapter(Shape.class, new Shape.Serializer())
             .registerTypeAdapter(RobotShape.class, new Shape.Serializer())
             .registerTypeAdapter(Circle.class, new Circle.Serializer())
+            .registerTypeAdapter(Rectangle.class, new Rectangle.Serializer())
             .disableHtmlEscaping()
             .setPrettyPrinting()
             .create();

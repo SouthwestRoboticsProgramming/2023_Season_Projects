@@ -11,6 +11,7 @@ import com.swrobotics.messenger.client.MessageBuilder;
 import com.swrobotics.pathfinding.Field;
 import com.swrobotics.pathfinding.Point;
 import com.swrobotics.pathfinding.geom.Circle;
+import com.swrobotics.pathfinding.geom.Rectangle;
 import com.swrobotics.pathfinding.geom.RobotShape;
 import com.swrobotics.pathfinding.geom.Shape;
 import com.swrobotics.pathfinding.task.PathfinderTask;
@@ -28,6 +29,7 @@ public abstract class Grid {
             .registerTypeAdapter(Shape.class, new Shape.Serializer())
             .registerTypeAdapter(RobotShape.class, new Shape.Serializer())
             .registerTypeAdapter(Circle.class, new Circle.Serializer())
+            .registerTypeAdapter(Rectangle.class, new Rectangle.Serializer())
             .disableHtmlEscaping()
             .setPrettyPrinting()
             .create();
