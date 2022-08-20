@@ -66,20 +66,12 @@ public final class PathfinderTask {
         idToGrid = new HashMap<>();
         idToShape = new HashMap<>();
 
-        // TODO: Load from config
-        robot = new Circle(0, 0, 0.5);
-
         grids = new GridUnion(field.getCellsX(), field.getCellsY());
-        // TODO: Load grids from grid file
-
-        // Test grids for Messenger testing
-        BitfieldGrid bitGrid = new BitfieldGrid(field.getCellsX(), field.getCellsY());
-        ShapeGrid shapeGrid = new ShapeGrid(field.getCellsX(), field.getCellsY(), field, robot);
-        shapeGrid.addShape(new Circle(0, 3.5, 1));
-        shapeGrid.addShape(new Circle(0, -3.5, 1));
-
-        grids.addGrid(bitGrid);
-        grids.addGrid(shapeGrid);
+        GridsFile file = GridsFile.load(GRIDS_FILE, field);
+        robot = file.getRobot();
+        for (Grid grid : file.getGrids()) {
+            grids.addGrid(grid);
+        }
         saveGrids();
 
         grids.register(this);
@@ -106,6 +98,7 @@ public final class PathfinderTask {
     }
 
     private void saveGrids() {
+        System.out.println("Saving grids");
         GridsFile file = new GridsFile(robot, new ArrayList<>(grids.getChildren()));
         file.save(GRIDS_FILE);
     }
@@ -185,6 +178,7 @@ public final class PathfinderTask {
         parent.addGrid(grid);
         grid.register(this);
         needsRecalcPath = true;
+        saveGrids();
     }
 
     private void onRemoveGrid(String type, MessageReader reader) {
@@ -193,6 +187,7 @@ public final class PathfinderTask {
         UUID gridId = new UUID(gridIdMsb, gridIdLsb);
         removeGrid(gridId);
         needsRecalcPath = true;
+        saveGrids();
     }
 
     private void alterShape(ShapeGrid grid, UUID shapeId, MessageReader reader) {
@@ -220,6 +215,7 @@ public final class PathfinderTask {
         ShapeGrid parent = idToShape.get(shapeId).getParent();
         removeShape(shapeId);
         alterShape(parent, shapeId, reader);
+        saveGrids();
     }
 
     private void onAddShape(String type, MessageReader reader) {
@@ -242,6 +238,7 @@ public final class PathfinderTask {
         removeShape(shapeId);
 
         alterShape(grid, shapeId, reader);
+        saveGrids();
     }
 
     private void onRemoveShape(String type, MessageReader reader) {
@@ -249,6 +246,7 @@ public final class PathfinderTask {
         long shapeIdLsb = reader.readLong();
         UUID shapeId = new UUID(shapeIdMsb, shapeIdLsb);
         removeShape(shapeId);
+        saveGrids();
     }
 
     private void onGetFieldInfo(String type, MessageReader reader) {

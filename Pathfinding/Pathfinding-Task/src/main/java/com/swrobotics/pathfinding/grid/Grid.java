@@ -26,6 +26,7 @@ public abstract class Grid {
             .registerTypeAdapter(GridUnion.class, new GridUnion.Serializer())
             .registerTypeAdapter(ShapeGrid.class, new ShapeGrid.Serializer())
             .registerTypeAdapter(Shape.class, new Shape.Serializer())
+            .registerTypeAdapter(RobotShape.class, new Shape.Serializer())
             .registerTypeAdapter(Circle.class, new Circle.Serializer())
             .disableHtmlEscaping()
             .setPrettyPrinting()
