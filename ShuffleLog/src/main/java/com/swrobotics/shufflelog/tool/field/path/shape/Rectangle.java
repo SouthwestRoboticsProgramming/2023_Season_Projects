@@ -29,7 +29,7 @@ public final class Rectangle extends Shape {
         y.set(reader.readDouble());
         width.set(reader.readDouble());
         height.set(reader.readDouble());
-        rotation.set(reader.readDouble());
+        rotation.set(Math.toDegrees(reader.readDouble()));
     }
 
     @Override
@@ -40,6 +40,6 @@ public final class Rectangle extends Shape {
         builder.addDouble(y.get());
         builder.addDouble(width.get());
         builder.addDouble(height.get());
-        builder.addDouble(rotation.get());
+        builder.addDouble(Math.toRadians(rotation.get()));
     }
 }

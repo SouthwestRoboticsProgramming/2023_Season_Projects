@@ -282,7 +282,7 @@ public final class PathfindingLayer implements FieldLayer {
 
             g.pushMatrix();
             g.translate(x, y);
-            g.rotate(rot);
+            g.rotate((float) Math.toRadians(rot));
 
             g.noFill();
             g.strokeWeight(4 * strokeMul);
