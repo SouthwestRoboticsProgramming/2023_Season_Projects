@@ -165,6 +165,33 @@ public final class FieldVectorLayer implements FieldLayer {
         g.ellipseMode(PConstants.CENTER);
         g.ellipse(0, 0, 60.18f, 60.18f); // Lower hub inner diameter
         g.ellipse(0, 0, 48, 48); // Upper hub inner diameter
+
+        /*
+         *     \__
+         * b1
+         *    b2 b3
+         */
+
+        // Ball starting locations
+        float startPointToLowerEdgeX = (-startSpacingEdge) - (-startSpacingEdge - startPointEdge);
+        float startPointToLowerEdgeY = (startSpacingEdge + startEdge) - (startSpacingEdge + startPointEdge);
+        float startPointToLowerEdgeLen = (float) Math.sqrt(startPointToLowerEdgeX * startPointToLowerEdgeX + startPointToLowerEdgeY * startPointToLowerEdgeY);
+        startPointToLowerEdgeX /= startPointToLowerEdgeLen;
+        startPointToLowerEdgeY /= startPointToLowerEdgeLen;
+
+        // rotate vector 90 degrees clockwise
+        // cx-sy; sx+cy
+        float perpVectorX = -startPointToLowerEdgeY;
+        float perpVectorY = startPointToLowerEdgeX;
+
+        g.fill(0, 0, 255);
+        g.noStroke();
+        g.ellipseMode(PConstants.CENTER);
+        g.ellipse(
+                -startSpacingEdge - startPointEdge + 15.56f * startPointToLowerEdgeX + 40.44f * perpVectorX,
+                startSpacingEdge + startPointEdge + 15.56f * startPointToLowerEdgeY + 40.44f * perpVectorY,
+                12, 12
+        ); // Ball 2 upper-left
     }
 
     @Override
