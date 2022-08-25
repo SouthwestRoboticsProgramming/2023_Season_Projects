@@ -29,6 +29,7 @@ public class SwerveModuleMaker {
     public static SwerveModule buildModule(Subsystem parent, SwerveModuleDef def, int steerID, Vec2d position) {
         TalonFXMotor driveMotor = new TalonFXMotor(parent, def.getDriveId(), Constants.CANIVORE);
         driveMotor.setPIDCalculators(DRIVE_KP, DRIVE_KI, DRIVE_KD);
+        driveMotor.setInverted(true);
 
         TalonSRXMotor steerMotor = new TalonSRXMotor(parent, steerID);
 

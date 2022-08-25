@@ -2,6 +2,7 @@ package com.team2129.lib.motor.calc;
 
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.net.NTDouble;
+import com.team2129.lib.wpilib.AbstractRobot;
 
 import edu.wpi.first.math.controller.PIDController;
 
@@ -20,7 +21,7 @@ public final class PIDPositionCalculator implements PositionCalculator {
      * @param kD derivative coefficient
      */
     public PIDPositionCalculator(double kP, double kI, double kD) {
-        pid = new PIDController(kP, kI, kD);
+        pid = new PIDController(kP, kI, kD, 1 / AbstractRobot.get().getPeriodicPerSecond());
     }
 
     /**

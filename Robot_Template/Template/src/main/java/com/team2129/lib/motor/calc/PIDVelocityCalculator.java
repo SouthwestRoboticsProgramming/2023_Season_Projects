@@ -2,6 +2,7 @@ package com.team2129.lib.motor.calc;
 
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.net.NTDouble;
+import com.team2129.lib.wpilib.AbstractRobot;
 
 import edu.wpi.first.math.controller.PIDController;
 
@@ -20,13 +21,13 @@ public final class PIDVelocityCalculator implements VelocityCalculator {
      * @param kD derivative coefficient
      */
     public PIDVelocityCalculator(double kP, double kI, double kD) {
-        pid = new PIDController(kP, kI, kD);
+        pid = new PIDController(kP, kI, kD, 1 / AbstractRobot.get().getPeriodicPerSecond());
     }
 
     /**
      * Creates a new instance with the specified tunable PID constants.
      * The values used will be automatically adjusted if the NetworkTables
-     * entry is changed.
+     * entries are changed.
      * 
      * @param kP proportional coefficient entry
      * @param kI integral coefficient entry

@@ -23,10 +23,10 @@ public class Hopper implements Subsystem {
     public Hopper(BallDetector ballDetector) {
         this.ballDetector = ballDetector;
 
-        //index_toWrap.setInverted(true);
-
         indexMotor = new TalonFXMotor(this, INDEX_MOTOR_ID, Constants.CANIVORE);
         indexMotor.setPIDCalculators(INDEX_KP, INDEX_KI, INDEX_KD);
+
+        indexMotor.setInverted(true);
     }
 
     public boolean isBallDetected() {

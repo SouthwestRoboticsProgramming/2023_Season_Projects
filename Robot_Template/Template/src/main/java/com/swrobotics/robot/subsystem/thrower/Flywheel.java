@@ -2,6 +2,7 @@ package com.swrobotics.robot.subsystem.thrower;
 
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.motor.calc.BangBangVelocityCalculator;
+import com.team2129.lib.motor.calc.PIDFFVelocityCalculator;
 import com.team2129.lib.motor.calc.PIDVelocityCalculator;
 import com.team2129.lib.motor.ctre.TalonFXMotor;
 import com.team2129.lib.net.NTBoolean;
@@ -34,19 +35,16 @@ public class Flywheel implements Subsystem {
     
     public Flywheel() {
         motor = new TalonFXMotor(this, FLYWHEEL_MOTOR_ID, Constants.CANIVORE);
+        
         updateFlywheelMode();
+        FLYWHEEL_MODE.onChange(this::updateFlywheelMode);
     }
 
     private void updateFlywheelMode() {
         if (FLYWHEEL_MODE.get()) {
             motor.setVelocityCalculator(new BangBangVelocityCalculator());
         } else {
-            motor.setVelocityCalculator(new PIDVelocityCalculator(KP, KI, KD));
-            
-            // TODO: Figure out how feedforward actually works so we can do it right
-            // motor.setFeedforward(new SimpleMotorFeedforward(KS.get(), KV.get()));
-            // KS.onChange(() -> motor.setFeedforward(new SimpleMotorFeedforward(KS.get(), KV.get())));
-            // KV.onChange(() -> motor.setFeedforward(new SimpleMotorFeedforward(KS.get(), KV.get())));
+            motor.setVelocityCalculator(new PIDFFVelocityCalculator(KP, KI, KD, KS, KV));
         }
     }
 
