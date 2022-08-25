@@ -12,6 +12,7 @@ import com.team2129.lib.motor.calc.VelocityCalculator;
 import com.team2129.lib.net.NTDouble;
 import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.schedule.Subsystem;
+import com.team2129.lib.utils.InputUtils;
 
 /**
  * Represents a generic motor. This class is intended to provide
@@ -39,7 +40,9 @@ public abstract class Motor implements Subsystem {
     private Runnable controlModeImpl;
 
     private Angle holdTarget;
+    
     private boolean inverted;
+    private double neutralDeadband;
 
     /**
      * Creates a new {@code Motor} instance that belongs to a specified {@link Subsystem}.
@@ -52,7 +55,9 @@ public abstract class Motor implements Subsystem {
         positionCalc = null;
         velocityCalc = null;
         encoder = null;
+
         inverted = false;
+        neutralDeadband = 0.01;
 
         percent(0);
     }
@@ -302,6 +307,26 @@ public abstract class Motor implements Subsystem {
     }
 
     /**
+     * Gets the currently set neutral deadband.
+     * 
+     * @return neutral deadband
+     */
+    public double getNeutralDeadband() {
+        return neutralDeadband;
+    }
+
+    /**
+     * Sets the range at which the motor will assume the percent output
+     * is neutral. If the percent output is within the deadband, it will
+     * be clamped to zero.
+     * 
+     * @param neutralDeadband new neutral deadband
+     */
+    public void setNeutralDeadband(double neutralDeadband) {
+        this.neutralDeadband = neutralDeadband;
+    }
+
+    /**
      * Actually sets the motor's percent output. This should be implemented
      * by all motor types to be able to control them. A percent output of 1
      * should be full speed clockwise, a percent output of -1 should be full
@@ -315,6 +340,8 @@ public abstract class Motor implements Subsystem {
     private void setPercentOutFiltered(double percent) {
         if (inverted)
             percent = -percent;
+
+        percent = InputUtils.applyDeadband(percent, neutralDeadband);
 
         setPercentOutInternal(MathUtil.clamp(percent, -1, 1));
     }

@@ -3,6 +3,7 @@ package com.team2129.lib.utils;
 import com.team2129.lib.math.MathUtil;
 
 public class InputUtils {
+    // TODO: Move to MathUtils?
     public static double applyDeadband(double measurement, double band) {
         if (Math.abs(measurement) < band) {
             return 0;
