@@ -46,7 +46,7 @@ public final class PIDVelocityCalculator implements VelocityCalculator {
     }
 
     @Override
-    public double calculate(Angle currentVel, Angle targetVel) {
-        return pid.calculate(currentVel.getCWDeg(), targetVel.getCWDeg());
+    public double calculate(Angle currentVelocity, Angle targetVelocity) {
+        return pid.calculate(currentVelocity.getCWDeg(), targetVelocity.getCWDeg());
     }
 }

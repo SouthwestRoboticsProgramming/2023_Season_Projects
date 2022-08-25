@@ -17,10 +17,7 @@ public interface VelocityCalculator {
     /**
      * Calculates the percent output of the motor for a target velocity.
      * The percent output will be clamped before use.
-     * 
-     * @param currentVel current velocity
-     * @param targetVel target velocity
      * @return percent output (-1 to 1)
      */
-    double calculate(Angle currentVel, Angle targetVel);
+    double calculate(Angle currentVelocity, Angle targetVelocity);
 }

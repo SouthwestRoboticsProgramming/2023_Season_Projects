@@ -66,8 +66,8 @@ public final class BangBangVelocityCalculator implements VelocityCalculator {
     }
 
     @Override
-    public double calculate(Angle currentVel, Angle targetVel) {
+    public double calculate(Angle currentVelocity, Angle targetVelocity) {
         // Pretend that the target is lower to account for the threshold.
-        return bang.calculate(currentVel.getCWDeg(), targetVel.sub(threshold).getCWDeg()) * multiplier;
+        return bang.calculate(currentVelocity.getCWDeg(), targetVelocity.sub(threshold).getCWDeg()) * multiplier;
     }
 }

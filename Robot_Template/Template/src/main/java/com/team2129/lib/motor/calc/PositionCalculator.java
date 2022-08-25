@@ -18,9 +18,7 @@ public interface PositionCalculator {
      * Calculates the percent output of the motor for a target angle.
      * The percent output will be clamped before use.
      * 
-     * @param currentPos current angle
-     * @param targetPos target angle
      * @return percent output (-1 to 1)
      */
-    double calculate(Angle currentPos, Angle targetPos);
+    double calculate(Angle currentAngle, Angle targetAngle);
 }

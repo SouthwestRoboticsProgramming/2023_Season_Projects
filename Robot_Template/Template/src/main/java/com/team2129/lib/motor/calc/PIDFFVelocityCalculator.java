@@ -79,7 +79,7 @@ public final class PIDFFVelocityCalculator implements VelocityCalculator {
     }
 
     @Override
-    public double calculate(Angle currentVel, Angle targetVel) {
-        return pid.calculate(currentVel, targetVel) + ff.calculate(currentVel, targetVel);
+    public double calculate(Angle currentVelocity, Angle targetVelocity) {
+        return pid.calculate(currentVelocity, targetVelocity) + ff.calculate(currentVelocity, targetVelocity);
     }
 }

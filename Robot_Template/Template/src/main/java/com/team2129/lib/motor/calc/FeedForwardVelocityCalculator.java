@@ -76,7 +76,7 @@ public final class FeedForwardVelocityCalculator implements VelocityCalculator {
     }
 
     @Override
-    public double calculate(Angle currentVel, Angle targetVel) {
-        return ff.calculate(currentVel.getCWDeg(), targetVel.getCWDeg());
+    public double calculate(Angle currentVelocity, Angle targetVelocity) {
+        return ff.calculate(currentVelocity.getCWDeg(), targetVelocity.getCWDeg());
     }
 }

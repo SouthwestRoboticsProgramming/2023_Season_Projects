@@ -59,7 +59,7 @@ public final class PIDPositionCalculator implements PositionCalculator {
     }
 
     @Override
-    public double calculate(Angle currentPos, Angle targetPos) {
-        return pid.calculate(currentPos.getCWDeg(), targetPos.getCWDeg());
+    public double calculate(Angle currentPosition, Angle targetPosition) {
+        return pid.calculate(currentPosition.getCWDeg(), targetPosition.getCWDeg());
     }
 }
