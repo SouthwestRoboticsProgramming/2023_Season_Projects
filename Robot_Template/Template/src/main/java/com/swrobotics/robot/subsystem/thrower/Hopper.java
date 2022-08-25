@@ -13,9 +13,9 @@ import com.team2129.lib.utils.LazyTalonFXConfiguration;
 public class Hopper implements Subsystem {
     private static final int INDEX_MOTOR_ID = 12;
 
-    private static final NTDouble INDEX_KP = new NTDouble("Thrower/Hopper/Index/kP", 0.0);
-    private static final NTDouble INDEX_KI = new NTDouble("Thrower/Hopper/Index/kI", 0.0);
-    private static final NTDouble INDEX_KD = new NTDouble("Thrower/Hopper/Index/kD", 0.0);
+    private static final NTDouble INDEX_KP = new NTDouble("Thrower/Hopper/Index/kP", 0.07);
+    private static final NTDouble INDEX_KI = new NTDouble("Thrower/Hopper/Index/kI", 8.0);
+    private static final NTDouble INDEX_KD = new NTDouble("Thrower/Hopper/Index/kD", 0.005);
 
     private static final NTDouble INDEX_IDLE_SPEED_DEGREES = new NTDouble("Thrower/Hopper/Index/Idle_Speed_DpS", 750);
 
@@ -30,7 +30,6 @@ public class Hopper implements Subsystem {
         TalonFX index_toWrap = new TalonFX(INDEX_MOTOR_ID, Constants.CANIVORE);
         LazyTalonFXConfiguration.configureDefaultTalon(index_toWrap);
         index_toWrap.setNeutralMode(NeutralMode.Brake);
-        index_toWrap.setInverted(true);
 
         indexMotor = new TalonMotor(this, index_toWrap);
         indexMotor.setPIDController(NTUtils.makeAutoTunedPID(INDEX_KP, INDEX_KI, INDEX_KD));
