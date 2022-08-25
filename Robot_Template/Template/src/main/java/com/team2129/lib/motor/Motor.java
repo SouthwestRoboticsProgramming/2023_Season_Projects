@@ -39,6 +39,7 @@ public abstract class Motor implements Subsystem {
     private Runnable controlModeImpl;
 
     private Angle holdTarget;
+    private boolean inverted;
 
     /**
      * Creates a new {@code Motor} instance that belongs to a specified {@link Subsystem}.
@@ -51,6 +52,7 @@ public abstract class Motor implements Subsystem {
         positionCalc = null;
         velocityCalc = null;
         encoder = null;
+        inverted = false;
 
         percent(0);
     }
@@ -282,6 +284,24 @@ public abstract class Motor implements Subsystem {
     }
 
     /**
+     * Gets whether the motor's output is currenty inverted.
+     * 
+     * @return inverted
+     */
+    public boolean isInverted() {
+        return inverted;
+    }
+
+    /**
+     * Sets whether the motor's output should be inverted.
+     * 
+     * @param inverted whether to invert output
+     */
+    public void setInverted(boolean inverted) {
+        this.inverted = inverted;
+    }
+
+    /**
      * Actually sets the motor's percent output. This should be implemented
      * by all motor types to be able to control them. A percent output of 1
      * should be full speed clockwise, a percent output of -1 should be full
@@ -292,23 +312,26 @@ public abstract class Motor implements Subsystem {
      */
     protected abstract void setPercentOutInternal(double percent);
 
-    private void setPercentOutClamped(double percent) {
+    private void setPercentOutFiltered(double percent) {
+        if (inverted)
+            percent = -percent;
+
         setPercentOutInternal(MathUtil.clamp(percent, -1, 1));
     }
 
     // Implementation of percent output control mode
     private void percentImpl(double percent) {
-        setPercentOutClamped(percent);
+        setPercentOutFiltered(percent);
     }
 
     // Implementation of position control mode (used for position() and hold())
     private void positionImpl(Supplier<Angle> angleGetter, Angle angle) {
-        setPercentOutClamped(positionCalc.calculate(angleGetter.get(), angle));
+        setPercentOutFiltered(positionCalc.calculate(angleGetter.get(), angle));
     }
 
     // Implementation of velocity control mode (used for velocity() and halt())
     private void velocityImpl(Supplier<Angle> velocityGetter, Angle velocity) {
-        setPercentOutClamped(velocityCalc.calculate(velocityGetter.get(), velocity));
+        setPercentOutFiltered(velocityCalc.calculate(velocityGetter.get(), velocity));
     }
 
     @Override
