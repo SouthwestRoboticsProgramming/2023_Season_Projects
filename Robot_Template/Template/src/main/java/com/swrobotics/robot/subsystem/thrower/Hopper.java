@@ -2,6 +2,7 @@ package com.swrobotics.robot.subsystem.thrower;
 
 import com.swrobotics.robot.Constants;
 import com.team2129.lib.math.Angle;
+import com.team2129.lib.motor.ctre.NeutralMode;
 import com.team2129.lib.motor.ctre.TalonFXMotor;
 import com.team2129.lib.net.NTDouble;
 import com.team2129.lib.schedule.Subsystem;
@@ -9,9 +10,9 @@ import com.team2129.lib.schedule.Subsystem;
 public class Hopper implements Subsystem {
     private static final int INDEX_MOTOR_ID = 12;
 
-    private static final NTDouble INDEX_KP = new NTDouble("Thrower/Hopper/Index/kP", 0.0);
-    private static final NTDouble INDEX_KI = new NTDouble("Thrower/Hopper/Index/kI", 0.0);
-    private static final NTDouble INDEX_KD = new NTDouble("Thrower/Hopper/Index/kD", 0.0);
+    private static final NTDouble INDEX_KP = new NTDouble("Thrower/Hopper/Index/kP", 0.07);
+    private static final NTDouble INDEX_KI = new NTDouble("Thrower/Hopper/Index/kI", 8.0);
+    private static final NTDouble INDEX_KD = new NTDouble("Thrower/Hopper/Index/kD", 0.005);
 
     private static final NTDouble INDEX_IDLE_SPEED_DEGREES = new NTDouble("Thrower/Hopper/Index/Idle_Speed_DpS", 750);
 
@@ -25,6 +26,7 @@ public class Hopper implements Subsystem {
 
         indexMotor = new TalonFXMotor(this, INDEX_MOTOR_ID, Constants.CANIVORE);
         indexMotor.setPIDCalculators(INDEX_KP, INDEX_KI, INDEX_KD);
+        indexMotor.setNeutralMode(NeutralMode.BRAKE);
 
         indexMotor.setInverted(true);
     }
