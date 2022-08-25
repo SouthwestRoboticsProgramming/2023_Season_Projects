@@ -5,15 +5,18 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.WeakHashMap;
+import java.util.function.Supplier;
 
 /**
  * Represents one data entry in NetworkTables.
  *
  * @param <T> data type
  */
-public abstract class NTEntry<T> {
+public abstract class NTEntry<T> implements Supplier<T> {
     private final Set<Runnable> changeListeners;
     protected final NetworkTableEntry entry;
 
@@ -25,7 +28,9 @@ public abstract class NTEntry<T> {
      * @param path path
      */
     public NTEntry(String path, T defaultVal) {
-        changeListeners = new HashSet<>();
+        // Weak set so we don't hold onto expired references
+        changeListeners = Collections.newSetFromMap(new WeakHashMap<>());
+
         NetworkTable table = NetworkTableInstance.getDefault().getTable("");
         String[] parts = path.split("/");
         for (int i = 0; i < parts.length - 1; i++) {
@@ -43,7 +48,6 @@ public abstract class NTEntry<T> {
         }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
     }
 
-    public abstract T get();
     public abstract void set(T value);
 
     public void setTemporary() {

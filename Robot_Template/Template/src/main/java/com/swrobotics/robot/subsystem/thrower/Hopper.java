@@ -1,14 +1,10 @@
 package com.swrobotics.robot.subsystem.thrower;
 
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.swrobotics.robot.Constants;
 import com.team2129.lib.math.Angle;
-import com.team2129.lib.motor.TalonMotor;
+import com.team2129.lib.motor.ctre.TalonFXMotor;
 import com.team2129.lib.net.NTDouble;
-import com.team2129.lib.net.NTUtils;
 import com.team2129.lib.schedule.Subsystem;
-import com.team2129.lib.utils.LazyTalonFXConfiguration;
 
 public class Hopper implements Subsystem {
     private static final int INDEX_MOTOR_ID = 12;
@@ -20,20 +16,17 @@ public class Hopper implements Subsystem {
     private static final NTDouble INDEX_IDLE_SPEED_DEGREES = new NTDouble("Thrower/Hopper/Index/Idle_Speed_DpS", 750);
 
     private final BallDetector ballDetector;
-    private final TalonMotor indexMotor;
+    private final TalonFXMotor indexMotor;
 
     private boolean isThrowing = false;
 
     public Hopper(BallDetector ballDetector) {
         this.ballDetector = ballDetector;
 
-        TalonFX index_toWrap = new TalonFX(INDEX_MOTOR_ID, Constants.CANIVORE);
-        LazyTalonFXConfiguration.configureDefaultTalon(index_toWrap);
-        index_toWrap.setNeutralMode(NeutralMode.Brake);
-        index_toWrap.setInverted(true);
+        //index_toWrap.setInverted(true);
 
-        indexMotor = new TalonMotor(this, index_toWrap);
-        indexMotor.setPIDController(NTUtils.makeAutoTunedPID(INDEX_KP, INDEX_KI, INDEX_KD));
+        indexMotor = new TalonFXMotor(this, INDEX_MOTOR_ID, Constants.CANIVORE);
+        indexMotor.setPIDCalculators(INDEX_KP, INDEX_KI, INDEX_KD);
     }
 
     public boolean isBallDetected() {

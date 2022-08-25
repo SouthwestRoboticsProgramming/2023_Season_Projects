@@ -3,9 +3,8 @@ package com.swrobotics.robot.subsystem.thrower;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.team2129.lib.encoder.HallEffectEncoder;
 import com.team2129.lib.math.Angle;
-import com.team2129.lib.motor.TalonMotor;
+import com.team2129.lib.motor.ctre.TalonSRXMotor;
 import com.team2129.lib.net.NTDouble;
-import com.team2129.lib.net.NTUtils;
 import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.utils.LazyTalonSRXConfiguration;
 
@@ -24,7 +23,7 @@ public class Hood implements Subsystem {
     private static final NTDouble CALIBRATE_PERCENT = new NTDouble("Thrower/Hood/Calibration_Speed", -0.5);
 
     private final HallEffectEncoder encoder;
-    private final TalonMotor motor;
+    private final TalonSRXMotor motor;
     private final DigitalInput limitSwitch;
 
     private boolean isCalibrating;
@@ -35,9 +34,9 @@ public class Hood implements Subsystem {
 
         TalonSRX motor_toWrap = new TalonSRX(MOTOR_ID);
         LazyTalonSRXConfiguration.configureDefaultTalon(motor_toWrap);
-        motor = new TalonMotor(this, motor_toWrap);
-        motor.assignEncoder(encoder);
-        motor.setPIDController(NTUtils.makeAutoTunedPID(KP, KI, KD));
+        motor = new TalonSRXMotor(this, MOTOR_ID);
+        motor.setEncoder(encoder);
+        motor.setPIDCalculators(KP, KI, KD);
 
         limitSwitch = new DigitalInput(LIMIT_SWITCH_ID);
 
@@ -75,6 +74,6 @@ public class Hood implements Subsystem {
             encoder.zeroAngle();
         }
         
-        motor.angle(targetPosition);
+        motor.position(targetPosition);
     }
 }

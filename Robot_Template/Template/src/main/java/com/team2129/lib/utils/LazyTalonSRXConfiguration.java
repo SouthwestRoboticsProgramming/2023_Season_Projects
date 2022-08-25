@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRXConfiguration;
 
+// TODO: Should probably remove, not really relevant anymore
 public class LazyTalonSRXConfiguration {
     public static void configureDefaultTalon(TalonSRX talon) {
         talon.set(ControlMode.PercentOutput, 0.0);

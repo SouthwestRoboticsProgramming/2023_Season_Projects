@@ -1,231 +1,319 @@
 package com.team2129.lib.motor;
 
-import com.team2129.lib.math.Angle;
-import com.team2129.lib.schedule.Scheduler;
-import com.team2129.lib.schedule.Subsystem;
-
 import java.util.function.Supplier;
 
 import com.team2129.lib.encoder.Encoder;
-
-import com.team2129.lib.wpilib.AbstractRobot;
-import edu.wpi.first.math.controller.BangBangController;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.wpilibj.DriverStation;
+import com.team2129.lib.math.Angle;
+import com.team2129.lib.math.MathUtil;
+import com.team2129.lib.motor.calc.PIDPositionCalculator;
+import com.team2129.lib.motor.calc.PIDVelocityCalculator;
+import com.team2129.lib.motor.calc.PositionCalculator;
+import com.team2129.lib.motor.calc.VelocityCalculator;
+import com.team2129.lib.net.NTDouble;
+import com.team2129.lib.schedule.Scheduler;
+import com.team2129.lib.schedule.Subsystem;
 
 /**
- * An abstract class to put all motor functions into one interface for better motor controls and uniform code across all vendors.
+ * Represents a generic motor. This class is intended to provide
+ * a common interface between various types of motors, to make it
+ * easier to swap motors and to learn how to program them.
  */
 public abstract class Motor implements Subsystem {
-    private PIDController pid;
-    private SimpleMotorFeedforward feed;
-    private final BangBangController bang;
-
-    private Encoder encoder;
-    private Angle holdTarget;
-
-    private boolean isFlywheel;
-
-    private Runnable action;
-    private ControlMode controlMode;
-    private double kF;
-
     private enum ControlMode {
-        PERCENT,
-        ANGLE,
-        VELOCITY,
-        HOLD
+        PERCENT(false),
+        POSITION(true),
+        VELOCITY(false),
+        HOLD(false);
+
+        final boolean isPosition;
+
+        ControlMode(boolean isPosition) {
+            this.isPosition = isPosition;
+        }
     }
 
+    private PositionCalculator positionCalc;
+    private VelocityCalculator velocityCalc;
+    private Encoder encoder;
+    private ControlMode controlMode;
+    private Runnable controlModeImpl;
+
+    private Angle holdTarget;
+
     /**
-     * Create a motor wrapping a vendor-specific motor. <br>
+     * Creates a new {@code Motor} instance that belongs to a specified {@link Subsystem}.
      * 
-     * <pre>{@code
-     * // Use this formatting for encoders
-     * motor = new Motor();
-     * motor.assignEncoder();
-     * }
+     * @param parent parent subsystem
      */
     public Motor(Subsystem parent) {
-        pid = new PIDController(0.0, 0.0, 0.0, 1 / AbstractRobot.get().getPeriodicPerSecond());
-        feed = new SimpleMotorFeedforward(0.0, 0.0);
-        bang = new BangBangController();
-
-        isFlywheel = false;
-        kF = 0;
-
-        // Schedule this and attach to parent subsystem
         Scheduler.get().addSubsystem(parent, this);
+
+        positionCalc = null;
+        velocityCalc = null;
+        encoder = null;
 
         percent(0);
     }
 
     /**
-     * Set the profiled PID controller for position control with the motor.
-     * @param pid A configured PID controller.
-     */
-    public void setPIDController(PIDController pid) {
-        this.pid = pid;
-    }
-
-    /**
-     * Set the feedforward controller for velocity control with the motor.
-     * @param feed A configured feedforward controller.
-     */
-    public void setFeedforward(SimpleMotorFeedforward feed) {
-        this.feed = feed;
-    }
-
-    /**
-     * Sets the feedforward coefficient for velocity control.
-     * @param kF Feedforward coefficient
-     */
-    public void setKF(double kF) {
-        this.kF = kF;
-    }
-
-    /**
-     * Gives the motor an absolute encoder
-     * @param encoder Encoder implementation
-     */
-    public void assignEncoder(Encoder encoder) {
-        this.encoder = encoder;
-    }
-
-    /**
-     * Get the encoder being used by the motor for position and velocity control.
-     * @return The assigned encoder for the motor.
-     */
-    public Encoder getEncoder() {
-        return encoder;
-    }
-
-    /**
-     * Change the way that velocity control is configured by using the motor as a flywheel controller. WARNING: Congigure the motor to turn off break mode!
-     * @param isFlywheel Set if the motor is controlling a flywheel.
-     */
-    public void setFlywheelMode(boolean isFlywheel) {
-        this.isFlywheel = isFlywheel;
-    }
-
-
-    /**
-     * Give the motor a percentage of the voltage recieved.
-     * @param percent The demanded percent out of the motor.
+     * Sets the percent output power of the motor. A negative percent
+     * value will cause the motor to turn in the opposite direction.
+     * 
+     * @param percent percent output from -1 to 1
      */
     public void percent(double percent) {
         controlMode = ControlMode.PERCENT;
-        action = () -> setPercent(percent);
+        controlModeImpl = () -> percentImpl(percent);
     }
 
     /**
-     * Control the motor to spin at a specified velocity.
-     * @param target The target velocity of the motor.
+     * Tells the motor to target a specific encoder measurement.
+     * The actual motor output is calculated by the set {@link PositionCalculator}. This
+     * function requires both a position calculator and encoder to be set.
+     * 
+     * @param angle
+     * @throws IllegalStateException if no position calculator or encoder is set
+     * 
+     * @see Encoder
+     * @see #setEncoder(Encoder)
+     * @see #setPositionCalculator(PositionCalculator)
      */
-    public void velocity(Angle target) {
-        if (encoder == null) {
-            DriverStation.reportError("No assigned encoder, cannot control velocty", true);
-            return;
-        }
+    public void position(Angle angle) {
+        if (encoder == null)
+            throw new IllegalStateException("Cannot set position, no encoder is set");
 
-        if (controlMode != ControlMode.VELOCITY) {
-            pid.reset();
-        }
+        position(encoder::getAngle, angle);
+    }
+
+    /**
+     * Tells the motor to target a specific encoder measurement.
+     * The actual motor output is calculated by the set {@link PositionCalculator}. This
+     * function requires a position calculator to be set.
+     * 
+     * @param angle
+     * @throws IllegalStateException if no position calculator or encoder is set
+     * 
+     * @see Encoder
+     * @see #setEncoder(Encoder)
+     * @see #setPositionCalculator(PositionCalculator)
+     */
+    public void position(Supplier<Angle> angleGetter, Angle angle) {
+        if (positionCalc == null)
+            throw new IllegalStateException("Cannot set position, no position calculator is set");
+        
+        if (!controlMode.isPosition)
+            positionCalc.reset();
+        controlMode = ControlMode.POSITION;
+        controlModeImpl = () -> positionImpl(angleGetter, angle);
+    }
+
+    /**
+     * Tells the motor to target a specific rotational velocity.
+     * The actual motor output is calculated by the set {@link VelocityCalculator}. This
+     * function requires both a velocity calculator and encoder to be set.
+     * 
+     * @param velocity target velocity in angle per second
+     * @throws IllegalStateException if no velocity calculator or encoder is set
+     * 
+     * @see Encoder
+     * @see #setEncoder(Encoder)
+     * @see #setVelocityCalculator(VelocityCalculator)
+     */
+    public void velocity(Angle velocity) {
+        if (encoder == null)
+            throw new IllegalStateException("Cannot set position, no encoder is set");
+
+        velocity(encoder::getAngle, velocity);
+    }
+
+    /**
+     * Tells the motor to target a specific rotational velocity.
+     * The actual motor output is calculated by the set {@link VelocityCalculator}. This
+     * function requires a velocity calculator to be set.
+     * 
+     * @param angleGetter getter for the current angle
+     * @param velocity target velocity in angle per second
+     * @throws IllegalStateException if no velocity calculator or encoder is set
+     * 
+     * @see Encoder
+     * @see #setEncoder(Encoder)
+     * @see #setVelocityCalculator(VelocityCalculator)
+     */
+    public void velocity(Supplier<Angle> angleGetter, Angle velocity) {
+        if (velocityCalc == null)
+            throw new IllegalStateException("Cannot set velocity, no velocity calculator is set");
+
+        if (controlMode != ControlMode.VELOCITY)
+            velocityCalc.reset();
         controlMode = ControlMode.VELOCITY;
-
-        action = () -> setVelocity(target);
+        controlModeImpl = () -> velocityImpl(angleGetter, velocity);
     }
 
     /**
-     * Control the motor to target an angular position.
-     * @param target The target angle of the motor.
-     */
-    public void angle(Angle target) {
-        angle(encoder::getAngle, target);
-    }
-
-    /**
-     * Control the motor to target an angular position.
-     * @param current Supplier for the current position of the motor.
-     * @param target The target angle of the motor.
-     */
-    public void angle(Supplier<Angle> current, Angle target) {
-        if (encoder == null) {
-            DriverStation.reportError("No assigned encoder, cannot control position", true);
-            return;
-        }
-
-        if (controlMode != ControlMode.ANGLE) {
-            pid.reset();
-        }
-        controlMode = ControlMode.ANGLE;
-
-        action = () -> setAngle(current, target);
-    }
-
-    /**
-     * Set the motor to 0% power. The motor will slowly wind down.
+     * Stops the motor by setting its percent output to zero. This
+     * completely disables the motor output.
      */
     public void stop() {
         percent(0);
     }
 
     /**
-     * Set the motor to target a velocity of zero.
+     * Stops the motor by setting its target velocity to zero. The motor
+     * will actively try to keep the output still, but is not guaranteed to
+     * stay in the same position.
      */
-    public void halt() {
-        velocity(Angle.cwDeg(0));
-    }
-
+    public void halt() { velocity(Angle.zero()); }
+    
     /**
-     * Set the motor to hold the current position. If it is moved, it will target the initial position.
+     * Stops the motor by continuously targeting its current position. The
+     * motor will actively adjust its position, and will correct for any changes
+     * in position while it is held.
      */
     public void hold() {
-        if (encoder == null) {
-            DriverStation.reportError("No assigned encoder, cannot hold position", true);
-            return;
-        }
+        if (positionCalc == null)
+            throw new IllegalStateException("Cannot set position, no position calculator is set");
 
-        if (controlMode != ControlMode.HOLD) {
+        if (encoder == null)
+            throw new IllegalStateException("Cannot set position, no encoder is set");
+
+        if (!controlMode.isPosition)
+            positionCalc.reset();
+        
+        if (controlMode != ControlMode.HOLD)
             holdTarget = encoder.getAngle();
-            pid.reset();
-        }
-        controlMode = ControlMode.HOLD;
 
-        action = () -> setAngle(encoder::getAngle, holdTarget);
+        controlModeImpl = () -> positionImpl(encoder::getAngle, holdTarget);
     }
 
     /**
-     * Actually set the motor output. This is the implementation for motor usage.
+     * Gets the currently assigned encoder for this motor. This will
+     * be the motor or motor controller's internal encoder by default 
+     * if one is present, or {@code null} if no encoder is assigned.
      * 
-     * @param percent Demanded percent -1 - 1 output for the motor.
+     * @return currently assigned encoder
      */
-    protected abstract void setPercent(double percent);
-
-    private void setVelocity(Angle target) {
-        double out;
-
-        Angle currentVelocity = encoder.getVelocity();
-        if (isFlywheel) {
-            out = bang.calculate(currentVelocity.getCWDeg(), target.getCWDeg())/*  +  feed.calculate(target.getCWDeg()*/ * 0.9; 
-            System.out.println("Out: " + out + " Current: " + currentVelocity.getCWDeg());
-        } else {
-            double pidOut = pid.calculate(currentVelocity.getCWDeg(), target.getCWDeg());
-            double feedOut = kF * feed.calculate(target.getCWDeg());
-            out = pidOut + feedOut;
-        }
-
-        setPercent(out);
+    public Encoder getEncoder() {
+        return encoder;
     }
-    
-    private void setAngle(Supplier<Angle> current, Angle target) {
-        double out = pid.calculate(current.get().getCWDeg(), target.getCWDeg());
-        setPercent(out);
+
+    /**
+     * Assigns a different encoder to this motor for feedback control.
+     * 
+     * @param encoder encoder to assign
+     */
+    public void setEncoder(Encoder encoder) {
+        this.encoder = encoder;
+    }
+
+    /**
+     * Convenience method to set both the position calculator and velocity
+     * calculator to use a PID controller with the specified coefficients.
+     * 
+     * @param kP proportional coefficient
+     * @param kI integral coefficient
+     * @param kD derivative coefficient
+     */
+    public void setPIDCalculators(double kP, double kI, double kD) {
+        positionCalc = new PIDPositionCalculator(kP, kI, kD);
+        velocityCalc = new PIDVelocityCalculator(kP, kI, kD);
+    }
+
+    /**
+     * Convenience method to set both the position calculator and velocity
+     * calculator to use a PID controller with the specified coefficients.
+     * This method allows them to read their coefficients from NetworkTables,
+     * and they will be automatically updated if the NetworkTables entry changes.
+     * 
+     * @param kP proportional coefficient entry
+     * @param kI integral coefficient entry
+     * @param kD derivative coefficient entry
+     */
+    public void setPIDCalculators(NTDouble kP, NTDouble kI, NTDouble kD) {
+        positionCalc = new PIDPositionCalculator(kP, kI, kD);
+        velocityCalc = new PIDVelocityCalculator(kP, kI, kD);
+    }
+
+    /**
+     * Gets the currently assigned position calculator. Will return
+     * {@code null} if no position calculator is set.
+     * 
+     * @return currently assigned position calculator
+     * @see #setPositionCalculator(PositionCalculator)
+     */
+    public PositionCalculator getPositionCalculator() {
+        return positionCalc;
+    }
+
+    /**
+     * Assigns a different position calculator to this motor. This
+     * calculator will be used to calculate motor output in the
+     * {@code position()} and {@code hold()} control modes.
+     * 
+     * @param calc position calculator to assign
+     * @see #position(Angle)
+     * @see #halt()
+     */
+    public void setPositionCalculator(PositionCalculator calc) {
+        this.positionCalc = calc;
+    }
+
+    /**
+     * Gets the currently assigned velocity calculator. Will return
+     * {@code null} if no velocity calculator is set.
+     * 
+     * @return currently assigned velocity calculator
+     * @see #setVelocityCalculator(VelocityCalculator)
+     */
+    public VelocityCalculator getVelocityCalculator() {
+        return velocityCalc;
+    }
+
+    /**
+     * Assigns a different velocity calculator to this motor. This
+     * calculator will be used to calculate motor output in the
+     * {@code velocity()} and {@code halt()} control modes.
+     * 
+     * @param calc velocity calculator to assign
+     * @see #velocity(Angle)
+     * @see #halt()
+     */
+    public void setVelocityCalculator(VelocityCalculator calc) {
+        this.velocityCalc = calc;
+    }
+
+    /**
+     * Actually sets the motor's percent output. This should be implemented
+     * by all motor types to be able to control them. A percent output of 1
+     * should be full speed clockwise, a percent output of -1 should be full
+     * speed counterclockwise, and a percent output of 0 should be stopped.
+     * The provided percent output will never exceed this range.
+     * 
+     * @param percent percent output from -1 to 1
+     */
+    protected abstract void setPercentOutInternal(double percent);
+
+    private void setPercentOutClamped(double percent) {
+        setPercentOutInternal(MathUtil.clamp(percent, -1, 1));
+    }
+
+    // Implementation of percent output control mode
+    private void percentImpl(double percent) {
+        setPercentOutClamped(percent);
+    }
+
+    // Implementation of position control mode (used for position() and hold())
+    private void positionImpl(Supplier<Angle> angleGetter, Angle angle) {
+        setPercentOutClamped(positionCalc.calculate(angleGetter.get(), angle));
+    }
+
+    // Implementation of velocity control mode (used for velocity() and halt())
+    private void velocityImpl(Supplier<Angle> velocityGetter, Angle velocity) {
+        setPercentOutClamped(velocityCalc.calculate(velocityGetter.get(), velocity));
     }
 
     @Override
     public void periodic() {
-        action.run();
+        // Run the currently set control mode implementation
+        controlModeImpl.run();
     }
 }

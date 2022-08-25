@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 
+// TODO: Should probably remove, not really relevant anymore
 public class LazyTalonFXConfiguration {
     public static void configureDefaultTalon(TalonFX talon) {
         talon.set(ControlMode.PercentOutput, 0.0);

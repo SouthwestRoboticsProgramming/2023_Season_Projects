@@ -3,41 +3,22 @@ package com.swrobotics.robot.subsystem;
 import com.swrobotics.robot.Constants;
 import com.swrobotics.robot.control.Input;
 import com.team2129.lib.math.Angle;
-import com.team2129.lib.motor.TalonMotor;
+import com.team2129.lib.motor.ctre.TalonFXMotor;
 import com.team2129.lib.net.NTDouble;
 import com.team2129.lib.schedule.Subsystem;
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-
 
 public class Intake implements Subsystem {
     private static final NTDouble INTAKE_ON_PERCENT = new NTDouble("Intake/Running_Percent_Out", 0.5);
 
     private static final int MOTOR_ID = 11;
 
-    private final TalonMotor motor;
+    private final TalonFXMotor motor;
     private final Input input;
     
     public Intake(Input input) {
         this.input = input;
 
-        TalonFX talon_toWrap = new TalonFX(MOTOR_ID, Constants.CANIVORE);
-        talon_toWrap.configFactoryDefault();
-
-        TalonFXConfiguration talonConfig = new TalonFXConfiguration();
-        {
-            SupplyCurrentLimitConfiguration talonSupplyLimit = new SupplyCurrentLimitConfiguration(
-                true,
-                35, // Continuous current limit
-                50, // Peak current limit
-                0.1 // Peak current limit duration
-            );
-
-            talonConfig.supplyCurrLimit = talonSupplyLimit;
-        }
-
-        motor = new TalonMotor(this, talon_toWrap);
+        motor = new TalonFXMotor(this, MOTOR_ID, Constants.CANIVORE);
     }
 
     public void setPercent(double percent) {
