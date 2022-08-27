@@ -3,6 +3,7 @@ package com.team2129.lib.motor;
 import java.util.function.Supplier;
 
 import com.team2129.lib.encoder.Encoder;
+import com.team2129.lib.encoder.OutputFilter;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.MathUtil;
 import com.team2129.lib.motor.calc.PIDCalculator;
@@ -211,6 +212,14 @@ public abstract class Motor implements Subsystem {
      */
     public void setEncoder(Encoder encoder) {
         this.encoder = encoder;
+    }
+
+    /**
+     * Set the filter to be applied to the encoder.
+     * @param filter Filter to be applied.
+     */
+    public void setEncoderFilter(OutputFilter filter) {
+        encoder.setOutputFilter(filter);
     }
 
     /**
