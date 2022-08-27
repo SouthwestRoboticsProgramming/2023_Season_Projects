@@ -7,4 +7,7 @@ public final class Constants {
     private Constants() {
         throw new AssertionError();
     }
+
+    // Kilroy was here
+    // Mason was here
 }
