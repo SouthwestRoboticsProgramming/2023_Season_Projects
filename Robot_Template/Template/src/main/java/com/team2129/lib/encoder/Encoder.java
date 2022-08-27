@@ -15,6 +15,10 @@ public abstract class Encoder implements Supplier<Angle> {
     protected abstract Angle getRawAngleImpl();
     protected abstract Angle getVelocityImpl();
 
+    public void setOutputFilter(OutputFilter filter) {
+        this.filter = filter;
+    }
+
     /**
      * Get the angular position of the encoder as an Angle.
      * @return The angle of the sensor with no offset applied.
