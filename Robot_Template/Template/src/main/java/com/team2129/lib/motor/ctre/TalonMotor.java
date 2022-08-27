@@ -8,8 +8,10 @@ import com.team2129.lib.math.Angle;
 import com.team2129.lib.motor.Motor;
 import com.team2129.lib.schedule.Subsystem;
 
+import edu.wpi.first.wpilibj.DriverStation;
+
 /**
- * Represents a CTRE Talon motor. This class is intented to be
+ * Represents a CTRE Talon motor. This class is intended to be
  * extended to implement any unsupported Talon motor types.
  */
 public abstract class TalonMotor extends Motor {
@@ -27,12 +29,22 @@ public abstract class TalonMotor extends Motor {
 
         @Override
         protected Angle getRawAngleImpl() {
-            return Angle.ccwRot(talon.getSelectedSensorPosition() / encoderTicksPerRotation);
+            try {
+                return Angle.ccwRot(talon.getSelectedSensorPosition() / encoderTicksPerRotation);
+            } catch (ArithmeticException e) {
+                DriverStation.reportError("Encoder ticks per rotation must not be 0", true);
+                return Angle.zero();
+            }
         }
 
         @Override
         protected Angle getVelocityImpl() {
-            return Angle.ccwRot(talon.getSelectedSensorVelocity() / encoderTicksPerRotation * ENCODER_VELOCITY_TIME_SCALE);
+            try {
+                return Angle.ccwRot(talon.getSelectedSensorVelocity() / encoderTicksPerRotation * ENCODER_VELOCITY_TIME_SCALE);
+            } catch (Exception e) {
+                DriverStation.reportError("Encoder ticks per rotation must not be 0", true);
+                return Angle.zero();
+            }
         }
     }
     
