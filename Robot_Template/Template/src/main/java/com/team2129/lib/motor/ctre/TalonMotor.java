@@ -21,9 +21,9 @@ public abstract class TalonMotor extends Motor {
     private final InternalEncoder internalEncoder;
 
     private final class InternalEncoder extends Encoder {
-        private final int encoderTicksPerRotation;
+        private final double encoderTicksPerRotation;
 
-        public InternalEncoder(int encoderTicksPerRotation) {
+        public InternalEncoder(double encoderTicksPerRotation) {
             this.encoderTicksPerRotation = encoderTicksPerRotation;
         }
 
@@ -58,7 +58,7 @@ public abstract class TalonMotor extends Motor {
      * @param talon BaseTalon to wrap
      * @param encoderTicksPerRotation number of encoder ticks per rotation of the output shaft
      */
-    public TalonMotor(Subsystem parent, BaseTalon talon, int encoderTicksPerRotation) {
+    public TalonMotor(Subsystem parent, BaseTalon talon, double encoderTicksPerRotation) {
         super(parent);
         this.talon = talon;
 
