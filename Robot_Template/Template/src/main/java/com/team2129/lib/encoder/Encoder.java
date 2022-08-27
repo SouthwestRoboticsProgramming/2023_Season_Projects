@@ -1,17 +1,23 @@
 package com.team2129.lib.encoder;
 
+import java.util.function.Supplier;
+
 import com.team2129.lib.math.Angle;
 
 /**
  * A general wrapper for any external encoder
  */
-public abstract class Encoder {
+public abstract class Encoder implements Supplier<Angle> {
     private Angle offset = Angle.ccwRad(0); // Subtracted to get angle
     private OutputFilter filter = (angle) -> angle; // Applied to angle in getAngle()
     private boolean inverted = false;
 
     protected abstract Angle getRawAngleImpl();
     protected abstract Angle getVelocityImpl();
+
+    public void setOutputFilter(OutputFilter filter) {
+        this.filter = filter;
+    }
 
     /**
      * Get the angular position of the encoder as an Angle.
@@ -87,5 +93,10 @@ public abstract class Encoder {
      */
     public void setInverted(boolean inverted) {
         this.inverted = inverted;
+    }
+
+    @Override
+    public Angle get() {
+        return getAngle();
     }
 }

@@ -1,10 +1,12 @@
 package com.swrobotics.robot.subsystem.thrower;
 
 import com.team2129.lib.math.Angle;
-import com.team2129.lib.motor.TalonMotor;
+import com.team2129.lib.motor.calc.BangBangVelocityCalculator;
+import com.team2129.lib.motor.calc.PIDFFVelocityCalculator;
+import com.team2129.lib.motor.calc.PIDCalculator;
+import com.team2129.lib.motor.ctre.TalonFXMotor;
 import com.team2129.lib.net.NTBoolean;
 import com.team2129.lib.net.NTDouble;
-import com.team2129.lib.net.NTUtils;
 import com.team2129.lib.schedule.Subsystem;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -25,46 +27,25 @@ public class Flywheel implements Subsystem {
     private static final NTDouble KS = new NTDouble("Thrower/Flywheel/kS", 0);
     private static final NTDouble KV = new NTDouble("Thrower/Flywheel/kV", 0);
 
-
-
     private static final NTDouble IDLE_VELOCITY = new NTDouble("Thrower/Flywheel/Idle_RPM", 750);
 
     private static final int FLYWHEEL_MOTOR_ID = 13;
 
-    private final TalonMotor motor;
-    private Runnable motorMode;
+    private final TalonFXMotor motor;
     
     public Flywheel() {
-        TalonFX talon_toWrap = new TalonFX(FLYWHEEL_MOTOR_ID, Constants.CANIVORE);
-        talon_toWrap.configFactoryDefault();
+        motor = new TalonFXMotor(this, FLYWHEEL_MOTOR_ID, Constants.CANIVORE);
+        
+        updateFlywheelMode();
+        FLYWHEEL_MODE.onChange(this::updateFlywheelMode);
+    }
 
-        TalonFXConfiguration config = new TalonFXConfiguration();
-        {
-            config.supplyCurrLimit = new SupplyCurrentLimitConfiguration(
-                true,
-                35, // Continuous current limit
-                70, // Peak current limit
-                0.1 // Peak current limit duration
-            );
+    private void updateFlywheelMode() {
+        if (FLYWHEEL_MODE.get()) {
+            motor.setVelocityCalculator(new BangBangVelocityCalculator());
+        } else {
+            motor.setVelocityCalculator(new PIDFFVelocityCalculator(KP, KI, KD, KS, KV));
         }
-
-        talon_toWrap.configAllSettings(config);
-
-        talon_toWrap.setNeutralMode(NeutralMode.Coast);
-        talon_toWrap.setInverted(false);
-
-        motor = new TalonMotor(this, talon_toWrap);
-        motor.setPIDController(NTUtils.makeAutoTunedPID(KP, KI, KD));
-        motor.setFeedforward(new SimpleMotorFeedforward(KS.get(), KV.get()));
-        motor.setFlywheelMode(FLYWHEEL_MODE.get());
-
-        motor.getEncoder().
-
-        motorMode = () -> motor.percent(0);
-
-        // Update feedforward
-        KS.onChange(() -> motor.setFeedforward(new SimpleMotorFeedforward(KS.get(), KV.get())));
-        KV.onChange(() -> motor.setFeedforward(new SimpleMotorFeedforward(KS.get(), KV.get())));
     }
 
     /**
@@ -72,22 +53,21 @@ public class Flywheel implements Subsystem {
      * @param velocity Angle/Second
      */
     public void setFlywheelVelocity(Angle velocity) {
-        motorMode = () -> motor.velocity(velocity);
+        motor.velocity(velocity);
     }
 
     public void idle() {
-        motorMode = () -> motor.velocity(Angle.cwRot(IDLE_VELOCITY.get()));
+         motor.velocity(Angle.cwRot(IDLE_VELOCITY.get()));
     }
 
     public void stop() {
-        motorMode = () -> motor.percent(0);
+        motor.stop();
         System.out.println("Stop");
     }
 
     @Override 
     public void periodic() {
         // TODO: Log temperature, speed, etc...
-       // motorMode.run();
        motor.velocity(Angle.cwDeg(100));
     }
 }

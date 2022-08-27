@@ -12,7 +12,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
  * A class to control a single swerve module with both a steer and drive motor, along with an encoder.
  */
 public class SwerveModule {
-
     private final Motor driveMotor;
     private final Motor steerMotor;
 
@@ -44,7 +43,7 @@ public class SwerveModule {
 
         this.steerMotor = steerMotor;
         this.steerEncoder = steerEncoder;
-        steerMotor.assignEncoder(steerEncoder);
+        steerMotor.setEncoder(steerEncoder);
 
         this.position = position;
 
@@ -96,7 +95,7 @@ public class SwerveModule {
   
         if (!inTolerance()) {
             // Set steer angle
-            steerMotor.angle(() -> steerEncoder.getAngle().normalizeDeg(-90, 90), Angle.ccwDeg(state.angle.getDegrees()));
+            steerMotor.position(() -> steerEncoder.getAngle().normalizeDeg(-90, 90), Angle.ccwDeg(state.angle.getDegrees()));
         }
         
         // Set drive speed
