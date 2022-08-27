@@ -10,7 +10,7 @@ import com.team2129.lib.net.NTDouble;
  * both a PID controller and a feedforward controller. 
  */
 public final class PIDFFVelocityCalculator implements VelocityCalculator {
-    private final PIDVelocityCalculator pid;
+    private final PIDCalculator pid;
     private final FeedForwardVelocityCalculator ff;
 
     /**
@@ -24,7 +24,7 @@ public final class PIDFFVelocityCalculator implements VelocityCalculator {
      * @param kV velocity gain
      */
     public PIDFFVelocityCalculator(double kP, double kI, double kD, double kS, double kV) {
-        pid = new PIDVelocityCalculator(kP, kI, kD);
+        pid = new PIDCalculator(kP, kI, kD);
         ff = new FeedForwardVelocityCalculator(kS, kV);
     }
 
@@ -39,7 +39,7 @@ public final class PIDFFVelocityCalculator implements VelocityCalculator {
      * @param kA acceleration gain
      */
     public PIDFFVelocityCalculator(double kP, double kI, double kD, double kS, double kV, double kA) {
-        pid = new PIDVelocityCalculator(kP, kI, kD);
+        pid = new PIDCalculator(kP, kI, kD);
         ff = new FeedForwardVelocityCalculator(kS, kV, kA);
     }
 
@@ -54,7 +54,7 @@ public final class PIDFFVelocityCalculator implements VelocityCalculator {
      * @param kV velocity gain
      */
     public PIDFFVelocityCalculator(NTDouble kP, NTDouble kI, NTDouble kD, NTDouble kS, NTDouble kV) {
-        pid = new PIDVelocityCalculator(kP, kI, kD);
+        pid = new PIDCalculator(kP, kI, kD);
         ff = new FeedForwardVelocityCalculator(kS, kV);
     }
 
@@ -69,7 +69,7 @@ public final class PIDFFVelocityCalculator implements VelocityCalculator {
      * @param kA acceleration gain
      */
     public PIDFFVelocityCalculator(NTDouble kP, NTDouble kI, NTDouble kD, NTDouble kS, NTDouble kV, NTDouble kA) {
-        pid = new PIDVelocityCalculator(kP, kI, kD);
+        pid = new PIDCalculator(kP, kI, kD);
         ff = new FeedForwardVelocityCalculator(kS, kV, kA);
     }
 

@@ -5,8 +5,7 @@ import java.util.function.Supplier;
 import com.team2129.lib.encoder.Encoder;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.MathUtil;
-import com.team2129.lib.motor.calc.PIDPositionCalculator;
-import com.team2129.lib.motor.calc.PIDVelocityCalculator;
+import com.team2129.lib.motor.calc.PIDCalculator;
 import com.team2129.lib.motor.calc.PositionCalculator;
 import com.team2129.lib.motor.calc.VelocityCalculator;
 import com.team2129.lib.net.NTDouble;
@@ -223,8 +222,8 @@ public abstract class Motor implements Subsystem {
      * @param kD derivative coefficient
      */
     public void setPIDCalculators(double kP, double kI, double kD) {
-        positionCalc = new PIDPositionCalculator(kP, kI, kD);
-        velocityCalc = new PIDVelocityCalculator(kP, kI, kD);
+        positionCalc = new PIDCalculator(kP, kI, kD);
+        velocityCalc = new PIDCalculator(kP, kI, kD);
     }
 
     /**
@@ -238,8 +237,8 @@ public abstract class Motor implements Subsystem {
      * @param kD derivative coefficient entry
      */
     public void setPIDCalculators(NTDouble kP, NTDouble kI, NTDouble kD) {
-        positionCalc = new PIDPositionCalculator(kP, kI, kD);
-        velocityCalc = new PIDVelocityCalculator(kP, kI, kD);
+        positionCalc = new PIDCalculator(kP, kI, kD);
+        velocityCalc = new PIDCalculator(kP, kI, kD);
     }
 
     /**

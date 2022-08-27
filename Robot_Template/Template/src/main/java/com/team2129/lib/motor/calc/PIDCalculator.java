@@ -10,7 +10,7 @@ import edu.wpi.first.math.controller.PIDController;
  * Calculates the percent output to set a motor's position using a
  * PID controller. 
  */
-public final class PIDPositionCalculator implements PositionCalculator {
+public final class PIDCalculator implements PositionCalculator, VelocityCalculator {
     private final PIDController pid;
 
     /**
@@ -20,7 +20,7 @@ public final class PIDPositionCalculator implements PositionCalculator {
      * @param kI integral coefficient
      * @param kD derivative coefficient
      */
-    public PIDPositionCalculator(double kP, double kI, double kD) {
+    public PIDCalculator(double kP, double kI, double kD) {
         pid = new PIDController(kP, kI, kD, 1 / AbstractRobot.get().getPeriodicPerSecond());
     }
 
@@ -33,7 +33,7 @@ public final class PIDPositionCalculator implements PositionCalculator {
      * @param kI integral coefficient entry
      * @param kD derivative coefficient entry
      */
-    public PIDPositionCalculator(NTDouble kP, NTDouble kI, NTDouble kD) {
+    public PIDCalculator(NTDouble kP, NTDouble kI, NTDouble kD) {
         this(kP.get(), kI.get(), kD.get());
         kP.onChange(() -> pid.setP(kP.get()));
         kI.onChange(() -> pid.setI(kI.get()));
@@ -59,7 +59,7 @@ public final class PIDPositionCalculator implements PositionCalculator {
     }
 
     @Override
-    public double calculate(Angle currentPosition, Angle targetPosition) {
-        return pid.calculate(currentPosition.getCWDeg(), targetPosition.getCWDeg());
+    public double calculate(Angle current, Angle target) {
+        return pid.calculate(current.getCWDeg(), target.getCWDeg());
     }
 }

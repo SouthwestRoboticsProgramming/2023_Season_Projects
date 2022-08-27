@@ -3,7 +3,7 @@ package com.swrobotics.robot.subsystem.thrower;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.motor.calc.BangBangVelocityCalculator;
 import com.team2129.lib.motor.calc.PIDFFVelocityCalculator;
-import com.team2129.lib.motor.calc.PIDVelocityCalculator;
+import com.team2129.lib.motor.calc.PIDCalculator;
 import com.team2129.lib.motor.ctre.TalonFXMotor;
 import com.team2129.lib.net.NTBoolean;
 import com.team2129.lib.net.NTDouble;
