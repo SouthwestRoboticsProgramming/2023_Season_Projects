@@ -63,7 +63,7 @@ public abstract class TalonMotor extends Motor {
         this.talon = talon;
 
         // Configure neutral deadband on motor so 0 percent output is neutral
-        talon.configNeutralDeadband(0.01);
+        talon.configNeutralDeadband(Double.MIN_VALUE);
 
         if (encoderTicksPerRotation > 0) {
             internalEncoder = new InternalEncoder(encoderTicksPerRotation);
