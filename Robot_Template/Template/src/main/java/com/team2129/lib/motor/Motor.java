@@ -43,6 +43,7 @@ public abstract class Motor implements Subsystem {
     
     private boolean inverted;
     private double neutralDeadband;
+    private double nominalOutput;
 
     /**
      * Creates a new {@code Motor} instance that belongs to a specified {@link Subsystem}.
@@ -58,6 +59,7 @@ public abstract class Motor implements Subsystem {
 
         inverted = false;
         neutralDeadband = 0.01;
+        nominalOutput = 0.0;
 
         percent(0);
     }
@@ -309,7 +311,7 @@ public abstract class Motor implements Subsystem {
     /**
      * Gets the currently set neutral deadband.
      * 
-     * @return neutral deadband
+     * @return Neutral deadband
      */
     public double getNeutralDeadband() {
         return neutralDeadband;
@@ -320,10 +322,30 @@ public abstract class Motor implements Subsystem {
      * is neutral. If the percent output is within the deadband, it will
      * be clamped to zero.
      * 
-     * @param neutralDeadband new neutral deadband
+     * @param neutralDeadband New neutral deadband
      */
     public void setNeutralDeadband(double neutralDeadband) {
         this.neutralDeadband = neutralDeadband;
+    }
+
+    /**
+     * Gets the currently set nominal output. All demands under this value, but over the neutral deadband will be upgraded to this value.
+     * 
+     * @return Nominal output
+     */
+    public double getNominalOutput() {
+        return nominalOutput;
+    }
+
+    /**
+     * Sets the value that very small demanded motor outputs are upgraded to.
+     * If the demand is less than the nominal output but greater than 
+     * the neutral deadband, it will be upgraded to the nominal output.
+     * 
+     * @param nominalOutput New nominal output
+     */
+    public void setNominalOutput(double nominalOutput) {
+        this.nominalOutput = nominalOutput;
     }
 
     /**
@@ -341,7 +363,13 @@ public abstract class Motor implements Subsystem {
         if (inverted)
             percent = -percent;
 
+        // Apply neutral deadband
         percent = InputUtils.applyDeadband(percent, neutralDeadband);
+
+        // Apply nominal output
+        if (percent != 0 && percent < nominalOutput) {
+            percent = Math.signum(percent) * nominalOutput;
+        }
 
         setPercentOutInternal(MathUtil.clamp(percent, -1, 1));
     }
