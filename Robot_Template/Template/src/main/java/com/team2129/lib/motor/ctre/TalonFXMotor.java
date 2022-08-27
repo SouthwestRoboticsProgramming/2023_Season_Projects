@@ -45,7 +45,7 @@ public final class TalonFXMotor extends TalonMotor {
      * @param configuredTalon TalonFX already configured to fit your needs.
      */
     public TalonFXMotor(Subsystem parent, TalonFX configuredTalon) {
-        super(parent, configuredTalon, ENCODER_TICKS_PER_ROTATION)
+        super(parent, configuredTalon, ENCODER_TICKS_PER_ROTATION);
     }
 
     private static TalonFX createConfiguredFX(int canID, String canBus) {
