@@ -14,6 +14,6 @@ public final class BrushedSparkMaxMotor extends SparkMaxMotor {
      * @param canID CAN id of the Spark MAX
      */
     public BrushedSparkMaxMotor(Subsystem parent, int canID) {
-        super(parent, canID, MotorType.kBrushless);
+        super(parent, canID, MotorType.kBrushed);
     }
 }
