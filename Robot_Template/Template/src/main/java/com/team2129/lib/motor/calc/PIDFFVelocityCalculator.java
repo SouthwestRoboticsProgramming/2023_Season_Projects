@@ -13,6 +13,9 @@ public final class PIDFFVelocityCalculator implements VelocityCalculator {
     private final PIDCalculator pid;
     private final FeedForwardVelocityCalculator ff;
 
+    private double pidMultiplier;
+    private double ffMultiplier;
+
     /**
      * Creates a new instance with the specified fixed PID and feedforward constants,
      * with a default acceleration gain of zero.
@@ -73,6 +76,34 @@ public final class PIDFFVelocityCalculator implements VelocityCalculator {
         ff = new FeedForwardVelocityCalculator(kS, kV, kA);
     }
 
+    /**
+     * Control how much of the motor output is determined by PID and how much is determined by Feedforward control.
+     * NOTE: These two multipliers can, and probably should have a sum greater than or equal to 1.
+     * 
+     * @param pidMultiplier Multiplier applied to the PID output
+     * @param feedforwardMultiplier Multiplier applied to the feedforward output.
+     */
+    public void setOutputMix(double pidMultiplier, double feedforwardMultiplier) {
+        this.pidMultiplier = pidMultiplier;
+        ffMultiplier = feedforwardMultiplier;
+    }
+
+    /**
+     * Get the PID multiplier set by {@code setOutputMix()}.
+     * @return PID multiplier
+     */
+    public double getPIDMultiplier() {
+        return pidMultiplier;
+    }
+
+    /**
+     * Get the Feedforward multiplier set by {@code setOutputMix()}.
+     * @return Feedforward multiplier
+     */
+    public double getFeedforwardMultiplier() {
+        return pidMultiplier;
+    }
+
     @Override
     public void reset() {
         pid.reset();
@@ -80,6 +111,7 @@ public final class PIDFFVelocityCalculator implements VelocityCalculator {
 
     @Override
     public double calculate(Angle currentVelocity, Angle targetVelocity) {
-        return pid.calculate(currentVelocity, targetVelocity) + ff.calculate(currentVelocity, targetVelocity);
+        return pid.calculate(currentVelocity, targetVelocity) * pidMultiplier
+        + ff.calculate(currentVelocity, targetVelocity) * ffMultiplier;
     }
 }
