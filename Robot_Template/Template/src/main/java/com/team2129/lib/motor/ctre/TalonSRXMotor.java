@@ -36,8 +36,8 @@ public final class TalonSRXMotor extends TalonMotor {
     /**
      * Create a new instance that converts from the legacy TalonSRX type.
      * Use this constructor if no encoder is connected to the SRX.
-     * @param parent
-     * @param configuredTalon
+     * @param parent Parent subsystem.
+     * @param configuredTalon Already-configured TalonSRX.
      */
     public TalonSRXMotor(Subsystem parent, TalonSRX configuredTalon) {
         super(parent, configuredTalon, -1);
@@ -46,11 +46,11 @@ public final class TalonSRXMotor extends TalonMotor {
     /**
      * Create a new instance that converts from the legacy TalonSRX type.
      * Use this constructor if an encoder is connected to the SRX.
-     * @param parent
-     * @param configuredTalon
-     * @param encoderTicksPerRotation
+     * @param parent Parent subsystem.
+     * @param configuredTalon Already-configured TalonSRX.
+     * @param encoderTicksPerRotation encoder ticks per rotation of the motor's output shaft
      */
-    public TalonSRXMotor(Subsystem parent, TalonSRX configuredTalon, int encoderTicksPerRotation) {
+    public TalonSRXMotor(Subsystem parent, TalonSRX configuredTalon, double encoderTicksPerRotation) {
         super(parent, configuredTalon, encoderTicksPerRotation);
     }
 
