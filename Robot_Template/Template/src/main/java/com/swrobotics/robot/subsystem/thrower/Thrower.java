@@ -162,7 +162,7 @@ public class Thrower implements Subsystem {
         }
 
         if (hopper.isBallDetected() || !flywheelShutoff.hasElapsed(FLYWHEEL_SHUTOFF_SECONDS.get())) {
-            if (loc.isLookingAtTarget() || input.getAim()) { // Prepare to fire
+            if (loc.cameraCanSeeTarget() || input.getAim()) { // Prepare to fire
                 double[] aim = calculateAim(distance, true, STRICT_AIM.get());
                 flywheel.setFlywheelVelocity(Angle.cwRot(/*aim[0] / 60*/2000/60)); // Convert rpm to Angle/second
                 hood.setPosition(aim[1]);

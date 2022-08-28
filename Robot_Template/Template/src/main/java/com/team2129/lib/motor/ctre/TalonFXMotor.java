@@ -25,6 +25,7 @@ public final class TalonFXMotor extends TalonMotor {
         this(parent, canID, "rio");
     }
 
+    // TODO: Explain default creation
     /**
      * Creates a new instance that belongs to the specified {@code Subsystem}.
      * This constructor allows you to specify which CAN bus the motor is on.
