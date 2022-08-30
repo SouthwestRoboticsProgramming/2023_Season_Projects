@@ -123,7 +123,7 @@ public class SwerveDrive implements Subsystem {
      * Get the pose estimated by the odometry
      * @return Estimated pose of the robot
      */
-    public Pose2d getPose() {
+    public Pose2d getOdometryPose() {
         return odometry.getPoseMeters();
     }
 

@@ -104,4 +104,8 @@ public abstract class TalonMotor extends Motor {
     public void setNeutralMode(com.team2129.lib.motor.ctre.NeutralMode neutralMode) {
         talon.setNeutralMode(neutralMode == com.team2129.lib.motor.ctre.NeutralMode.BRAKE ? NeutralMode.Brake : NeutralMode.Coast);
     }
+
+    public double getTemperature() {
+        return talon.getTemperature();
+    }
 }

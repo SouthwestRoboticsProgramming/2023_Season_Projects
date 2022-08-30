@@ -65,4 +65,8 @@ public class Input {
     public boolean getAimLow() {
         return controller.getLeftBumper();
     }
+
+    public boolean getAimOverride() {
+        return controller.getStartButton();
+    }
 }

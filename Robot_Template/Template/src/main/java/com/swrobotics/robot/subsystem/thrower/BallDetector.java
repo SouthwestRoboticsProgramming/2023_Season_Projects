@@ -18,6 +18,8 @@ public class BallDetector implements Subsystem {
     private boolean lastDetected;
 
     public BallDetector() {
+        BALL_DETECTED.setTemporary();
+
         beamBreak = new DigitalInput(BEAM_BREAK_ID);
         ballDetected = false;
         lastDetected = false;
@@ -42,8 +44,8 @@ public class BallDetector implements Subsystem {
         return !ballDetected && lastDetected;
     }
 
-    // @Override
-    // public String toString() {
-    //     return String.valueOf(ballDetected);
-    // }
+    @Override
+    public String toString() {
+        return String.valueOf(ballDetected);
+    }
 }
