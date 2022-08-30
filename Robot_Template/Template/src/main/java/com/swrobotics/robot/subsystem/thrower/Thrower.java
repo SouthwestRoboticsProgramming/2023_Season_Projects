@@ -54,23 +54,15 @@ public class Thrower implements Subsystem {
 
     private boolean isClimbing;
 
-    public Thrower(Input input, Localization loc) {
+    public Thrower(Input input, Localization loc, Hopper hopper, Hood hood, Flywheel flywheel) {
         highHubMap = new TreeMap<Double, Double>();
         lowHubMap = new TreeMap<Double, Double>();
 
         this.input = input;
         this.loc = loc;
-
-        BallDetector ballDetector = new BallDetector();
-        hopper = new Hopper(ballDetector);
-        hood = new Hood();
-        flywheel = new Flywheel();
-
-        Scheduler sch = Scheduler.get();
-        sch.addSubsystem(this, ballDetector);
-        sch.addSubsystem(this, hopper);
-        sch.addSubsystem(this, hood);
-        sch.addSubsystem(this, flywheel);
+        this.hopper = hopper;
+        this.hood = hood;
+        this.flywheel = flywheel;
 
         flywheelShutoff = new Timer();
         isClimbing = false;
