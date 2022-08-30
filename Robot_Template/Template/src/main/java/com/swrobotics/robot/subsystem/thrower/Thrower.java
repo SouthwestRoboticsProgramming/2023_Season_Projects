@@ -75,20 +75,20 @@ public class Thrower implements Subsystem {
         flywheelShutoff = new Timer();
         isClimbing = false;
 
-        highHubMap.put(0.0, 0.0);
-        highHubMap.put(10.0, 2000.0);
-        lowHubMap.put(0.0, 0.0);
-        lowHubMap.put(1.0, 1.0);
+        // Temporary copied from old constants
+        highHubMap.put(2.95, 2275.0);
+        highHubMap.put(5.4, 2450.0);
+        highHubMap.put(7.3, 2590.0);
+        highHubMap.put(9.58, 2680.0);
     }
 
-    private double[] 
-    calculateAim(double distance, boolean aimHighHub, boolean forceHubChoice) {
+    private double[] calculateAim(double distance, boolean aimHighHub, boolean forceHubChoice) {
         double rpm;
         double hood;
 
         TreeMap<Double, Double> map;
         if (aimHighHub) {
-            map = highHubMap; // Should I use clone?
+            map = highHubMap;
         } else {
             map = lowHubMap;
         }

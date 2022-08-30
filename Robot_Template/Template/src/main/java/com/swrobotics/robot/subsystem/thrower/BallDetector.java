@@ -42,8 +42,8 @@ public class BallDetector implements Subsystem {
         return !ballDetected && lastDetected;
     }
 
-    @Override
-    public String toString() {
-        return String.valueOf(ballDetected);
-    }
+    // @Override
+    // public String toString() {
+    //     return String.valueOf(ballDetected);
+    // }
 }
