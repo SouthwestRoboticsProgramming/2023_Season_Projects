@@ -40,15 +40,9 @@ public final class Robot extends AbstractRobot {
         Localization loc = new Localization(drive, limelight);
         // TODO: PDP
         // TODO: Light controller
-        Intake intake = new Intake(input);
-        
-        
-        // Thrower
         BallDetector ballDetector = new BallDetector();
-        Hopper hopper = new Hopper(ballDetector);
-        Hood hood = new Hood();
-        Flywheel flywheel = new Flywheel();
-        Thrower thrower = new Thrower(input, loc, hopper, hood, flywheel);
+        Intake intake = new Intake(input);
+        Thrower thrower = new Thrower(input, loc);
         // TODO: Climber
 
         Scheduler scheduler = Scheduler.get();
