@@ -15,7 +15,12 @@ public class NTBoolean extends NTEntry<Boolean> {
         /**
          * Shows this entry as a button in ShuffleLog, with the value as false when pressed.
          */
-        INVERSE_MOMENTARY(2);
+        INVERSE_MOMENTARY(2),
+        
+        /**
+         * Shows this entry as a box, colored red for false and green for true
+         */
+        INDICATOR(3);
 
         private final int metaId;
 
