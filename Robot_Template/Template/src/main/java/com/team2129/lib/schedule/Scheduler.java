@@ -76,7 +76,7 @@ public final class Scheduler {
                 case TEST:       subsystem.testInit();       break;
             }
 
-            for (ScheduleNode node : children) {
+            for (ScheduleNode node : new ArrayList<>(children)) {
                 if (node instanceof SubsystemNode) {
                     ((SubsystemNode) node).initState(state);
                 }
@@ -94,7 +94,7 @@ public final class Scheduler {
                 case TEST:       subsystem.testPeriodic();       break;
             }
 
-            for (ScheduleNode node : children) {
+            for (ScheduleNode node : new ArrayList<>(children)) {
                 Profiler.push(node.toString());
                 node.periodicState(state);
                 Profiler.pop();
@@ -223,7 +223,7 @@ public final class Scheduler {
     // --- Main functions ---
 
     public void initState(RobotState state) {
-        for (SubsystemNode node : rootSubsystems) {
+        for (SubsystemNode node : new ArrayList<>(rootSubsystems)) {
             node.initState(state);
         }
 
@@ -233,13 +233,13 @@ public final class Scheduler {
     }
 
     public void periodicState(RobotState state) {
-        for (CommandNode cmd : rootCommands) {
+        for (CommandNode cmd : new ArrayList<>(rootCommands)) {
             Profiler.push(cmd.toString());
             cmd.periodicState(state);
             Profiler.pop();
         }
 
-        for (SubsystemNode node : rootSubsystems) {
+        for (SubsystemNode node : new ArrayList<>(rootSubsystems)) {
             Profiler.push(node.toString());
             node.periodicState(state);
             Profiler.pop();

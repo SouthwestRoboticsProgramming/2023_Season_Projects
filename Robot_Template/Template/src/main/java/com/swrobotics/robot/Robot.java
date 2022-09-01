@@ -5,7 +5,9 @@ import com.swrobotics.robot.subsystem.Limelight;
 import com.swrobotics.robot.subsystem.Localization;
 import com.swrobotics.robot.subsystem.drive.Drive;
 import com.swrobotics.robot.subsystem.thrower.Thrower;
+import com.team2129.lib.schedule.Command;
 import com.team2129.lib.schedule.Scheduler;
+import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.wpilib.AbstractRobot;
 
 public final class Robot extends AbstractRobot {
@@ -42,5 +44,43 @@ public final class Robot extends AbstractRobot {
         scheduler.addSubsystem(drive);
         scheduler.addSubsystem(thrower);
         // TODO: Schedule subsystems
+
+        // Test short, rapid command adding
+        // scheduler.addSubsystem(new Subsystem() {
+        //     @Override
+        //     public void periodic() {
+        //         int[] i = new int[1];
+        //         i[0] = 0;
+        //         Scheduler.get().addCommand(this, () -> {
+        //             // Should only ever print "The command runs: count 0"
+        //             System.out.println("The command runs: count " + i[0]++);
+        //             return true;
+        //         });
+        //     }
+        // });
+
+        // Test cancelling command
+        // scheduler.addSubsystem(new Subsystem() {
+        //     int counter = 0;
+        //     Command cmd = () -> {
+        //         System.out.println("Running the command");
+        //         return false;
+        //     };
+
+        //     @Override
+        //     public void periodic() {
+        //         if (counter == 0) {
+        //             Scheduler.get().addCommand(this, cmd);
+        //             System.out.println("Added the command");
+        //         } else if (counter == 50) {
+        //             Scheduler.get().removeCommand(cmd);
+        //             System.out.println("Removed the command");
+        //         }
+
+        //         // Tick counter and wrap back to zero
+        //         if (++counter == 100)
+        //             counter = 0;
+        //     }
+        // });
     }
 }

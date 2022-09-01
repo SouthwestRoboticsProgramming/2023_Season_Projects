@@ -20,11 +20,17 @@ public interface Command {
     boolean run();
 
     /**
-     * End the command prematurely.
-     * @param wasCancelled
+     * Called by the scheduler when the command ends.
+     * 
+     * @param wasCancelled Whether the end is caused by cancelling this command
      */
     default void end(boolean wasCancelled) {}
 
+    /**
+     * Gets the interval between consecutive executions of the command.
+     * 
+     * @return Interval, by default time per robot periodic
+     */
     default Duration getInterval() {
         return DEFAULT_INTERVAL;
     }
