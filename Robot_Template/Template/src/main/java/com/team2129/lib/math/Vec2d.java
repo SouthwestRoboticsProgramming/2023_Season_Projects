@@ -2,7 +2,6 @@ package com.team2129.lib.math;
 
 import java.util.Objects;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 public final class Vec2d {
@@ -22,6 +21,11 @@ public final class Vec2d {
     public Vec2d(Angle angle, double magnitude) {
         this.y = angle.getSin() * magnitude;
         this.x = angle.getCos() * magnitude;
+    }
+
+    public Vec2d(Translation2d tx) {
+        x = tx.getX();
+        y = tx.getY();
     }
 
     public double magnitude() {
@@ -260,14 +264,14 @@ public final class Vec2d {
         return this;
     }
 
-    public Translation2d toTranslation2d() {
-        return new Translation2d(x, y);
+    public Vec2d set(Translation2d tx) {
+        x = tx.getX();
+        y = tx.getY();
+        return this;
     }
 
-    public Vec2d fromPose2d(Pose2d pose) {
-        x = pose.getX();
-        y = pose.getY();
-        return this;
+    public Translation2d toTranslation2d() {
+        return new Translation2d(x, y);
     }
 
     @Override

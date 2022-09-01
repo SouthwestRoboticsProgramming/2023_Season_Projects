@@ -37,7 +37,7 @@ public final class Robot extends AbstractRobot {
         Input input = new Input();
         Drive drive = new Drive(input);
         Limelight limelight = new Limelight();
-        Localization loc = new Localization(drive, limelight);
+        Localization loc = new Localization(drive, limelight, input);
         // TODO: PDP
         // TODO: Light controller
         BallDetector ballDetector = new BallDetector();

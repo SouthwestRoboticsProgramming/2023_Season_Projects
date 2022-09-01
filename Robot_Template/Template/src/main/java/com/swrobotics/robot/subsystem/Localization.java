@@ -65,10 +65,9 @@ public class Localization implements Subsystem {
 
     @Override
     public void periodic() {
-        
         // If the camera can't see the target
         if (!(cameraCanSeeTarget() || input.getAimOverride() && limelight.isAccurate())) {
-            currentPosition = swerve.getOdometryPose(); // Use just odometry
+            currentPosition = new Vec2d(swerve.getOdometryPose().getTranslation()); // Use just odometry
             return;
         }
 
@@ -88,9 +87,5 @@ public class Localization implements Subsystem {
         // TODO: Ryan, link the desmos, or I can find it
 
         swerve.setOdometryPosition(currentPosition);
-        
-
-
-        Subsystem.super.periodic();
     }
 }
