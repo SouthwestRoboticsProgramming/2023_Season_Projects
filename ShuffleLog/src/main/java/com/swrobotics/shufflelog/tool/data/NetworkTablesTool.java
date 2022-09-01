@@ -8,6 +8,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableType;
 import imgui.flag.ImGuiCol;
+import imgui.flag.ImGuiColorEditFlags;
 import imgui.flag.ImGuiCond;
 import imgui.flag.ImGuiDataType;
 import imgui.flag.ImGuiTableColumnFlags;
@@ -33,6 +34,11 @@ public final class NetworkTablesTool implements Tool {
     private static final int DEFAULT_PORT = NetworkTableInstance.kDefaultPort;
 
     private static final String METADATA_TABLE = "ShuffleLog_Meta";
+
+    private static final int BOOL_MODE_TOGGLE = 0;
+    private static final int BOOL_MODE_MOMENTARY = 1;
+    private static final int BOOL_MODE_INV_MOMENTARY = 2;
+    private static final int BOOL_MODE_INDICATOR = 3;
 
     private final ExecutorService threadPool;
     private final NetworkTableInstance nt;
@@ -185,10 +191,39 @@ public final class NetworkTablesTool implements Tool {
         switch (entry.getType()) {
             case kBoolean: {
                 graph = true;
-                b.set(entry.getBoolean(false));
-                if (checkbox("", b)) {
-                    entry.setBoolean(b.get());
+
+                int mode = BOOL_MODE_TOGGLE;
+                NetworkTableEntry metadataEntry = metadata.getEntry(path.substring(1)); // Substring to remove leading slash
+                if (metadataEntry.exists() && metadataEntry.getType() == NetworkTableType.kDouble) {
+                    mode = metadataEntry.getNumber(BOOL_MODE_TOGGLE).intValue();
                 }
+
+                switch (mode) {
+                    case BOOL_MODE_TOGGLE: {
+                        b.set(entry.getBoolean(false));
+                        if (checkbox("", b)) {
+                            entry.setBoolean(b.get());
+                        }
+                    }
+                    case BOOL_MODE_MOMENTARY:
+                    case BOOL_MODE_INV_MOMENTARY: {
+                        button("Press");
+                        boolean pressed = isItemActive();
+
+                        if (mode == BOOL_MODE_INV_MOMENTARY)
+                            pressed = !pressed;
+
+                        entry.setBoolean(pressed);
+                    }
+                    case BOOL_MODE_INDICATOR: {
+                        if (entry.getBoolean(false)) {
+                            colorButton("", new float[]{0, 1, 0, 1}, ImGuiColorEditFlags.NoTooltip);
+                        } else {
+                            colorButton("", new float[]{1, 0, 0, 1}, ImGuiColorEditFlags.NoTooltip);
+                        }
+                    }
+                }
+
                 break;
             }
             case kDouble: {
