@@ -204,6 +204,7 @@ public final class NetworkTablesTool implements Tool {
                         if (checkbox("", b)) {
                             entry.setBoolean(b.get());
                         }
+                        break;
                     }
                     case BOOL_MODE_MOMENTARY:
                     case BOOL_MODE_INV_MOMENTARY: {
@@ -214,6 +215,7 @@ public final class NetworkTablesTool implements Tool {
                             pressed = !pressed;
 
                         entry.setBoolean(pressed);
+                        break;
                     }
                     case BOOL_MODE_INDICATOR: {
                         if (entry.getBoolean(false)) {
@@ -221,6 +223,7 @@ public final class NetworkTablesTool implements Tool {
                         } else {
                             colorButton("", new float[]{1, 0, 0, 1}, ImGuiColorEditFlags.NoTooltip);
                         }
+                        break;
                     }
                 }
 

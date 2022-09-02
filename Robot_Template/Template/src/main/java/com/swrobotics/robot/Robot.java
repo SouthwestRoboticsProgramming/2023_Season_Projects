@@ -5,6 +5,7 @@ import com.swrobotics.robot.subsystem.Limelight;
 import com.swrobotics.robot.subsystem.Localization;
 import com.swrobotics.robot.subsystem.drive.Drive;
 import com.swrobotics.robot.subsystem.thrower.Thrower;
+import com.team2129.lib.net.NTBoolean;
 import com.team2129.lib.schedule.Command;
 import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.schedule.Subsystem;
@@ -82,5 +83,8 @@ public final class Robot extends AbstractRobot {
         //             counter = 0;
         //     }
         // });
+
+        new NTBoolean("test/test1", false, NTBoolean.Mode.MOMENTARY).setTemporary().set(false);
+        new NTBoolean("test/test2", true, NTBoolean.Mode.INDICATOR).setTemporary().set(true);
     }
 }
