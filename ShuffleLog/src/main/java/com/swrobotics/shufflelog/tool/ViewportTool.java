@@ -49,6 +49,7 @@ public abstract class ViewportTool implements Tool {
             boolean shouldShowThisFrame = prepareGraphics((int) w, (int) h);
 
             g.beginDraw();
+            g.textFont(app.getGraphics().textFont);
             drawViewportContent(g);
             g.endDraw();
 

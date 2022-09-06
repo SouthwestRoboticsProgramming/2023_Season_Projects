@@ -2,6 +2,7 @@ package com.swrobotics.shufflelog;
 
 import com.swrobotics.messenger.client.MessengerClient;
 import com.swrobotics.shufflelog.profile.Profiler;
+import com.swrobotics.shufflelog.tool.blockauto.BlockAutoTool;
 import com.swrobotics.shufflelog.tool.data.DataLogTool;
 import com.swrobotics.shufflelog.tool.MenuBarTool;
 import com.swrobotics.shufflelog.tool.field.FieldViewTool;
@@ -18,6 +19,7 @@ import imgui.extension.implot.ImPlot;
 import imgui.flag.ImGuiConfigFlags;
 import imgui.gl3.ImGuiImplGl3;
 import processing.core.PApplet;
+import processing.core.PFont;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -65,6 +67,13 @@ public final class ShuffleLog extends PApplet {
         imGuiGlfw.init(windowHandle, true);
         imGuiGl3.init();
 
+        // Set default font
+        try {
+            textFont(new PFont(getClass().getClassLoader().getResourceAsStream("fonts/PTSans-Regular-14.vlw")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         tools.add(new MenuBarTool());
         tools.add(new MessengerTool(this));
         DataLogTool dataLogTool = new DataLogTool(this);
@@ -75,6 +84,7 @@ public final class ShuffleLog extends PApplet {
         tools.add(new SchedulerTool(msg));
         tools.add(new TaskManagerTool(this, "TaskManager"));
         tools.add(new FieldViewTool(this));
+        tools.add(new BlockAutoTool(this));
 
         startTime = System.currentTimeMillis();
     }
