@@ -11,6 +11,10 @@ import com.team2129.lib.wpilib.AbstractRobot;
 public interface Command {
     Duration DEFAULT_INTERVAL = new Duration(1 / AbstractRobot.get().getPeriodicPerSecond(), TimeUnit.SECONDS);
 
+    /**
+     * Called before the first time {@code run()} is called,
+     * to perform initialization.
+     */
     default void init() {}
 
     /**
@@ -20,11 +24,15 @@ public interface Command {
     boolean run();
 
     /**
-     * End the command prematurely.
-     * @param wasCancelled
+     * Called by the scheduler when the command ends.
+     * @param wasCancelled Whether the command was cancelled
      */
     default void end(boolean wasCancelled) {}
 
+    /**
+     * Gets the preferred time interval between calls to {@code run()}.
+     * @return periodic interval
+     */
     default Duration getInterval() {
         return DEFAULT_INTERVAL;
     }

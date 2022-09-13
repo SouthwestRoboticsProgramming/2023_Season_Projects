@@ -1,5 +1,6 @@
 package com.swrobotics.robot;
 
+import com.swrobotics.robot.blockauto.AutoBlocks;
 import com.swrobotics.robot.control.Input;
 import com.swrobotics.robot.subsystem.Localization;
 import com.swrobotics.robot.subsystem.drive.Drive;
@@ -24,6 +25,8 @@ public final class Robot extends AbstractRobot {
             // Connect to Raspberry Pi
             initMessenger(RASPBERRY_PI_IP, 5805, "Robot");
         }
+
+        AutoBlocks.init(getMessenger());
     }
     
     @Override

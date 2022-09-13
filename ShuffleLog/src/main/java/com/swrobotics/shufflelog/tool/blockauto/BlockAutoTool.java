@@ -1,59 +1,63 @@
 package com.swrobotics.shufflelog.tool.blockauto;
 
+import com.swrobotics.messenger.client.MessageReader;
+import com.swrobotics.messenger.client.MessengerClient;
 import com.swrobotics.shufflelog.ShuffleLog;
-import com.swrobotics.shufflelog.tool.ViewportTool;
-import com.swrobotics.shufflelog.tool.blockauto.comp.TextComponent;
-import imgui.flag.ImGuiTableFlags;
-import imgui.flag.ImGuiWindowFlags;
-import processing.core.PGraphics;
+import com.swrobotics.shufflelog.tool.Tool;
+import com.swrobotics.shufflelog.tool.ToolConstants;
+import com.swrobotics.shufflelog.util.Cooldown;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static imgui.ImGui.*;
 
-public final class BlockAutoTool extends ViewportTool {
+public final class BlockAutoTool implements Tool {
+    private static final String MSG_QUERY_BLOCK_DEFS = "AutoBlock:QueryBlockDefs";
+    private static final String MSG_QUERY_SEQUENCES  = "AutoBlock:QuerySequences";
+    private static final String MSG_CREATE_SEQUENCE  = "AutoBlock:CreateSequence";
+    private static final String MSG_READ_SEQUENCE    = "AutoBlock:ReadSequence";
+    private static final String MSG_UPDATE_SEQUENCE  = "AutoBlock:UpdateSequence";
+    private static final String MSG_DELETE_SEQUENCE  = "AutoBlock:DeleteSequence";
+
+    private static final String MSG_BLOCK_DEFS     = "AutoBlock:BlockDefs";
+    private static final String MSG_SEQUENCES      = "AutoBlock:Sequences";
+    private static final String MSG_CREATE_CONFIRM = "AutoBlock:CreateConfirm";
+    private static final String MSG_SEQUENCE_DATA  = "AutoBlock:SequenceData";
+    private static final String MSG_UPDATE_CONFIRM = "AutoBlock:UpdateConfirm";
+    private static final String MSG_DELETE_CONFIRM = "AutoBlock:DeleteConfirm";
+
+    private final MessengerClient msg;
+
+    private final Cooldown blockDefsQueryCooldown;
     private final List<BlockCategory> categories;
-    private final List<BlockStack> stacks;
 
     public BlockAutoTool(ShuffleLog log) {
-        super(log, "Block Autonomous", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse);
+        msg = log.getMsg();
+        msg.addHandler(MSG_BLOCK_DEFS, this::onBlockDefs);
 
+        blockDefsQueryCooldown = new Cooldown(ToolConstants.MSG_QUERY_COOLDOWN_TIME);
         categories = new ArrayList<>();
-        categories.add(new BlockCategory(log, "Control", new Block(new TextComponent("Test block")), new Block(new TextComponent("Test block with a longer name"))));
-
-        stacks = new ArrayList<>();
-        stacks.add(new BlockStack(
-                new Block(new TextComponent("Block 1")),
-                new Block(new TextComponent("Block 2 (lllllooooooooooooooonnnnnnnnnnnngggggggg)")),
-                new Block(new TextComponent("Block 3"))
-        ));
     }
 
-    @Override
-    protected void drawViewportContent(PGraphics g) {
-        g.background(15, 15, 150);
-
-        for (BlockStack stack : stacks) {
-            stack.draw(g);
+    private void onBlockDefs(String type, MessageReader reader) {
+        int count = reader.readInt();
+        categories.clear();
+        for (int i = 0; i < count; i++) {
+            categories.add(BlockCategory.read(reader));
         }
     }
 
     @Override
-    protected void drawGuiContent() {
-        if (beginTable("view_layout", 2, ImGuiTableFlags.BordersInner | ImGuiTableFlags.Resizable)) {
-            tableNextColumn();
-            drawViewport();
-
-            tableNextColumn();
-            text("Block palette");
-            separator();
+    public void process() {
+        if (begin("Block Auto")) {
+            if (blockDefsQueryCooldown.request())
+                msg.send(MSG_QUERY_BLOCK_DEFS);
 
             for (BlockCategory cat : categories) {
                 cat.draw();
             }
-
-            endTable();
         }
+        end();
     }
 }
