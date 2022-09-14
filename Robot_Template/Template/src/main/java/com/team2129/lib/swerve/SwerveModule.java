@@ -25,7 +25,7 @@ public class SwerveModule {
     private Angle tolerance;
     private SwerveModuleState currentDesiredState;
 
-    // TODO: Ryan, do we still want lerp if out of tolerance?
+    // TODO: Ryan, do we still want lerp if out of tolerance? A: "No, probably not"
     
     /**
      * A single swerve module capable of both steering and driving.

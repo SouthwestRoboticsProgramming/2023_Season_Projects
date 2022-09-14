@@ -7,6 +7,7 @@ import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.swerve.SwerveModule;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
+import com.team2129.lib.motor.calc.EstimateVelocityCalculator;
 import com.team2129.lib.motor.calc.PIDCalculator;
 import com.team2129.lib.motor.ctre.TalonFXMotor;
 import com.team2129.lib.motor.ctre.TalonSRXMotor;
@@ -15,9 +16,7 @@ import com.team2129.lib.motor.ctre.TalonSRXMotor;
  * Configures motors and creates a swerve module
  */
 public class SwerveModuleMaker {
-    private static final NTDouble DRIVE_KP = new NTDouble("Swerve/Drive/kP", 0.0001);
-    private static final NTDouble DRIVE_KI = new NTDouble("Swerve/Drive/kI", 0);
-    private static final NTDouble DRIVE_KD = new NTDouble("Swerve/Drive/kD", 0);
+    private static final NTDouble DRIVE_MAX_VELOCITY = new NTDouble("Swerve/Drive/Maximum Possible Velocity RPS", 26 * 4.11);
 
     private static final NTDouble TURN_KP = new NTDouble("Swerve/Turn/kP", 0.01);
     private static final NTDouble TURN_KI = new NTDouble("Swerve/Turn/kI", 0.0001);
@@ -28,7 +27,8 @@ public class SwerveModuleMaker {
 
     public static SwerveModule buildModule(Subsystem parent, SwerveModuleDef def, int steerID, Vec2d position) {
         TalonFXMotor driveMotor = new TalonFXMotor(parent, def.getDriveId(), Constants.CANIVORE);
-        driveMotor.setPIDCalculators(DRIVE_KP, DRIVE_KI, DRIVE_KD);
+        EstimateVelocityCalculator driveCalculator = new EstimateVelocityCalculator(DRIVE_MAX_VELOCITY);
+        driveMotor.setVelocityCalculator(driveCalculator);
         driveMotor.setInverted(true);
 
         TalonSRXMotor steerMotor = new TalonSRXMotor(parent, steerID);

@@ -1,6 +1,7 @@
 package com.team2129.lib.motor.calc;
 
 import com.team2129.lib.math.Angle;
+import com.team2129.lib.net.NTDouble;
 
 /** 
  * A velocity calculator that estimates the output based
@@ -8,10 +9,10 @@ import com.team2129.lib.math.Angle;
  */
 public class EstimateVelocityCalculator implements VelocityCalculator {
 
-    private final Angle maximumVelocity;
+    private final NTDouble maximumVelocityRPS;
 
-    public EstimateVelocityCalculator(Angle maximumVelocity) {
-        this.maximumVelocity = maximumVelocity;
+    public EstimateVelocityCalculator(NTDouble maximumVelocityRPS) {
+        this.maximumVelocityRPS = maximumVelocityRPS;
     }
 
     @Override
@@ -22,7 +23,11 @@ public class EstimateVelocityCalculator implements VelocityCalculator {
      */
     @Override
     public double calculate(Angle nullAngle, Angle targetVelocity) {
-        return targetVelocity.getCWDeg() / maximumVelocity.getCWDeg();
+        try {
+            return targetVelocity.getCWRot() / maximumVelocityRPS.get();
+        } catch (ArithmeticException e) {
+            return 0.0;
+        }
     }
 
 }
