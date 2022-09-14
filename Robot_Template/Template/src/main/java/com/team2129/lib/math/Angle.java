@@ -31,6 +31,9 @@ public final class Angle {
         return new Angle(0);
     }
 
+    /**
+     * Counter-clockwise radians
+     */
     private double angle;
 
     private Angle(double angle) {
@@ -53,6 +56,14 @@ public final class Angle {
         return Math.toDegrees(-angle);
     }
 
+    public double getCCWRot() {
+        return angle / (2 * Math.PI);
+    }
+
+    public double getCWRot() {
+        return -getCCWRot();
+    }
+
     public Angle setCWRad(double a) {
         angle = -a;
         return this;
@@ -70,6 +81,16 @@ public final class Angle {
 
     public Angle setCCWDeg(double a) {
         angle = Math.toRadians(a);
+        return this;
+    }
+
+    public Angle setCCWRot(double a) {
+        angle = a * 2 * Math.PI;
+        return this;
+    }
+
+    public Angle setCWRot(double a) {
+        angle = -a * 2 * Math.PI;
         return this;
     }
 
