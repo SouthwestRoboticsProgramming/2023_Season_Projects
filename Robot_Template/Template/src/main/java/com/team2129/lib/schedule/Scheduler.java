@@ -123,6 +123,7 @@ public final class Scheduler {
         public void periodicState(RobotState state) {
             boolean finished = command.run();
             if (finished) {
+                System.out.println("Command finished: " + command);
                 INSTANCE.removeCommand(command);
             }
         }
@@ -195,11 +196,16 @@ public final class Scheduler {
 
     public void removeSubsystem(Subsystem s) {
         SubsystemNode node = subsystemNodes.get(s);
+        if (node == null)
+            return;
         for (ScheduleNode child : node.children) {
             child.remove(this);
         }
         subsystemNodes.remove(s);
-        node.parent.children.remove(node);
+        if (node.parent != null)
+            node.parent.children.remove(node);
+
+        rootSubsystems.remove(node);
     }
 
     public void addCommand(Command cmd) { addCommand(null, cmd); }
@@ -217,7 +223,9 @@ public final class Scheduler {
 
     public void removeCommand(Command cmd) {
         CommandNode node = commandNodes.remove(cmd);
-        node.parent.children.remove(node);
+        if (node != null && node.parent != null)
+            node.parent.children.remove(node);
+        rootCommands.remove(node);
     }
 
     // --- Main functions ---

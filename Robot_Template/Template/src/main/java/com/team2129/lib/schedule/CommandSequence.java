@@ -77,9 +77,4 @@ public abstract class CommandSequence implements Command {
     private boolean running() {
         return index >=0 && index < cmds.size();
     }
-    
-    @Override
-    public String toString() {
-        return "Current command: " + cmds.get(index) + " Next: " + cmds.get(index++);
-    }
 }
