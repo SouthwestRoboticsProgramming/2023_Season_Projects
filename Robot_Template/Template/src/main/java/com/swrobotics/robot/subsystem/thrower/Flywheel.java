@@ -3,18 +3,11 @@ package com.swrobotics.robot.subsystem.thrower;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.motor.calc.BangBangVelocityCalculator;
 import com.team2129.lib.motor.calc.PIDFFVelocityCalculator;
-import com.team2129.lib.motor.calc.PIDCalculator;
 import com.team2129.lib.motor.ctre.TalonFXMotor;
 import com.team2129.lib.net.NTBoolean;
 import com.team2129.lib.net.NTDouble;
 import com.team2129.lib.schedule.Subsystem;
 
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.swrobotics.robot.Constants;
 
 public class Flywheel implements Subsystem {
