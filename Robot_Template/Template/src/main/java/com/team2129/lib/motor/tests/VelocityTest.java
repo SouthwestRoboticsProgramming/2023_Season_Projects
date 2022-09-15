@@ -10,6 +10,13 @@ public class VelocityTest extends TestCommand {
     private final Angle targetVelocity;
     private final Angle tolerance;
 
+    /**
+     * Create a test to measure if the motor calculator can navigate the motor the desired velocity.
+     * @param motor
+     * @param timeoutSeconds
+     * @param targetVelocity
+     * @param tolerance
+     */
     public VelocityTest(Motor motor, double timeoutSeconds, Angle targetVelocity, Angle tolerance) {
         setTimeout(timeoutSeconds);
         this.motor = motor;

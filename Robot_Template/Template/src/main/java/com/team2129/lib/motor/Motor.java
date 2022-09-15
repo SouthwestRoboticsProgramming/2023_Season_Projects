@@ -9,9 +9,11 @@ import com.team2129.lib.math.MathUtil;
 import com.team2129.lib.motor.calc.PIDCalculator;
 import com.team2129.lib.motor.calc.PositionCalculator;
 import com.team2129.lib.motor.calc.VelocityCalculator;
+import com.team2129.lib.motor.tests.VelocityTest;
 import com.team2129.lib.net.NTDouble;
 import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.schedule.Subsystem;
+import com.team2129.lib.schedule.TestCommand;
 import com.team2129.lib.utils.InputUtils;
 
 /**
@@ -355,6 +357,14 @@ public abstract class Motor implements Subsystem {
     public void setNominalOutput(double nominalOutput) {
         this.nominalOutput = nominalOutput;
     }
+
+    public VelocityTest getVelocityTest(double timeoutMs, Angle targetVelocity, Angle tolerance) {
+        return new VelocityTest(this, timeoutMs, targetVelocity, tolerance);
+    }
+
+    // TODO: Position test
+
+    // TODO: Encoder test
 
     /**
      * Actually sets the motor's percent output. This should be implemented

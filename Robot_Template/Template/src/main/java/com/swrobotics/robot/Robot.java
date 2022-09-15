@@ -31,11 +31,11 @@ public final class Robot extends AbstractRobot {
         Input input = new Input();
         Drive drive = new Drive(input);
 
-        Localization loc = new Localization();
-        Thrower thrower = new Thrower(input, loc);
+        // Localization loc = new Localization();
+        // Thrower thrower = new Thrower(input, loc);
 
         Scheduler scheduler = Scheduler.get();
         scheduler.addSubsystem(drive);
-        scheduler.addSubsystem(thrower);
+        // scheduler.addSubsystem(thrower);
     }
 }
