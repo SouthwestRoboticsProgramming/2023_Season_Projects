@@ -23,6 +23,7 @@ public final class Scheduler {
     private static final String MSG_SUBSYSTEM_REMOVED = "Scheduler:SubsystemRemoved";
     private static final String MSG_COMMAND_ADDED = "Scheduler:CommandAdded";
     private static final String MSG_COMMAND_REMOVED = "Scheduler:CommandRemoved";
+    private static final String MSG_COMMAND_STATUS_CHANGED = "Scheduler:CommandStatusChanged";
 
     // Node type codes for sending tree
     private static final byte TYPE_CODE_SUBSYSTEM = 0;

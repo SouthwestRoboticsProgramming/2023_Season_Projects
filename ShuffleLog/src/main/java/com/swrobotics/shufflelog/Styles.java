@@ -27,6 +27,15 @@ public final class Styles {
         io.getFonts().addFontFromMemoryTTF(data, size, fontConfig);
     }
 
+    public static void applyLight() {
+        loadFont("fonts/Roboto-Regular.ttf", 15);
+
+        ImGui.styleColorsLight();
+        ImGuiStyle style = ImGui.getStyle();
+        style.setFrameRounding(4.0f);
+        style.setGrabRounding(4.0f);
+    }
+
     public static void applyDark() {
         loadFont("fonts/Roboto-Regular.ttf", 15);
 

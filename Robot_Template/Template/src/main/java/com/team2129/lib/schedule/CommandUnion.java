@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.team2129.lib.schedule.debug.CommandDebugDesc;
+import com.team2129.lib.schedule.debug.CompoundCommandDebugCallback;
+
 /**
  * Utility command to run multiple commands in parallel.
  */
-public class CommandUnion implements Command {
+public class CommandUnion implements CompoundCommand {
     private static final class CommandWrapper {
         Command cmd;
         boolean finished;
@@ -15,6 +18,7 @@ public class CommandUnion implements Command {
 
     private final List<CommandWrapper> children;
     private boolean hasInitialized;
+    private CompoundCommandDebugCallback debug;
 
     public CommandUnion(Command... children) {
         this(Arrays.asList(children));
@@ -36,6 +40,8 @@ public class CommandUnion implements Command {
 
         if (hasInitialized)
             child.init();
+
+        invokeDebugCallback();
     }
 
     @Override
@@ -44,6 +50,7 @@ public class CommandUnion implements Command {
         for (CommandWrapper w : children) {
             w.cmd.init();
         }
+        invokeDebugCallback();
     }
 
     @Override
@@ -54,6 +61,7 @@ public class CommandUnion implements Command {
                 w.finished = w.cmd.run();
                 if (w.finished) {
                     w.cmd.end(false);
+                    invokeDebugCallback();
                 } else {
                     anyRunning = true;
                 }
@@ -69,5 +77,22 @@ public class CommandUnion implements Command {
                 w.cmd.end(cancelled);
             }
         }
+    }
+
+    private void invokeDebugCallback() {
+        if (debug == null)
+            return;
+
+        List<CommandDebugDesc> out = new ArrayList<>();
+        for (CommandWrapper w : children) {
+            out.add(new CommandDebugDesc(w.cmd, !w.finished));
+        }
+        debug.onChildrenInfoChanged(out);
+    }
+
+    @Override
+    public void setDebugCallback(CompoundCommandDebugCallback cb) {
+        debug = cb;
+        invokeDebugCallback();
     }
 }

@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class CommandSequence implements Command {
+import com.team2129.lib.schedule.debug.CommandDebugDesc;
+import com.team2129.lib.schedule.debug.CompoundCommandDebugCallback;
+
+public class CommandSequence implements CompoundCommand {
     // TODO: Maybe make this its own class since we use the same thing
     //       in both CommandSequence and CommandUnion
     private static final class CommandWrapper {
@@ -32,6 +35,7 @@ public class CommandSequence implements Command {
 
     private final List<CommandWrapper> cmds;
     private int index;
+    private CompoundCommandDebugCallback debug;
 
     public CommandSequence(Command... cmds) {
         this(Arrays.asList(cmds));
@@ -40,11 +44,17 @@ public class CommandSequence implements Command {
     public CommandSequence(List<Command> cmds) {
         this.cmds = new ArrayList<>();
         for (Command cmd : cmds) {
-            append(cmd);
+            appendInternal(cmd);
         }
+        // Debug callback is not yet set
     }
 
     public void append(Command cmd) {
+        appendInternal(cmd);
+        invokeDebugCallback();
+    }
+
+    private void appendInternal(Command cmd) {
         CommandWrapper w = new CommandWrapper();
         w.cmd = cmd;
         cmds.add(w);
@@ -55,6 +65,8 @@ public class CommandSequence implements Command {
         index = 0;
         if (!cmds.isEmpty())
             cmds.get(0).cmd.init();
+
+        invokeDebugCallback();
     }
 
     private boolean running() {
@@ -67,6 +79,8 @@ public class CommandSequence implements Command {
         index++;
         if (running())
             cmds.get(index).init();
+
+        invokeDebugCallback();
     }
 
     public void back() {
@@ -75,6 +89,8 @@ public class CommandSequence implements Command {
         index--;
         if (running())
             cmds.get(index).init();
+
+        invokeDebugCallback();
     }
 
     public void goTo(int dst) {
@@ -83,6 +99,8 @@ public class CommandSequence implements Command {
         index = dst;
         if (running())
             cmds.get(index).init();
+
+        invokeDebugCallback();
     }
 
     @Override
@@ -94,5 +112,22 @@ public class CommandSequence implements Command {
         }
 
         return !running();
+    }
+
+    private void invokeDebugCallback() {
+        if (debug == null)
+            return;
+
+        List<CommandDebugDesc> out = new ArrayList<>();
+        for (int i = 0; i < cmds.size(); i++) {
+            out.add(new CommandDebugDesc(cmds.get(i).cmd, i == index));
+        }
+        debug.onChildrenInfoChanged(out);;
+    }
+
+    @Override
+    public void setDebugCallback(CompoundCommandDebugCallback cb) {
+        debug = cb;
+        invokeDebugCallback();
     }
 }
