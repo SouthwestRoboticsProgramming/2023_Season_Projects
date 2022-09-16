@@ -45,6 +45,7 @@ public abstract class AbstractRobot extends RobotBase {
         msg = new MessengerClient(host, port, name);
         Scheduler.get().addSubsystem(new ReadMessages(msg));
         Scheduler.get().initMessenger(msg);
+        msg = null;
     }
 
     public boolean hasMessenger() {

@@ -76,7 +76,7 @@ public final class Scheduler {
                 case TEST:       subsystem.testInit();       break;
             }
 
-            for (ScheduleNode node : children) {
+            for (ScheduleNode node : new ArrayList<>(children)) {
                 if (node instanceof SubsystemNode) {
                     ((SubsystemNode) node).initState(state);
                 }
@@ -94,7 +94,7 @@ public final class Scheduler {
                 case TEST:       subsystem.testPeriodic();       break;
             }
 
-            for (ScheduleNode node : children) {
+            for (ScheduleNode node : new ArrayList<>(children)) {
                 Profiler.push(node.toString());
                 node.periodicState(state);
                 Profiler.pop();
@@ -123,6 +123,7 @@ public final class Scheduler {
         public void periodicState(RobotState state) {
             boolean finished = command.run();
             if (finished) {
+                System.out.println("Command finished: " + command);
                 INSTANCE.removeCommand(command);
             }
         }
@@ -195,11 +196,16 @@ public final class Scheduler {
 
     public void removeSubsystem(Subsystem s) {
         SubsystemNode node = subsystemNodes.get(s);
+        if (node == null)
+            return;
         for (ScheduleNode child : node.children) {
             child.remove(this);
         }
         subsystemNodes.remove(s);
-        node.parent.children.remove(node);
+        if (node.parent != null)
+            node.parent.children.remove(node);
+
+        rootSubsystems.remove(node);
     }
 
     public void addCommand(Command cmd) { addCommand(null, cmd); }
@@ -217,36 +223,30 @@ public final class Scheduler {
 
     public void removeCommand(Command cmd) {
         CommandNode node = commandNodes.remove(cmd);
-        node.parent.children.remove(node);
+        if (node != null && node.parent != null)
+            node.parent.children.remove(node);
+        rootCommands.remove(node);
     }
 
     // --- Main functions ---
 
     public void initState(RobotState state) {
-        for (SubsystemNode node : rootSubsystems) {
+        for (SubsystemNode node : new ArrayList<>(rootSubsystems)) {
             node.initState(state);
-        }
-
-        if (!unsatisfiedParentLinks.isEmpty()) {
-            DriverStation.reportWarning("Unsatisfied parent link after init, some nodes are not running!", false);
         }
     }
 
     public void periodicState(RobotState state) {
-        for (CommandNode cmd : rootCommands) {
+        for (CommandNode cmd : new ArrayList<>(rootCommands)) {
             Profiler.push(cmd.toString());
             cmd.periodicState(state);
             Profiler.pop();
         }
 
-        for (SubsystemNode node : rootSubsystems) {
+        for (SubsystemNode node : new ArrayList<>(rootSubsystems)) {
             Profiler.push(node.toString());
             node.periodicState(state);
             Profiler.pop();
-        }
-
-        if (!unsatisfiedParentLinks.isEmpty()) {
-            DriverStation.reportWarning("Unsatisfied parent link after periodic, some nodes are not running!", false);
         }
     }
 

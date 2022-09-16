@@ -1,8 +1,6 @@
 package com.team2129.lib.net;
 
 public class NTEnum<T extends Enum<T>> extends NTEntry<T> {
-    private static final String METADATA_TABLE = "ShuffleLog_Meta/";
-
     private final T defaultVal;
     private final Class<T> type;
 
@@ -11,7 +9,7 @@ public class NTEnum<T extends Enum<T>> extends NTEntry<T> {
         this.type = type;
         this.defaultVal = defaultVal;
 
-        NTStringArray metadata = new NTStringArray(METADATA_TABLE + path);
+        NTStringArray metadata = new NTStringArray(ShuffleLog.METADATA_TABLE + path);
         metadata.setTemporary();
         T[] values = type.getEnumConstants();
         String[] data = new String[values.length];

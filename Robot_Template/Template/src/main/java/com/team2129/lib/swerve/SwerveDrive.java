@@ -6,6 +6,7 @@ import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.gyro.Gyroscope;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -24,6 +25,13 @@ public class SwerveDrive implements Subsystem {
 
     private Vec2d centerOfRotation;
 
+    /**
+     * Creates a new {@code SwerveDrive} instance.
+     * 
+     * @param gyro Gyroscope for angle feedback. Should be zero when facing away from driver station
+     * @param maxWheelVelocity Maximum wheel velocity in meters per second
+     * @param modules Swerve modules to control
+     */
     public SwerveDrive(Gyroscope gyro, double maxWheelVelocity, SwerveModule... modules) {
         this.gyro = gyro;
         this.modules = modules;
@@ -37,7 +45,9 @@ public class SwerveDrive implements Subsystem {
         kinematics = new SwerveDriveKinematics(positions);
         this.maxWheelVelocity = maxWheelVelocity;
 
-        odometry = new SwerveDriveOdometry(kinematics, gyro.getAngle().toRotation2dCW());
+        Rotation2d gyroAngle = gyro.getAngle().toRotation2dCW();
+        Pose2d initialPose = new Pose2d(0, 0, gyroAngle);
+        odometry = new SwerveDriveOdometry(kinematics, gyroAngle, initialPose);
 
         centerOfRotation = new Vec2d(0, 0);
     }
@@ -119,19 +129,32 @@ public class SwerveDrive implements Subsystem {
         System.out.println(out);
     }
 
+    // FIXME-Odometry: Check if coordinate space transforms are needed
+
     /**
      * Get the pose estimated by the odometry
      * @return Estimated pose of the robot
      */
-    public Pose2d getPose() {
+    public Pose2d getOdometryPose() {
         return odometry.getPoseMeters();
+    }
+
+    /**
+     * Set the current position of the odometry to a known value. The rotation
+     * will remain the same.
+     * 
+     * @param pos Known position of the robot to reset the odometry to.
+     */
+    public void setOdometryPosition(Vec2d pos) {
+        Rotation2d prevRot = getOdometryPose().getRotation();
+        setOdometryPose(new Pose2d(pos.x, pos.y, prevRot));
     }
 
     /**
      * Set the current pose of the odometry to a known value
      * @param pose Known pose of the robot to reset the odometry to.
      */
-    public void setOdometryPosition(Pose2d pose) {
+    public void setOdometryPose(Pose2d pose) {
         odometry.resetPosition(pose, gyro.getAngle().toRotation2dCW());
     }
 

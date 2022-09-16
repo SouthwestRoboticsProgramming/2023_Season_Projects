@@ -1,8 +1,5 @@
 package com.swrobotics.robot.subsystem.drive;
 
-//import static com.swrobotics.robot.Constants.*;
-
-import com.team2129.lib.gyro.ADIS16448Gyroscope;
 import com.swrobotics.robot.control.Input;
 import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.swerve.SwerveDrive;
@@ -11,7 +8,7 @@ import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
 import com.team2129.lib.net.NTBoolean;
 import com.team2129.lib.net.NTEnum;
-import com.team2129.lib.gyro.Gyroscope;
+import com.team2129.lib.gyro.NavX;
 
 /*
  * Wheel Layout:
@@ -49,13 +46,12 @@ public class Drive implements Subsystem {
     private static final NTBoolean PRINT_ENCODER_OFFSETS = new NTBoolean("Swerve/Print Encoder Offsets", false);
 
     private final Input input;
-    private final Gyroscope gyro;
     private final SwerveDrive drive;
+    private final NavX gyro;
 
     public Drive(Input input) {
         this.input = input;
-        
-        gyro = new ADIS16448Gyroscope();
+        gyro = new NavX();
         
         SwerveModule w0 = SwerveModuleMaker.buildModule(this, SLOT_0_MODULE.get(), TURN_ID_0, SLOT_0_POS);
         SwerveModule w1 = SwerveModuleMaker.buildModule(this, SLOT_1_MODULE.get(), TURN_ID_1, SLOT_1_POS);
@@ -63,6 +59,14 @@ public class Drive implements Subsystem {
         SwerveModule w3 = SwerveModuleMaker.buildModule(this, SLOT_3_MODULE.get(), TURN_ID_3, SLOT_3_POS);
         
         drive = new SwerveDrive(gyro, MAX_WHEEL_VELOCITY, w0, w1, w2, w3);
+    }
+
+    public SwerveDrive getDriveController() {
+        return drive;
+    }
+
+    public NavX getNavX() {
+        return gyro;
     }
 
     @Override

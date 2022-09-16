@@ -9,4 +9,8 @@ echo "Disabling services"
 sudo systemctl disable messenger
 sudo systemctl disable taskmanager
 
+echo "Restoring dhcpcd config"
+sudo cp dhcpcd.conf.bak /etc/dhcpcd.conf
+suto systemctl restart dhcpcd
+
 echo "Successfully removed"

@@ -10,9 +10,15 @@
       "type": "SHAPE",
       "shapes": [
         {
-          "type": "RECTANGLE",
+          "type": "CIRCLE",
           "x": 0.0,
           "y": 0.0,
+          "radius": 1.0
+        },
+        {
+          "type": "RECTANGLE",
+          "x": 0.0,
+          "y": -4.0,
           "width": 5.0,
           "height": 1.0,
           "rotation": 1.5707963267948966

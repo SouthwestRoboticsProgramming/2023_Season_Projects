@@ -25,13 +25,24 @@ public interface Command {
 
     /**
      * Called by the scheduler when the command ends.
+<<<<<<< .merge_file_a17976
      * @param wasCancelled Whether the command was cancelled
+=======
+     * 
+     * @param wasCancelled Whether the end is caused by cancelling this command
+>>>>>>> .merge_file_a21168
      */
     default void end(boolean wasCancelled) {}
 
     /**
+<<<<<<< .merge_file_a17976
      * Gets the preferred time interval between calls to {@code run()}.
      * @return periodic interval
+=======
+     * Gets the interval between consecutive executions of the command.
+     * 
+     * @return Interval, by default time per robot periodic
+>>>>>>> .merge_file_a21168
      */
     default Duration getInterval() {
         return DEFAULT_INTERVAL;

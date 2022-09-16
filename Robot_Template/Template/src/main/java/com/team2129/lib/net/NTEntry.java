@@ -50,8 +50,9 @@ public abstract class NTEntry<T> implements Supplier<T> {
 
     public abstract void set(T value);
 
-    public void setTemporary() {
+    public NTEntry<T> setTemporary() {
         entry.clearPersistent();
+        return this;
     }
 
     public void onChange(Runnable listener) {

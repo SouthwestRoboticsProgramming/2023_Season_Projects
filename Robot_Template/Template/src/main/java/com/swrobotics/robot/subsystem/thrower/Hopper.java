@@ -28,7 +28,7 @@ public class Hopper implements Subsystem {
         indexMotor.setPIDCalculators(INDEX_KP, INDEX_KI, INDEX_KD);
         indexMotor.setNeutralMode(NeutralMode.BRAKE);
 
-        indexMotor.setInverted(true);
+        // There is a possibility that this motor needs to be inverted
     }
 
     public boolean isBallDetected() {
@@ -43,15 +43,22 @@ public class Hopper implements Subsystem {
         return ballDetector.isBallGone();
     }
 
-    public void setIndexSpeed(double percent) {
-        indexMotor.percent(percent);
+    /**
+     * Call every periodic that the indexer should be speeding
+     * up a ball into the thrower flywheel.
+     * 
+     * @param velocity Velocity to accelerate the indexing wheel to.
+     */
+    public void throwAtVelocity(Angle velocity) {
+        isThrowing = true;
+        indexMotor.velocity(velocity);
     }
     
     @Override
     public void periodic() {
         if (!isThrowing) {
             if (!ballDetector.isBallDetected()) {
-                indexMotor.velocity(Angle.cwDeg(INDEX_IDLE_SPEED_DEGREES.get()));
+                indexMotor.velocity(Angle.cwRot(INDEX_IDLE_SPEED_DEGREES.get()));
             } else {
                 indexMotor.hold();
             }
