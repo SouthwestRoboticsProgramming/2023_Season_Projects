@@ -34,16 +34,16 @@ public final class Robot extends AbstractRobot {
     protected final void addSubsystems() {
         Input input = new Input();
         Drive drive = new Drive(input);
-        Limelight limelight = new Limelight();
-        Localization loc = new Localization(drive, limelight, input);
+        // Limelight limelight = new Limelight();
+        // Localization loc = new Localization(drive, limelight, input);
         // TODO: PDP
         // TODO: Light controlle
-        Thrower thrower = new Thrower(input, loc);
+        // Thrower thrower = new Thrower(input, loc);
         // TODO: Climber
 
         Scheduler scheduler = Scheduler.get();
         scheduler.addSubsystem(drive);
-        scheduler.addSubsystem(thrower);
+        // scheduler.addSubsystem(thrower);
         // TODO: Schedule subsystems
 
         // Test short, rapid command adding

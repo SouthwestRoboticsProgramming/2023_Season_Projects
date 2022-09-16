@@ -1,8 +1,5 @@
 package com.swrobotics.robot.subsystem.drive;
 
-//import static com.swrobotics.robot.Constants.*;
-
-import com.team2129.lib.gyro.ADIS16448Gyroscope;
 import com.swrobotics.robot.control.Input;
 import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.swerve.SwerveDrive;
@@ -11,7 +8,6 @@ import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
 import com.team2129.lib.net.NTBoolean;
 import com.team2129.lib.net.NTEnum;
-import com.team2129.lib.gyro.Gyroscope;
 import com.team2129.lib.gyro.NavX;
 
 /*
