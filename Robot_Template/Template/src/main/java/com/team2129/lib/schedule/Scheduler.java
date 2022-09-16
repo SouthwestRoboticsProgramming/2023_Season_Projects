@@ -234,10 +234,6 @@ public final class Scheduler {
         for (SubsystemNode node : new ArrayList<>(rootSubsystems)) {
             node.initState(state);
         }
-
-        if (!unsatisfiedParentLinks.isEmpty()) {
-            DriverStation.reportWarning("Unsatisfied parent link after init, some nodes are not running!", false);
-        }
     }
 
     public void periodicState(RobotState state) {
@@ -251,10 +247,6 @@ public final class Scheduler {
             Profiler.push(node.toString());
             node.periodicState(state);
             Profiler.pop();
-        }
-
-        if (!unsatisfiedParentLinks.isEmpty()) {
-            DriverStation.reportWarning("Unsatisfied parent link after periodic, some nodes are not running!", false);
         }
     }
 
