@@ -39,7 +39,7 @@ static ip_address=${staticIP}/24
 static routers=${radioIP}
 static domain_name_servers=${radioIP}
 "
-sudo echo "$dhcpStaticConf" >> /etc/dhcpcd.conf
+echo "$dhcpStaticConf" >> sudo tee -a /etc/dhcpcd.conf
 sudo systemctl restart dhcpcd
 
 echo "Setup complete!"

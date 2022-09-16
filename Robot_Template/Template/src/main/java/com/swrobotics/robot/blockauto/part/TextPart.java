@@ -1,0 +1,17 @@
+package com.swrobotics.robot.blockauto.part;
+
+import com.team2129.lib.messenger.MessageBuilder;
+
+public final class TextPart implements BlockPart {
+    private final String text;
+
+    public TextPart(String text) {
+        this.text = text;
+    }
+
+    @Override
+    public void writeToMessenger(MessageBuilder builder) {
+        builder.addByte(PartTypes.TEXT.getId());
+        builder.addString(text);
+    }
+}

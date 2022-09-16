@@ -11,6 +11,10 @@ import com.team2129.lib.wpilib.AbstractRobot;
 public interface Command {
     Duration DEFAULT_INTERVAL = new Duration(1 / AbstractRobot.get().getPeriodicPerSecond(), TimeUnit.SECONDS);
 
+    /**
+     * Called before the first time {@code run()} is called,
+     * to perform initialization.
+     */
     default void init() {}
 
     /**

@@ -1,80 +1,98 @@
 package com.team2129.lib.schedule;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import edu.wpi.first.wpilibj.DriverStation;
+public class CommandSequence implements Command {
+    // TODO: Maybe make this its own class since we use the same thing
+    //       in both CommandSequence and CommandUnion
+    private static final class CommandWrapper {
+        Command cmd;
+        boolean finished;
 
-public abstract class CommandSequence implements Command {
-    private final List<Command> cmds;
+        void init() {
+            finished = false;
+            cmd.init();
+        }
+
+        boolean run() {
+            finished = cmd.run();
+            if (finished)
+                cmd.end(false);
+            return finished;
+        }
+
+        void end() {
+            if (!finished) {
+                cmd.end(true);
+            }
+        }
+    }
+
+    private final List<CommandWrapper> cmds;
     private int index;
 
-    public CommandSequence() {
-        cmds = new ArrayList<Command>();
+    public CommandSequence(Command... cmds) {
+        this(Arrays.asList(cmds));
     }
 
-    protected void append(Command cmd) {
-        cmds.add(cmd);
-    }
-
-    protected Command getCurrent() {
-        if (running()) {
-            return cmds.get(index);
-        } else {
-            return null;
+    public CommandSequence(List<Command> cmds) {
+        this.cmds = new ArrayList<>();
+        for (Command cmd : cmds) {
+            append(cmd);
         }
+    }
+
+    public void append(Command cmd) {
+        CommandWrapper w = new CommandWrapper();
+        w.cmd = cmd;
+        cmds.add(w);
     }
 
     @Override
     public void init() {
-        DriverStation.reportError("Empty CommandSequence", cmds.isEmpty());
-
         index = 0;
-        cmds.get(index).init();
+        if (!cmds.isEmpty())
+            cmds.get(0).cmd.init();
+    }
+
+    private boolean running() {
+        return index >= 0 && index < cmds.size();
     }
 
     public void next() {
-        cmds.get(index).end(true);
+        if (running())
+            cmds.get(index).end();
         index++;
-
-        if (running()) {
+        if (running())
             cmds.get(index).init();
-        }
     }
 
     public void back() {
-        cmds.get(index).end(true);
+        if (running())
+            cmds.get(index).end();
         index--;
-
-        if (running()) {
+        if (running())
             cmds.get(index).init();
-        }
     }
 
-    public void goTo(int index) {
-        this.index = index;
+    public void goTo(int dst) {
+        if (running())
+            cmds.get(index).end();
+        index = dst;
+        if (running())
+            cmds.get(index).init();
     }
 
-    @Override 
+    @Override
     public boolean run() {
-        if (!running()) return true;
+        if (!running()) return true; // Should never happen, but just in case
 
         if (cmds.get(index).run()) {
             next();
         }
 
         return !running();
-    }
-
-    @Override
-    public void end(boolean wasCanceled) {
-        if (running()) {
-            cmds.get(index).end(true);
-        }
-    }
-
-
-    private boolean running() {
-        return index >=0 && index < cmds.size();
     }
 }
