@@ -135,8 +135,8 @@ public final class SwerveDebugTool extends ViewportTool {
         odometryPose = odometryPose.exp(new Twist2d(
                 simSpeeds.vxMetersPerSecond * delta,
                 simSpeeds.vyMetersPerSecond * delta,
-                simSpeeds.omegaRadiansPerSecond * delta)
-        );
+                simSpeeds.omegaRadiansPerSecond * delta
+        ));
     }
 
     @Override
