@@ -24,8 +24,6 @@ public class SwerveModule {
 
     private Angle tolerance;
     private SwerveModuleState currentDesiredState;
-
-    // TODO: Ryan, do we still want lerp if out of tolerance?
     
     /**
      * A single swerve module capable of both steering and driving.
@@ -95,7 +93,7 @@ public class SwerveModule {
   
         if (!inTolerance()) {
             // Set steer angle
-            steerMotor.position(() -> steerEncoder.getAngle().normalizeDeg(-90, 90), Angle.ccwDeg(state.angle.getDegrees()));
+            steerMotor.position(() -> steerEncoder.getAngle().normalizeDeg(-180, 180), Angle.ccwDeg(state.angle.getDegrees()));
         }
         
         // Set drive speed
