@@ -38,7 +38,7 @@ public class SwerveModuleMaker {
         // steerMotor.setNeutralMode(NeutralMode.COAST);
         
         PIDCalculator steerCalc = new PIDCalculator(TURN_KP, TURN_KI, TURN_KD);
-        steerCalc.enableContinuousInput(-90, 90);
+        steerCalc.enableContinuousInput(0, 360); // This is required by SwerveModule
         steerMotor.setPositionCalculator(steerCalc);
 
         CANCoderImplementation canCoder = new CANCoderImplementation(def.getEncoderId(), Constants.CANIVORE);

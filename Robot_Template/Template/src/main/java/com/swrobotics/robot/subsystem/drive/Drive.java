@@ -26,17 +26,17 @@ public class Drive implements Subsystem {
 
     public static final double MAX_WHEEL_VELOCITY = 4.11;
 
-    private static final Vec2d SLOT_0_POS = new Vec2d(-CENTER_DISTANCE, -CENTER_DISTANCE);
-    private static final Vec2d SLOT_1_POS = new Vec2d(-CENTER_DISTANCE,  CENTER_DISTANCE);
-    private static final Vec2d SLOT_2_POS = new Vec2d( CENTER_DISTANCE, -CENTER_DISTANCE);
-    private static final Vec2d SLOT_3_POS = new Vec2d( CENTER_DISTANCE,  CENTER_DISTANCE);
+    private static final Vec2d SLOT_0_POS = new Vec2d(-CENTER_DISTANCE,  CENTER_DISTANCE);
+    private static final Vec2d SLOT_1_POS = new Vec2d( CENTER_DISTANCE,  CENTER_DISTANCE);
+    private static final Vec2d SLOT_2_POS = new Vec2d(-CENTER_DISTANCE, -CENTER_DISTANCE);
+    private static final Vec2d SLOT_3_POS = new Vec2d( CENTER_DISTANCE, -CENTER_DISTANCE);
     
     // Note: These do not automatically update, the robot code needs to be restarted
     //       for changes to take effect
-    private static final NTEnum<SwerveModuleDef> SLOT_0_MODULE = new NTEnum<SwerveModuleDef>("Swerve/Slots/Slot 0", SwerveModuleDef.class, SwerveModuleDef.MODULE_1);
-    private static final NTEnum<SwerveModuleDef> SLOT_1_MODULE = new NTEnum<SwerveModuleDef>("Swerve/Slots/Slot 1", SwerveModuleDef.class, SwerveModuleDef.MODULE_2);
-    private static final NTEnum<SwerveModuleDef> SLOT_2_MODULE = new NTEnum<SwerveModuleDef>("Swerve/Slots/Slot 2", SwerveModuleDef.class, SwerveModuleDef.MODULE_3);
-    private static final NTEnum<SwerveModuleDef> SLOT_3_MODULE = new NTEnum<SwerveModuleDef>("Swerve/Slots/Slot 3", SwerveModuleDef.class, SwerveModuleDef.MODULE_4);
+    private static final NTEnum<SwerveModuleDef> SLOT_0_MODULE = new NTEnum<>("Swerve/Slots/Slot 0", SwerveModuleDef.class, SwerveModuleDef.MODULE_1);
+    private static final NTEnum<SwerveModuleDef> SLOT_1_MODULE = new NTEnum<>("Swerve/Slots/Slot 1", SwerveModuleDef.class, SwerveModuleDef.MODULE_2);
+    private static final NTEnum<SwerveModuleDef> SLOT_2_MODULE = new NTEnum<>("Swerve/Slots/Slot 2", SwerveModuleDef.class, SwerveModuleDef.MODULE_3);
+    private static final NTEnum<SwerveModuleDef> SLOT_3_MODULE = new NTEnum<>("Swerve/Slots/Slot 3", SwerveModuleDef.class, SwerveModuleDef.MODULE_4);
 
     private static final int TURN_ID_0 = 1;
     private static final int TURN_ID_1 = 2;
