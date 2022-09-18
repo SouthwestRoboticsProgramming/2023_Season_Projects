@@ -72,19 +72,18 @@ public class SwerveModule {
         return position;
     }
 
+    private static final Angle HALF_ROT = Angle.cwRot(0.5);
     /**
      * Get if the wheel is within the defined steering tolerance.
      * @return If the wheel is within tolerance.
      */
     public boolean inTolerance() {
         Angle desired = Angle.cwDeg(currentDesiredState.angle.getDegrees());
+        Angle invDesired = desired.add(HALF_ROT);
+
         Angle actual = steerEncoder.getAngle();
-        Angle difference = desired.sub(actual);
 
-        boolean normal = difference.lessThan(tolerance) && difference.greaterThan(tolerance.scaleBy(-1));
-        boolean overAxis = difference.lessThan(tolerance.addCWDeg(180)) && difference.greaterThan(tolerance.scaleBy(-1).addCWDeg(180));
-
-        return normal || overAxis;
+        return actual.inTolerance(desired, tolerance) || actual.inTolerance(invDesired, tolerance);
     }
 
     /**
@@ -95,6 +94,7 @@ public class SwerveModule {
         // Math is done in ccw radians here because it is copied from SDS library
         // Note: This is operating in WPI coordinate space
 
+        currentDesiredState = desiredState;
         double driveSpeed = desiredState.speedMetersPerSecond;
         double steerAngle = desiredState.angle.getRadians();
 

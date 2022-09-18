@@ -1,4 +1,6 @@
-package com.team2129.lib.schedule;
+package com.team2129.lib.schedule.debug;
+
+import com.team2129.lib.schedule.Command;
 
 public final class CommandDebugDesc {
     private final Command cmd;

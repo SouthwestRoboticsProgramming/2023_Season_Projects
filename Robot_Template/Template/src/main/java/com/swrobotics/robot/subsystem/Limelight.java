@@ -66,8 +66,8 @@ public class Limelight implements Subsystem {
 
     public boolean isAccurate() {
         return (
-            !x.lessOrEqualTo(Angle.zero()) &&
-            !y.lessOrEqualTo(Angle.zero()) &&
+            x.getCWDeg() > 0 && // FIXME-Mason: Is this correct?
+            y.getCWDeg() > 0 &&
             getDistance() > 0 &&
             getDistance() < 20);
     }
@@ -84,7 +84,6 @@ public class Limelight implements Subsystem {
         x = Angle.cwDeg(xAngle.getDouble(0.0));
         y = Angle.cwDeg(yAngle.getDouble(0.0));
         area = targetArea.getDouble(0.0);
-        Subsystem.super.periodic();
     }
 
 
