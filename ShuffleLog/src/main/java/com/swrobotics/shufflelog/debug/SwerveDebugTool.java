@@ -180,9 +180,9 @@ public final class SwerveDebugTool extends ViewportTool {
             tableNextColumn();
             text("WASD to drive, QE to turn");
             separator();
-            checkbox("Show target", showTarget);
-            checkbox("Show wheels", showWheel);
-            checkbox("Show drive", showDrive);
+            checkbox("Show target (blue)", showTarget);
+            checkbox("Show wheels (yellow)", showWheel);
+            checkbox("Show drive (red)", showDrive);
             separator();
             Vec2d pos = toFieldCoords(odometryPose.getTranslation());
             text("Position: " + pos.x + ", " + pos.y);
