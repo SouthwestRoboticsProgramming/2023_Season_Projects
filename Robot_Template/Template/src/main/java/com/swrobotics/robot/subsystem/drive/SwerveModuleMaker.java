@@ -1,14 +1,21 @@
 package com.swrobotics.robot.subsystem.drive;
 
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.swrobotics.robot.Constants;
 import com.team2129.lib.encoder.CANCoderImplementation;
 import com.team2129.lib.net.NTDouble;
 import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.swerve.SwerveModule;
+
+import edu.wpi.first.math.controller.PIDController;
+
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
-import com.team2129.lib.motor.DebugMotor;
+import com.team2129.lib.motor.calc.DummyVelocityCalculator;
 import com.team2129.lib.motor.calc.PIDCalculator;
+import com.team2129.lib.motor.ctre.NeutralMode;
+import com.team2129.lib.motor.ctre.TalonFXMotor;
+import com.team2129.lib.motor.ctre.TalonSRXMotor;
 
 /**
  * Configures motors and creates a swerve module
@@ -25,18 +32,25 @@ public class SwerveModuleMaker {
     public static final double GEAR_RATIO = 1 / 8.14;
     public static final double WHEEL_RADIUS = 0.05;
 
-    public static SwerveModule buildModule(Subsystem parent, SwerveModuleDef def, int steerID, Vec2d position, double staticOffsetCWDeg) {
-        DebugMotor driveMotor = new DebugMotor(parent, def.getDriveId(), Constants.CANIVORE);
-        driveMotor.setPIDCalculators(DRIVE_KP, DRIVE_KI, DRIVE_KD);
-        driveMotor.setInverted(true);
-        // driveMotor.setNeutralMode(NeutralMode.BRAKE);
+    public static SwerveModule buildModule(Subsystem parent, SwerveModuleDef def, int steerID, Vec2d position) {
+        TalonFXMotor driveMotor = new TalonFXMotor(parent, def.getDriveId(), Constants.CANIVORE);
+        // driveMotor.setVelocityCalculator(new PIDCalculator(0.00001, 0, 0));
+        // driveMotor.setVelocityCalculator(new PIDCalculator(0, 0, 0));
+        driveMotor.setVelocityCalculator(new DummyVelocityCalculator());
+        driveMotor.setInverted(false);
+        driveMotor.setNeutralMode(NeutralMode.BRAKE);
 
-        DebugMotor steerMotor = new DebugMotor(parent, steerID);
-        // steerMotor.setNeutralMode(NeutralMode.COAST);
+        TalonSRXMotor steerMotor = new TalonSRXMotor(parent, steerID);
+        steerMotor.setNeutralMode(NeutralMode.BRAKE);
         
-        PIDCalculator steerCalc = new PIDCalculator(TURN_KP, TURN_KI, TURN_KD);
+        // PIDCalculator steerCalc = new PIDCalculator(TURN_KP, TURN_KI, TURN_KD);
+        PIDCalculator steerCalc = new PIDCalculator(0.0003, 0, 0.01);
         steerCalc.enableContinuousInput(0, 360); // This is required by SwerveModule
         steerMotor.setPositionCalculator(steerCalc);
+        steerMotor.setNeutralDeadband(0.02);
+        steerMotor.setNominalOutput(0.2);
+
+        double staticOffsetCWDeg = 0;
 
         CANCoderImplementation canCoder = new CANCoderImplementation(def.getEncoderId(), Constants.CANIVORE);
         canCoder.setOffset(Angle.cwDeg(def.getEncoderOffset().get() + staticOffsetCWDeg));
