@@ -132,7 +132,6 @@ public final class SwerveDebugTool extends ViewportTool {
 
         // Modified odometry without gyro (odometry is used to estimate gyro behavior here)
         ChassisSpeeds simSpeeds = kinematics.toChassisSpeeds(currentStates);
-        System.out.println(simSpeeds);
         odometryPose = odometryPose.exp(new Twist2d(
                 simSpeeds.vxMetersPerSecond * delta,
                 simSpeeds.vyMetersPerSecond * delta,

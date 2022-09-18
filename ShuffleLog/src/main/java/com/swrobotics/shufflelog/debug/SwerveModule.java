@@ -12,11 +12,12 @@ import static imgui.ImGui.*;
 public class SwerveModule {
     // Assume constant wheel turn speed
     private static final double TURN_SPEED = 2 * Math.PI;
+    private static final double DRIVE_VEL_SPEED = 200; // Change in drive velocity per second
 
     private final Vec2d position;
     private SwerveModuleState targetState;
 
-    private double driveSpeed;
+    private double currentSpeed;
     private double currentAngle;
 
     public SwerveModule(double x, double y) {
@@ -57,7 +58,14 @@ public class SwerveModule {
     }
 
     private void update(double driveSpeed, double targetAngle, double delta) {
-        this.driveSpeed = driveSpeed;
+        // Simulate non-continuous controller
+        double diff = driveSpeed - currentSpeed;
+        double driveStep = DRIVE_VEL_SPEED * delta;
+        if (Math.abs(diff) <= driveStep) {
+            currentSpeed = driveSpeed;
+        } else {
+            currentSpeed += driveStep * Math.signum(diff);
+        }
 
         // Simulate continuous controller from 0 to 2PI
         double twoPi = Math.PI * 2;
@@ -88,11 +96,10 @@ public class SwerveModule {
             currentAngle += turnStep * targetDir;
         }
 
-        // Renormalize current angle
+        // Renormalize current angle (CANCoder output range Unsigned_0_to_360 [but in radians])
+        currentAngle %= twoPi;
         if (currentAngle < 0)
             currentAngle += twoPi;
-        if (currentAngle >= twoPi)
-            currentAngle -= twoPi;
     }
 
     private void drawIndicator(PGraphics g, Vec2d origin, Vec2d direction) {
@@ -145,7 +152,7 @@ public class SwerveModule {
             // Drive vector (red)
             g.strokeWeight(2);
             g.stroke(255, 0, 0);
-            Vec2d curr = getCurrentAngleVec(driveSpeed);
+            Vec2d curr = getCurrentAngleVec(currentSpeed);
             drawIndicator(g, position, curr);
         }
     }
@@ -156,6 +163,7 @@ public class SwerveModule {
         Vec2d target = getTargetAngleVec();
         text("Target vector: " + target.x + ", " + target.y);
         text("Current angle: " + Math.toDegrees(currentAngle) + " deg ccw");
+        text("Current speed: " + currentSpeed);
     }
 
     public void setTargetState(SwerveModuleState targetState) {
@@ -163,7 +171,7 @@ public class SwerveModule {
     }
 
     public SwerveModuleState getCurrentState() {
-        return new SwerveModuleState(driveSpeed, new Rotation2d(currentAngle));
+        return new SwerveModuleState(currentSpeed, new Rotation2d(currentAngle));
     }
 
     public Vec2d getPosition() {
