@@ -30,6 +30,9 @@ public class SwerveModule {
     /**
      * A single swerve module capable of both steering and driving.
      * TIP: Create a helper class to configure the modules.
+     *
+     * Important: The steer motor's position calculator must be continuous from 0 to 360.
+     *
      * @param driveMotor A motor to drive the module, already configured with an encoder.
      * @param steerMotor A motor to steer the module.
      * @param steerEncoder An absolute encoder to read the angle of the module.
@@ -89,19 +92,40 @@ public class SwerveModule {
      * @param desiredState Desired state of the module, as calculated by a kinematics object.
      */
     public void setState(SwerveModuleState desiredState) {
-        Angle current = steerEncoder.getAngle();
-        
-        SwerveModuleState state = SwerveModuleState.optimize(desiredState, current.toRotation2dCW());
-  
-        if (!inTolerance()) {
-            // Set steer angle
-            steerMotor.position(() -> steerEncoder.getAngle().normalizeDeg(-90, 90), Angle.ccwDeg(state.angle.getDegrees()));
+        // Math is done in ccw radians here because it is copied from SDS library
+        double driveSpeed = desiredState.speedMetersPerSecond;
+        double steerAngle = desiredState.angle.getRadians();
+
+        double currentAngle = steerEncoder.getAngle().getCCWRad();
+
+        steerAngle %= Math.PI * 2;
+        if (steerAngle < 0.0) {
+            steerAngle += 2 * Math.PI;
         }
-        
-        // Set drive speed
-        driveMotor.velocity(Angle.cwRad(state.speedMetersPerSecond * metersToRadians));
-        
-        currentDesiredState = state;
+
+        double difference = steerAngle - currentAngle;
+        if (difference >= Math.PI) {
+            steerAngle -= 2.0 * Math.PI;
+        } else if (difference < -Math.PI) {
+            steerAngle += 2.0 * Math.PI;
+        }
+        difference = steerAngle - currentAngle;
+
+        if (difference > Math.PI / 2.0 || difference < -Math.PI / 2.0) {
+            steerAngle += Math.PI;
+            driveSpeed *= -1;
+        }
+
+        steerAngle %= 2 * Math.PI;
+        if (steerAngle < 0.0) {
+            steerAngle += 2.0 * Math.PI;
+        }
+
+        // Drive
+        if (!inTolerance()) {
+            steerMotor.position(Angle.ccwRad(steerAngle));
+        }
+        driveMotor.velocity(Angle.cwRad(driveSpeed * metersToRadians));
     }
 
     /**
