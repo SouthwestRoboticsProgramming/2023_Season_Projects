@@ -98,7 +98,7 @@ public class SwerveModule {
         double driveSpeed = desiredState.speedMetersPerSecond;
         double steerAngle = desiredState.angle.getRadians();
 
-        double currentAngle = steerEncoder.getAngle().getCCWRad();
+        double currentAngle = steerEncoder.getAngle().normalizeDeg(0, 360).getCCWRad();
 
         steerAngle %= Math.PI * 2;
         if (steerAngle < 0.0) {
