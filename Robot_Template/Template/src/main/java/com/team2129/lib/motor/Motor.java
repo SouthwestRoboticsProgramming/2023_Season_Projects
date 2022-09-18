@@ -132,7 +132,7 @@ public abstract class Motor implements Subsystem {
         if (encoder == null)
             throw new IllegalStateException("Cannot set position, no encoder is set");
 
-        velocity(encoder::getAngle, velocity);
+        velocity(encoder::getVelocity, velocity);
     }
 
     /**
@@ -148,14 +148,14 @@ public abstract class Motor implements Subsystem {
      * @see #setEncoder(Encoder)
      * @see #setVelocityCalculator(VelocityCalculator)
      */
-    public void velocity(Supplier<Angle> angleGetter, Angle velocity) {
+    public void velocity(Supplier<Angle> velocityGetter, Angle velocity) {
         if (velocityCalc == null)
             throw new IllegalStateException("Cannot set velocity, no velocity calculator is set");
 
         if (controlMode != ControlMode.VELOCITY)
             velocityCalc.reset();
         controlMode = ControlMode.VELOCITY;
-        controlModeImpl = () -> velocityImpl(angleGetter, velocity);
+        controlModeImpl = () -> velocityImpl(velocityGetter, velocity);
     }
 
     /**
@@ -299,7 +299,7 @@ public abstract class Motor implements Subsystem {
     }
 
     /**
-     * Gets whether the motor's output is currenty inverted.
+     * Gets whether the motor's output is currently inverted.
      * 
      * @return inverted
      */
@@ -308,12 +308,13 @@ public abstract class Motor implements Subsystem {
     }
 
     /**
-     * Sets whether the motor's output should be inverted.
+     * Sets whether the motor and sensor's output should be inverted.
      * 
      * @param inverted whether to invert output
      */
     public void setInverted(boolean inverted) {
         this.inverted = inverted;
+        encoder.setInverted(inverted);
     }
 
     /**
@@ -368,17 +369,16 @@ public abstract class Motor implements Subsystem {
     protected abstract void setPercentOutInternal(double percent);
 
     private void setPercentOutFiltered(double percent) {
-        if (inverted)
-            percent = -percent;
+        if (inverted) percent = -percent;
 
         // Apply neutral deadband
         percent = InputUtils.applyDeadband(percent, neutralDeadband);
-
+        
         // Apply nominal output
-        if (percent != 0 && percent < nominalOutput) {
+        if (percent != 0 && Math.abs(percent) < nominalOutput) {
             percent = Math.signum(percent) * nominalOutput;
         }
-
+        
         setPercentOutInternal(MathUtil.clamp(percent, -1, 1));
     }
 
