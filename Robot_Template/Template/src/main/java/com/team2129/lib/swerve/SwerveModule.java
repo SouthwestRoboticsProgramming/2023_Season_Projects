@@ -93,6 +93,8 @@ public class SwerveModule {
      */
     public void setState(SwerveModuleState desiredState) {
         // Math is done in ccw radians here because it is copied from SDS library
+        // Note: This is operating in WPI coordinate space
+
         double driveSpeed = desiredState.speedMetersPerSecond;
         double steerAngle = desiredState.angle.getRadians();
 
