@@ -45,7 +45,7 @@ public class SwerveModuleMaker {
         
         // PIDCalculator steerCalc = new PIDCalculator(TURN_KP, TURN_KI, TURN_KD);
         PIDCalculator steerCalc = new PIDCalculator(0.0003, 0, 0.01);
-        steerCalc.enableContinuousInput(0, 360); // This is required by SwerveModule
+        steerCalc.enableContinuousInput(-180, 180); // This is required by SwerveModule
         steerMotor.setPositionCalculator(steerCalc);
         steerMotor.setNeutralDeadband(0.02);
         steerMotor.setNominalOutput(0.2);

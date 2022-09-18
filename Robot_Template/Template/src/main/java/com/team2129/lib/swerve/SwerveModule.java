@@ -31,7 +31,7 @@ public class SwerveModule {
      * A single swerve module capable of both steering and driving.
      * TIP: Create a helper class to configure the modules.
      *
-     * Important: The steer motor's position calculator must be continuous from 0 to 360.
+     * Important: The steer motor's position calculator must be continuous from -180 to 180.
      *
      * @param driveMotor A motor to drive the module, already configured with an encoder.
      * @param steerMotor A motor to steer the module.
