@@ -125,7 +125,7 @@ public class SwerveModule {
 
         // Drive
         if (!inTolerance()) {
-            steerMotor.position(Angle.ccwRad(steerAngle));
+            steerMotor.position(Angle.ccwRad(steerAngle).normalizeDeg(-180, 180));
         }
         driveMotor.velocity(Angle.cwRad(driveSpeed * metersToRadians));
     }
