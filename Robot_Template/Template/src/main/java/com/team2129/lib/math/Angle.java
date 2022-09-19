@@ -73,6 +73,14 @@ public final class Angle {
         return this;
     }
 
+    public Angle add(Angle o) {
+        return new Angle(angle + o.angle);
+    }
+
+    public Angle sub(Angle o) {
+        return new Angle(angle - o.angle);
+    }
+
     public double getSin() {
         return Math.sin(angle);
     }
@@ -96,106 +104,6 @@ public final class Angle {
         return ccwDeg(normalize(getCCWDeg(), min, max));
     }
 
-    public Angle add(Angle o) {
-        angle += o.angle;
-        return this;
-    }
-
-    public Angle addCWRad(double a) {
-        angle -= a;
-        return this;
-    }
-
-    public Angle addCCWRad(double a) {
-        angle += a;
-        return this;
-    }
-
-    public Angle addCWDeg(double a) {
-        angle -= Math.toRadians(a);
-        return this;
-    }
-
-    public Angle addCCWDeg(double a) {
-        angle += Math.toRadians(a);
-        return this;
-    }
-
-    public Angle add(Angle o, Angle dest) {
-        dest.angle = angle + o.angle;
-        return dest;
-    }
-
-    public Angle addCWRad(double a, Angle dest) {
-        dest.angle = angle - a;
-        return dest;
-    }
-
-    public Angle addCCWRad(double a, Angle dest) {
-        dest.angle = angle + a;
-        return dest;
-    }
-
-    public Angle addCWDeg(double a, Angle dest) {
-        dest.angle = angle - Math.toRadians(a);
-        return dest;
-    }
-
-    public Angle addCCWDeg(double a, Angle dest) {
-        dest.angle = angle + Math.toRadians(a);
-        return dest;
-    }
-
-    public Angle sub(Angle o) {
-        angle -= o.angle;
-        return this;
-    }
-
-    public Angle subCWRad(double a) {
-        angle += a;
-        return this;
-    }
-
-    public Angle subCCWRad(double a) {
-        angle -= a;
-        return this;
-    }
-
-    public Angle subCWDeg(double a) {
-        angle += Math.toRadians(a);
-        return this;
-    }
-
-    public Angle subCCWDeg(double a) {
-        angle -= Math.toRadians(a);
-        return this;
-    }
-
-    public Angle sub(Angle o, Angle dest) {
-        dest.angle = angle - o.angle;
-        return dest;
-    }
-
-    public Angle subCWRad(double a, Angle dest) {
-        dest.angle = angle + a;
-        return dest;
-    }
-
-    public Angle subCCWRad(double a, Angle dest) {
-        dest.angle = angle - a;
-        return dest;
-    }
-
-    public Angle subCWDeg(double a, Angle dest) {
-        dest.angle = angle + Math.toRadians(a);
-        return dest;
-    }
-
-    public Angle subCCWDeg(double a, Angle dest) {
-        dest.angle = angle - Math.toRadians(a);
-        return dest;
-    }
-
     public Angle scaleBy(double scalar) {
         angle *= scalar;
         return this;
@@ -214,23 +122,23 @@ public final class Angle {
         return new Rotation2d(getCCWRad());
     }
 
-    // Compare Angles
-    public boolean greaterThan(Angle comparison) {
-        return angle > comparison.angle;
-    }
+    /**
+     * Returns whether the other angle is within the specified distance from
+     * this angle.
+     * @param other angle to compare to
+     * @param tol tolerance
+     * @return whether this angle is within tolerance of the other
+     */
+    public boolean inTolerance(Angle other, Angle tol) {
+        double normSelf = normalize(angle, 0, Math.PI * 2);
+        double normOther = normalize(other.angle, 0, Math.PI * 2);
 
-    public boolean lessThan(Angle comparison) {
-        return angle < comparison.angle;
-    }
+        double diffCCWR = normOther - normSelf;
+        double direct = Math.abs(diffCCWR);
+        double wrapped = Math.PI * 2 - direct;
 
-    public boolean greaterOrEqualTo(Angle comparison) {
-        return angle >= comparison.angle;
+        return Math.min(direct, wrapped) < tol.angle;
     }
-
-    public boolean lessOrEqualTo(Angle comparison) {
-        return angle <= comparison.angle;
-    }
-
 
     @Override
     public String toString() {

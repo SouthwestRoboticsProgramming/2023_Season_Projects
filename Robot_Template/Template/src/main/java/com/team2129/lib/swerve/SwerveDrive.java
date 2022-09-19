@@ -5,6 +5,7 @@ import com.team2129.lib.math.Vec2d;
 import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.gyro.Gyroscope;
 
+import com.team2129.lib.utils.CoordinateConversions;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -14,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 /** A class to manage all of the swerve modules in a swerve drive. */
+// FIXME-Odometry: Odometry is almost certainly incorrect here
 public class SwerveDrive implements Subsystem {
     private final Gyroscope gyro;
     private final SwerveModule[] modules;
@@ -23,7 +25,7 @@ public class SwerveDrive implements Subsystem {
 
     private final SwerveDriveOdometry odometry;
 
-    private Vec2d centerOfRotation;
+    private Translation2d centerOfRotationWpi;
 
     /**
      * Creates a new {@code SwerveDrive} instance.
@@ -39,17 +41,18 @@ public class SwerveDrive implements Subsystem {
         // Extract positions of modules
         Translation2d[] positions = new Translation2d[modules.length];
         for (int i = 0; i< modules.length; i++) {
-            positions[i] = modules[i].getPosition().toTranslation2d();
+            positions[i] = CoordinateConversions.toWPICoords(modules[i].getPosition());
         }
 
         kinematics = new SwerveDriveKinematics(positions);
         this.maxWheelVelocity = maxWheelVelocity;
 
+        // FIXME-Odometry: Not sure if this initialization is correct; I don't have physical robot to test
         Rotation2d gyroAngle = gyro.getAngle().toRotation2dCW();
         Pose2d initialPose = new Pose2d(0, 0, gyroAngle);
         odometry = new SwerveDriveOdometry(kinematics, gyroAngle, initialPose);
 
-        centerOfRotation = new Vec2d(0, 0);
+        centerOfRotationWpi = CoordinateConversions.toWPICoords(new Vec2d(0, 0));
     }
 
     /**
@@ -57,7 +60,7 @@ public class SwerveDrive implements Subsystem {
      * @param newCenterOfRotation Center of rotation relative to the center of the robot
      */
     public void setCenterOfRotation(Vec2d newCenterOfRotation) {
-        centerOfRotation = newCenterOfRotation;
+        centerOfRotationWpi = CoordinateConversions.toWPICoords(newCenterOfRotation);
     }
 
     /**
@@ -66,17 +69,20 @@ public class SwerveDrive implements Subsystem {
      * @param rotationsPerSecond Desired rotational velocity in rotation per second.
      */
     public void setMotion(Vec2d translation, Angle rotationsPerSecond, boolean isFieldRelative) {
+        Translation2d wpiTranslation = CoordinateConversions.toWPICoords(translation);
+
         ChassisSpeeds speeds;
         if (isFieldRelative) {
             speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-                -translation.y, 
-                translation.x, // Convert from our coordinates to WPILib
+                wpiTranslation.getX(),
+                wpiTranslation.getY(),
                 rotationsPerSecond.getCCWRad(), 
                 gyro.getAngle().toRotation2dCCW()
             );
         } else {
-            speeds = new ChassisSpeeds(-translation.y,
-                translation.x,
+            speeds = new ChassisSpeeds(
+                wpiTranslation.getX(),
+                wpiTranslation.getY(),
                 rotationsPerSecond.getCCWRad()
             );
         }
@@ -89,7 +95,7 @@ public class SwerveDrive implements Subsystem {
      * @param speeds ChassisSpeeds object detailing the desired motion of the swerve drive.
      */
     public void setMotion(ChassisSpeeds speeds) {
-        SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds, centerOfRotation.toTranslation2d());
+        SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds, centerOfRotationWpi);
         SwerveDriveKinematics.desaturateWheelSpeeds(states, maxWheelVelocity);
     
         // Update modules
@@ -128,8 +134,6 @@ public class SwerveDrive implements Subsystem {
         }
         System.out.println(out);
     }
-
-    // FIXME-Odometry: Check if coordinate space transforms are needed
 
     /**
      * Get the pose estimated by the odometry

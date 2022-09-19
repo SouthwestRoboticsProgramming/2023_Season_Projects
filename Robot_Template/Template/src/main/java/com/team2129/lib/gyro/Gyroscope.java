@@ -32,7 +32,7 @@ public abstract class Gyroscope {
      * All other measurements will be relative to this.
      */
     public void setOffset(Angle angleOffset) {
-        offset.sub(angleOffset);
+        offset = offset.sub(angleOffset);
     }
 
     @Override
