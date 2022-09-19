@@ -11,7 +11,6 @@ import edu.wpi.first.math.controller.PIDController;
 
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
-import com.team2129.lib.motor.calc.DummyVelocityCalculator;
 import com.team2129.lib.motor.calc.PIDCalculator;
 import com.team2129.lib.motor.ctre.NeutralMode;
 import com.team2129.lib.motor.ctre.TalonFXMotor;
@@ -36,9 +35,10 @@ public class SwerveModuleMaker {
         TalonFXMotor driveMotor = new TalonFXMotor(parent, def.getDriveId(), Constants.CANIVORE);
         // driveMotor.setVelocityCalculator(new PIDCalculator(0.00001, 0, 0));
         // driveMotor.setVelocityCalculator(new PIDCalculator(0, 0, 0));
-        driveMotor.setVelocityCalculator(new DummyVelocityCalculator());
+        driveMotor.setVelocityCalculator(new PIDCalculator(0, 0, 0));
         driveMotor.setInverted(false);
         driveMotor.setNeutralMode(NeutralMode.BRAKE);
+        //me,r
 
         TalonSRXMotor steerMotor = new TalonSRXMotor(parent, steerID);
         steerMotor.setNeutralMode(NeutralMode.BRAKE);

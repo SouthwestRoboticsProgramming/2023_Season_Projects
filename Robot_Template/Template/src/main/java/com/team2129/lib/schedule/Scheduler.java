@@ -5,7 +5,6 @@ import com.team2129.lib.messenger.MessageReader;
 import com.team2129.lib.messenger.MessengerClient;
 import com.team2129.lib.profile.Profiler;
 import com.team2129.lib.wpilib.RobotState;
-import edu.wpi.first.wpilibj.DriverStation;
 
 import java.util.ArrayList;
 import java.util.HashSet;
