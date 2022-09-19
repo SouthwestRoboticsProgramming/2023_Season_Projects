@@ -8,37 +8,64 @@ import edu.wpi.first.wpilibj.DriverStation;
 
 /**
  * Calculates the percent output to set a motor's velocity using a
- * bang-bang controller. 
+ * bang-bang controller.
  */
 public final class BangBangVelocityCalculator implements VelocityCalculator {
     private final BangBangController bang;
     private SlewRateLimiter rateLimiter;
     private double rampSeconds;
-    private Angle threshold;
+    private Angle threshLow;
+    private Angle threshHigh;
     private double multiplier;
+
+    private boolean accelerating;
 
     /**
      * Creates a new {@code BangBangVelocityCalculator} instance.
      * 
-     * From WPILib documentation:<br/>
+     * From WPILib documentation:<p>
      * Always ensure that your motor controllers are set to "coast" before
      * attempting to control them with a bang-bang controller.
+     * 
+     * <p> Ensure that your motor and encoder are reporting in the same direction before using this controller.
      */
     public BangBangVelocityCalculator() {
         bang = new BangBangController();
         rateLimiter = new SlewRateLimiter(5.0); // Ramp from 0 to 100 in 1/5 of a second
-        threshold = Angle.zero();
         multiplier = 1.0;
+
+        threshLow = Angle.zero();
+        threshHigh = Angle.zero();
     }
 
     /**
+     * <pre>
      * Adjust when the motor should shut off when approaching the setpoint.
+     * 
+     * This value is added to the setpoint as a target to aim for when accelerating.
+     * 
      * This can be tuned to create a perfect ramp as deceleration is not instant and with no threshold, the controller will tend to overshoot the setpoint.
+     * </pre>
      * @param threshold Difference between the current velocity and the target velocity where the motor should shut off.
-     * The greater this value, the sooner the motor will shut off.
+     * The greater this value, the later the motor will shut off.
      */
-    public void setThreshold(Angle threshold) {
-        this.threshold = threshold;
+    public void setUpperThreshold(Angle threshold) {
+        threshHigh = threshold;
+    }
+
+    /**
+     * <pre>
+     * Adjust when the motor should shut off when approaching the setpoint.
+     * 
+     * This value is added to the setpoint as a target to keep above at all times.
+     * 
+     * This can be tuned to create a perfect ramp as deceleration is not instant and with no threshold, the controller will tend to overshoot the setpoint.
+     * </pre>
+     * @param threshold Difference between the current velocity and the target velocity that the motor should keep above at all times.
+     * The greater this value, the more lenient the motor will be in velocity control.
+     */
+    public void setLowerThreshold(Angle threshold) {
+        threshLow = threshold;
     }
 
     /**
@@ -50,11 +77,19 @@ public final class BangBangVelocityCalculator implements VelocityCalculator {
     }
 
     /**
-     * Get the threshold that determines the distance between the current velocity and the target velocity when the motor should shut off.
-     * @return Threshold set by {@code setThreshold}.
+     * Get how much above the motor should target when accelerating
+     * @return
      */
-    public Angle getThreshold() {
-        return threshold;
+    public Angle getThresholdLow() {
+        return threshLow;
+    }
+
+    /**
+     * Get how far below the setpoint the motor should stay above at all times.
+     * @return
+     */
+    public Angle getThresholdHigh() {
+        return threshHigh;
     }
 
     /**
@@ -76,7 +111,7 @@ public final class BangBangVelocityCalculator implements VelocityCalculator {
 
     /**
      * Get how quickly the motor is allowed to decelerate between from 100% to 0%.
-     * @return Time it takes to ramp from 100% to 0% motor output.
+     * @return Ramping in units per second.
      */
     public double getSpeedRamp() {
         return rampSeconds;
@@ -84,7 +119,7 @@ public final class BangBangVelocityCalculator implements VelocityCalculator {
 
     private void rebuildRateLimiter() {
         try {
-            rateLimiter = new SlewRateLimiter(1 / rampSeconds);
+            rateLimiter = new SlewRateLimiter(rampSeconds);
         } catch (ArithmeticException e) {
             DriverStation.reportError("Failed to set rate limit, did you set it to something other than 0?", true);
             rateLimiter = new SlewRateLimiter(5.0);
@@ -98,11 +133,40 @@ public final class BangBangVelocityCalculator implements VelocityCalculator {
 
     @Override
     public double calculate(Angle currentVelocity, Angle targetVelocity) {
-        // Pretend that the target is lower to account for the threshold.
-        double bangOut = bang.calculate(currentVelocity.getCWDeg(), targetVelocity.sub(threshold).getCWDeg());
+
+        // Define targets using thresholds
+        Angle targetLow = targetVelocity;
+        Angle targetHigh = targetVelocity;
+        
+        // targetLow = targetLow.sub(threshLow);
+        targetLow = Angle.cwDeg(targetVelocity.getCWDeg() - threshLow.getCWDeg());
+        targetHigh = Angle.cwDeg(targetVelocity.getCWDeg() + threshHigh.getCWDeg());
+        
+        // if (targetLow.lessThan(Angle.zero())) targetLow = Angle.zero();
+        
+        // System.out.println(targetLow.getCWDeg());
+
+        // Determine if the velocity should be increasing or decreasing
+        if (currentVelocity.getCWDeg() < targetLow.getCWDeg()) accelerating = true; // Velocity is below both targets
+        if (currentVelocity.getCWDeg() > targetHigh.getCWDeg()) accelerating = false; // Velocity is above both targets
+
+        // If the velocity is between the targets, the bang bang controller will continue to target the same target as before.
+        double target = 0;
+        if (accelerating) {
+            target = targetHigh.getCWDeg();
+        } else {
+            target = targetLow.getCWDeg();
+        }
+
+        double bangOut = bang.calculate(currentVelocity.getCWDeg(), target);
         if (bangOut == 0) { // Only apply ramp on deceleration
             bangOut = rateLimiter.calculate(bangOut);
+        } else {
+            rateLimiter.calculate(bangOut);
         }
+
+        System.out.println(bangOut * multiplier);
+        System.out.println(accelerating);
         return bangOut * multiplier;
     }
 }
