@@ -139,12 +139,4 @@ public final class PIDCalculator implements PositionCalculator, VelocityCalculat
 
         return output;
     }
-
-    /**
-     * Print the current status. All values are in clockwise degrees.
-     */
-    @Override
-    public String toString() {
-        return "Current: " + current.getCWDeg() + " Target: " + target.getCWDeg() + " Output: " + output;
-    }
 }
