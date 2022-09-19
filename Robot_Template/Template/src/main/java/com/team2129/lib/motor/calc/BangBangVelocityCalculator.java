@@ -22,12 +22,13 @@ public final class BangBangVelocityCalculator implements VelocityCalculator {
 
     /**
      * Creates a new {@code BangBangVelocityCalculator} instance.
-     * 
+     *
      * From WPILib documentation:<p>
      * Always ensure that your motor controllers are set to "coast" before
      * attempting to control them with a bang-bang controller.
-     * 
-     * <p> Ensure that your motor and encoder are reporting in the same direction before using this controller.
+     *
+     * <p> Ensure that your motor and encoder are reporting in 
+     * the same direction before using this controller.
      */
     public BangBangVelocityCalculator() {
         bang = new BangBangController();
@@ -41,9 +42,9 @@ public final class BangBangVelocityCalculator implements VelocityCalculator {
     /**
      * <pre>
      * Adjust when the motor should shut off when approaching the setpoint.
-     * 
+     *
      * This value is added to the setpoint as a target to aim for when accelerating.
-     * 
+     *
      * This can be tuned to create a perfect ramp as deceleration is not instant and with no threshold, the controller will tend to overshoot the setpoint.
      * </pre>
      * @param threshold Difference between the current velocity and the target velocity where the motor should shut off.
