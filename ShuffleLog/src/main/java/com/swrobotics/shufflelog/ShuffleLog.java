@@ -1,7 +1,9 @@
 package com.swrobotics.shufflelog;
 
 import com.swrobotics.messenger.client.MessengerClient;
+import com.swrobotics.shufflelog.debug.SwerveDebugTool;
 import com.swrobotics.shufflelog.profile.Profiler;
+import com.swrobotics.shufflelog.tool.blockauto.BlockAutoTool;
 import com.swrobotics.shufflelog.tool.data.DataLogTool;
 import com.swrobotics.shufflelog.tool.MenuBarTool;
 import com.swrobotics.shufflelog.tool.field.FieldViewTool;
@@ -18,6 +20,7 @@ import imgui.extension.implot.ImPlot;
 import imgui.flag.ImGuiConfigFlags;
 import imgui.gl3.ImGuiImplGl3;
 import processing.core.PApplet;
+import processing.core.PFont;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -65,16 +68,27 @@ public final class ShuffleLog extends PApplet {
         imGuiGlfw.init(windowHandle, true);
         imGuiGl3.init();
 
-        tools.add(new MenuBarTool());
-        tools.add(new MessengerTool(this));
-        DataLogTool dataLogTool = new DataLogTool(this);
-        tools.add(dataLogTool);
-        tools.add(new NetworkTablesTool(threadPool, dataLogTool));
-        tools.add(new ShuffleLogProfilerTool());
-        tools.add(new RobotProfilerTool(msg));
-        tools.add(new SchedulerTool(msg));
-        tools.add(new TaskManagerTool(this, "TaskManager"));
-        tools.add(new FieldViewTool(this));
+        // Set default font
+        try {
+            textFont(new PFont(getClass().getClassLoader().getResourceAsStream("fonts/PTSans-Regular-14.vlw")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+//        tools.add(new MenuBarTool());
+//        tools.add(new MessengerTool(this));
+//        DataLogTool dataLogTool = new DataLogTool(this);
+//        tools.add(dataLogTool);
+//        tools.add(new NetworkTablesTool(threadPool, dataLogTool));
+//        tools.add(new ShuffleLogProfilerTool());
+//        tools.add(new RobotProfilerTool(msg));
+//        tools.add(new SchedulerTool(msg));
+//        tools.add(new TaskManagerTool(this, "TaskManager"));
+//        tools.add(new FieldViewTool(this));
+//        tools.add(new BlockAutoTool(this));
+
+        // Temporarily turn ShuffleLog into a swerve drive debugger
+        tools.add(new SwerveDebugTool(this));
 
         startTime = System.currentTimeMillis();
     }
@@ -94,7 +108,7 @@ public final class ShuffleLog extends PApplet {
         Profiler.pop();
 
         Profiler.push("Read Messages");
-        msg.readMessages();
+//        msg.readMessages();
         Profiler.pop();
 
         background(210);
@@ -122,6 +136,20 @@ public final class ShuffleLog extends PApplet {
         Profiler.pop();
 
         Profiler.endMeasurements();
+    }
+
+    @Override
+    public void keyPressed() {
+        for (Tool tool : tools) {
+            tool.onKeyPress(key, keyCode);
+        }
+    }
+
+    @Override
+    public void keyReleased() {
+        for (Tool tool : tools) {
+            tool.onKeyRelease(key, keyCode);
+        }
     }
 
     public void addTool(Tool tool) {

@@ -10,11 +10,7 @@ import com.team2129.lib.schedule.Subsystem;
 public class Hopper implements Subsystem {
     private static final int INDEX_MOTOR_ID = 12;
 
-    private static final NTDouble INDEX_KP = new NTDouble("Thrower/Hopper/Index/kP", 0.07);
-    private static final NTDouble INDEX_KI = new NTDouble("Thrower/Hopper/Index/kI", 8.0);
-    private static final NTDouble INDEX_KD = new NTDouble("Thrower/Hopper/Index/kD", 0.005);
-
-    private static final NTDouble INDEX_IDLE_SPEED_DEGREES = new NTDouble("Thrower/Hopper/Index/Idle_Speed_DpS", 750);
+    private static final NTDouble INDEX_IDLE_SPEED_PERCENT = new NTDouble("Thrower/Hopper/Index/Idle_Speed_Percent", 0.1);
 
     private final BallDetector ballDetector;
     private final TalonFXMotor indexMotor;
@@ -25,10 +21,10 @@ public class Hopper implements Subsystem {
         this.ballDetector = ballDetector;
 
         indexMotor = new TalonFXMotor(this, INDEX_MOTOR_ID, Constants.CANIVORE);
-        indexMotor.setPIDCalculators(INDEX_KP, INDEX_KI, INDEX_KD);
+        indexMotor.setInverted(true);
         indexMotor.setNeutralMode(NeutralMode.BRAKE);
 
-        indexMotor.setInverted(true);
+        // There is a possibility that this motor needs to be inverted
     }
 
     public boolean isBallDetected() {
@@ -43,7 +39,7 @@ public class Hopper implements Subsystem {
         return ballDetector.isBallGone();
     }
 
-    public void setIndexSpeed(double percent) {
+    public void setIndexPercent(double percent) {
         indexMotor.percent(percent);
     }
     
@@ -51,9 +47,9 @@ public class Hopper implements Subsystem {
     public void periodic() {
         if (!isThrowing) {
             if (!ballDetector.isBallDetected()) {
-                indexMotor.velocity(Angle.cwDeg(INDEX_IDLE_SPEED_DEGREES.get()));
+                indexMotor.percent(INDEX_IDLE_SPEED_PERCENT.get());
             } else {
-                indexMotor.hold();
+                indexMotor.stop();
             }
         }
     }

@@ -4,6 +4,7 @@ import com.team2129.lib.math.Angle;
 import com.team2129.lib.net.NTDouble;
 import com.team2129.lib.wpilib.AbstractRobot;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 
 /**
@@ -12,6 +13,8 @@ import edu.wpi.first.math.controller.PIDController;
  */
 public final class PIDCalculator implements PositionCalculator, VelocityCalculator {
     private final PIDController pid;
+
+    private boolean allowNegativeOutputs;
 
     /**
      * Creates a new instance with the specified fixed PID constants.
@@ -22,6 +25,7 @@ public final class PIDCalculator implements PositionCalculator, VelocityCalculat
      */
     public PIDCalculator(double kP, double kI, double kD) {
         pid = new PIDController(kP, kI, kD, 1 / AbstractRobot.get().getPeriodicPerSecond());
+        allowNegativeOutputs = true;
     }
 
     /**
@@ -108,6 +112,16 @@ public final class PIDCalculator implements PositionCalculator, VelocityCalculat
         pid.setTolerance(tolerance.getCWDeg());
     }
 
+    /**
+     * Set if the PIDCalculator can output negative values.
+     * This may be useful in situations where changing directions
+     * could put stress on the motor.
+     * @param allowNegativeOutputs
+     */
+    public void allowNegativeOutputs(boolean allowNegativeOutputs) {
+        this.allowNegativeOutputs = allowNegativeOutputs;
+    }
+
     @Override
     public void reset() {
         pid.reset();
@@ -115,6 +129,14 @@ public final class PIDCalculator implements PositionCalculator, VelocityCalculat
 
     @Override
     public double calculate(Angle current, Angle target) {
-        return pid.atSetpoint() ? 0.0 : pid.calculate(current.getCWDeg(), target.getCWDeg());
+
+        // TODO: At setpoint that works
+        double output = pid.calculate(current.getCWDeg(), target.getCWDeg());
+
+        if (!allowNegativeOutputs) {
+            output = MathUtil.clamp(output, 0, Double.MAX_VALUE);
+        }
+
+        return output;
     }
 }

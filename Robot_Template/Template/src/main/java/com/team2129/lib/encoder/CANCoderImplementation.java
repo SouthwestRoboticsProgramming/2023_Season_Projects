@@ -3,6 +3,7 @@ package com.team2129.lib.encoder;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
+import com.ctre.phoenix.sensors.CANCoderStatusFrame;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.ctre.phoenix.sensors.SensorTimeBase;
 import com.team2129.lib.math.Angle;
@@ -38,6 +39,7 @@ public class CANCoderImplementation extends AbsoluteEncoder {
         }
     
         encoder.configAllSettings(config, TIMEOUT_MS);
+        encoder.setStatusFramePeriod(CANCoderStatusFrame.SensorData, 1);
     }
 
     /**

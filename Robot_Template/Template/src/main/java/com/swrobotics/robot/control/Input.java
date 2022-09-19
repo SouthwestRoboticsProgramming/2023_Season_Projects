@@ -3,6 +3,7 @@ package com.swrobotics.robot.control;
 import static com.swrobotics.robot.Constants.*;
 
 import com.team2129.lib.utils.InputUtils;
+import com.team2129.lib.utils.Toggle;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
 import com.team2129.lib.net.NTDouble;
@@ -19,8 +20,13 @@ public class Input {
 
     private final XboxController controller;
 
+    private final Toggle intakeToggle;
+
     public Input() {
         controller = new XboxController(0);
+
+        intakeToggle = new Toggle();
+        intakeToggle.set(false);
     }
 
     public double getExample() { // This is how input functions are usually formatted
@@ -50,7 +56,8 @@ public class Input {
 
     // Intake
     public boolean getIntakeOn() {
-        return true;
+        intakeToggle.toggle(controller.getYButtonPressed());
+        return intakeToggle.get();
     }
 
     // Thrower
@@ -64,5 +71,9 @@ public class Input {
 
     public boolean getAimLow() {
         return controller.getLeftBumper();
+    }
+
+    public boolean getAimOverride() {
+        return controller.getStartButton();
     }
 }

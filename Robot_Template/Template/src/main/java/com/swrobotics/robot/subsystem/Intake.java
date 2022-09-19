@@ -19,14 +19,11 @@ public class Intake implements Subsystem {
         this.input = input;
 
         motor = new TalonFXMotor(this, MOTOR_ID, Constants.CANIVORE);
+        motor.setInverted(true);
     }
 
     public void setPercent(double percent) {
         motor.percent(percent);
-    }
-
-    public void setVelocity(Angle velocity) {
-        motor.velocity(velocity);
     }
 
     @Override

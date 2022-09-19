@@ -30,7 +30,7 @@ public abstract class TalonMotor extends Motor {
         @Override
         protected Angle getRawAngleImpl() {
             try {
-                return Angle.ccwRot(talon.getSelectedSensorPosition() / encoderTicksPerRotation);
+                return Angle.cwRot(talon.getSelectedSensorPosition() / encoderTicksPerRotation);
             } catch (ArithmeticException e) {
                 DriverStation.reportError("Encoder ticks per rotation must not be 0", true);
                 return Angle.zero();
@@ -40,7 +40,7 @@ public abstract class TalonMotor extends Motor {
         @Override
         protected Angle getVelocityImpl() {
             try {
-                return Angle.ccwRot(talon.getSelectedSensorVelocity() / encoderTicksPerRotation * ENCODER_VELOCITY_TIME_SCALE);
+                return Angle.cwRot(talon.getSelectedSensorVelocity() / encoderTicksPerRotation * ENCODER_VELOCITY_TIME_SCALE);
             } catch (Exception e) {
                 DriverStation.reportError("Encoder ticks per rotation must not be 0", true);
                 return Angle.zero();
@@ -103,5 +103,9 @@ public abstract class TalonMotor extends Motor {
      */
     public void setNeutralMode(com.team2129.lib.motor.ctre.NeutralMode neutralMode) {
         talon.setNeutralMode(neutralMode == com.team2129.lib.motor.ctre.NeutralMode.BRAKE ? NeutralMode.Brake : NeutralMode.Coast);
+    }
+
+    public double getTemperature() {
+        return talon.getTemperature();
     }
 }

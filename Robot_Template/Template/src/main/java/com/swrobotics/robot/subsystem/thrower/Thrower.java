@@ -39,7 +39,7 @@ public class Thrower implements Subsystem {
     private static final NTDouble FLYWHEEL_SHUTOFF_SECONDS = new NTDouble("Thrower/Flywheel/Shutoff_Time", 1.0);
     private static final NTBoolean STRICT_AIM = new NTBoolean("Thrower/Strict_Aim", false);
 
-    private static final NTEnum<ThrowerTuneSelector> TUNE_SELECTOR = new NTEnum<>("Thrower/Tunning/Tune_Select", ThrowerTuneSelector.class, ThrowerTuneSelector.DEFAULT);
+    private static final NTEnum<ThrowerTuneSelector> TUNE_SELECTOR = new NTEnum<>("Thrower/Tuning/Tune_Select", ThrowerTuneSelector.class, ThrowerTuneSelector.DEFAULT);
 
     private final Input input;
     private final Localization loc;
@@ -75,20 +75,20 @@ public class Thrower implements Subsystem {
         flywheelShutoff = new Timer();
         isClimbing = false;
 
-        highHubMap.put(0.0, 0.0);
-        highHubMap.put(10.0, 2000.0);
-        lowHubMap.put(0.0, 0.0);
-        lowHubMap.put(1.0, 1.0);
+        // Temporary copied from old constants
+        highHubMap.put(2.95, 2275.0);
+        highHubMap.put(5.4, 2450.0);
+        highHubMap.put(7.3, 2590.0);
+        highHubMap.put(9.58, 2680.0);
     }
 
-    private double[] 
-    calculateAim(double distance, boolean aimHighHub, boolean forceHubChoice) {
+    private double[] calculateAim(double distance, boolean aimHighHub, boolean forceHubChoice) {
         double rpm;
         double hood;
 
         TreeMap<Double, Double> map;
         if (aimHighHub) {
-            map = highHubMap; // Should I use clone?
+            map = highHubMap;
         } else {
             map = lowHubMap;
         }
@@ -162,7 +162,7 @@ public class Thrower implements Subsystem {
         }
 
         if (hopper.isBallDetected() || !flywheelShutoff.hasElapsed(FLYWHEEL_SHUTOFF_SECONDS.get())) {
-            if (loc.isLookingAtTarget() || input.getAim()) { // Prepare to fire
+            if (loc.cameraCanSeeTarget() || input.getAim()) { // Prepare to fire
                 double[] aim = calculateAim(distance, true, STRICT_AIM.get());
                 flywheel.setFlywheelVelocity(Angle.cwRot(/*aim[0] / 60*/2000/60)); // Convert rpm to Angle/second
                 hood.setPosition(aim[1]);

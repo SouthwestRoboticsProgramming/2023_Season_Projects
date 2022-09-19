@@ -8,7 +8,9 @@ import com.team2129.lib.swerve.SwerveModule;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
 import com.team2129.lib.motor.calc.EstimateVelocityCalculator;
+import com.team2129.lib.motor.DebugMotor;
 import com.team2129.lib.motor.calc.PIDCalculator;
+import com.team2129.lib.motor.ctre.NeutralMode;
 import com.team2129.lib.motor.ctre.TalonFXMotor;
 import com.team2129.lib.motor.ctre.TalonSRXMotor;
 
@@ -30,9 +32,11 @@ public class SwerveModuleMaker {
         EstimateVelocityCalculator driveCalculator = new EstimateVelocityCalculator(DRIVE_MAX_VELOCITY);
         driveMotor.setVelocityCalculator(driveCalculator);
         driveMotor.setInverted(true);
+        // driveMotor.setNeutralMode(NeutralMode.BRAKE);
 
-        TalonSRXMotor steerMotor = new TalonSRXMotor(parent, steerID);
-
+        DebugMotor steerMotor = new DebugMotor(parent, steerID);
+        // steerMotor.setNeutralMode(NeutralMode.COAST);
+        
         PIDCalculator steerCalc = new PIDCalculator(TURN_KP, TURN_KI, TURN_KD);
         steerCalc.enableContinuousInput(-90, 90);
         steerMotor.setPositionCalculator(steerCalc);
