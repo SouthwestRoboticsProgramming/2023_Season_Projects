@@ -4,7 +4,6 @@ import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import com.swrobotics.robot.control.Input;
-import com.swrobotics.robot.subsystem.Localization;
 import com.swrobotics.robot.subsystem.thrower.commands.ShootCommand;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.MathUtil;
@@ -42,7 +41,6 @@ public class Thrower implements Subsystem {
     private static final NTEnum<ThrowerTuneSelector> TUNE_SELECTOR = new NTEnum<>("Thrower/Tuning/Tune_Select", ThrowerTuneSelector.class, ThrowerTuneSelector.DEFAULT);
 
     private final Input input;
-    private final Localization loc;
     private final Hopper hopper;
     private final Hood hood;
     private final Flywheel flywheel;
@@ -54,12 +52,11 @@ public class Thrower implements Subsystem {
 
     private boolean isClimbing;
 
-    public Thrower(Input input, Localization loc) {
+    public Thrower(Input input) {
         highHubMap = new TreeMap<Double, Double>();
         lowHubMap = new TreeMap<Double, Double>();
 
         this.input = input;
-        this.loc = loc;
 
         BallDetector ballDetector = new BallDetector();
         hopper = new Hopper(ballDetector);
@@ -69,7 +66,7 @@ public class Thrower implements Subsystem {
         Scheduler sch = Scheduler.get();
         sch.addSubsystem(this, ballDetector);
         sch.addSubsystem(this, hopper);
-        sch.addSubsystem(this, hood);
+        // sch.addSubsystem(this, hood);
         sch.addSubsystem(this, flywheel);
 
         flywheelShutoff = new Timer();
@@ -148,7 +145,7 @@ public class Thrower implements Subsystem {
 
     @Override
     public void periodic() {
-        double distance = loc.getFeetToHub();
+        double distance = 10; //*loc.getFeetToHub(); FIXME
 
         if (isClimbing) {
             hood.calibrate();
@@ -162,27 +159,22 @@ public class Thrower implements Subsystem {
         }
 
         if (hopper.isBallDetected() || !flywheelShutoff.hasElapsed(FLYWHEEL_SHUTOFF_SECONDS.get())) {
-            if (loc.cameraCanSeeTarget() || input.getAim()) { // Prepare to fire
+            if ( input.getAim()) { // Prepare to fire // FIXME: Add localization if can see target
                 double[] aim = calculateAim(distance, true, STRICT_AIM.get());
-                flywheel.setFlywheelVelocity(Angle.cwRot(/*aim[0] / 60*/2000/60)); // Convert rpm to Angle/second
+                flywheel.setFlywheelVelocity(Angle.cwRot(aim[0] / 60)); // Convert rpm to Angle/second // TODO: Check functionality
                 hood.setPosition(aim[1]);
                 // System.out.println("Distance: " + distance + " Hood: " + aim[1] + " Flywheel: " + aim[0]);
             } else {
                 hood.calibrate();
                 flywheel.idle();
-                System.out.println("No target");
             }
         } else { // If no ball for the duration of the timer
             hood.calibrate();
             flywheel.stop();
-            System.out.println("No ball");
         }
 
         if (input.getShoot()) {
             Scheduler.get().addCommand(new ShootCommand(hopper));
         }
-
     }
-
-
 }
