@@ -9,9 +9,15 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class Limelight implements Subsystem {
-    private static final Angle LIMELIGHT_MOUNT_ANGLE = Angle.cwDeg(15.5);
+
+    /*
+     * Tuning:
+     * 1. Use limelight UI to place crosshair so that it is horizontal to the robot.
+     *    This will allow the angles to be acurate.
+     */
+
     private static final double LIMELIGHT_MOUNT_HEIGHT = 0.8604; // Meters
-    private static final double TARGET_HEIGHT = 2.2416;
+    private static final double TARGET_HEIGHT = 2.2416; // Meters
     private static final double HEIGHT_DIFF = TARGET_HEIGHT - LIMELIGHT_MOUNT_HEIGHT;
 
     private static final NTBoolean LIGHTS_ON = new NTBoolean("Limelight/Lights_On", true);
@@ -27,6 +33,8 @@ public class Limelight implements Subsystem {
     private double area;
 
     public Limelight() {
+        LIGHTS_ON.set(true); // Default to lights on so as not to forget
+
         NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
         this.xAngle = table.getEntry("tx");
         this.yAngle = table.getEntry("ty");
@@ -42,12 +50,8 @@ public class Limelight implements Subsystem {
         return x;
     }
 
-    public Angle getRawYAngle() {
-        return y;
-    }
-
     public Angle getYAngle() {
-        return y.add(LIMELIGHT_MOUNT_ANGLE);
+        return y;
     }
 
     public double getArea() {
@@ -66,10 +70,11 @@ public class Limelight implements Subsystem {
 
     public boolean isAccurate() {
         return (
-            x.getCWDeg() > 0 && // FIXME-Mason: Is this correct?
-            y.getCWDeg() > 0 &&
+            x.getCWDeg() != 0 &&
+            y.getCWDeg() != 0 &&
             getDistance() > 0 &&
-            getDistance() < 20);
+            getDistance() < 20 &&
+            getArea() > 0);
     }
 
     public void setLights(boolean on) {
