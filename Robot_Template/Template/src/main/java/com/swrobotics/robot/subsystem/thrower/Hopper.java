@@ -1,7 +1,6 @@
 package com.swrobotics.robot.subsystem.thrower;
 
 import com.swrobotics.robot.Constants;
-import com.team2129.lib.math.Angle;
 import com.team2129.lib.motor.ctre.NeutralMode;
 import com.team2129.lib.motor.ctre.TalonFXMotor;
 import com.team2129.lib.net.NTDouble;
