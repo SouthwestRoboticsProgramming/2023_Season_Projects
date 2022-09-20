@@ -71,7 +71,7 @@ public class Drive implements Subsystem {
 
     @Override
     public void periodic() {
-        if (/*PRINT_ENCODER_OFFSETS.get()*/ false) {
+        if (PRINT_ENCODER_OFFSETS.get()) {
             drive.printEncoderOffsets();
         }
     }

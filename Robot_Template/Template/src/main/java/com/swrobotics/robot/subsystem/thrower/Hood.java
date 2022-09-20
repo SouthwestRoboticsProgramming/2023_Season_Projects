@@ -20,7 +20,7 @@ public class Hood implements Subsystem {
     private static final NTDouble KI = new NTDouble("Thrower/Hood/kI", 0.0);
     private static final NTDouble KD = new NTDouble("Thrower/Hood/kD", 0.01);
 
-    private static final NTDouble CALIBRATE_PERCENT = new NTDouble("Thrower/Hood/Calibration_Speed", -0.5);
+    private static final NTDouble CALIBRATE_PERCENT = new NTDouble("Thrower/Hood/Calibration_Speed", -0.1);
 
     private final HallEffectEncoder encoder;
     private final TalonSRXMotor motor;

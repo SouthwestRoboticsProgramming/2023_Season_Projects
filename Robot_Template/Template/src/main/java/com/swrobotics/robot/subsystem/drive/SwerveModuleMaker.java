@@ -1,17 +1,13 @@
 package com.swrobotics.robot.subsystem.drive;
 
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.swrobotics.robot.Constants;
 import com.team2129.lib.encoder.CANCoderImplementation;
 import com.team2129.lib.net.NTDouble;
 import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.swerve.SwerveModule;
 
-import edu.wpi.first.math.controller.PIDController;
-
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
-import com.team2129.lib.motor.calc.DummyVelocityCalculator;
 import com.team2129.lib.motor.calc.PIDCalculator;
 import com.team2129.lib.motor.ctre.NeutralMode;
 import com.team2129.lib.motor.ctre.TalonFXMotor;
@@ -34,9 +30,7 @@ public class SwerveModuleMaker {
 
     public static SwerveModule buildModule(Subsystem parent, SwerveModuleDef def, int steerID, Vec2d position) {
         TalonFXMotor driveMotor = new TalonFXMotor(parent, def.getDriveId(), Constants.CANIVORE);
-        // driveMotor.setVelocityCalculator(new PIDCalculator(0.00001, 0, 0));
-        // driveMotor.setVelocityCalculator(new PIDCalculator(0, 0, 0));
-        driveMotor.setVelocityCalculator(new DummyVelocityCalculator());
+        driveMotor.setVelocityCalculator(new PIDCalculator(0, 0, 0));
         driveMotor.setInverted(false);
         driveMotor.setNeutralMode(NeutralMode.BRAKE);
 

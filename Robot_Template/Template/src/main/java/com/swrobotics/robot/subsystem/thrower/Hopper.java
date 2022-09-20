@@ -1,7 +1,6 @@
 package com.swrobotics.robot.subsystem.thrower;
 
 import com.swrobotics.robot.Constants;
-import com.team2129.lib.math.Angle;
 import com.team2129.lib.motor.ctre.NeutralMode;
 import com.team2129.lib.motor.ctre.TalonFXMotor;
 import com.team2129.lib.net.NTDouble;
@@ -15,7 +14,7 @@ public class Hopper implements Subsystem {
     private final BallDetector ballDetector;
     private final TalonFXMotor indexMotor;
 
-    private boolean isThrowing = false;
+    private boolean controlOverride = false;
 
     public Hopper(BallDetector ballDetector) {
         this.ballDetector = ballDetector;
@@ -23,8 +22,6 @@ public class Hopper implements Subsystem {
         indexMotor = new TalonFXMotor(this, INDEX_MOTOR_ID, Constants.CANIVORE);
         indexMotor.setInverted(true);
         indexMotor.setNeutralMode(NeutralMode.BRAKE);
-
-        // There is a possibility that this motor needs to be inverted
     }
 
     public boolean isBallDetected() {
@@ -45,7 +42,7 @@ public class Hopper implements Subsystem {
     
     @Override
     public void periodic() {
-        if (!isThrowing) {
+        if (!controlOverride) {
             if (!ballDetector.isBallDetected()) {
                 indexMotor.percent(INDEX_IDLE_SPEED_PERCENT.get());
             } else {
