@@ -27,7 +27,7 @@ import static imgui.ImGui.*;
 public final class SwerveDebugTool extends ViewportTool {
     /*
      * m0 -- m1
-     *  |    |
+     *  | ^^ |
      * m2 -- m3
      */
     private static final double HALF_SIZE = 75;
@@ -40,11 +40,11 @@ public final class SwerveDebugTool extends ViewportTool {
     private static final int[] CLOCKWISE_ORDER = {0, 1, 3, 2}; // For drawing perimeter box
     private static final Vec2d CENTER_OF_ROT = new Vec2d(0, 0);
     private static final Translation2d CENTER_OF_ROT_WPI = toWPIRobotCoords(CENTER_OF_ROT);
-    private static final double MAX_WHEEL_VELOCITY = 100; // Meters per second
+    private static final double MAX_WHEEL_VELOCITY = 1000; // Meters per second
 
     // Speed per second
-    private static final double DRIVE_SPEED = 50; // Meters
-    private static final double TURN_SPEED = Math.PI / 6; // Radians
+    private static final double DRIVE_SPEED = 500; // Meters
+    private static final double TURN_SPEED = Math.PI / 6 * 10; // Radians
 
     private final SwerveDriveKinematics kinematics;
     private Pose2d odometryPose;
@@ -76,29 +76,41 @@ public final class SwerveDebugTool extends ViewportTool {
         }
     }
 
-    private boolean up, down, left, right, ccw, cw;
+    private boolean up, down, left, right, ccw, cw, f;
 
     @Override
     public void onKeyPress(char key, int keyCode) {
         switch (key) {
-            case 'q': ccw = true; break;
             case 'w': up = true; break;
-            case 'e': cw = true; break;
             case 'a': left = true; break;
             case 's': down = true; break;
             case 'd': right = true; break;
+            case 'f': f = true; break;
+            case PConstants.CODED: {
+                switch (keyCode) {
+                    case PConstants.LEFT: ccw = true; break;
+                    case PConstants.RIGHT: cw = true; break;
+                    case PConstants.DOWN: f = true; break;
+                }
+            }
         }
     }
 
     @Override
     public void onKeyRelease(char key, int keyCode) {
         switch (key) {
-            case 'q': ccw = false; break;
             case 'w': up = false; break;
-            case 'e': cw = false; break;
             case 'a': left = false; break;
             case 's': down = false; break;
             case 'd': right = false; break;
+            case 'f': f = false; break;
+            case PConstants.CODED: {
+                switch (keyCode) {
+                    case PConstants.LEFT: ccw = false; break;
+                    case PConstants.RIGHT: cw = false; break;
+                    case PConstants.DOWN: f = false; break;
+                }
+            }
         }
     }
 
@@ -116,7 +128,12 @@ public final class SwerveDebugTool extends ViewportTool {
         Rotation2d fakeGyro = odometryPose.getRotation();
 
         Translation2d wpiDrive = toWPIFieldCoords(new Vec2d(driveX, driveY));
-        ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(wpiDrive.getX(), wpiDrive.getY(), turn, fakeGyro);
+        ChassisSpeeds speeds;
+        if (f) {
+            speeds = new ChassisSpeeds(wpiDrive.getX(), wpiDrive.getY(), turn);
+        } else {
+            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(wpiDrive.getX(), wpiDrive.getY(), turn, fakeGyro);
+        }
 
         setTargetSpeeds(speeds);
 
@@ -164,6 +181,10 @@ public final class SwerveDebugTool extends ViewportTool {
             g.vertex((float) pos.x, (float) pos.y);
         }
         g.endShape();
+        float half = (float) HALF_SIZE / 2;
+        g.line(0, -half, 0, half);
+        g.line(-half, 0, 0, half);
+        g.line(half, 0, 0, half);
 
         for (SwerveModule module : MODULES) {
             module.draw(g, showTarget.get(), showWheel.get(), showDrive.get());
@@ -177,7 +198,7 @@ public final class SwerveDebugTool extends ViewportTool {
             tableNextColumn();
             drawViewport();
             tableNextColumn();
-            text("WASD to drive, QE to turn");
+            text("WASD to drive, left/right to turn, down to enable robot relative");
             separator();
             checkbox("Show target (blue)", showTarget);
             checkbox("Show wheels (yellow)", showWheel);

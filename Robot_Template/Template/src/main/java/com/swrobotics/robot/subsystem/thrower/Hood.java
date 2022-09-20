@@ -1,12 +1,11 @@
 package com.swrobotics.robot.subsystem.thrower;
 
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.team2129.lib.encoder.HallEffectEncoder;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.motor.ctre.TalonSRXMotor;
+import com.team2129.lib.net.NTBoolean;
 import com.team2129.lib.net.NTDouble;
 import com.team2129.lib.schedule.Subsystem;
-import com.team2129.lib.utils.LazyTalonSRXConfiguration;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 
@@ -18,9 +17,11 @@ public class Hood implements Subsystem {
 
     private static final NTDouble KP = new NTDouble("Thrower/Hood/kP", 0.05);
     private static final NTDouble KI = new NTDouble("Thrower/Hood/kI", 0.0);
-    private static final NTDouble KD = new NTDouble("Thrower/Hood/kD", 0.01);
+    private static final NTDouble KD = new NTDouble("Thrower/Hood/kD", 0.0);
 
-    private static final NTDouble CALIBRATE_PERCENT = new NTDouble("Thrower/Hood/Calibration_Speed", -0.1);
+    private static final NTDouble CALIBRATE_PERCENT = new NTDouble("Thrower/Hood/Calibration Speed", -0.1);
+
+    private static final NTBoolean LIMIT_SWITCH_PRESSED = new NTBoolean("Thrower/Hood/Limit Switch Pressed", false);
 
     private final HallEffectEncoder encoder;
     private final TalonSRXMotor motor;
@@ -31,9 +32,7 @@ public class Hood implements Subsystem {
 
     public Hood() {
         encoder = new HallEffectEncoder(ENCODER_ID_1, ENCODER_ID_2, 588); // Not ticks per rotation but ticks per floor to ceiling of movement.
-
-        TalonSRX motor_toWrap = new TalonSRX(MOTOR_ID);
-        LazyTalonSRXConfiguration.configureDefaultTalon(motor_toWrap);
+ 
         motor = new TalonSRXMotor(this, MOTOR_ID);
         motor.setEncoder(encoder);
         motor.setPIDCalculators(KP, KI, KD);
@@ -42,6 +41,8 @@ public class Hood implements Subsystem {
 
         isCalibrating = true;
         targetPosition = Angle.zero();
+
+        LIMIT_SWITCH_PRESSED.setTemporary();
     }
 
     /**
@@ -50,6 +51,7 @@ public class Hood implements Subsystem {
      */
     public void setPosition(double percent) {
         targetPosition = Angle.cwRot(percent);
+        isCalibrating = false;
     }
 
     public void calibrate() {
@@ -58,7 +60,7 @@ public class Hood implements Subsystem {
 
     @Override
     public void periodic() {
-        // TODO: Log limit switch, etc
+        LIMIT_SWITCH_PRESSED.set(limitSwitch.get());
 
         if (isCalibrating) {
             if (limitSwitch.get()) {

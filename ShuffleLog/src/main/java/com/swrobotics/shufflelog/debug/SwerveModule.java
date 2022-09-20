@@ -12,7 +12,7 @@ import static imgui.ImGui.*;
 public class SwerveModule {
     // Assume constant wheel turn speed
     private static final double TURN_SPEED = 2 * Math.PI;
-    private static final double DRIVE_VEL_SPEED = 200; // Change in drive velocity per second
+    private static final double DRIVE_VEL_SPEED = 2000; // Change in drive velocity per second
 
     private final Vec2d position;
     private SwerveModuleState targetState;
