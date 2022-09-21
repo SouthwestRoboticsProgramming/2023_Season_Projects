@@ -1,7 +1,7 @@
 package com.swrobotics.robot.subsystem.thrower;
 
 import com.team2129.lib.math.Angle;
-import com.team2129.lib.motor.calc.BangBangVelocityCalculator;
+import com.team2129.lib.motor.calc.BangBangCalculator;
 import com.team2129.lib.motor.calc.CompoundVelocityCalculator;
 import com.team2129.lib.motor.calc.FeedForwardVelocityCalculator;
 import com.team2129.lib.motor.calc.PIDCalculator;
@@ -25,7 +25,7 @@ public final class Flywheel implements Subsystem {
 
     private static final double KV = 0.00003; // Change to adjust potency of velocity maintenance.
     
-    private static final Angle BANG_THRESH_LOW = Angle.cwDeg(500);
+    private static final Angle BANG_THRESH_LOW = Angle.cwDeg(-500);
     private static final Angle BANG_THRESH_HIGH = Angle.cwDeg(-50);
 
     private final TalonFXMotor motor;
@@ -52,7 +52,7 @@ public final class Flywheel implements Subsystem {
          *      KP should get motor to hover around the setpoint without revving.
          */
         
-        BangBangVelocityCalculator bangCalc = new BangBangVelocityCalculator();
+        BangBangCalculator bangCalc = new BangBangCalculator();
 
         FeedForwardVelocityCalculator feedCalc = new FeedForwardVelocityCalculator(0.0, KV);
 
