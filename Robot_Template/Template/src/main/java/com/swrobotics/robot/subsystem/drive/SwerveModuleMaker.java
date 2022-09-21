@@ -11,7 +11,6 @@ import edu.wpi.first.math.controller.PIDController;
 
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
-import com.team2129.lib.motor.calc.DummyVelocityCalculator;
 import com.team2129.lib.motor.calc.PIDCalculator;
 import com.team2129.lib.motor.ctre.NeutralMode;
 import com.team2129.lib.motor.ctre.TalonFXMotor;

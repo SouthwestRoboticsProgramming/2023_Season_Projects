@@ -47,7 +47,7 @@ public class Localization implements Subsystem {
     public Angle getLocalAngleToTarget() {
         return gyro.getAngle()
         .sub(getAngleToTarget())
-        .normalizeDeg(-90, 90); // Almost certainly not right
+        .normalizeDeg(90); // Almost certainly not right
     }
 
 
