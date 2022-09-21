@@ -75,20 +75,20 @@ public final class ShuffleLog extends PApplet {
             e.printStackTrace();
         }
 
-//        tools.add(new MenuBarTool());
-//        tools.add(new MessengerTool(this));
-//        DataLogTool dataLogTool = new DataLogTool(this);
-//        tools.add(dataLogTool);
-//        tools.add(new NetworkTablesTool(threadPool, dataLogTool));
-//        tools.add(new ShuffleLogProfilerTool());
-//        tools.add(new RobotProfilerTool(msg));
-//        tools.add(new SchedulerTool(msg));
-//        tools.add(new TaskManagerTool(this, "TaskManager"));
-//        tools.add(new FieldViewTool(this));
-//        tools.add(new BlockAutoTool(this));
+        tools.add(new MenuBarTool());
+        tools.add(new MessengerTool(this));
+        DataLogTool dataLogTool = new DataLogTool(this);
+        tools.add(dataLogTool);
+        tools.add(new NetworkTablesTool(threadPool, dataLogTool));
+        tools.add(new ShuffleLogProfilerTool());
+        tools.add(new RobotProfilerTool(msg));
+        tools.add(new SchedulerTool(msg));
+        tools.add(new TaskManagerTool(this, "TaskManager"));
+        tools.add(new FieldViewTool(this));
+        tools.add(new BlockAutoTool(this));
 
         // Temporarily turn ShuffleLog into a swerve drive debugger
-        tools.add(new SwerveDebugTool(this));
+//        tools.add(new SwerveDebugTool(this));
 
         startTime = System.currentTimeMillis();
     }
@@ -108,7 +108,7 @@ public final class ShuffleLog extends PApplet {
         Profiler.pop();
 
         Profiler.push("Read Messages");
-//        msg.readMessages();
+        msg.readMessages();
         Profiler.pop();
 
         background(210);

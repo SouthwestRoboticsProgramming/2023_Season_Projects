@@ -33,7 +33,7 @@ public final class Robot extends AbstractRobot {
             initMessenger(RASPBERRY_PI_IP, 5805, "Robot");
         }
 
-        // AutoBlocks.init(getMessenger());
+        AutoBlocks.init(getMessenger());
     }
     
     @Override
