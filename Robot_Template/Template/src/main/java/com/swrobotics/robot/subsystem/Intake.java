@@ -2,7 +2,6 @@ package com.swrobotics.robot.subsystem;
 
 import com.swrobotics.robot.Constants;
 import com.swrobotics.robot.control.Input;
-import com.team2129.lib.math.Angle;
 import com.team2129.lib.motor.ctre.TalonFXMotor;
 import com.team2129.lib.net.NTDouble;
 import com.team2129.lib.schedule.Subsystem;

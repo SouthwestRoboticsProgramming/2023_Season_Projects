@@ -2,9 +2,12 @@ package com.swrobotics.robot;
 
 import com.swrobotics.robot.blockauto.AutoBlocks;
 import com.swrobotics.robot.control.Input;
+import com.swrobotics.robot.subsystem.Intake;
 import com.swrobotics.robot.subsystem.Limelight;
-import com.swrobotics.robot.subsystem.Localization;
 import com.swrobotics.robot.subsystem.drive.Drive;
+import com.swrobotics.robot.subsystem.thrower.BallDetector;
+import com.swrobotics.robot.subsystem.thrower.Flywheel;
+import com.swrobotics.robot.subsystem.thrower.Hopper;
 import com.swrobotics.robot.subsystem.thrower.Thrower;
 import com.team2129.lib.net.NTBoolean;
 import com.team2129.lib.schedule.Command;
@@ -30,12 +33,17 @@ public final class Robot extends AbstractRobot {
             initMessenger(RASPBERRY_PI_IP, 5805, "Robot");
         }
 
-        AutoBlocks.init(getMessenger());
+        // AutoBlocks.init(getMessenger());
     }
     
     @Override
     protected final void addSubsystems() {
         Input input = new Input();
+        // Thrower thrower = new Thrower(input);
+        // Intake intake = new Intake(input);
+        // BallDetector ballDetector = new BallDetector();
+        // Hopper hopper = new Hopper(ballDetector);
+        // Flywheel flywheel = new Flywheel();
         Drive drive = new Drive(input);
         // Limelight limelight = new Limelight();
         // Localization loc = new Localization(drive, limelight, input);
@@ -45,6 +53,11 @@ public final class Robot extends AbstractRobot {
         // TODO: Climber
 
         Scheduler scheduler = Scheduler.get();
+        // scheduler.addSubsystem(thrower);
+
+        // scheduler.addSubsystem(intake);
+        // scheduler.addSubsystem(ballDetector);
+        // scheduler.addSubsystem(hopper);
         scheduler.addSubsystem(drive);
         // scheduler.addSubsystem(thrower);
         // TODO: Schedule subsystems

@@ -81,26 +81,36 @@ public final class SwerveDebugTool extends ViewportTool {
     @Override
     public void onKeyPress(char key, int keyCode) {
         switch (key) {
-            case 'q': ccw = true; break;
             case 'w': up = true; break;
-            case 'e': cw = true; break;
             case 'a': left = true; break;
             case 's': down = true; break;
             case 'd': right = true; break;
             case 'f': f = true; break;
+            case PConstants.CODED: {
+                switch (keyCode) {
+                    case PConstants.LEFT: ccw = true; break;
+                    case PConstants.RIGHT: cw = true; break;
+                    case PConstants.DOWN: f = true; break;
+                }
+            }
         }
     }
 
     @Override
     public void onKeyRelease(char key, int keyCode) {
         switch (key) {
-            case 'q': ccw = false; break;
             case 'w': up = false; break;
-            case 'e': cw = false; break;
             case 'a': left = false; break;
             case 's': down = false; break;
             case 'd': right = false; break;
             case 'f': f = false; break;
+            case PConstants.CODED: {
+                switch (keyCode) {
+                    case PConstants.LEFT: ccw = false; break;
+                    case PConstants.RIGHT: cw = false; break;
+                    case PConstants.DOWN: f = false; break;
+                }
+            }
         }
     }
 
@@ -188,7 +198,7 @@ public final class SwerveDebugTool extends ViewportTool {
             tableNextColumn();
             drawViewport();
             tableNextColumn();
-            text("WASD to drive, QE to turn, F to enable robot relative");
+            text("WASD to drive, left/right to turn, down to enable robot relative");
             separator();
             checkbox("Show target (blue)", showTarget);
             checkbox("Show wheels (yellow)", showWheel);

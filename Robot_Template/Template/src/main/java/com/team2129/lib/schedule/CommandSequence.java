@@ -122,7 +122,7 @@ public class CommandSequence implements CompoundCommand {
         for (int i = 0; i < cmds.size(); i++) {
             out.add(new CommandDebugDesc(cmds.get(i).cmd, i == index));
         }
-        debug.onChildrenInfoChanged(out);;
+        debug.onChildrenInfoChanged(out);
     }
 
     @Override

@@ -1,7 +1,6 @@
 package com.swrobotics.robot.subsystem.thrower.commands;
 
 import com.swrobotics.robot.subsystem.thrower.Hopper;
-import com.team2129.lib.math.Angle;
 import com.team2129.lib.net.NTDouble;
 import com.team2129.lib.schedule.Command;
 
