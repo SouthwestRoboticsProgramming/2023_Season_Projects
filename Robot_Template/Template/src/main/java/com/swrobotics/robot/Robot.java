@@ -9,6 +9,7 @@ import com.swrobotics.robot.subsystem.thrower.BallDetector;
 import com.swrobotics.robot.subsystem.thrower.Flywheel;
 import com.swrobotics.robot.subsystem.thrower.Hopper;
 import com.swrobotics.robot.subsystem.thrower.Thrower;
+import com.team2129.lib.messenger.MessengerClient;
 import com.team2129.lib.net.NTBoolean;
 import com.team2129.lib.schedule.Command;
 import com.team2129.lib.schedule.Scheduler;
@@ -38,13 +39,15 @@ public final class Robot extends AbstractRobot {
     
     @Override
     protected final void addSubsystems() {
+        MessengerClient msg = getMessenger();
+
         Input input = new Input();
         // Thrower thrower = new Thrower(input);
         // Intake intake = new Intake(input);
         // BallDetector ballDetector = new BallDetector();
         // Hopper hopper = new Hopper(ballDetector);
         // Flywheel flywheel = new Flywheel();
-        Drive drive = new Drive(input);
+        Drive drive = new Drive(input, msg);
         // Limelight limelight = new Limelight();
         // Localization loc = new Localization(drive, limelight, input);
         // TODO: PDP

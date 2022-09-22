@@ -140,6 +140,10 @@ public class SwerveModule {
         return new SwerveModuleState(velocity, angle.toRotation2dCW());
     }
 
+    public SwerveModuleState getTargetState() {
+        return currentDesiredState;
+    }
+
     /**
      * Get the real angle of the module without the offset applied. (Useful for calibration)
      * @return The angle of the module before the offset is applied.

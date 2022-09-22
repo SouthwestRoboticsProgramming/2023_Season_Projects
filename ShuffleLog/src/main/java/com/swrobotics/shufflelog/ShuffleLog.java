@@ -6,6 +6,7 @@ import com.swrobotics.shufflelog.profile.Profiler;
 import com.swrobotics.shufflelog.tool.blockauto.BlockAutoTool;
 import com.swrobotics.shufflelog.tool.data.DataLogTool;
 import com.swrobotics.shufflelog.tool.MenuBarTool;
+import com.swrobotics.shufflelog.tool.drive.SwerveDriveStateTool;
 import com.swrobotics.shufflelog.tool.field.FieldViewTool;
 import com.swrobotics.shufflelog.tool.messenger.MessengerTool;
 import com.swrobotics.shufflelog.tool.data.NetworkTablesTool;
@@ -86,6 +87,7 @@ public final class ShuffleLog extends PApplet {
         tools.add(new TaskManagerTool(this, "TaskManager"));
         tools.add(new FieldViewTool(this));
         tools.add(new BlockAutoTool(this));
+        tools.add(new SwerveDriveStateTool(this));
 
         // Temporarily turn ShuffleLog into a swerve drive debugger
 //        tools.add(new SwerveDebugTool(this));

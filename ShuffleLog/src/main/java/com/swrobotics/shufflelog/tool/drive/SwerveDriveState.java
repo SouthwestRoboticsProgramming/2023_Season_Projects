@@ -7,8 +7,12 @@ import processing.core.PGraphics;
 
 import java.util.Arrays;
 
+import static imgui.ImGui.*;
+
 public final class SwerveDriveState {
     private final SwerveModuleState[] modules;
+    private float minX, minY;
+    private float maxX, maxY;
 
     public SwerveDriveState(MessageReader reader) {
         int count = reader.readInt();
@@ -19,9 +23,28 @@ public final class SwerveDriveState {
 
         // Sort modules into ccw order for border rendering
         Arrays.sort(modules);
+
+        // Find bounding box for rendering zoom calculation
+        minX = Float.POSITIVE_INFINITY;
+        minY = Float.POSITIVE_INFINITY;
+        maxX = Float.NEGATIVE_INFINITY;
+        maxY = Float.NEGATIVE_INFINITY;
+        for (SwerveModuleState state : modules) {
+            Vec2d pos = state.getPosition();
+            minX = (float) Math.min(minX, pos.x);
+            minY = (float) Math.min(minY, pos.y);
+            maxX = (float) Math.max(maxX, pos.x);
+            maxY = (float) Math.max(maxY, pos.y);
+        }
     }
 
-    public void draw(PGraphics g, float strokeMul, boolean target, boolean wheel, boolean drive) {
+    public void readState(MessageReader reader) {
+        for (SwerveModuleState state : modules) {
+            state.readState(reader);
+        }
+    }
+
+    public void draw(PGraphics g, float strokeMul, float driveScale, boolean target, boolean wheel, boolean drive) {
         g.strokeWeight(1 * strokeMul);
         g.stroke(255);
         g.beginShape(PConstants.LINE_LOOP);
@@ -32,7 +55,34 @@ public final class SwerveDriveState {
         g.endShape();
 
         for (SwerveModuleState module : modules) {
-            module.draw(g, strokeMul, target, wheel, drive);
+            module.draw(g, strokeMul, driveScale, target, wheel, drive);
         }
+    }
+
+    public void showGui() {
+        textWrapped("Note: Module info is in WPI robot-relative coordinate space");
+        separator();
+        for (int i = 0; i < modules.length; i++) {
+            text("Module " + i);
+            indent();
+            modules[i].showGui();
+            unindent();
+        }
+    }
+
+    public float getMinX() {
+        return minX;
+    }
+
+    public float getMinY() {
+        return minY;
+    }
+
+    public float getMaxX() {
+        return maxX;
+    }
+
+    public float getMaxY() {
+        return maxY;
     }
 }
