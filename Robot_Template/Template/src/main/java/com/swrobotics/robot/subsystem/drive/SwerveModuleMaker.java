@@ -28,7 +28,7 @@ public class SwerveModuleMaker {
     public static final double GEAR_RATIO = 1 / 8.14;
     public static final double WHEEL_RADIUS = 0.05;
 
-    public static SwerveModule buildModule(Subsystem parent, SwerveModuleDef def, int steerID, Vec2d position) {
+    public static SwerveModule buildModule(Subsystem parent, SwerveModuleDef def, int steerID, Vec2d position, double staticOffsetCWDeg) {
         TalonFXMotor driveMotor = new TalonFXMotor(parent, def.getDriveId(), Constants.CANIVORE);
         driveMotor.setVelocityCalculator(new PIDCalculator(0, 0, 0));
         driveMotor.setInverted(false);
@@ -44,8 +44,6 @@ public class SwerveModuleMaker {
         steerMotor.setPositionCalculator(steerCalc);
         steerMotor.setNeutralDeadband(0.02);
         steerMotor.setNominalOutput(0.2);
-
-        double staticOffsetCWDeg = 0;
 
         CANCoderImplementation canCoder = new CANCoderImplementation(def.getEncoderId(), Constants.CANIVORE);
         canCoder.setOffset(Angle.cwDeg(def.getEncoderOffset().get() + staticOffsetCWDeg));
