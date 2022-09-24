@@ -20,9 +20,18 @@ public class IndexCommand implements Command {
     }
 
     @Override
+    public void init() {
+        hopper.setOverride(true);
+    }
+
+    @Override
     public boolean run() {
         hopper.setIndexPercent(RUN_SPEED.get());;
         return timer.hasElapsed(RUN_TIME.get());
     }
     
+    @Override
+    public void end(boolean cancel) {
+        hopper.setOverride(false);
+    }
 }

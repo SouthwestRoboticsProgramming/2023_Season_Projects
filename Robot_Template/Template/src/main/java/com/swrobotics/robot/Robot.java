@@ -43,7 +43,7 @@ public final class Robot extends AbstractRobot {
 
         Input input = new Input();
         // Thrower thrower = new Thrower(input);
-        // Intake intake = new Intake(input);
+        Intake intake = new Intake(input);
         // BallDetector ballDetector = new BallDetector();
         // Hopper hopper = new Hopper(ballDetector);
         // Flywheel flywheel = new Flywheel();
@@ -52,18 +52,18 @@ public final class Robot extends AbstractRobot {
         // Localization loc = new Localization(drive, limelight, input);
         // TODO: PDP
         // TODO: Light controlle
-        // Thrower thrower = new Thrower(input, loc);
+        Thrower thrower = new Thrower(input);
         // TODO: Climber
         // TelescopingArm teleArm = new TelescopingArm(6, 7, true, "name");
 
         Scheduler scheduler = Scheduler.get();
         // scheduler.addSubsystem(thrower);
 
-        // scheduler.addSubsystem(intake);
+        scheduler.addSubsystem(intake);
         // scheduler.addSubsystem(ballDetector);
         // scheduler.addSubsystem(hopper);
         scheduler.addSubsystem(drive);
-        // scheduler.addSubsystem(thrower);
+        scheduler.addSubsystem(thrower);
 
 
         // scheduler.addSubsystem(teleArm);

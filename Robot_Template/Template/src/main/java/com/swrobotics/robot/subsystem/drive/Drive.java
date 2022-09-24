@@ -48,6 +48,7 @@ public class Drive implements Subsystem {
     private static final int TURN_ID_3 = 4;
 
     private static final NTBoolean PRINT_ENCODER_OFFSETS = new NTBoolean("Swerve/Print Encoder Offsets", false);
+    private static final NTBoolean AUTO_TUNE_MODULES = new NTBoolean("Swerve/Auto Tune Modules", false, NTBoolean.Mode.MOMENTARY);
 
     private static final String MSG_GET_MODULE_DEFS = "Swerve:GetModuleDefs";
     private static final String MSG_MODULE_DEFS = "Swerve:ModuleDefs";
@@ -98,7 +99,28 @@ public class Drive implements Subsystem {
     @Override
     public void periodic() {
         if (PRINT_ENCODER_OFFSETS.get()) {
-            // drive.printEncoderOffsets();
+            drive.printEncoderOffsets();
+        }
+        if (AUTO_TUNE_MODULES.get()) {
+            // Not sure if this is correct but it probably works anyway
+            Angle forward = Angle.zero();
+
+            for (int i = 0; i < modules.length; i++) {
+                // Bad code
+                SwerveModuleDef def = null;
+                double staticOff = 0;
+                switch (i) {
+                    case 0: def = SLOT_0_MODULE.get(); staticOff = 0;   break;
+                    case 1: def = SLOT_1_MODULE.get(); staticOff = 90;  break;
+                    case 2: def = SLOT_2_MODULE.get(); staticOff = 270; break;
+                    case 3: def = SLOT_3_MODULE.get(); staticOff = 180; break;
+                }
+
+                SwerveModuleState state = modules[i].getState();
+                double offset = forward.getCCWRad() - modules[i].getRawAngle().getCCWRad();
+
+                def.getEncoderOffset().set(Math.toDegrees(offset));
+            }
         }
 
         MessageBuilder builder = msg.prepare(MSG_MODULE_STATES);
@@ -120,7 +142,7 @@ public class Drive implements Subsystem {
 
     @Override
     public void teleopPeriodic() {
-        Vec2d translation = input.getDriveTranslation();
+        Vec2d translation = input.getDriveTranslation().mul(0.25);
         Angle rotation = input.getDriveRotation();
 
         if (input.getSlowMode()) {

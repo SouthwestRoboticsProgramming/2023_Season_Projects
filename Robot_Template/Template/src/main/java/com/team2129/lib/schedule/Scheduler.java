@@ -114,17 +114,23 @@ public final class Scheduler {
 
     private static final class CommandNode extends ScheduleNode {
         private final Command command;
+        private boolean initialized;
 
         public CommandNode(Command command) {
             this.command = command;
+            initialized = false;
         }
 
         @Override
         public void periodicState(RobotState state) {
+            if (!initialized)
+                command.init();
+            initialized = true;
             boolean finished = command.run();
             if (finished) {
                 System.out.println("Command finished: " + command);
-                INSTANCE.removeCommand(command);
+                command.end(false);
+                INSTANCE.removeCommandInternal(command);
             }
         }
 
@@ -222,6 +228,11 @@ public final class Scheduler {
     }
 
     public void removeCommand(Command cmd) {
+        cmd.end(true);
+        removeCommandInternal(cmd);
+    }
+
+    private void removeCommandInternal(Command cmd) {
         CommandNode node = commandNodes.remove(cmd);
         if (node != null && node.parent != null)
             node.parent.children.remove(node);

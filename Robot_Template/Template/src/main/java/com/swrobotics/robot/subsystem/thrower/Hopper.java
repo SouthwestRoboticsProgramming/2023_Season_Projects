@@ -36,7 +36,12 @@ public class Hopper implements Subsystem {
         return ballDetector.isBallGone();
     }
 
+    public void setOverride(boolean override) {
+        this.controlOverride = override;
+    }
+
     public void setIndexPercent(double percent) {
+        System.out.println("IT SET TO " + percent);
         indexMotor.percent(percent);
     }
     
@@ -48,6 +53,8 @@ public class Hopper implements Subsystem {
             } else {
                 indexMotor.stop();
             }
+        } else {
+            System.out.println("IT HAS BEEN OVERRIDDEN");
         }
     }
 }

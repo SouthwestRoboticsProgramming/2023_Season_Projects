@@ -25,7 +25,7 @@ public final class Flywheel implements Subsystem {
 
     private static final double KV = 0.00003; // Change to adjust potency of velocity maintenance.
     
-    private static final Angle BANG_THRESH_LOW = Angle.cwDeg(500);
+    private static final Angle BANG_THRESH_LOW = Angle.cwDeg(50);
     private static final Angle BANG_THRESH_HIGH = Angle.cwDeg(-50);
 
     private final TalonFXMotor motor;
