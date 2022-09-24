@@ -39,11 +39,11 @@ public class SwerveModuleMaker {
         steerMotor.setNeutralMode(NeutralMode.BRAKE);
         
         // PIDCalculator steerCalc = new PIDCalculator(TURN_KP, TURN_KI, TURN_KD);
-        PIDCalculator steerCalc = new PIDCalculator(0.0003, 0, 0.01);
+        PIDCalculator steerCalc = new PIDCalculator(0.0003, 0, 0.0);
         steerCalc.enableContinuousInput(-180, 180); // This is required by SwerveModule
         steerMotor.setPositionCalculator(steerCalc);
-        steerMotor.setNeutralDeadband(0.02);
-        steerMotor.setNominalOutput(0.2);
+        steerMotor.setNeutralDeadband(0.005);
+        steerMotor.setNominalOutput(0.25);
 
         CANCoderImplementation canCoder = new CANCoderImplementation(def.getEncoderId(), Constants.CANIVORE);
         canCoder.setOffset(Angle.cwDeg(def.getEncoderOffset().get() + staticOffsetCWDeg));
