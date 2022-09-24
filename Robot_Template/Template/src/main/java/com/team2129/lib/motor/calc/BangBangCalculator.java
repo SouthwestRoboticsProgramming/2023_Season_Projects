@@ -3,8 +3,6 @@ package com.team2129.lib.motor.calc;
 import com.team2129.lib.math.Angle;
 
 import edu.wpi.first.math.controller.BangBangController;
-import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.wpilibj.DriverStation;
 
 /**
  * Calculates the percent output to set a motor's velocity using a
@@ -16,7 +14,6 @@ public final class BangBangCalculator implements VelocityCalculator, PositionCal
     private Angle threshHigh;
     private double multiplier;
     private double minOutput;
-    private boolean inverted;
 
     private boolean accelerating;
     private Angle current;
@@ -118,10 +115,6 @@ public final class BangBangCalculator implements VelocityCalculator, PositionCal
         return minOutput;
     }
 
-    public void inputInverted(boolean inverted) {
-        this.inverted = inverted;
-    }
-
     public boolean inTolerance() {
         if (current == null || target == null) return false;
 
@@ -161,9 +154,6 @@ public final class BangBangCalculator implements VelocityCalculator, PositionCal
         }
 
         double bangOut = bang.calculate(currentVelocity.getCWDeg(), target);
-        if (inverted) {
-            bangOut = -bang.calculate(currentVelocity.getCWDeg(), target);
-        }
         // System.out.println("Target: " + target + " current: " + currentVelocity.getCWDeg());
         
         if (Math.abs(minOutput) > Math.abs(bangOut * multiplier)) {

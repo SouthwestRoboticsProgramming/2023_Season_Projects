@@ -10,20 +10,18 @@ import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.utils.TimeoutTimer;
 import com.team2129.lib.wpilib.RobotState;
 
-import edu.wpi.first.wpilibj.Timer;
-
 public class TelescopingArm implements Subsystem {
-    private static final NTDouble LIFT_PERC_LOADED = new NTDouble("Climber/Tele/Loaded Lift Percent", -0.8);
-    private static final NTDouble LIFT_PERC_UNLOADED = new NTDouble("Climber/Tele/Unloaded Lift Percent", -0.5);
+    private static final NTDouble LIFT_PERC_LOADED = new NTDouble("Climber/Tele/Loaded Lift Percent", 0.8); // Lift the robot, should be positive
+    private static final NTDouble LIFT_PERC_UNLOADED = new NTDouble("Climber/Tele/Unloaded Lift Percent", 0.5); // Lift the robot, should be positive
 
-    private static final NTDouble DROP_PERC_LOADED = new NTDouble("Climber/Tele/Loaded Drop Percent", 0.05);
-    private static final NTDouble DROP_PERC_UNLOADED = new NTDouble("Climber/Tele/Unloaded Drop Percent", 0.05);
+    private static final NTDouble DROP_PERC_LOADED = new NTDouble("Climber/Tele/Loaded Drop Percent", -0.05); // Drop the robot
+    private static final NTDouble DROP_PERC_UNLOADED = new NTDouble("Climber/Tele/Unloaded Drop Percent", -0.05); // Drop the robot
 
     // Feedforward to keep robot hanging at specified height
-    private static final NTDouble FEED_FORWARD_LOADED = new NTDouble("Climber/Tele/Loaded Feedforward", -0.3);
-    private static final NTDouble FEED_FORWARD_UNLOADED = new NTDouble("Climber/Tele/Unloaded Feedforward", -0.01);
+    private static final NTDouble FEED_FORWARD_LOADED = new NTDouble("Climber/Tele/Loaded Feedforward", 0.3);
+    private static final NTDouble FEED_FORWARD_UNLOADED = new NTDouble("Climber/Tele/Unloaded Feedforward", 0.01);
 
-    private static final NTDouble CALIBRATE_PERCENT = new NTDouble("Climber/Tele/Calibrate percent", -0.1);
+    private static final NTDouble CALIBRATE_PERCENT = new NTDouble("Climber/Tele/Calibrate percent", 0.1);
     private static final NTDouble CALIBRATE_VELOCITY_TOLERANCE = new NTDouble("Climber/Tele/Calibrate Velocity Tolerance", 1);
     private static final double CALIBRATE_TIMEOUT = 0.2;
 
@@ -41,6 +39,14 @@ public class TelescopingArm implements Subsystem {
     private boolean underLoad;
     private boolean shouldBeCalibrating;
 
+    /**
+     * Create a new TelescopingArm. The motor should be configured so that a positive outputput will pull the arm down,
+     * lifting the robot, and a negative output will let the arm up, lowering the robot.
+     * @param canID1
+     * @param canID2
+     * @param inverted Invert the motors that that a positive demand will make the arm pull in.
+     * @param name
+     */
     public TelescopingArm(int canID1, int canID2, boolean inverted, String name) {
         motor1 = new BrushlessSparkMaxMotor(this, canID1);
         motor2 = new BrushlessSparkMaxMotor(this, canID2);
@@ -57,8 +63,8 @@ public class TelescopingArm implements Subsystem {
         motor1.getEncoder().setAngle(Angle.zero());
         motor2.getEncoder().setAngle(Angle.zero());
 
-        motor1.getEncoder().setInverted(false);
-        motor1.getEncoder().setInverted(false);
+        motor1.getEncoder().setInverted(!inverted);
+        motor1.getEncoder().setInverted(!inverted);
 
         // Give both motors the same encoder
         motor2.setEncoder(motor1.getEncoder());
@@ -66,7 +72,6 @@ public class TelescopingArm implements Subsystem {
         bangCalc = new BangBangCalculator();
         bangCalc.setLowerThreshold(Angle.cwDeg(-5));
         bangCalc.setUpperThreshold(Angle.cwDeg(5));
-        bangCalc.inputInverted(true);
 
         motor1.setPositionCalculator(bangCalc);
         motor2.setPositionCalculator(bangCalc);
@@ -84,29 +89,40 @@ public class TelescopingArm implements Subsystem {
         this.underLoad = underLoad;
     }
 
-    private boolean shouldCalibrate() {
+    /**
+     * Check that it should be calibrating, update the {@code shouldBeCalibrating} variable, then calibrate if needed.
+     */
+    private void calibrate() {
         // If calibrating isn't requested, don't do it
-            if (!shouldBeCalibrating) {
-                calibrateTimer.stop();
-                return false;
-            }
-    
-            // Read current velocity
-            double currentVelocity = Math.abs(motor1.getEncoder().getVelocity().getCWDeg());
-            RobotState state = Robot.get().getCurrentState();
-
-            // Start timer if it isn't moving
-            if (currentVelocity < CALIBRATE_VELOCITY_TOLERANCE.get() && state == RobotState.TELEOP) {
-                calibrateTimer.start(false);
-            } else {
-                calibrateTimer.stop();
-            }
-    
-            // Decide, based on the timer, if should stop calibrating
-            return !calibrateTimer.get();
+        if (!shouldBeCalibrating) {
+            calibrateTimer.stop();
+            return;
         }
 
-    private void calibrate() {
+        // Read current velocity
+        double currentVelocity = Math.abs(motor1.getEncoder().getVelocity().getCWDeg());
+        RobotState state = Robot.get().getCurrentState();
+
+        // Start timer if it isn't moving
+        if (currentVelocity < CALIBRATE_VELOCITY_TOLERANCE.get() && state == RobotState.TELEOP) {
+            calibrateTimer.start(false);
+        } else {
+            calibrateTimer.stop();
+        }
+
+        // Get leading edge of timer to zero encoders
+        if (calibrateTimer.get() && shouldBeCalibrating) {
+            motor1.getEncoder().setAngle(Angle.zero());
+            motor2.getEncoder().setAngle(Angle.zero());
+
+            motor1.stop();
+            motor2.stop();
+        }
+
+        // Decide, based on the timer, if should stop calibrating
+        shouldBeCalibrating = !calibrateTimer.get();
+        if (!shouldBeCalibrating) return;
+
         motor1.percent(CALIBRATE_PERCENT.get());
         motor2.percent(CALIBRATE_PERCENT.get());
     }
@@ -114,15 +130,8 @@ public class TelescopingArm implements Subsystem {
     @Override
     public void periodic() {
 
-        // Check if it is calibrating and if it should finish
-        boolean calibrated = !shouldCalibrate();
-
-        // Get leading edge to calibrate position
-        if (calibrated && shouldBeCalibrating) {
-            motor1.getEncoder().setAngle(Angle.zero());
-        }
-
-        shouldBeCalibrating = !calibrated;
+        calibrate();
+        if (shouldBeCalibrating) return;
 
         // Update bang bang with outputs determined by weight.
         if (underLoad) {
@@ -131,15 +140,6 @@ public class TelescopingArm implements Subsystem {
         } else {
             bangCalc.setMinOutput(DROP_PERC_UNLOADED.get());
             bangCalc.setMultiplier(LIFT_PERC_UNLOADED.get());
-        }
-
-        // Calibrate by spinning motors
-        if (shouldBeCalibrating) {
-            calibrate();
-            return;
-        } else {
-            motor1.stop();
-            motor2.stop();
         }
 
         /*
@@ -168,7 +168,7 @@ public class TelescopingArm implements Subsystem {
     @Override
     public void teleopInit() {
         setHeight(0, false);
-        shouldCalibrate();
+        calibrate();
     }
 
     @Override
