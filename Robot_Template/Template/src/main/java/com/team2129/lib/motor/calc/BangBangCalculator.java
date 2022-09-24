@@ -16,6 +16,7 @@ public final class BangBangCalculator implements VelocityCalculator, PositionCal
     private Angle threshHigh;
     private double multiplier;
     private double minOutput;
+    private boolean inverted;
 
     private boolean accelerating;
     private Angle current;
@@ -113,11 +114,17 @@ public final class BangBangCalculator implements VelocityCalculator, PositionCal
     /**
      * Get the lowest output as defined by {@code setMinOutput()}.
      */
-    public double getMinOutout() {
+    public double getMinOutput() {
         return minOutput;
     }
 
+    public void inputInverted(boolean inverted) {
+        this.inverted = inverted;
+    }
+
     public boolean inTolerance() {
+        if (current == null || target == null) return false;
+
         boolean aboveMin = Math.abs(current.getCWDeg()) > Math.abs(target.getCWDeg() + threshLow.getCWDeg());
         boolean belowMax = Math.abs(current.getCWDeg()) < Math.abs(target.getCWDeg() + threshHigh.getCWDeg());
         return aboveMin && belowMax;
@@ -140,10 +147,6 @@ public final class BangBangCalculator implements VelocityCalculator, PositionCal
         // targetLow = targetLow.sub(threshLow);
         targetLow = Angle.cwDeg(targetVelocity.getCWDeg() + threshLow.getCWDeg());
         targetHigh = Angle.cwDeg(targetVelocity.getCWDeg() + threshHigh.getCWDeg());
-        
-        // if (targetLow.lessThan(Angle.zero())) targetLow = Angle.zero();
-        
-        // System.out.println(targetLow.getCWDeg());
 
         // Determine if the velocity should be increasing or decreasing
         if (currentVelocity.getCWDeg() < targetLow.getCWDeg()) accelerating = true; // Velocity is below both targets
@@ -158,8 +161,18 @@ public final class BangBangCalculator implements VelocityCalculator, PositionCal
         }
 
         double bangOut = bang.calculate(currentVelocity.getCWDeg(), target);
-        System.out.println(bangOut * multiplier);
-        System.out.println(accelerating);
-        return Math.max(minOutput, bangOut * multiplier);
+        if (inverted) {
+            bangOut = -bang.calculate(currentVelocity.getCWDeg(), target);
+        }
+        // System.out.println("Target: " + target + " current: " + currentVelocity.getCWDeg());
+        
+        if (Math.abs(minOutput) > Math.abs(bangOut * multiplier)) {
+            bangOut = minOutput;
+        } else {
+            bangOut *= multiplier;
+        }
+        System.out.println("Bang: " + bangOut);
+
+        return bangOut;
     }
 }
