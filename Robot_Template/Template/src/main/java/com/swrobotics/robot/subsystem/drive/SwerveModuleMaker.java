@@ -27,7 +27,7 @@ public class SwerveModuleMaker {
     public static final double GEAR_RATIO = 1 / 8.14;
     public static final double WHEEL_RADIUS = 0.05;
 
-    public static SwerveModule buildModule(Subsystem parent, SwerveModuleDef def, int steerID, Vec2d position, int staticOffsetCWDeg) {
+    public static SwerveModule buildModule(Subsystem parent, SwerveModuleDef def, int steerID, Vec2d position, int x) {
         TalonFXMotor driveMotor = new TalonFXMotor(parent, def.getDriveId(), Constants.CANIVORE);
         EstimateVelocityCalculator driveCalculator = new EstimateVelocityCalculator(DRIVE_MAX_VELOCITY);
         driveMotor.setVelocityCalculator(driveCalculator);
@@ -37,12 +37,14 @@ public class SwerveModuleMaker {
         TalonSRXMotor steerMotor = new TalonSRXMotor(parent, steerID);
         steerMotor.setNeutralMode(NeutralMode.BRAKE);
         
-        PIDCalculator steerCalc = new PIDCalculator(TURN_KP, TURN_KI, TURN_KD);
-        // PIDCalculator steerCalc = new PIDCalculator(0.0003, 0, 0.0);
+        // PIDCalculator steerCalc = new PIDCalculator(TURN_KP, TURN_KI, TURN_KD);
+        PIDCalculator steerCalc = new PIDCalculator(0.0003, 0, 0.0);
         steerCalc.enableContinuousInput(-180, 180); // This is required by SwerveModule
         steerMotor.setPositionCalculator(steerCalc);
         steerMotor.setNeutralDeadband(0.005);
         steerMotor.setNominalOutput(0.25);
+
+        int staticOffsetCWDeg = 0; //FIXME TOOD Fix ME
 
         CANCoderImplementation canCoder = new CANCoderImplementation(def.getEncoderId(), Constants.CANIVORE);
         canCoder.setOffset(Angle.cwDeg(def.getEncoderOffset().get() + staticOffsetCWDeg));

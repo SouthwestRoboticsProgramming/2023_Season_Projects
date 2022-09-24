@@ -98,7 +98,7 @@ public class Drive implements Subsystem {
     @Override
     public void periodic() {
         if (PRINT_ENCODER_OFFSETS.get()) {
-            drive.printEncoderOffsets();
+            // drive.printEncoderOffsets();
         }
 
         MessageBuilder builder = msg.prepare(MSG_MODULE_STATES);
