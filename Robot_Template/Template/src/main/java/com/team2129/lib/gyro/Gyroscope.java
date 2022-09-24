@@ -17,7 +17,7 @@ public abstract class Gyroscope {
      * @return Adjusted angle of the gyroscope.
      */
     public Angle getAngle() {
-        return getRawAngle().add(offset);
+        return Angle.cwDeg(getRawAngle().getCWDeg() + offset.getCWDeg());
     }
 
     /**
@@ -32,7 +32,7 @@ public abstract class Gyroscope {
      * All other measurements will be relative to this.
      */
     public void setOffset(Angle angleOffset) {
-        offset.sub(angleOffset);
+        offset = Angle.cwDeg(offset.getCWDeg() - angleOffset.getCWDeg());
     }
 
     @Override

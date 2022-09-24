@@ -2,10 +2,14 @@ package com.swrobotics.robot;
 
 import com.swrobotics.robot.blockauto.AutoBlocks;
 import com.swrobotics.robot.control.Input;
+import com.swrobotics.robot.subsystem.Intake;
 import com.swrobotics.robot.subsystem.Limelight;
-import com.swrobotics.robot.subsystem.Localization;
 import com.swrobotics.robot.subsystem.drive.Drive;
+import com.swrobotics.robot.subsystem.thrower.BallDetector;
+import com.swrobotics.robot.subsystem.thrower.Flywheel;
+import com.swrobotics.robot.subsystem.thrower.Hopper;
 import com.swrobotics.robot.subsystem.thrower.Thrower;
+import com.team2129.lib.messenger.MessengerClient;
 import com.team2129.lib.net.NTBoolean;
 import com.team2129.lib.schedule.Command;
 import com.team2129.lib.schedule.Scheduler;
@@ -35,8 +39,15 @@ public final class Robot extends AbstractRobot {
     
     @Override
     protected final void addSubsystems() {
+        MessengerClient msg = getMessenger();
+
         Input input = new Input();
-        Drive drive = new Drive(input);
+        // Thrower thrower = new Thrower(input);
+        // Intake intake = new Intake(input);
+        // BallDetector ballDetector = new BallDetector();
+        // Hopper hopper = new Hopper(ballDetector);
+        // Flywheel flywheel = new Flywheel();
+        Drive drive = new Drive(input, msg);
         // Limelight limelight = new Limelight();
         // Localization loc = new Localization(drive, limelight, input);
         // TODO: PDP
@@ -46,6 +57,11 @@ public final class Robot extends AbstractRobot {
         // TelescopingArm teleArm = new TelescopingArm(6, 7, true, "name");
 
         Scheduler scheduler = Scheduler.get();
+        // scheduler.addSubsystem(thrower);
+
+        // scheduler.addSubsystem(intake);
+        // scheduler.addSubsystem(ballDetector);
+        // scheduler.addSubsystem(hopper);
         scheduler.addSubsystem(drive);
         // scheduler.addSubsystem(thrower);
 

@@ -12,7 +12,7 @@ import com.team2129.lib.schedule.Subsystem;
 
 import com.swrobotics.robot.Constants;
 
-public class Flywheel implements Subsystem {
+public final class Flywheel implements Subsystem {
 
     private static final NTDouble IDLE_VELOCITY = new NTDouble("Thrower/Flywheel/Idle_RPS", 10);
     private static final NTDouble MOTOR_TEMP = new NTDouble("Thrower/Flywheel/Motor_Temp", 2129);
@@ -21,9 +21,12 @@ public class Flywheel implements Subsystem {
     private static final NTDouble KI = new NTDouble("Thrower/Flywheel/kI (Caution)", 0.0);
     private static final NTDouble KD = new NTDouble("Thrower/Flywheel/kD (Heavy Caution)", 0.0);
 
-    private static final double KV = 0.00003; // Change to adjust potency of velocity maintenance.
-
     private static final int FLYWHEEL_MOTOR_ID = 13;
+
+    private static final double KV = 0.00003; // Change to adjust potency of velocity maintenance.
+    
+    private static final Angle BANG_THRESH_LOW = Angle.cwDeg(500);
+    private static final Angle BANG_THRESH_HIGH = Angle.cwDeg(-50);
 
     private final TalonFXMotor motor;
     
@@ -56,8 +59,8 @@ public class Flywheel implements Subsystem {
         PIDCalculator pidCalc = new PIDCalculator(KP, KI, KD);
         pidCalc.allowNegativeOutputs(false);
 
-        bangCalc.setLowerThreshold(Angle.cwDeg(500));
-        bangCalc.setUpperThreshold(Angle.cwDeg(-50));
+        bangCalc.setLowerThreshold(BANG_THRESH_LOW);
+        bangCalc.setUpperThreshold(BANG_THRESH_HIGH);
 
 
         motor.setVelocityCalculator(new CompoundVelocityCalculator(pidCalc, feedCalc, bangCalc));
@@ -66,7 +69,7 @@ public class Flywheel implements Subsystem {
     }
 
     /**
-     * 
+     *
      * @param velocity Angle/Second
      */
     public void setFlywheelVelocity(Angle velocity) {
@@ -81,7 +84,7 @@ public class Flywheel implements Subsystem {
         motor.stop();
     }
 
-    @Override 
+    @Override
     public void periodic() {
         MOTOR_TEMP.set(motor.getTemperature());
     }

@@ -2,6 +2,8 @@ package com.team2129.lib.motor;
 
 import com.team2129.lib.schedule.Subsystem;
 
+import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
+import edu.wpi.first.wpilibj.motorcontrol.PWMTalonSRX;
 import edu.wpi.first.wpilibj.simulation.PWMSim;
 
 /**
@@ -10,23 +12,23 @@ import edu.wpi.first.wpilibj.simulation.PWMSim;
  */
 public class DebugMotor extends Motor {
 
-    PWMSim motor;
+    PWMTalonSRX motor;
 
     public DebugMotor(Subsystem parent, int channel) {
         super(parent);
 
-        motor = new PWMSim(channel);
+        motor = new PWMTalonSRX(channel);
     }
 
     public DebugMotor(Subsystem parent, int channel, String canbus) {
         super(parent);
 
-        motor = new PWMSim(channel + 100);
+        motor = new PWMTalonSRX(channel + 10);
     }
 
     @Override
     protected void setPercentOutInternal(double percent) {
-        motor.setSpeed(percent);
+        motor.set(percent);
     }
     
 }

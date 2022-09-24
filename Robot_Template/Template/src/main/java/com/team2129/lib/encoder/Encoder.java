@@ -25,7 +25,7 @@ public abstract class Encoder implements Supplier<Angle> {
      */
     public Angle getRawAngle() {
         if (inverted) {
-            return Angle.zero().sub(getRawAngleImpl());
+            return Angle.cwDeg(-getRawAngleImpl().getCWDeg());
         } else {
             return getRawAngleImpl();
         }
@@ -37,7 +37,7 @@ public abstract class Encoder implements Supplier<Angle> {
      */
     public Angle getVelocity() {
         if (inverted) {
-            return Angle.zero().sub(getVelocityImpl());
+            return Angle.cwDeg(-getVelocityImpl().getCWDeg());
         } else {
             return getVelocityImpl();
         }
@@ -58,7 +58,7 @@ public abstract class Encoder implements Supplier<Angle> {
      * @param angle Define the real current angle of the encoder.
      */
     public void setAngle(Angle angle) {
-        offset = getRawAngle().sub(angle);
+        offset = Angle.cwDeg(getRawAngle().getCWDeg() - angle.getCWDeg());
     }
 
     /**
@@ -84,7 +84,7 @@ public abstract class Encoder implements Supplier<Angle> {
      * @return The angle of the encoder
      */
     public Angle getUnfilteredAngle() {
-        return getRawAngle().sub(offset);
+        return Angle.cwDeg(getRawAngle().getCWDeg() - offset.getCWDeg());
     }
 
     /**

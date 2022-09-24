@@ -32,8 +32,9 @@ public class VelocityTest extends TestCommand {
 
     @Override
     public boolean hasFailed() {
-        Angle velocityDiff = targetVelocity.sub(motor.getEncoder().getVelocity());
-        return hasTimedOut() && velocityDiff.absoluteValue().lessOrEqualTo(tolerance);
+        // Angle velocityDiff = targetVelocity.sub(motor.getEncoder().getVelocity()); // FIXME
+        // return hasTimedOut() && velocityDiff.absoluteValue().lessOrEqualTo(tolerance); // FIXME
+        return true;
     }
     
 }
