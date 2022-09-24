@@ -43,10 +43,16 @@ public final class Robot extends AbstractRobot {
         // TODO: Light controlle
         // Thrower thrower = new Thrower(input, loc);
         // TODO: Climber
+        // TelescopingArm teleArm = new TelescopingArm(6, 7, true, "name");
 
         Scheduler scheduler = Scheduler.get();
         scheduler.addSubsystem(drive);
         // scheduler.addSubsystem(thrower);
+
+
+        // scheduler.addSubsystem(teleArm);
+        // teleArm.setHeight(0.5, false);
+
 
         // Test short, rapid command adding
         // scheduler.addSubsystem(new Subsystem() {
