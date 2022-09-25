@@ -4,11 +4,9 @@ import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.WeakHashMap;
+import java.util.ArrayList;
 import java.util.function.Supplier;
 
 /**
@@ -17,19 +15,21 @@ import java.util.function.Supplier;
  * @param <T> data type
  */
 public abstract class NTEntry<T> implements Supplier<T> {
-    private final Set<Runnable> changeListeners;
+    private final ArrayList<Runnable> changeListeners;
     protected final NetworkTableEntry entry;
 
     /**
      * Creates a new entry with a specified path.
      * The path can be split using the '/' character to organize
      * entries into groups.
+     * 
+     * <p>
+     * NOTE: This entry is persistent by default.
      *
      * @param path path
      */
     public NTEntry(String path, T defaultVal) {
-        // Weak set so we don't hold onto expired references
-        changeListeners = Collections.newSetFromMap(new WeakHashMap<>());
+        changeListeners = new ArrayList<Runnable>();
 
         NetworkTable table = NetworkTableInstance.getDefault().getTable("");
         String[] parts = path.split("/");
@@ -60,8 +60,13 @@ public abstract class NTEntry<T> implements Supplier<T> {
     }
 
     private void fireOnChanged() {
+        System.out.println("Fi");
         for (Runnable listener : changeListeners) {
-            listener.run();
+            try {
+                listener.run();
+            } catch (Exception e) {
+                DriverStation.reportError("Could not complete NT onChange listener call.", false);
+            }
         }
     }
 }
