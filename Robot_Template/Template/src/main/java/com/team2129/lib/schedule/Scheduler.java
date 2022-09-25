@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+// TODO: Scheduled command and subsystem getters
+
 public final class Scheduler {
     // Message names
     private static final String MSG_QUERY = "Scheduler:Query";
@@ -121,6 +123,7 @@ public final class Scheduler {
 
         @Override
         public void periodicState(RobotState state) {
+            // Because commands don't care about state, they will always run
             boolean finished = command.run();
             if (finished) {
                 System.out.println("Command finished: " + command);
@@ -130,6 +133,7 @@ public final class Scheduler {
 
         @Override
         public void remove(Scheduler sch) {
+            command.end(true);
             sch.removeCommand(command);
         }
 
@@ -149,7 +153,7 @@ public final class Scheduler {
 
     private MessengerClient msg;
 
-    public Scheduler() {
+    private Scheduler() {
         rootSubsystems = new ArrayList<>();
         subsystemNodes = new IdentityHashMap<>();
         unsatisfiedParentLinks = new IdentityHashMap<>();
@@ -208,7 +212,17 @@ public final class Scheduler {
         rootSubsystems.remove(node);
     }
 
+    /**
+     * Add a command to be ran immediately.
+     * @param cmd
+     */
     public void addCommand(Command cmd) { addCommand(null, cmd); }
+
+    /**
+     * Add a command to be ran immediately.
+     * @param parent
+     * @param cmd
+     */
     public void addCommand(Subsystem parent, Command cmd) {
         CommandNode node = new CommandNode(cmd);
 
@@ -218,10 +232,12 @@ public final class Scheduler {
             rootCommands.add(node);
         }
 
+        cmd.init();
         commandNodes.put(cmd, node);
     }
 
     public void removeCommand(Command cmd) {
+        cmd.end(true);
         CommandNode node = commandNodes.remove(cmd);
         if (node != null && node.parent != null)
             node.parent.children.remove(node);
@@ -230,12 +246,20 @@ public final class Scheduler {
 
     // --- Main functions ---
 
+    /**
+     * Init all of the subsystems that have an init for this state.
+     * @param state
+     */
     public void initState(RobotState state) {
         for (SubsystemNode node : new ArrayList<>(rootSubsystems)) {
             node.initState(state);
         }
     }
 
+    /**
+     * Run the periodic functions for all of the subsystems with one for the state. This will also run commands.
+     * @param state
+     */
     public void periodicState(RobotState state) {
         for (CommandNode cmd : new ArrayList<>(rootCommands)) {
             Profiler.push(cmd.toString());
