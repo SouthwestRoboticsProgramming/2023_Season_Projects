@@ -60,7 +60,6 @@ public abstract class NTEntry<T> implements Supplier<T> {
     }
 
     private void fireOnChanged() {
-        System.out.println("Fi");
         for (Runnable listener : changeListeners) {
             try {
                 listener.run();
