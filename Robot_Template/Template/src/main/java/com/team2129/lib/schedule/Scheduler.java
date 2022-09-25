@@ -237,7 +237,7 @@ public final class Scheduler {
     }
 
     public void removeCommand(Command cmd) {
-        cmd.end(true);
+        if (commandNodes.containsKey(cmd)) cmd.end(true);
         CommandNode node = commandNodes.remove(cmd);
         if (node != null && node.parent != null)
             node.parent.children.remove(node);
