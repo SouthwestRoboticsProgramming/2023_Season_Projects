@@ -30,6 +30,9 @@ public final class Scheduler {
     private static final byte TYPE_CODE_SUBSYSTEM = 0;
     private static final byte TYPE_CODE_COMMAND = 1;
 
+    // Command removal management
+    private RobotState lastState;
+
     // --- Singleton management ---
 
     private static final Scheduler INSTANCE = new Scheduler();
@@ -133,7 +136,6 @@ public final class Scheduler {
 
         @Override
         public void remove(Scheduler sch) {
-            command.end(true);
             sch.removeCommand(command);
         }
 
@@ -226,6 +228,11 @@ public final class Scheduler {
     public void addCommand(Subsystem parent, Command cmd) {
         CommandNode node = new CommandNode(cmd);
 
+        if (commandNodes.containsKey(cmd)) {
+            throw new IllegalArgumentException("Cannot add same command twice," +
+            " create a new instance of the command you are trying to add.");
+        }
+
         if (parent != null) {
             linkNodes(parent, node);
         } else {
@@ -254,6 +261,13 @@ public final class Scheduler {
         for (SubsystemNode node : new ArrayList<>(rootSubsystems)) {
             node.initState(state);
         }
+
+        if (lastState != null && state == RobotState.DISABLED) {
+            for (CommandNode node : new ArrayList<>(rootCommands)) {
+                node.remove(this);
+            }
+        }
+        lastState = state;
     }
 
     /**
@@ -263,7 +277,7 @@ public final class Scheduler {
     public void periodicState(RobotState state) {
         for (CommandNode cmd : new ArrayList<>(rootCommands)) {
             Profiler.push(cmd.toString());
-            cmd.periodicState(state);
+            if (state != RobotState.DISABLED) cmd.periodicState(state);
             Profiler.pop();
         }
 
