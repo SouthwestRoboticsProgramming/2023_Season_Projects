@@ -183,6 +183,7 @@ public final class Scheduler {
 
     public void addSubsystem(Subsystem s) { addSubsystem(null, s); }
     public void addSubsystem(Subsystem parent, Subsystem ss) {
+        ss.onAdd();
         SubsystemNode node = new SubsystemNode(ss);
 
         if (parent != null) {
@@ -201,6 +202,7 @@ public final class Scheduler {
     }
 
     public void removeSubsystem(Subsystem s) {
+        s.onRemove();
         SubsystemNode node = subsystemNodes.get(s);
         if (node == null)
             return;
