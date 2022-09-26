@@ -7,31 +7,57 @@ import com.team2129.lib.net.NTDouble;
 import com.team2129.lib.schedule.Subsystem;
 
 public class Intake implements Subsystem {
-    private static final NTDouble INTAKE_ON_PERCENT = new NTDouble("Intake/Running_Percent_Out", 0.5);
+    private static final NTDouble ON_PERCENT = new NTDouble("Intake/On Percent Out", 0.7);
+    private static final NTDouble OFF_PERCENT = new NTDouble("Intake/Off Percent Out", 0.0);
+    private static final NTDouble EJECT_PERCENT = new NTDouble("Intake/Eject Percent Out", -0.5);
+
+    public enum State {
+        ON(ON_PERCENT),
+        OFF(OFF_PERCENT),
+        EJECT(EJECT_PERCENT);
+
+        private final NTDouble percent;
+
+        State(NTDouble percent) {
+            this.percent = percent;
+        }
+
+        public double getPercent() {
+            return percent.get();
+        }
+    }
+
 
     private static final int MOTOR_ID = 11;
 
     private final TalonFXMotor motor;
     private final Input input;
+    private State state;
     
     public Intake(Input input) {
         this.input = input;
 
         motor = new TalonFXMotor(this, MOTOR_ID, Constants.CANIVORE);
         motor.setInverted(true);
+
+        state = State.OFF;
     }
 
-    public void setPercent(double percent) {
-        motor.percent(percent);
+    public void setState(State state) {
+        this.state = state;
     }
 
     @Override
     public void teleopPeriodic() {
-        if (input.getIntakeOn()) {
-            setPercent(INTAKE_ON_PERCENT.get());
+        // Update state based on input
+        if (input.getIntakeOn()) { // TODO: Do I need to have eject override this?
+            state = State.ON;
         } else {
-            setPercent(0);
+            state = State.OFF;
         }
+
+        System.out.println(state.getPercent());
+        motor.percent(state.getPercent());
     }
 
     /*
