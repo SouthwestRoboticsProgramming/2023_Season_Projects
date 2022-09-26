@@ -25,7 +25,6 @@ public final class WaitCommand implements Command {
         if (!initiated) {
             end = Timestamp.now().after(dur);
         }
-        System.out.println("Hi");
         initiated = true;
         return Timestamp.now().isAtOrAfter(end);
     }
