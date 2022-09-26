@@ -36,7 +36,12 @@ public class Hopper implements Subsystem {
         return ballDetector.isBallGone();
     }
 
+    public void turnOffControlOverride() {
+        controlOverride = false;
+    }
+
     public void setIndexPercent(double percent) {
+        controlOverride = true;
         indexMotor.percent(percent);
     }
     
