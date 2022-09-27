@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+// TODO: Scheduled command and subsystem getters
+
 public final class Scheduler {
     // Message names
     private static final String MSG_QUERY = "Scheduler:Query";
@@ -27,6 +29,9 @@ public final class Scheduler {
     // Node type codes for sending tree
     private static final byte TYPE_CODE_SUBSYSTEM = 0;
     private static final byte TYPE_CODE_COMMAND = 1;
+
+    // Command removal management
+    private RobotState lastState;
 
     // --- Singleton management ---
 
@@ -121,6 +126,7 @@ public final class Scheduler {
 
         @Override
         public void periodicState(RobotState state) {
+            // Because commands don't care about state, they will always run
             boolean finished = command.run();
             if (finished) {
                 System.out.println("Command finished: " + command);
@@ -149,7 +155,7 @@ public final class Scheduler {
 
     private MessengerClient msg;
 
-    public Scheduler() {
+    private Scheduler() {
         rootSubsystems = new ArrayList<>();
         subsystemNodes = new IdentityHashMap<>();
         unsatisfiedParentLinks = new IdentityHashMap<>();
@@ -177,6 +183,7 @@ public final class Scheduler {
 
     public void addSubsystem(Subsystem s) { addSubsystem(null, s); }
     public void addSubsystem(Subsystem parent, Subsystem ss) {
+        ss.onAdd();
         SubsystemNode node = new SubsystemNode(ss);
 
         if (parent != null) {
@@ -195,6 +202,7 @@ public final class Scheduler {
     }
 
     public void removeSubsystem(Subsystem s) {
+        s.onRemove();
         SubsystemNode node = subsystemNodes.get(s);
         if (node == null)
             return;
@@ -208,9 +216,24 @@ public final class Scheduler {
         rootSubsystems.remove(node);
     }
 
+    /**
+     * Add a command to be ran immediately.
+     * @param cmd
+     */
     public void addCommand(Command cmd) { addCommand(null, cmd); }
+
+    /**
+     * Add a command to be ran immediately.
+     * @param parent
+     * @param cmd
+     */
     public void addCommand(Subsystem parent, Command cmd) {
         CommandNode node = new CommandNode(cmd);
+
+        if (commandNodes.containsKey(cmd)) {
+            throw new IllegalArgumentException("Cannot add same command twice," +
+            " create a new instance of the command you are trying to add.");
+        }
 
         if (parent != null) {
             linkNodes(parent, node);
@@ -218,10 +241,12 @@ public final class Scheduler {
             rootCommands.add(node);
         }
 
+        cmd.init();
         commandNodes.put(cmd, node);
     }
 
     public void removeCommand(Command cmd) {
+        if (commandNodes.containsKey(cmd)) cmd.end(true);
         CommandNode node = commandNodes.remove(cmd);
         if (node != null && node.parent != null)
             node.parent.children.remove(node);
@@ -230,16 +255,31 @@ public final class Scheduler {
 
     // --- Main functions ---
 
+    /**
+     * Init all of the subsystems that have an init for this state.
+     * @param state
+     */
     public void initState(RobotState state) {
         for (SubsystemNode node : new ArrayList<>(rootSubsystems)) {
             node.initState(state);
         }
+
+        if (lastState != null && state == RobotState.DISABLED) {
+            for (CommandNode node : new ArrayList<>(rootCommands)) {
+                node.remove(this);
+            }
+        }
+        lastState = state;
     }
 
+    /**
+     * Run the periodic functions for all of the subsystems with one for the state. This will also run commands.
+     * @param state
+     */
     public void periodicState(RobotState state) {
         for (CommandNode cmd : new ArrayList<>(rootCommands)) {
             Profiler.push(cmd.toString());
-            cmd.periodicState(state);
+            if (state != RobotState.DISABLED) cmd.periodicState(state);
             Profiler.pop();
         }
 

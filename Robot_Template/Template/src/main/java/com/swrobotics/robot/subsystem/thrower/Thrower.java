@@ -3,6 +3,7 @@ package com.swrobotics.robot.subsystem.thrower;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
+import com.swrobotics.robot.Robot;
 import com.swrobotics.robot.control.Input;
 import com.swrobotics.robot.subsystem.thrower.commands.ShootCommand;
 import com.team2129.lib.math.Angle;
@@ -12,6 +13,7 @@ import com.team2129.lib.net.NTDouble;
 import com.team2129.lib.net.NTEnum;
 import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.schedule.Subsystem;
+import com.team2129.lib.wpilib.RobotState;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -173,7 +175,7 @@ public class Thrower implements Subsystem {
             flywheel.stop();
         }
 
-        if (input.getShoot()) {
+        if (input.getShoot() && Robot.get().getCurrentState() == RobotState.TELEOP) {
             Scheduler.get().addCommand(new ShootCommand(hopper));
         }
     }
