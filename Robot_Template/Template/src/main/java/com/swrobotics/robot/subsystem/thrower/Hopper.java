@@ -9,7 +9,9 @@ import com.team2129.lib.schedule.Subsystem;
 public class Hopper implements Subsystem {
     private static final int INDEX_MOTOR_ID = 12;
 
-    private static final NTDouble INDEX_IDLE_SPEED_PERCENT = new NTDouble("Thrower/Hopper/Index/Idle_Speed_Percent", 0.1);
+    private static final NTDouble INDEX_IDLE_SPEED_PERCENT = new NTDouble("Thrower/Hopper/Index/Idle Speed Percent", 0.1);
+
+    private static final NTDouble L_INDEX_VELOCITY = new NTDouble("Thrower/Hopper/Index/Motor Velocity RPS", 2129);
 
     private final BallDetector ballDetector;
     private final TalonFXMotor indexMotor;
@@ -22,6 +24,8 @@ public class Hopper implements Subsystem {
         indexMotor = new TalonFXMotor(this, INDEX_MOTOR_ID, Constants.CANIVORE);
         indexMotor.setInverted(true);
         indexMotor.setNeutralMode(NeutralMode.BRAKE);
+
+        L_INDEX_VELOCITY.setTemporary();
     }
 
     public boolean isBallDetected() {
@@ -54,5 +58,7 @@ public class Hopper implements Subsystem {
                 indexMotor.stop();
             }
         }
+
+        L_INDEX_VELOCITY.set(indexMotor.getEncoder().getVelocity().getCWDeg() / 360);
     }
 }

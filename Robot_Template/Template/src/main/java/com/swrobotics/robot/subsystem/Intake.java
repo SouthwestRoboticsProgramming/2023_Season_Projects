@@ -56,7 +56,6 @@ public class Intake implements Subsystem {
             state = State.OFF;
         }
 
-        System.out.println(state.getPercent());
         motor.percent(state.getPercent());
     }
 

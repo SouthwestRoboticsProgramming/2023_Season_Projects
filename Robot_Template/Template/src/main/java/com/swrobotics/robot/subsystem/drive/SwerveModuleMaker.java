@@ -21,25 +21,24 @@ public class SwerveModuleMaker {
     private static final NTDouble DRIVE_KI = new NTDouble("Swerve/Drive/kI", 0);
     private static final NTDouble DRIVE_KD = new NTDouble("Swerve/Drive/kD", 0);
 
-    private static final NTDouble TURN_KP = new NTDouble("Swerve/Turn/kP", 0.01);
-    private static final NTDouble TURN_KI = new NTDouble("Swerve/Turn/kI", 0.0001);
-    private static final NTDouble TURN_KD = new NTDouble("Swerve/Turn/kD", 0);
+    private static final NTDouble TURN_KP = new NTDouble("Swerve/Turn/kP", 0.00003);
+    private static final NTDouble TURN_KI = new NTDouble("Swerve/Turn/kI", 0.0);
+    private static final NTDouble TURN_KD = new NTDouble("Swerve/Turn/kD", 0.0);
 
     public static final double GEAR_RATIO = 1 / 8.14;
     public static final double WHEEL_RADIUS = 0.05;
 
     public static SwerveModule buildModule(Subsystem parent, SwerveModuleDef def, int steerID, Vec2d position, double staticOffsetCWDeg) {
         TalonFXMotor driveMotor = new TalonFXMotor(parent, def.getDriveId(), Constants.CANIVORE);
-        driveMotor.setVelocityCalculator(new PIDCalculator(0, 0, 0));
+        driveMotor.setVelocityCalculator(new PIDCalculator(DRIVE_KP, DRIVE_KI, DRIVE_KD));
         driveMotor.setInverted(false);
         driveMotor.setNeutralMode(NeutralMode.BRAKE);
-        //me,r
 
         TalonSRXMotor steerMotor = new TalonSRXMotor(parent, steerID);
         steerMotor.setNeutralMode(NeutralMode.BRAKE);
         
         // PIDCalculator steerCalc = new PIDCalculator(TURN_KP, TURN_KI, TURN_KD);
-        PIDCalculator steerCalc = new PIDCalculator(0.0003, 0, 0.0);
+        PIDCalculator steerCalc = new PIDCalculator(TURN_KP, TURN_KI, TURN_KD);
         steerCalc.enableContinuousInput(-180, 180); // This is required by SwerveModule
         steerMotor.setPositionCalculator(steerCalc);
         steerMotor.setNeutralDeadband(0.005);
