@@ -1,351 +1,215 @@
 package com.team2129.lib.schedule;
 
-import com.team2129.lib.messenger.MessageBuilder;
-import com.team2129.lib.messenger.MessageReader;
-import com.team2129.lib.messenger.MessengerClient;
-import com.team2129.lib.profile.Profiler;
 import com.team2129.lib.wpilib.RobotState;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
-// TODO: Scheduled command and subsystem getters
-
+/**
+ * The {@code Scheduler} is the core of the robot code. It runs
+ * {@code Command}s and {@code Subsystem}s every periodic, and
+ * manages the starting and stopping of {@code Command}s. The
+ * {@code Scheduler} instance is used by {@code AbstractRobot}
+ * within the main loop, to make it easier to organize your
+ * robot code.
+ *
+ * @see Command
+ * @see Subsystem
+ * @see com.team2129.lib.wpilib.AbstractRobot
+ */
 public final class Scheduler {
-    // Message names
-    private static final String MSG_QUERY = "Scheduler:Query";
-    private static final String MSG_QUERY_RESPONSE = "Scheduler:QueryResponse";
-    private static final String MSG_SUBSYSTEM_ADDED = "Scheduler:SubsystemAdded";
-    private static final String MSG_SUBSYSTEM_REMOVED = "Scheduler:SubsystemRemoved";
-    private static final String MSG_COMMAND_ADDED = "Scheduler:CommandAdded";
-    private static final String MSG_COMMAND_REMOVED = "Scheduler:CommandRemoved";
-    private static final String MSG_COMMAND_STATUS_CHANGED = "Scheduler:CommandStatusChanged";
-
-    // Node type codes for sending tree
-    private static final byte TYPE_CODE_SUBSYSTEM = 0;
-    private static final byte TYPE_CODE_COMMAND = 1;
-
-    // Command removal management
-    private RobotState lastState;
-
-    // --- Singleton management ---
-
     private static final Scheduler INSTANCE = new Scheduler();
+
+    /**
+     * Gets the global singleton instance of the {@code Scheduler}.
+     *
+     * @return singleton instance
+     */
     public static Scheduler get() {
         return INSTANCE;
     }
 
-    // --- Node type definitions ---
-
-    /*
-     * Example Schedule Tree:
-     * Only subsystems can have children
-     *
-     * Drive [subsystem]
-     *  |- TalonMotor [subsystem]
-     *  |- TalonMotor [subsystem]
-     *  |- ...
-     * PathFollower [subsystem]
-     *  |- DriveToPointCommand [command]
-     */
-
-    private static abstract class ScheduleNode {
-        // Unique identifier for Messenger API
-        public final UUID id = UUID.randomUUID();
-
-        public SubsystemNode parent;
-
-        public abstract void periodicState(RobotState state);
-        public abstract void remove(Scheduler sch);
+    private interface Node {
+        void init(RobotState state);
+        void periodic(RobotState state);
     }
 
-    private static final class SubsystemNode extends ScheduleNode {
-        private final Subsystem subsystem;
-        private final List<ScheduleNode> children;
+    private final class CommandNode implements Node {
+        private final Command cmd;
+        private boolean initialized, finished;
 
-        public SubsystemNode(Subsystem subsystem) {
-            this.subsystem = subsystem;
+        public CommandNode(Command cmd) {
+            this.cmd = cmd;
+            initialized = false;
+            finished = false;
+        }
+
+        @Override
+        public void init(RobotState state) {}
+
+        @Override
+        public void periodic(RobotState state) {
+            // TODO: Do the interval properly
+
+            if (!initialized) {
+                cmd.init();
+                initialized = true;
+            }
+
+            finished = cmd.run();
+
+            if (finished) {
+                cmd.end(false);
+                INSTANCE.removeCommand(cmd);
+            }
+        }
+    }
+
+    private final class SubsystemNode implements Node {
+        private final Subsystem ss;
+        private final List<Node> children;
+
+        public SubsystemNode(Subsystem ss) {
+            this.ss = ss;
             children = new ArrayList<>();
         }
 
-        public void initState(RobotState state) {
+        @Override
+        public void init(RobotState state) {
             switch (state) {
-                case DISABLED:   subsystem.disabledInit();   break;
-                case AUTONOMOUS: subsystem.autonomousInit(); break;
-                case TELEOP:     subsystem.teleopInit();     break;
-                case TEST:       subsystem.testInit();       break;
-            }
-
-            for (ScheduleNode node : new ArrayList<>(children)) {
-                if (node instanceof SubsystemNode) {
-                    ((SubsystemNode) node).initState(state);
-                }
+                case DISABLED:   ss.disabledInit();   break;
+                case AUTONOMOUS: ss.autonomousInit(); break;
+                case TELEOP:     ss.teleopInit();     break;
+                case TEST:       ss.testInit();       break;
             }
         }
 
         @Override
-        public void periodicState(RobotState state) {
-            subsystem.periodic();
-
+        public void periodic(RobotState state) {
             switch (state) {
-                case DISABLED:   subsystem.disabledPeriodic();   break;
-                case AUTONOMOUS: subsystem.autonomousPeriodic(); break;
-                case TELEOP:     subsystem.teleopPeriodic();     break;
-                case TEST:       subsystem.testPeriodic();       break;
+                case DISABLED:   ss.disabledPeriodic();   break;
+                case AUTONOMOUS: ss.autonomousPeriodic(); break;
+                case TELEOP:     ss.teleopPeriodic();     break;
+                case TEST:       ss.testPeriodic();       break;
             }
-
-            for (ScheduleNode node : new ArrayList<>(children)) {
-                Profiler.push(node.toString());
-                node.periodicState(state);
-                Profiler.pop();
-            }
-        }
-
-        @Override
-        public void remove(Scheduler sch) {
-            sch.removeSubsystem(subsystem);
-        }
-
-        @Override
-        public String toString() {
-            return subsystem.getClass().getSimpleName() + " " + id;
         }
     }
 
-    private static final class CommandNode extends ScheduleNode {
-        private final Command command;
-
-        public CommandNode(Command command) {
-            this.command = command;
-        }
-
-        @Override
-        public void periodicState(RobotState state) {
-            // Because commands don't care about state, they will always run
-            boolean finished = command.run();
-            if (finished) {
-                System.out.println("Command finished: " + command);
-                INSTANCE.removeCommand(command);
-            }
-        }
-
-        @Override
-        public void remove(Scheduler sch) {
-            sch.removeCommand(command);
-        }
-
-        @Override
-        public String toString() {
-            return command.getClass().getSimpleName() + " " + id;
-        }
-    }
-
-    private final List<SubsystemNode> rootSubsystems;
-    private final Map<Subsystem, SubsystemNode> subsystemNodes;
-
+    private final Map<Command, CommandNode> cmds;
+    private final Map<Subsystem, SubsystemNode> subsystems;
     private final List<CommandNode> rootCommands;
-    private final Map<Command, CommandNode> commandNodes;
-
-    private final Map<Subsystem, Set<ScheduleNode>> unsatisfiedParentLinks;
-
-    private MessengerClient msg;
+    private final List<SubsystemNode> rootSubsystems;
 
     private Scheduler() {
-        rootSubsystems = new ArrayList<>();
-        subsystemNodes = new IdentityHashMap<>();
-        unsatisfiedParentLinks = new IdentityHashMap<>();
-
+        cmds = new IdentityHashMap<>();
+        subsystems = new IdentityHashMap<>();
         rootCommands = new ArrayList<>();
-        commandNodes = new IdentityHashMap<>();
-    }
-
-    // --- Node management functions ---
-
-    private void linkNodes(Subsystem parent, ScheduleNode node) {
-        SubsystemNode parentNode = subsystemNodes.get(parent);
-        if (parentNode != null) {
-            parentNode.children.add(node);
-            node.parent = parentNode;
-        } else {
-            unsatisfiedParentLinks.computeIfAbsent(parent, (p) -> new HashSet<>())
-                    .add(node);
-        }
-    }
-
-    // Adding a subsystem or command as a child of a subsystem links
-    // it with the parent subsystem. This means that when the parent
-    // is removed, all of its children will also be removed.
-
-    public void addSubsystem(Subsystem s) { addSubsystem(null, s); }
-    public void addSubsystem(Subsystem parent, Subsystem ss) {
-        ss.onAdd();
-        SubsystemNode node = new SubsystemNode(ss);
-
-        if (parent != null) {
-            linkNodes(parent, node);
-        } else {
-            rootSubsystems.add(node);
-        }
-
-        subsystemNodes.put(ss, node);
-        if (unsatisfiedParentLinks.containsKey(ss)) {
-            for (ScheduleNode child : unsatisfiedParentLinks.remove(ss)) {
-                node.children.add(child);
-                child.parent = node;
-            }
-        }
-    }
-
-    public void removeSubsystem(Subsystem s) {
-        s.onRemove();
-        SubsystemNode node = subsystemNodes.get(s);
-        if (node == null)
-            return;
-        for (ScheduleNode child : node.children) {
-            child.remove(this);
-        }
-        subsystemNodes.remove(s);
-        if (node.parent != null)
-            node.parent.children.remove(node);
-
-        rootSubsystems.remove(node);
+        rootSubsystems = new ArrayList<>();
     }
 
     /**
-     * Add a command to be ran immediately.
-     * @param cmd
+     * Registers a {@code Command} to be executed until it ends or
+     * is cancelled using {@link #removeCommand}.
+     *
+     * @param cmd Command to schedule
+     * @throws IllegalStateException if the command is already scheduled
      */
-    public void addCommand(Command cmd) { addCommand(null, cmd); }
+    public void addCommand(Command cmd) {
+        addCommand(null, cmd);
+    }
 
     /**
-     * Add a command to be ran immediately.
-     * @param parent
-     * @param cmd
+     * Registers a {@code Command} to be executed within a parent
+     * {@code Subsystem}. The execution of the command will be
+     * suspended if the parent is suspended, and the command will
+     * be cancelled if the parent is removed.
+     *
+     * @param parent parent Subsystem
+     * @param cmd Command to schedule
+     * @throws IllegalStateException if the command is already scheduled
      */
     public void addCommand(Subsystem parent, Command cmd) {
-        CommandNode node = new CommandNode(cmd);
 
-        if (commandNodes.containsKey(cmd)) {
-            throw new IllegalArgumentException("Cannot add same command twice," +
-            " create a new instance of the command you are trying to add.");
-        }
-
-        if (parent != null) {
-            linkNodes(parent, node);
-        } else {
-            rootCommands.add(node);
-        }
-
-        cmd.init();
-        commandNodes.put(cmd, node);
     }
 
+    /**
+     * Registers a {@code Subsystem} to be executed every periodic.
+     *
+     * @param ss Subsystem to schedule
+     * @throws IllegalStateException if the subsystem is already scheduled
+     */
+    public void addSubsystem(Subsystem ss) {
+        addSubsystem(null, ss);
+    }
+
+    /**
+     * Registers a {@code Subsystem} to be executed every periodic
+     * within a parent {@code Subsystem}. The execution of the
+     * subsystem will be suspended if the parent is suspended, and
+     * will be removed if the parent is removed.
+     *
+     * @param parent parent Subsystem
+     * @param ss Subsystem to schedule
+     * @throws IllegalStateException if the subsystem is already scheduled
+     */
+    public void addSubsystem(Subsystem parent, Subsystem ss) {
+
+    }
+
+    /**
+     * Unregisters a {@code Command}, causing it to be cancelled if
+     * it is currently running. If the command is running, its
+     * execution will be immediately stopped, and the
+     * {@link Command#end(boolean)) method will be called.
+     *
+     * @param cmd Command to cancel
+     */
     public void removeCommand(Command cmd) {
-        if (commandNodes.containsKey(cmd)) cmd.end(true);
-        CommandNode node = commandNodes.remove(cmd);
-        if (node != null && node.parent != null)
-            node.parent.children.remove(node);
-        rootCommands.remove(node);
-    }
 
-    // --- Main functions ---
-
-    /**
-     * Init all of the subsystems that have an init for this state.
-     * @param state
-     */
-    public void initState(RobotState state) {
-        for (SubsystemNode node : new ArrayList<>(rootSubsystems)) {
-            node.initState(state);
-        }
-
-        if (lastState != null && state == RobotState.DISABLED) {
-            for (CommandNode node : new ArrayList<>(rootCommands)) {
-                node.remove(this);
-            }
-        }
-        lastState = state;
     }
 
     /**
-     * Run the periodic functions for all of the subsystems with one for the state. This will also run commands.
-     * @param state
+     * Unregisters a {@code Subsystem}, causing its execution to
+     * immediately stop. The {@link Subsystem#onRemove()} method
+     * will be called, and any registered child {@code Subsystem}s
+     * and {@code Command} will also be removed.
+     *
+     * @param ss Subsystem to remove
      */
-    public void periodicState(RobotState state) {
-        for (CommandNode cmd : new ArrayList<>(rootCommands)) {
-            Profiler.push(cmd.toString());
-            if (state != RobotState.DISABLED) cmd.periodicState(state);
-            Profiler.pop();
-        }
+    public void removeSubsystem(Subsystem ss) {
 
-        for (SubsystemNode node : new ArrayList<>(rootSubsystems)) {
-            Profiler.push(node.toString());
-            node.periodicState(state);
-            Profiler.pop();
-        }
     }
 
-    // --- Messenger API definitions ---
+    /**
+     * Sets whether a {@code Command} is currently suspended. If a
+     * command is suspended, it is still scheduled, but its
+     * {@link Command#run()} method will not be called.
+     *
+     * This method will print a warning and have no effect if it is
+     * not currently scheduled.
+     *
+     * @param cmd Command to set suspended state
+     * @param suspended whether the command should be suspended
+     */
+    public void setCommandSuspended(Command cmd, boolean suspended) {
 
-    public void initMessenger(MessengerClient msg) {
-        this.msg = msg;
-        msg.addHandler(MSG_QUERY, this::handleQuery);
     }
 
-    private void addUUID(MessageBuilder builder, UUID uuid) {
-        builder.addLong(uuid.getLeastSignificantBits());
-        builder.addLong(uuid.getMostSignificantBits());
-    }
+    /**
+     * Sets whether a {@code Subsystem} is currently suspended. If a
+     * subsystem is suspended, it is still scheduled, but its init and
+     * periodic methods are not called. If the robot state is changed
+     * while the subsystem is suspended, the subsystem's init method for
+     * the new state will be called when it is resumed. When a subsystem
+     * is suspended, its child {@code Command}s and {@code Subsystem}s
+     * will also be suspended.
+     *
+     * @param ss Subsystem to set suspended state
+     * @param suspended whether the subsystem should be suspended
+     */
+    public void setSubsystemSuspended(Subsystem ss, boolean suspended) {
 
-    private void handleQuery(String type, MessageReader reader) {
-        MessageBuilder builder = msg.prepare(MSG_QUERY_RESPONSE);
-
-        // Commands and subsystems are combined into one data array
-        builder.addInt(rootCommands.size() + rootSubsystems.size());
-
-        for (CommandNode cmd : rootCommands) {
-            writeCommandNode(builder, cmd);
-        }
-
-        for (SubsystemNode ss : rootSubsystems) {
-            writeSubsystemNode(builder, ss);
-        }
-
-        builder.send();
-    }
-
-    private String getTypeName(Object obj) {
-        return obj.getClass().getSimpleName();
-    }
-
-    private void writeSubsystemNode(MessageBuilder builder, SubsystemNode node) {
-        addUUID(builder, node.id);
-        builder.addString(getTypeName(node.subsystem));
-        builder.addByte(TYPE_CODE_SUBSYSTEM);
-
-        builder.addInt(node.children.size());
-        for (ScheduleNode child : node.children) {
-            writeScheduleNode(builder, child);
-        }
-    }
-
-    private void writeCommandNode(MessageBuilder builder, CommandNode node) {
-        addUUID(builder, node.id);
-        builder.addString(getTypeName(node.command));
-        builder.addByte(TYPE_CODE_COMMAND);
-
-        // TODO-Ryan: Interval
-    }
-
-    private void writeScheduleNode(MessageBuilder builder, ScheduleNode node) {
-        if (node instanceof SubsystemNode)
-            writeSubsystemNode(builder, (SubsystemNode) node);
-        else
-            writeCommandNode(builder, (CommandNode) node);
     }
 }
