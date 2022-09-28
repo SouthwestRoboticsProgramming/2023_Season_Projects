@@ -8,7 +8,7 @@ import com.team2129.lib.schedule.Subsystem;
 
 public class RotatingArm implements Subsystem {
 
-    private static final NTDouble LOADED_KP = new NTDouble("Climber/Rotating/kP", defaultVal)
+    private static final NTDouble LOADED_KP = new NTDouble("Climber/Rotating/kP", defaultVal);
 
     private static final double ARM_LENGTH = 15.0017;
     private static final double BASE_LENGTH = 6.76;
