@@ -17,6 +17,7 @@ import com.swrobotics.shufflelog.tool.scheduler.SchedulerTool;
 import com.swrobotics.shufflelog.tool.taskmanager.TaskManagerTool;
 import imgui.ImGui;
 import imgui.ImGuiIO;
+import imgui.extension.imnodes.ImNodes;
 import imgui.extension.implot.ImPlot;
 import imgui.flag.ImGuiConfigFlags;
 import imgui.gl3.ImGuiImplGl3;
@@ -61,6 +62,7 @@ public final class ShuffleLog extends PApplet {
 
         ImGui.createContext();
         ImPlot.createContext();
+        ImNodes.createContext();
         ImGuiIO io = ImGui.getIO();
         io.setIniFilename(LAYOUT_FILE);
         io.setConfigFlags(ImGuiConfigFlags.DockingEnable);

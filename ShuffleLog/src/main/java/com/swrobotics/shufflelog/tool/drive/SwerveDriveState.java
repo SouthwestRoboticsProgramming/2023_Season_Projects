@@ -11,6 +11,7 @@ import static imgui.ImGui.*;
 
 public final class SwerveDriveState {
     private final SwerveModuleState[] modules;
+    private final SwerveModuleState[] clockwise;
     private float minX, minY;
     private float maxX, maxY;
 
@@ -22,7 +23,8 @@ public final class SwerveDriveState {
         }
 
         // Sort modules into ccw order for border rendering
-        Arrays.sort(modules);
+        clockwise = modules.clone();
+        Arrays.sort(clockwise);
 
         // Find bounding box for rendering zoom calculation
         minX = Float.POSITIVE_INFINITY;
@@ -48,7 +50,7 @@ public final class SwerveDriveState {
         g.strokeWeight(1 * strokeMul);
         g.stroke(255);
         g.beginShape(PConstants.LINE_LOOP);
-        for (SwerveModuleState module : modules) {
+        for (SwerveModuleState module : clockwise) {
             Vec2d pos = module.getPosition();
             g.vertex((float) pos.x, (float) pos.y);
         }
