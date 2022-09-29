@@ -60,10 +60,10 @@ public class Drive implements Subsystem {
     private final SwerveModule[] modules;
     private final NavX gyro;
 
-    public Drive(Input input, MessengerClient msg) {
+    public Drive(Input input, NavX gyro, MessengerClient msg) {
         this.input = input;
+        this.gyro = gyro;
         this.msg = msg;
-        gyro = new NavX();
         
         SwerveModule w0 = SwerveModuleMaker.buildModule(this, SLOT_0_MODULE.get(), TURN_ID_0, SLOT_0_POS, 0);
         SwerveModule w1 = SwerveModuleMaker.buildModule(this, SLOT_1_MODULE.get(), TURN_ID_1, SLOT_1_POS, 90);
