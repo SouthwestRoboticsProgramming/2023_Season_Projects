@@ -1,12 +1,13 @@
 package com.swrobotics.robot.subsystem.climber;
 
 import com.team2129.lib.math.Angle;
-import com.team2129.lib.motor.calc.BangBangCalculator;
+//import com.team2129.lib.motor.calc.BangBangCalculator;
 import com.team2129.lib.motor.ctre.NeutralMode;
 import com.team2129.lib.motor.rev.BrushlessSparkMaxMotor;
 import com.team2129.lib.net.NTDouble;
 import com.team2129.lib.schedule.Subsystem;
 
+// FIXME-MERGE: Ignore all changes in this file, I was just getting it to compile
 public class TelescopingArm implements Subsystem {
     private static final NTDouble LIFT_PERC_LOADED = new NTDouble("Climber/Tele/Loaded Lift Percent", 0.8);
     private static final NTDouble LIFT_PERC_UNLOADED = new NTDouble("Climber/Tele/Unloaded Lift Percent", 0.5);
@@ -26,7 +27,7 @@ public class TelescopingArm implements Subsystem {
     private final BrushlessSparkMaxMotor motor1;
     private final BrushlessSparkMaxMotor motor2;
 
-    private final BangBangCalculator bangCalc;
+//    private final BangBangCalculator bangCalc;
 
     private double targetHeight;
     private boolean underLoad;
@@ -48,9 +49,9 @@ public class TelescopingArm implements Subsystem {
         // Give both motors the same encoder
         motor2.setEncoder(motor1.getEncoder());
 
-        bangCalc = new BangBangCalculator();
-        bangCalc.setLowerThreshold(Angle.cwDeg(-5));
-        bangCalc.setUpperThreshold(Angle.cwDeg(5));
+//        bangCalc = new BangBangCalculator();
+//        bangCalc.setLowerThreshold(Angle.cwDeg(-5));
+//        bangCalc.setUpperThreshold(Angle.cwDeg(5));
     }
 
     public void setHeight(double percentOfMax, boolean underLoad) {
@@ -63,13 +64,13 @@ public class TelescopingArm implements Subsystem {
     public void periodic() {
 
         // Update bang bang with outputs determined by weight.
-        if (underLoad) {
-            bangCalc.setMinOutput(DROP_PERC_LOADED.get());
-            bangCalc.setMultiplier(LIFT_PERC_LOADED.get());
-        } else {
-            bangCalc.setMinOutput(DROP_PERC_UNLOADED.get());
-            bangCalc.setMultiplier(LIFT_PERC_UNLOADED.get());
-        }
+//        if (underLoad) {
+//            bangCalc.setMinOutput(DROP_PERC_LOADED.get());
+//            bangCalc.setMultiplier(LIFT_PERC_LOADED.get());
+//        } else {
+//            bangCalc.setMinOutput(DROP_PERC_UNLOADED.get());
+//            bangCalc.setMultiplier(LIFT_PERC_UNLOADED.get());
+//        }
 
         // Calibrate through percent out until it is not longer moving
         if (isCalibrating) {
@@ -95,9 +96,9 @@ public class TelescopingArm implements Subsystem {
         motor1.position(Angle.cwRot(targetHeight * DEGREES_TO_MAX_HEIGHT));
         motor2.position(Angle.cwRot(targetHeight * DEGREES_TO_MAX_HEIGHT));
 
-        if (bangCalc.inTolerance()) {
-            motor1.percent(FEED_FORWARD_LOADED.get());
-            motor2.percent(FEED_FORWARD_LOADED.get());
-        }
+//        if (bangCalc.inTolerance()) {
+//            motor1.percent(FEED_FORWARD_LOADED.get());
+//            motor2.percent(FEED_FORWARD_LOADED.get());
+//        }
     }
 }
