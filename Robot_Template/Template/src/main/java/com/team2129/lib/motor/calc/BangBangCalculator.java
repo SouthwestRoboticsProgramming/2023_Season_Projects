@@ -161,8 +161,6 @@ public final class BangBangCalculator implements VelocityCalculator, PositionCal
         } else {
             bangOut *= multiplier;
         }
-        System.out.println("Bang: " + bangOut);
-
-        return bangOut;
+        return bangOut * multiplier;
     }
 }

@@ -6,7 +6,7 @@ import com.team2129.lib.wpilib.AbstractRobot;
 
 /**
  * An action that runs until it is complete.
- * A command must be scheduled through the scheduler.
+ * A command must be scheduled through the scheduler and will be ran IMMEDIATELY.
  */
 public interface Command {
     Duration DEFAULT_INTERVAL = new Duration(1 / AbstractRobot.get().getPeriodicPerSecond(), TimeUnit.SECONDS);
@@ -19,6 +19,9 @@ public interface Command {
 
     /**
      * This function runs every periodic until it returns true.
+     * 
+     * <p>
+     * NOTE: This is called by the scheduler and not by another class!
      * @return Returns true when command is compete.
      */
     boolean run();

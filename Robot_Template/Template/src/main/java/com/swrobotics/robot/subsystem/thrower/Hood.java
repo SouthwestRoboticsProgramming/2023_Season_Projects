@@ -14,14 +14,18 @@ public class Hood implements Subsystem {
     private static final int ENCODER_ID_2 = 7;
     private static final int MOTOR_ID = 5;
     private static final int LIMIT_SWITCH_ID = 0;
+    
+    private static final int TICKS_PER_FLOOR_TO_CEILING = 588;
 
+    
     private static final NTDouble KP = new NTDouble("Thrower/Hood/kP", 0.05);
     private static final NTDouble KI = new NTDouble("Thrower/Hood/kI", 0.0);
     private static final NTDouble KD = new NTDouble("Thrower/Hood/kD", 0.0);
-
+    
     private static final NTDouble CALIBRATE_PERCENT = new NTDouble("Thrower/Hood/Calibration Speed", -0.1);
-
-    private static final NTBoolean LIMIT_SWITCH_PRESSED = new NTBoolean("Thrower/Hood/Limit Switch Pressed", false);
+    
+    private static final NTDouble L_HOOD_POS = new NTDouble("Thrower/Hood/Hood Position", 2129);
+    private static final NTBoolean L_LIMIT_SWITCH_PRESSED = new NTBoolean("Thrower/Hood/Limit Switch Pressed", false);
 
     private final HallEffectEncoder encoder;
     private final TalonSRXMotor motor;
@@ -31,7 +35,7 @@ public class Hood implements Subsystem {
     private Angle targetPosition;
 
     public Hood() {
-        encoder = new HallEffectEncoder(ENCODER_ID_1, ENCODER_ID_2, 588); // Not ticks per rotation but ticks per floor to ceiling of movement.
+        encoder = new HallEffectEncoder(ENCODER_ID_1, ENCODER_ID_2, TICKS_PER_FLOOR_TO_CEILING); // Not ticks per rotation but ticks per floor to ceiling of movement.
  
         motor = new TalonSRXMotor(this, MOTOR_ID);
         motor.setEncoder(encoder);
@@ -42,7 +46,8 @@ public class Hood implements Subsystem {
         isCalibrating = true;
         targetPosition = Angle.zero();
 
-        LIMIT_SWITCH_PRESSED.setTemporary();
+        L_LIMIT_SWITCH_PRESSED.setTemporary();
+        L_HOOD_POS.setTemporary();
     }
 
     /**
@@ -60,7 +65,8 @@ public class Hood implements Subsystem {
 
     @Override
     public void periodic() {
-        LIMIT_SWITCH_PRESSED.set(limitSwitch.get());
+        L_LIMIT_SWITCH_PRESSED.set(limitSwitch.get());
+        L_HOOD_POS.set(motor.getEncoder().getAngle().getCWDeg() / 360);
 
         if (isCalibrating) {
             if (limitSwitch.get()) {

@@ -1,1 +1,11 @@
-{}
+{
+  "Pathfinding": {
+    "workingDirectory": "tasks/Pathfinding",
+    "command": [
+      "java",
+      "-jar",
+      "Pathfinding-Task-2023.jar"
+    ],
+    "enabled": true
+  }
+}

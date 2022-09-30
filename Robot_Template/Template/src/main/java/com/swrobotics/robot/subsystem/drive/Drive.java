@@ -1,6 +1,9 @@
 package com.swrobotics.robot.subsystem.drive;
 
 import com.swrobotics.robot.control.Input;
+import com.team2129.lib.messenger.MessageBuilder;
+import com.team2129.lib.messenger.MessageReader;
+import com.team2129.lib.messenger.MessengerClient;
 import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.swerve.SwerveDrive;
 import com.team2129.lib.swerve.SwerveModule;
@@ -9,6 +12,7 @@ import com.team2129.lib.math.Vec2d;
 import com.team2129.lib.net.NTBoolean;
 import com.team2129.lib.net.NTEnum;
 import com.team2129.lib.gyro.NavX;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 /*
  * Wheel Layout:
@@ -45,20 +49,42 @@ public class Drive implements Subsystem {
 
     private static final NTBoolean PRINT_ENCODER_OFFSETS = new NTBoolean("Swerve/Print Encoder Offsets", false);
 
+    private static final String MSG_GET_MODULE_DEFS = "Swerve:GetModuleDefs";
+    private static final String MSG_MODULE_DEFS = "Swerve:ModuleDefs";
+    private static final String MSG_MODULE_STATES = "Swerve:ModuleStates";
+
     private final Input input;
+    private final MessengerClient msg;
+
     private final SwerveDrive drive;
+    private final SwerveModule[] modules;
     private final NavX gyro;
 
-    public Drive(Input input) {
+    public Drive(Input input, MessengerClient msg) {
         this.input = input;
+        this.msg = msg;
         gyro = new NavX();
         
-        SwerveModule w0 = SwerveModuleMaker.buildModule(this, SLOT_0_MODULE.get(), TURN_ID_0, SLOT_0_POS);
-        SwerveModule w1 = SwerveModuleMaker.buildModule(this, SLOT_1_MODULE.get(), TURN_ID_1, SLOT_1_POS);
-        SwerveModule w2 = SwerveModuleMaker.buildModule(this, SLOT_2_MODULE.get(), TURN_ID_2, SLOT_2_POS);
-        SwerveModule w3 = SwerveModuleMaker.buildModule(this, SLOT_3_MODULE.get(), TURN_ID_3, SLOT_3_POS);
-        
-        drive = new SwerveDrive(gyro, MAX_WHEEL_VELOCITY, w0, w1, w2, w3);
+        SwerveModule w0 = SwerveModuleMaker.buildModule(this, SLOT_0_MODULE.get(), TURN_ID_0, SLOT_0_POS, 0);
+        SwerveModule w1 = SwerveModuleMaker.buildModule(this, SLOT_1_MODULE.get(), TURN_ID_1, SLOT_1_POS, 90);
+        SwerveModule w2 = SwerveModuleMaker.buildModule(this, SLOT_2_MODULE.get(), TURN_ID_2, SLOT_2_POS, 270);
+        SwerveModule w3 = SwerveModuleMaker.buildModule(this, SLOT_3_MODULE.get(), TURN_ID_3, SLOT_3_POS, 180);
+        modules = new SwerveModule[] {w0, w1, w2, w3};
+
+        drive = new SwerveDrive(gyro, MAX_WHEEL_VELOCITY, modules);
+
+        msg.addHandler(MSG_GET_MODULE_DEFS, this::onGetModuleDefs);
+    }
+
+    private void onGetModuleDefs(String type, MessageReader reader) {
+        MessageBuilder builder = msg.prepare(MSG_MODULE_DEFS);
+        builder.addInt(modules.length);
+        for (SwerveModule module : modules) {
+            Vec2d pos = module.getPosition();
+            builder.addDouble(pos.x);
+            builder.addDouble(pos.y);
+        }
+        builder.send();
     }
 
     public SwerveDrive getDriveController() {
@@ -74,6 +100,22 @@ public class Drive implements Subsystem {
         if (PRINT_ENCODER_OFFSETS.get()) {
             drive.printEncoderOffsets();
         }
+
+        MessageBuilder builder = msg.prepare(MSG_MODULE_STATES);
+        for (SwerveModule module : modules) {
+            SwerveModuleState current = module.getState();
+            SwerveModuleState target = module.getTargetState();
+
+            // Possible if no target state has been specified yet
+            if (target == null)
+                continue;
+
+            builder.addDouble(target.angle.getRadians());
+            builder.addDouble(current.angle.getRadians());
+            builder.addDouble(target.speedMetersPerSecond);
+            builder.addDouble(current.speedMetersPerSecond);
+        }
+        builder.send();
     }
 
     @Override

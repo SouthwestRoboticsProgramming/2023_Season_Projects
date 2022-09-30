@@ -15,7 +15,8 @@ import com.swrobotics.robot.Constants;
 public final class Flywheel implements Subsystem {
 
     private static final NTDouble IDLE_VELOCITY = new NTDouble("Thrower/Flywheel/Idle_RPS", 10);
-    private static final NTDouble MOTOR_TEMP = new NTDouble("Thrower/Flywheel/Motor_Temp", 2129);
+    private static final NTDouble L_MOTOR_TEMP = new NTDouble("Thrower/Flywheel/Motor_Temp", 2129);
+    private static final NTDouble L_MOTOR_VELOCITY = new NTDouble("Thrower/Flywheel/Velocity RPS", 2129);
 
     private static final NTDouble KP = new NTDouble("Thrower/Flywheel/kP", 0.0003);
     private static final NTDouble KI = new NTDouble("Thrower/Flywheel/kI (Caution)", 0.0);
@@ -23,10 +24,11 @@ public final class Flywheel implements Subsystem {
 
     private static final int FLYWHEEL_MOTOR_ID = 13;
 
-    private static final double KV = 0.00003; // Change to adjust potency of velocity maintenance.
+    private static final NTDouble KS = new NTDouble("Thrower/Flywheel/kS", 0.0);
+    private static final NTDouble KV = new NTDouble("Thrower/Flywheel/kV", 0.00003); // Change to adjust potency of velocity maintenance.
     
-    private static final Angle BANG_THRESH_LOW = Angle.cwDeg(-500);
-    private static final Angle BANG_THRESH_HIGH = Angle.cwDeg(-50);
+    private static final Angle BANG_THRESH_LOW = Angle.cwDeg(500);
+    private static final Angle BANG_THRESH_HIGH = Angle.cwDeg(-100);
 
     private final TalonFXMotor motor;
     
@@ -54,7 +56,7 @@ public final class Flywheel implements Subsystem {
         
         BangBangCalculator bangCalc = new BangBangCalculator();
 
-        FeedForwardVelocityCalculator feedCalc = new FeedForwardVelocityCalculator(0.0, KV);
+        FeedForwardVelocityCalculator feedCalc = new FeedForwardVelocityCalculator(KS, KV);
 
         PIDCalculator pidCalc = new PIDCalculator(KP, KI, KD);
         pidCalc.allowNegativeOutputs(false);
@@ -65,7 +67,8 @@ public final class Flywheel implements Subsystem {
 
         motor.setVelocityCalculator(new CompoundVelocityCalculator(pidCalc, feedCalc, bangCalc));
 
-        MOTOR_TEMP.setTemporary();
+        L_MOTOR_TEMP.setTemporary();
+        L_MOTOR_VELOCITY.setTemporary();
     }
 
     /**
@@ -86,6 +89,7 @@ public final class Flywheel implements Subsystem {
 
     @Override
     public void periodic() {
-        MOTOR_TEMP.set(motor.getTemperature());
+        L_MOTOR_TEMP.set(motor.getTemperature());
+        L_MOTOR_VELOCITY.set(motor.getEncoder().getVelocity().getCWDeg() / 360);
     }
 }
