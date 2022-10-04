@@ -320,7 +320,7 @@ public final class Scheduler {
         else
             linkNodes(parent, node);
 
-        Set<Node> incompleteChildren = incompleteLinks.remove(parent);
+        Set<Node> incompleteChildren = incompleteLinks.remove(ss);
         if (incompleteChildren == null)
             return;
 
