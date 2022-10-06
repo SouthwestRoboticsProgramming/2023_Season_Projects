@@ -23,7 +23,7 @@ public class TelescopingArm implements Subsystem {
     private static final NTDouble FEED_FORWARD_UNLOADED = new NTDouble("Climber/Tele/Unloaded Feedforward", 0.01);
 
     private static final NTDouble CALIBRATE_PERCENT = new NTDouble("Climber/Tele/Calibrate percent", 0.1);
-    private static final NTDouble CALIBRATE_VELOCITY_TOLERANCE = new NTDouble("Climber/Tele/Calibrate Velocity Tolerance", 1);
+    private static final NTDouble CALIBRATE_VELOCITY_TOLERANCE = new NTDouble("Climber/Tele/Calibrate Velocity Tolerance", 1); // Degrees per second
     private static final double CALIBRATE_TIMEOUT = 0.2;
 
     private static final double DEGREES_TO_MAX_HEIGHT = 60;
