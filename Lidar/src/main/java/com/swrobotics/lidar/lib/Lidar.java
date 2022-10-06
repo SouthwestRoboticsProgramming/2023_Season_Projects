@@ -62,8 +62,6 @@ public final class Lidar implements SerialPortDataListener {
             throw new RuntimeException("Failed to open serial port");
         }
         port.addDataListener(this);
-
-        respDesc = new ResponseDescriptor();
     }
 
     public void reset() {
