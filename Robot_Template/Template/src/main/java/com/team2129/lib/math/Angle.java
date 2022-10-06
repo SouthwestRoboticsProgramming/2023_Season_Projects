@@ -1,5 +1,7 @@
 package com.team2129.lib.math;
 
+import java.util.Objects;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 
 public final class Angle {
@@ -163,5 +165,20 @@ public final class Angle {
     @Override
     public String toString() {
         return getCWDeg() + " cw deg";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) return false;
+        if (o == this) return true;
+        if (!o.getClass().equals(getClass())) return false;
+
+        Angle a = (Angle) o;
+        return a.angle == angle;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(angle);
     }
 }
