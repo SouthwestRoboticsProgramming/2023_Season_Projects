@@ -8,7 +8,7 @@ import com.team2129.lib.schedule.Command;
 import com.team2129.lib.schedule.CommandSequence;
 
 public final class BlockStackInst {
-    public static BlockStackInst read(MessageReader reader) {
+    public static BlockStackInst readFromMessenger(MessageReader reader) {
         int len = reader.readInt();
         BlockStackInst inst = new BlockStackInst();
 
