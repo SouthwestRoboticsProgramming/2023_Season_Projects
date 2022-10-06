@@ -1,5 +1,6 @@
 package com.swrobotics.robot.subsystem.climber;
 
+import com.team2129.lib.encoder.filters.JumpToZeroFilter;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.motor.rev.BrushedSparkMaxMotor;
 import com.team2129.lib.schedule.Subsystem;
@@ -22,7 +23,7 @@ public class RotatingArm implements Subsystem {
     
     public RotatingArm(int motorID) {
         motor = new BrushedSparkMaxMotor(this, motorID);
-        // TODO: Encoder filter
+        motor.setEncoderFilter(new JumpToZeroFilter());
     }
 
     public void setTargetAngle(Angle angle) {

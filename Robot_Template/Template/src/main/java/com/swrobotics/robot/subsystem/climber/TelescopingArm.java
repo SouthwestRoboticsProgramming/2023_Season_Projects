@@ -1,6 +1,7 @@
 package com.swrobotics.robot.subsystem.climber;
 
 import com.swrobotics.robot.Robot;
+import com.team2129.lib.encoder.filters.JumpToZeroFilter;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.motor.calc.BangBangCalculator;
 import com.team2129.lib.motor.ctre.NeutralMode;
@@ -59,6 +60,9 @@ public class TelescopingArm implements Subsystem {
 
         // motor1.setNeutralMode(NeutralMode.COAST);
         // motor2.setNeutralMode(NeutralMode.COAST);
+
+        motor1.setEncoderFilter(new JumpToZeroFilter());
+        motor2.setEncoderFilter(new JumpToZeroFilter());
 
         motor1.getEncoder().setAngle(Angle.zero());
         motor2.getEncoder().setAngle(Angle.zero());
