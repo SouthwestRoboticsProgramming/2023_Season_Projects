@@ -26,8 +26,7 @@ public abstract class AbstractRobot extends RobotBase {
     private final double periodicPerSecond;
 
     private MessengerClient msg;
-    private boolean running;
-    private RobotState lastState;
+    private volatile boolean running;
 
     public AbstractRobot(double periodicPerSecond) {
         this.periodicPerSecond = periodicPerSecond;
@@ -70,11 +69,6 @@ public abstract class AbstractRobot extends RobotBase {
                     Profiler.beginMeasurements("Root");
 
                     RobotState state = getCurrentState();
-                    if (state != lastState) {
-                        Scheduler.get().initState(state);
-                    }
-                    lastState = state;
-
                     Scheduler.get().periodicState(state);
 
                     Profiler.endMeasurements();

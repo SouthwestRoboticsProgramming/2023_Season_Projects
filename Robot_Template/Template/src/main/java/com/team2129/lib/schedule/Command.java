@@ -34,6 +34,24 @@ public interface Command {
     default void end(boolean wasCancelled) {}
 
     /**
+     * Called by the scheduler when the command or its parent is suspended.
+     * The default behavior is to call {@link #end(boolean)} as if the command
+     * was cancelled.
+     */
+    default void suspend() {
+        end(true);
+    }
+
+    /**
+     * Called by the scheduler when the command is resumed after being suspended.
+     * The default behavior is to call {@link #init()} as if the command was just
+     * started.
+     */
+    default void resume() {
+        init();
+    }
+
+    /**
      * Gets the interval between consecutive executions of the command.
      * 
      * @return Interval, by default time per robot periodic

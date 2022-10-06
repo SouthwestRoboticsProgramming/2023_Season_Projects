@@ -2,18 +2,14 @@ package com.swrobotics.robot;
 
 import com.swrobotics.robot.blockauto.AutoBlocks;
 import com.swrobotics.robot.control.Input;
-import com.swrobotics.robot.subsystem.Intake;
-import com.swrobotics.robot.subsystem.Limelight;
 import com.swrobotics.robot.subsystem.drive.Drive;
-import com.swrobotics.robot.subsystem.thrower.BallDetector;
-import com.swrobotics.robot.subsystem.thrower.Flywheel;
-import com.swrobotics.robot.subsystem.thrower.Hopper;
-import com.swrobotics.robot.subsystem.thrower.Thrower;
+import com.team2129.lib.gyro.NavX;
 import com.team2129.lib.messenger.MessengerClient;
 import com.team2129.lib.net.NTBoolean;
 import com.team2129.lib.schedule.Command;
 import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.schedule.Subsystem;
+import com.team2129.lib.schedule.debug.SchedulerTest;
 import com.team2129.lib.wpilib.AbstractRobot;
 
 public final class Robot extends AbstractRobot {
@@ -39,71 +35,19 @@ public final class Robot extends AbstractRobot {
     
     @Override
     protected final void addSubsystems() {
+        // Common I/O that is not a subsystem
         MessengerClient msg = getMessenger();
-
         Input input = new Input();
-        // Thrower thrower = new Thrower(input);
-        // Intake intake = new Intake(input);
-        // BallDetector ballDetector = new BallDetector();
-        // Hopper hopper = new Hopper(ballDetector);
-        // Flywheel flywheel = new Flywheel();
-        Drive drive = new Drive(input, msg);
-        // Limelight limelight = new Limelight();
-        // Localization loc = new Localization(drive, limelight, input);
-        // TODO: PDP
-        // TODO: Light controlle
-        // Thrower thrower = new Thrower(input, loc);
-        // TODO: Climber
+        NavX gyro = new NavX(); // Prefer using odometry angle rather than gyro for most things
+
+        // Note: Do not instantiate a subsystem without adding it to
+        //     the scheduler, it could cause unexpected behavior and
+        //     will cause a warning to be printed if any motors are
+        //     used in it
+
+        Drive drive = new Drive(input, gyro, msg);
 
         Scheduler scheduler = Scheduler.get();
-        // scheduler.addSubsystem(thrower);
-
-        // scheduler.addSubsystem(intake);
-        // scheduler.addSubsystem(ballDetector);
-        // scheduler.addSubsystem(hopper);
         scheduler.addSubsystem(drive);
-        // scheduler.addSubsystem(thrower);
-        // TODO: Schedule subsystems
-
-        // Test short, rapid command adding
-        // scheduler.addSubsystem(new Subsystem() {
-        //     @Override
-        //     public void periodic() {
-        //         int[] i = new int[1];
-        //         i[0] = 0;
-        //         Scheduler.get().addCommand(this, () -> {
-        //             // Should only ever print "The command runs: count 0"
-        //             System.out.println("The command runs: count " + i[0]++);
-        //             return true;
-        //         });
-        //     }
-        // });
-
-        // Test cancelling command
-        // scheduler.addSubsystem(new Subsystem() {
-        //     int counter = 0;
-        //     Command cmd = () -> {
-        //         System.out.println("Running the command");
-        //         return false;
-        //     };
-
-        //     @Override
-        //     public void periodic() {
-        //         if (counter == 0) {
-        //             Scheduler.get().addCommand(this, cmd);
-        //             System.out.println("Added the command");
-        //         } else if (counter == 50) {
-        //             Scheduler.get().removeCommand(cmd);
-        //             System.out.println("Removed the command");
-        //         }
-
-        //         // Tick counter and wrap back to zero
-        //         if (++counter == 100)
-        //             counter = 0;
-        //     }
-        // });
-
-        new NTBoolean("test/test1", false, NTBoolean.Mode.MOMENTARY).setTemporary().set(false);
-        new NTBoolean("test/test2", true, NTBoolean.Mode.INDICATOR).setTemporary().set(true);
     }
 }
