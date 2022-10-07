@@ -1,6 +1,7 @@
 package com.team2129.lib.schedule;
 
 import com.team2129.lib.messenger.MessengerClient;
+import com.team2129.lib.profile.Profiler;
 import com.team2129.lib.wpilib.RobotState;
 import edu.wpi.first.wpilibj.DriverStation;
 
@@ -117,12 +118,14 @@ public final class Scheduler {
         public void periodic(RobotState state) {
             // TODO: Do the interval properly
 
+            Profiler.push(cmd.getClass().getSimpleName());
             if (!initialized) {
                 cmd.init();
                 initialized = true;
             }
 
             finished = cmd.run();
+            Profiler.pop();
 
             if (finished) {
                 cmd.end(false);
@@ -184,6 +187,7 @@ public final class Scheduler {
 
         @Override
         public void periodic(RobotState state) {
+            Profiler.push(ss.getClass().getSimpleName());
             ss.periodic();
             switch (state) {
                 case DISABLED:   ss.disabledPeriodic();   break;
@@ -195,6 +199,7 @@ public final class Scheduler {
             for (Node child : new ArrayList<>(children)) {
                 child.periodic(state);
             }
+            Profiler.pop();
         }
 
         @Override
