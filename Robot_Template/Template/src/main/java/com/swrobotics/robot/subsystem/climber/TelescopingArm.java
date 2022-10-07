@@ -1,5 +1,7 @@
 package com.swrobotics.robot.subsystem.climber;
 
+import java.util.function.Supplier;
+
 import com.swrobotics.robot.Robot;
 import com.team2129.lib.encoder.filters.JumpToZeroFilter;
 import com.team2129.lib.math.Angle;
@@ -36,6 +38,8 @@ public class TelescopingArm implements Subsystem {
 
     private final TimeoutTimer calibrateTimer;
 
+    private final Supplier<Angle> currentHeight;
+
     private double targetHeight;
     private boolean underLoad;
     private boolean shouldBeCalibrating;
@@ -46,9 +50,8 @@ public class TelescopingArm implements Subsystem {
      * @param canID1
      * @param canID2
      * @param inverted Invert the motors that that a positive demand will make the arm pull in.
-     * @param name
      */
-    public TelescopingArm(int canID1, int canID2, boolean inverted, String name) {
+    public TelescopingArm(int canID1, int canID2, boolean inverted) {
         motor1 = new BrushlessSparkMaxMotor(this, canID1);
         motor2 = new BrushlessSparkMaxMotor(this, canID2);
 
@@ -82,6 +85,8 @@ public class TelescopingArm implements Subsystem {
 
         shouldBeCalibrating = true;
         calibrateTimer = new TimeoutTimer(CALIBRATE_TIMEOUT);
+
+        currentHeight = () -> getHeight();
     }
 
     public void setCalibrating(boolean calibrate) {
@@ -89,8 +94,12 @@ public class TelescopingArm implements Subsystem {
     }
 
     public void setHeight(double percentOfMax, boolean underLoad) {
-        targetHeight = percentOfMax;
+        targetHeight = 1 - percentOfMax; // Invert position so that 0 is all the way up.
         this.underLoad = underLoad;
+    }
+
+    private Angle getHeight() {
+        return Angle.cwRot(1 - motor1.getEncoder().getAngle().getCWDeg() / DEGREES_TO_MAX_HEIGHT); // Inverted
     }
 
     /**
@@ -153,10 +162,10 @@ public class TelescopingArm implements Subsystem {
          * If the motor is demanded to let the robot down, it will use the minOutput.
          */
 
-        System.out.println(motor1.getEncoder().getAngle().getCWDeg());
+        // System.out.println(motor1.getEncoder().getAngle().getCWDeg() + " " + currentHeight.get().getCWRot());
 
-        motor1.position(Angle.cwRot(targetHeight * DEGREES_TO_MAX_HEIGHT));
-        motor2.position(Angle.cwRot(targetHeight * DEGREES_TO_MAX_HEIGHT));
+        motor1.position(currentHeight, Angle.cwRot(targetHeight));
+        motor2.position(currentHeight, Angle.cwRot(targetHeight));
 
         if (bangCalc.inTolerance() && underLoad) {
             motor1.percent(FEED_FORWARD_LOADED.get());
