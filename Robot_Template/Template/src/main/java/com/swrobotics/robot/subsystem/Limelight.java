@@ -2,6 +2,7 @@ package com.swrobotics.robot.subsystem;
 
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.net.NTBoolean;
+import com.team2129.lib.net.NTDouble;
 import com.team2129.lib.schedule.Subsystem;
 
 import edu.wpi.first.networktables.NetworkTable;
@@ -21,6 +22,8 @@ public class Limelight implements Subsystem {
     private static final double HEIGHT_DIFF = TARGET_HEIGHT - LIMELIGHT_MOUNT_HEIGHT;
 
     private static final NTBoolean LIGHTS_ON = new NTBoolean("Limelight/Lights_On", true);
+
+    private static final NTDouble L_DISTANCE = new NTDouble("Limelight/Distance", 2129);
 
     private final NetworkTableEntry xAngle;
     private final NetworkTableEntry yAngle;
@@ -42,8 +45,15 @@ public class Limelight implements Subsystem {
 
         this.lightsOn = table.getEntry("ledMode");
 
-        setLights(LIGHTS_ON.get());
-        LIGHTS_ON.onChange(() -> setLights(LIGHTS_ON.get()));
+        // FIXME
+        // setLights(LIGHTS_ON.get());
+        // LIGHTS_ON.onChange(() -> setLights(LIGHTS_ON.get()));
+
+        y = Angle.zero();
+        x = Angle.zero();
+        area = 0;
+
+        L_DISTANCE.setTemporary();
     }
 
     public Angle getXAngle() {
@@ -58,6 +68,10 @@ public class Limelight implements Subsystem {
         return area;
     }
 
+    /**
+     * In meters
+     * @return
+     */
     public double getDistance() {
         Angle angle = getYAngle();
 
@@ -77,18 +91,22 @@ public class Limelight implements Subsystem {
             getArea() > 0);
     }
 
-    public void setLights(boolean on) {
-        int value = 1;
-        if (on) value = 3;
-        lightsOn.setNumber(value);
-        LIGHTS_ON.set(on);
-    }
+    // FIXME
+    // public void setLights(boolean on) {
+    //     int value = 1;
+    //     if (on) value = 3;
+    //     lightsOn.setNumber(value);
+    //     LIGHTS_ON.set(on);
+    // }
 
     @Override
     public void periodic() {
         x = Angle.cwDeg(xAngle.getDouble(0.0));
         y = Angle.cwDeg(yAngle.getDouble(0.0));
         area = targetArea.getDouble(0.0);
+
+        System.out.println(x.getCWDeg());
+        L_DISTANCE.set(getDistance());
     }
 
 

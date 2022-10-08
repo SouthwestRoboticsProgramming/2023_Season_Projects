@@ -4,6 +4,7 @@ import com.swrobotics.robot.blockauto.AutoBlocks;
 import com.swrobotics.robot.control.Input;
 import com.swrobotics.robot.subsystem.Intake;
 import com.swrobotics.robot.subsystem.Limelight;
+import com.swrobotics.robot.subsystem.Localization;
 import com.swrobotics.robot.subsystem.drive.Drive;
 import com.swrobotics.robot.subsystem.thrower.BallDetector;
 import com.swrobotics.robot.subsystem.thrower.Flywheel;
@@ -44,21 +45,25 @@ public final class Robot extends AbstractRobot {
         // BallDetector ballDetector = new BallDetector();
         // Hopper hopper = new Hopper(ballDetector);
         // Flywheel flywheel = new Flywheel();
-        Drive drive = new Drive(input);
+        // Drive drive = new Drive(input);
         // Limelight limelight = new Limelight();
         // Localization loc = new Localization(drive, limelight, input);
         // TODO: PDP
         // TODO: Light controlle
         // Thrower thrower = new Thrower(input, loc);
         // TODO: Climber
+        // Thrower thrower = new Thrower(input);
+        Localization loc = new Localization();
 
         Scheduler scheduler = Scheduler.get();
+        scheduler.addSubsystem(loc);
+        // scheduler.addSubsystem(thrower);
         // scheduler.addSubsystem(thrower);
 
         // scheduler.addSubsystem(intake);
         // scheduler.addSubsystem(ballDetector);
         // scheduler.addSubsystem(hopper);
-        scheduler.addSubsystem(drive);
+        // scheduler.addSubsystem(drive);
         // scheduler.addSubsystem(thrower);
         // TODO: Schedule subsystems
 
