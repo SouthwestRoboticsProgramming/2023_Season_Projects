@@ -25,6 +25,24 @@ public final class EnumPart<E extends Enum<E>> implements ParamPart {
     }
 
     @Override
+    public void writeInst(MessageBuilder builder, Object val) {
+        @SuppressWarnings("unchecked")
+        E e = (E) val;
+        int idx = 0;
+        boolean found = false;
+        for (E v : values) {
+            if (v == e) {
+                found = true;
+                break;
+            }
+            idx++;
+        }
+        if (!found)
+            throw new IllegalStateException("Failed to find index of value");
+        builder.addInt(idx);
+    }
+
+    @Override
     public void writeToMessenger(MessageBuilder builder) {
         builder.addByte(PartTypes.ENUM.getId());
         builder.addInt(values.length);

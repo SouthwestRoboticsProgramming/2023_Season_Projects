@@ -2,9 +2,7 @@ package com.team2129.lib.motor;
 
 import com.team2129.lib.schedule.Subsystem;
 
-import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj.motorcontrol.PWMTalonSRX;
-import edu.wpi.first.wpilibj.simulation.PWMSim;
 
 /**
  * This is a class to temporarily replace a real motor with a simulated PWM output to test

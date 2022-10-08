@@ -1,14 +1,11 @@
 package com.swrobotics.robot.control;
 
-import static com.swrobotics.robot.Constants.*;
-
-import com.team2129.lib.utils.InputUtils;
 import com.team2129.lib.utils.Toggle;
 import com.team2129.lib.math.Angle;
+import com.team2129.lib.math.MathUtil;
 import com.team2129.lib.math.Vec2d;
 import com.team2129.lib.net.NTDouble;
 
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.XboxController;
 
 
@@ -35,14 +32,14 @@ public class Input {
 
     public Vec2d getDriveTranslation() {
         // Apply deadband
-        double x = InputUtils.applyDeadband(controller.getLeftX(), DEADBAND);
-        double y = -InputUtils.applyDeadband(controller.getLeftY(), DEADBAND);
+        double x = MathUtil.applyDeadband(controller.getLeftX(), DEADBAND);
+        double y = -MathUtil.applyDeadband(controller.getLeftY(), DEADBAND);
 
         return new Vec2d(x, y).mul(MAX_DRIVE_SPEED.get());
     }
 
     public Angle getDriveRotation() {
-        return Angle.cwRad(InputUtils.applyDeadband(controller.getRightX(), DEADBAND) * MAX_DRIVE_ROTATION.get());
+        return Angle.cwRad(MathUtil.applyDeadband(controller.getRightX(), DEADBAND) * MAX_DRIVE_ROTATION.get());
     }
 
     public boolean getFieldRelative() {

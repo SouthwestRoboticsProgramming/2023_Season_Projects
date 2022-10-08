@@ -16,6 +16,11 @@ public final class IntPart implements ParamPart {
     }
 
     @Override
+    public void writeInst(MessageBuilder builder, Object val) {
+        builder.addInt((int) val);
+    }
+
+    @Override
     public void writeToMessenger(MessageBuilder builder) {
         builder.addByte(PartTypes.INT.getId());
         builder.addInt(def);

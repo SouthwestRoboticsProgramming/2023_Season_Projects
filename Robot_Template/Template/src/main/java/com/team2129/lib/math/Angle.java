@@ -37,6 +37,14 @@ public final class Angle {
         this.angle = angle;
     }
 
+    public double getCCWRot() {
+        return angle / 2 / Math.PI;
+    }
+
+    public double getCWRot() {
+        return -angle / 2 / Math.PI;
+    }
+
     public double getCWRad() {
         return -angle;
     }
@@ -96,12 +104,24 @@ public final class Angle {
         return (offset - Math.floor(offset / width) * width) + min;
     }
 
-    public Angle normalizeRad(double min, double max) {
-        return ccwRad(normalize(getCCWRad(), min, max));
+    public Angle normalizeRad(double range) {
+        return normalizeRangeRad(-range, range);
     }
 
-    public Angle normalizeDeg(double min, double max) {
-        return ccwDeg(normalize(getCCWDeg(), min, max));
+    public Angle normalizeDeg(double range) {
+        return normalizeRangeDeg(-range, range);
+    }
+
+    public Angle normalizeRangeRad(double boundCW, double boundCCW) {
+        if (boundCW >= boundCCW)
+            throw new IllegalArgumentException("Clockwise bound must be less than counterclockwise bound");
+        return ccwRad(normalize(getCCWRad(), boundCW, boundCCW));
+    }
+
+    public Angle normalizeRangeDeg(double boundCW, double boundCCW) {
+        if (boundCW >= boundCCW)
+            throw new IllegalArgumentException("Clockwise bound must be less than counterclockwise bound");
+        return ccwDeg(normalize(getCCWDeg(), boundCW, boundCCW));
     }
 
     public Angle scaleBy(double scalar) {

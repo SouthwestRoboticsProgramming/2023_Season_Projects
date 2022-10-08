@@ -165,9 +165,6 @@ public final class BangBangVelocityCalculator implements VelocityCalculator {
         } else {
             rateLimiter.calculate(bangOut);
         }
-
-        System.out.println(bangOut * multiplier);
-        System.out.println(accelerating);
         return bangOut * multiplier;
     }
 }

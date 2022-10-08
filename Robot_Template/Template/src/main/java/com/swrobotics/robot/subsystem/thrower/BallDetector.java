@@ -11,14 +11,14 @@ import com.team2129.lib.schedule.Subsystem;
 public class BallDetector implements Subsystem {
 
     private static final int BEAM_BREAK_ID = 9;
-    private static final NTBoolean BALL_DETECTED = new NTBoolean("Hopper/Balldetector/Ball_Detected", false);
+    private static final NTBoolean L_BALL_DETECTED = new NTBoolean("Hopper/Ball_Detector/Ball Detected", false);
 
     private final DigitalInput beamBreak;
     private boolean ballDetected;
     private boolean lastDetected;
 
     public BallDetector() {
-        BALL_DETECTED.setTemporary();
+        L_BALL_DETECTED.setTemporary();
 
         beamBreak = new DigitalInput(BEAM_BREAK_ID);
         ballDetected = false;
@@ -27,9 +27,10 @@ public class BallDetector implements Subsystem {
 
     @Override
     public void periodic() {
+        lastDetected = ballDetected;
         ballDetected = !beamBreak.get();
 
-        BALL_DETECTED.set(ballDetected);
+        L_BALL_DETECTED.set(ballDetected);
     }
 
     public boolean isBallDetected() {

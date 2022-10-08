@@ -12,7 +12,6 @@ import com.team2129.lib.motor.calc.VelocityCalculator;
 import com.team2129.lib.net.NTDouble;
 import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.schedule.Subsystem;
-import com.team2129.lib.utils.InputUtils;
 
 /**
  * Represents a generic motor. This class is intended to provide
@@ -372,7 +371,7 @@ public abstract class Motor implements Subsystem {
         if (inverted) percent = -percent;
 
         // Apply neutral deadband
-        percent = InputUtils.applyDeadband(percent, neutralDeadband);
+        percent = MathUtil.applyDeadband(percent, neutralDeadband);
         
         // Apply nominal output
         if (percent != 0 && Math.abs(percent) < nominalOutput) {

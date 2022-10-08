@@ -1,5 +1,9 @@
 package com.swrobotics.robot.blockauto;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +17,8 @@ import com.team2129.lib.schedule.CommandLoop;
 import com.team2129.lib.schedule.CommandUnion;
 import com.team2129.lib.schedule.WaitCommand;
 import com.team2129.lib.time.TimeUnit;
+
+import edu.wpi.first.wpilibj.Filesystem;
 
 public final class AutoBlocks {
     private static void defineBlocks() {
@@ -29,12 +35,12 @@ public final class AutoBlocks {
             .paramInt(10)
             .text("times")
             .paramBlockStack()
-            .creator((params) -> new CommandLoop((Command) params[1], (int) params[0]));
+            .creator((params) -> new CommandLoop(((BlockStackInst) params[1]).toCommand(), (int) params[0]));
         control.newBlock("union")
             .text("Union")
             .paramBlockStack()
             .paramBlockStack()
-            .creator((params) -> new CommandUnion((Command) params[0], (Command) params[1]));
+            .creator((params) -> new CommandUnion(((BlockStackInst) params[0]).toCommand(), ((BlockStackInst) params[1]).toCommand()));
 
         // BlockCategory drive = defineCategory("Drive");
         // drive.newBlock("drive_point")
@@ -101,6 +107,11 @@ public final class AutoBlocks {
      * R->S: Sequence data (block stack inst)
      * S->R: Publish sequence data (block stack inst)
      * R->S: Confirm publish
+     * 
+     * Storage:
+     * 
+     * Auto sequences are stored in the same format as the Messenger data to simplify code.
+     * Stored in .auto files.
      */
 
     private static final String MSG_QUERY_BLOCK_DEFS = "AutoBlock:QueryBlockDefs";
@@ -117,6 +128,10 @@ public final class AutoBlocks {
     private static final String MSG_UPDATE_CONFIRM = "AutoBlock:UpdateConfirm";
     private static final String MSG_DELETE_CONFIRM = "AutoBlock:DeleteConfirm";
 
+    private static final File PERSISTENCE_DIR = new File(Filesystem.getOperatingDirectory(), "BlockAuto");
+    private static final String PERSISTENCE_FILE_EXT = ".auto";
+    private static final Map<String, PersistentSequence> sequences = new HashMap<>();
+
     private static final Map<String, BlockDef> blockDefRegistry = new HashMap<>();
     private static MessengerClient msg;
 
@@ -127,8 +142,34 @@ public final class AutoBlocks {
     public static void init(MessengerClient msg) {
         defineBlocks();
 
+        if (!PERSISTENCE_DIR.exists())
+            PERSISTENCE_DIR.mkdirs();
+
+        // test
+        BlockStackInst stack = new BlockStackInst();
+        stack.addBlock(new BlockInst(blockDefRegistry.get("wait"), 1.0));
+        BlockStackInst stack2 = new BlockStackInst();
+        stack2.addBlock(new BlockInst(blockDefRegistry.get("wait"), 10.0));
+        stack.addBlock(new BlockInst(blockDefRegistry.get("repeat"), 10, stack2));
+        PersistentSequence s = new PersistentSequence(new File(PERSISTENCE_DIR, "wait.auto"), stack);
+        s.save();
+
+        // Read in existing sequences
+        for (File file : PERSISTENCE_DIR.listFiles()) {
+            if (!file.getName().endsWith(PERSISTENCE_FILE_EXT))
+                continue;
+
+            String name = file.getName();
+            name = name.substring(0, name.length() - PERSISTENCE_FILE_EXT.length());
+    
+            PersistentSequence seq = new PersistentSequence(file);
+            sequences.put(name, seq);
+        }
+
         AutoBlocks.msg = msg;
         msg.addHandler(MSG_QUERY_BLOCK_DEFS, AutoBlocks::onQueryBlockDefs);
+
+        System.out.println("Block auto initialized");
     }
 
     private static void onQueryBlockDefs(String type, MessageReader reader) {

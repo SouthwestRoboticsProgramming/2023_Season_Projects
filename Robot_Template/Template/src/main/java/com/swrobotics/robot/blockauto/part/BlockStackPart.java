@@ -7,7 +7,12 @@ import com.team2129.lib.messenger.MessageReader;
 public final class BlockStackPart implements ParamPart {
     @Override
     public Object readInst(MessageReader reader) {
-        return BlockStackInst.read(reader).toCommand();
+        return BlockStackInst.readFromMessenger(reader);
+    }
+
+    @Override
+    public void writeInst(MessageBuilder builder, Object val) {
+        ((BlockStackInst) val).write(builder);
     }
 
     @Override

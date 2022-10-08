@@ -14,11 +14,21 @@ public final class AnglePart implements ParamPart {
             public Angle toAngle(double val) {
                 return Angle.cwDeg(val);
             }
+
+            @Override
+            public double fromAngle(Angle val) {
+                return val.getCWDeg();
+            }
         },
         CCW_DEG(1) {
             @Override
             public Angle toAngle(double val) {
                 return Angle.ccwDeg(val);
+            }
+
+            @Override
+            public double fromAngle(Angle val) {
+                return val.getCCWDeg();
             }
         },
         CW_RAD(2) {
@@ -26,11 +36,21 @@ public final class AnglePart implements ParamPart {
             public Angle toAngle(double val) {
                 return Angle.cwRad(val);
             }
+
+            @Override
+            public double fromAngle(Angle val) {
+                return val.getCWRad();
+            }
         },
         CCW_RAD(3) {
             @Override
             public Angle toAngle(double val) {
                 return Angle.ccwRad(val);
+            }
+
+            @Override
+            public double fromAngle(Angle val) {
+                return val.getCCWRad();
             }
         },
         CW_ROT(4) {
@@ -38,11 +58,21 @@ public final class AnglePart implements ParamPart {
             public Angle toAngle(double val) {
                 return Angle.cwRot(val);
             }
+
+            @Override
+            public double fromAngle(Angle val) {
+                return val.getCWRot();
+            }
         },
         CCW_ROT(5) {
             @Override
             public Angle toAngle(double val) {
                 return Angle.ccwRot(val);
+            }
+
+            @Override
+            public double fromAngle(Angle val) {
+                return val.getCCWRot();
             }
         };
 
@@ -60,6 +90,7 @@ public final class AnglePart implements ParamPart {
         }
 
         public abstract Angle toAngle(double val);
+        public abstract double fromAngle(Angle val);
     }
 
     private final Mode mode;
@@ -74,6 +105,11 @@ public final class AnglePart implements ParamPart {
     public Object readInst(MessageReader reader) {
         double val = reader.readDouble();
         return mode.toAngle(val);
+    }
+
+    @Override
+    public void writeInst(MessageBuilder builder, Object val) {
+        builder.addDouble(mode.fromAngle((Angle) val));
     }
 
     @Override

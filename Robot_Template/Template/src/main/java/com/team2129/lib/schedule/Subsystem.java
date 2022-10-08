@@ -1,11 +1,34 @@
 package com.team2129.lib.schedule;
 
 public interface Subsystem {
+    /**
+     * Called by the scheduler when this Subsystem is added using
+     * {@link Scheduler#addCommand}.
+     */
     default void onAdd() {}
 
-    // Remove handler to shut down all components
-    // Example: Set motor percent output to 0 when system removed
+    /**
+     * Called by the scheduler when this Subsystem is removed
+     * using {@link Scheduler#removeCommand}. A subsystem should
+     * shut down any components and/or resources it is using here.
+     *
+     * Example: Stop motor when system removed
+     */
     default void onRemove() {}
+
+    /**
+     * Called by the scheduler when this subsystem or its parent
+     * is suspended. The default behavior is to call the
+     * {@link #onRemove) method.
+     */
+    default void suspend() { onRemove(); }
+
+    /**
+     * Called by the scheduler when this subsystem or its parent
+     * is resumed after being suspended. The default behavior is to
+     * call the {@link #onAdd()} method.
+     */
+    default void resume() { onAdd(); }
 
     // Global periodic, called in all states
     default void periodic() {}
