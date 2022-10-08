@@ -86,7 +86,7 @@ public final class BlockDef {
                 params.add(p.readInst(reader));
             }
         }
-        return new BlockInst(creator, params.toArray());
+        return new BlockInst(this, params.toArray());
     }
 
     public void writeToMessenger(MessageBuilder builder) {
@@ -97,7 +97,15 @@ public final class BlockDef {
         }
     }
 
+    public List<BlockPart> getParts() {
+        return parts;
+    }
+
     public String getName() {
         return name;
+    }
+
+    public Function<Object[], Command> getCreator() {
+        return creator;
     }
 }

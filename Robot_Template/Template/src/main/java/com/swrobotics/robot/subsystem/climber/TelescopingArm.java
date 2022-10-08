@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 import com.swrobotics.robot.Robot;
 import com.team2129.lib.encoder.filters.JumpToZeroFilter;
 import com.team2129.lib.math.Angle;
-import com.team2129.lib.motor.calc.BangBangCalculator;
+//import com.team2129.lib.motor.calc.BangBangCalculator;
 import com.team2129.lib.motor.ctre.NeutralMode;
 import com.team2129.lib.motor.rev.BrushlessSparkMaxMotor;
 import com.team2129.lib.net.NTDouble;
@@ -13,6 +13,7 @@ import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.utils.TimeoutTimer;
 import com.team2129.lib.wpilib.RobotState;
 
+// FIXME-MERGE: Ignore all changes in this file, I was just getting it to compile
 public class TelescopingArm implements Subsystem {
     private static final NTDouble LIFT_PERC_LOADED = new NTDouble("Climber/Tele/Loaded Lift Percent", 0.8); // Lift the robot, should be positive
     private static final NTDouble LIFT_PERC_UNLOADED = new NTDouble("Climber/Tele/Unloaded Lift Percent", 0.5); // Lift the robot, should be positive
@@ -34,7 +35,7 @@ public class TelescopingArm implements Subsystem {
     private final BrushlessSparkMaxMotor motor1;
     private final BrushlessSparkMaxMotor motor2;
 
-    private final BangBangCalculator bangCalc;
+//    private final BangBangCalculator bangCalc;
 
     private final TimeoutTimer calibrateTimer;
 
@@ -147,13 +148,13 @@ public class TelescopingArm implements Subsystem {
         if (shouldBeCalibrating) return;
 
         // Update bang bang with outputs determined by weight.
-        if (underLoad) {
-            bangCalc.setMinOutput(DROP_PERC_LOADED.get());
-            bangCalc.setMultiplier(LIFT_PERC_LOADED.get());
-        } else {
-            bangCalc.setMinOutput(DROP_PERC_UNLOADED.get());
-            bangCalc.setMultiplier(LIFT_PERC_UNLOADED.get());
-        }
+//        if (underLoad) {
+//            bangCalc.setMinOutput(DROP_PERC_LOADED.get());
+//            bangCalc.setMultiplier(LIFT_PERC_LOADED.get());
+//        } else {
+//            bangCalc.setMinOutput(DROP_PERC_UNLOADED.get());
+//            bangCalc.setMultiplier(LIFT_PERC_UNLOADED.get());
+//        }
 
         /*
          * If the motor is demanded to pull the robot up, it will use
@@ -187,5 +188,6 @@ public class TelescopingArm implements Subsystem {
     @Override
     public void autonomousInit() {
         setHeight(0.25, false);
+
     }
 }

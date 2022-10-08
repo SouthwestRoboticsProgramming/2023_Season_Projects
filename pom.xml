@@ -15,6 +15,7 @@
         <module>MathLib</module>
         <module>Pathfinding</module>
         <module>TaskManager</module>
+        <module>Lidar</module>
     </modules>
 
     <properties>

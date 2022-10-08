@@ -39,6 +39,14 @@ public final class Angle {
         this.angle = angle;
     }
 
+    public double getCCWRot() {
+        return angle / 2 / Math.PI;
+    }
+
+    public double getCWRot() {
+        return -angle / 2 / Math.PI;
+    }
+
     public double getCWRad() {
         return -angle;
     }

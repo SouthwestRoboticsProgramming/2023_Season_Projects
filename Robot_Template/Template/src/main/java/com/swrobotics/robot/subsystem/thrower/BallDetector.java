@@ -27,6 +27,7 @@ public class BallDetector implements Subsystem {
 
     @Override
     public void periodic() {
+        lastDetected = ballDetected;
         ballDetected = !beamBreak.get();
 
         L_BALL_DETECTED.set(ballDetected);

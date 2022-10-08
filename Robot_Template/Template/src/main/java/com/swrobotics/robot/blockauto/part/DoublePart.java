@@ -16,6 +16,11 @@ public final class DoublePart implements ParamPart {
     }
 
     @Override
+    public void writeInst(MessageBuilder builder, Object val) {
+        builder.addDouble((double) val);
+    }
+
+    @Override
     public void writeToMessenger(MessageBuilder builder) {
         builder.addByte(PartTypes.DOUBLE.getId());
         builder.addDouble(def);

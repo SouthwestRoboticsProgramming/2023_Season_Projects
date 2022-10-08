@@ -18,6 +18,13 @@ public class Vec2dPart implements ParamPart {
         return new Vec2d(reader.readDouble(), reader.readDouble());
     }
 
+    @Override
+    public void writeInst(MessageBuilder builder, Object val) {
+        Vec2d v = (Vec2d) val;
+        builder.addDouble(v.x);
+        builder.addDouble(v.y);
+    }
+
     // To be overridden by FieldPointPart
     protected byte getTypeId() {
         return PartTypes.VEC2D.getId();
