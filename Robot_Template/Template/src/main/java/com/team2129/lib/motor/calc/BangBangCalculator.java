@@ -117,6 +117,7 @@ public final class BangBangCalculator implements VelocityCalculator, PositionCal
 
     public boolean inTolerance() {
         if (current == null || target == null) return false;
+        System.out.println(target.getCWDeg() + " curr: " + current.getCWDeg());
 
         boolean aboveMin = Math.abs(current.getCWDeg()) > Math.abs(target.getCWDeg() + threshLow.getCWDeg());
         boolean belowMax = Math.abs(current.getCWDeg()) < Math.abs(target.getCWDeg() + threshHigh.getCWDeg());
@@ -130,6 +131,7 @@ public final class BangBangCalculator implements VelocityCalculator, PositionCal
 
     @Override
     public double calculate(Angle currentVelocity, Angle targetVelocity) {
+        System.out.println("Calcuated");
         current = currentVelocity;
         target = targetVelocity;
 

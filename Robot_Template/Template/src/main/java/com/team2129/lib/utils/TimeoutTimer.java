@@ -17,6 +17,10 @@ public class TimeoutTimer {
         timer.start();
     }
 
+    public void reset() {
+        timer.reset();
+    }
+
     public void stop() {
         timer.stop();
         timer.reset();

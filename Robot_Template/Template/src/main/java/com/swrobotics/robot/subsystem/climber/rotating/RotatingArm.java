@@ -18,7 +18,7 @@ public class RotatingArm implements Subsystem {
     private static final NTDouble TEST_ROTS = new NTDouble("Test/Test/Rotating_Test_Pos", 0);
     private static final NTDouble TEST_TARGET = new NTDouble("Test/Test/Rotating_Test_Target", 90);
 
-    private static final NTDouble KP = new NTDouble("Climber/Rotating/kP", 0.01);
+    private static final NTDouble KP = new NTDouble("Climber/Rotating/kP", 0.0001);
     private static final NTDouble KI = new NTDouble("Climber/Rotating/kI", 0.0);
     private static final NTDouble KD = new NTDouble("Climber/Rotating/kD", 0.0);
 
@@ -59,8 +59,7 @@ public class RotatingArm implements Subsystem {
 
     public Angle getAngle() {
         // Get angle from encoder
-        // double encoderRots = motor.getEncoder().getAngle().getCWRot();
-        double encoderRots = TEST_ROTS.get();
+        double encoderRots = motor.getEncoder().getAngle().getCWRot();
         
         // Calculate length of Igus Shaft between pivot points
         double currentIgusLength = encoderRots / ROTS_PER_INCH + CALIBRATED_LENGTH;
@@ -95,8 +94,10 @@ public class RotatingArm implements Subsystem {
 
         // FIXME: Wait until done calibrating to start moving
         targetAngle = Angle.cwDeg(TEST_TARGET.get());
-        System.out.println("Current: "+ getAngle().getCWDeg() + " Tol: " + inTolerance());
+        // System.out.println("Mot: " + motor.getEncoder().getAngle().getCWDeg());
+        // System.out.println("Current: "+ getAngle().getCWDeg() + " Tol: " + inTolerance());
         motor.position(currentAngle, targetAngle);
+        // motor.percent(0.1);
     }
     
 }

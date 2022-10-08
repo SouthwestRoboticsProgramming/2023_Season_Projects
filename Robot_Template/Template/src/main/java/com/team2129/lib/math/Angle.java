@@ -63,14 +63,6 @@ public final class Angle {
         return Math.toDegrees(-angle);
     }
 
-    public double getCWRot() {
-        return -angle / (2 * Math.PI);
-    }
-
-    public double getCCWRot() {
-        return angle / (2 * Math.PI);
-    }
-
     public Angle setCWRad(double a) {
         angle = -a;
         return this;

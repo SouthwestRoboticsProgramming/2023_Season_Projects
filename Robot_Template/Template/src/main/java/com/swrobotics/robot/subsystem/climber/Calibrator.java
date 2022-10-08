@@ -30,24 +30,29 @@ public class Calibrator implements Command {
             motor.percent(calibrateionPercent);
         }
 
+        System.out.println("Enc: " + encoder.getVelocity().getCWDeg());
         // If the velocity is in tolerance
         if (encoder.getVelocity().getCWDeg() <= velocityTolerance.getCWDeg()) {
             // Start timer
             timeout.start(false);
+            System.out.println("Timer started");
 
             if (timeout.get()) {
-                return false;
+                System.out.println("Done calibrating");
+                return true;
             }
         } else {
             timeout.stop();
         }
 
-        return true;
+        return false;
     }
 
     @Override
     public void end(boolean wasCancelled) {
+        System.out.println("End!!!!!!!!!");
         for (Motor motor : motors) {
+            motor.getEncoder().setAngle(Angle.cwDeg(0));
             motor.stop();
         }
     }

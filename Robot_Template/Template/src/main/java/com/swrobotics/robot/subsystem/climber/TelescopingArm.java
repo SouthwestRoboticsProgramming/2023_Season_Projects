@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import com.swrobotics.robot.Robot;
 import com.team2129.lib.encoder.filters.JumpToZeroFilter;
 import com.team2129.lib.math.Angle;
+import com.team2129.lib.motor.calc.BangBangCalculator;
 //import com.team2129.lib.motor.calc.BangBangCalculator;
 import com.team2129.lib.motor.ctre.NeutralMode;
 import com.team2129.lib.motor.rev.BrushlessSparkMaxMotor;
@@ -29,7 +30,9 @@ public class TelescopingArm implements Subsystem {
     private static final NTDouble CALIBRATE_VELOCITY_TOLERANCE = new NTDouble("Climber/Tele/Calibrate Velocity Tolerance", 1); // Degrees per second
     private static final double CALIBRATE_TIMEOUT = 0.2;
 
-    private static final double DEGREES_TO_MAX_HEIGHT = 60;
+    private static final double DEGREES_TO_MAX_HEIGHT = -24300;
+
+    private final BangBangCalculator bangCalc;
 
 
     private final BrushlessSparkMaxMotor motor1;
@@ -37,7 +40,7 @@ public class TelescopingArm implements Subsystem {
 
 //    private final BangBangCalculator bangCalc;
 
-    private final TimeoutTimer calibrateTimer;
+private final TimeoutTimer calibrateTimer;
 
     private final Supplier<Angle> currentHeight;
 
@@ -126,6 +129,7 @@ public class TelescopingArm implements Subsystem {
 
         // Get leading edge of timer to zero encoders
         if (calibrateTimer.get() && shouldBeCalibrating) {
+            shouldBeCalibrating = false;
             motor1.getEncoder().setAngle(Angle.zero());
             motor2.getEncoder().setAngle(Angle.zero());
 
@@ -135,7 +139,10 @@ public class TelescopingArm implements Subsystem {
 
         // Decide, based on the timer, if should stop calibrating
         shouldBeCalibrating = !calibrateTimer.get();
-        if (!shouldBeCalibrating) return;
+        if (!shouldBeCalibrating) {
+            calibrateTimer.reset();
+            return;
+        };
 
         motor1.percent(CALIBRATE_PERCENT.get());
         motor2.percent(CALIBRATE_PERCENT.get());
@@ -144,36 +151,38 @@ public class TelescopingArm implements Subsystem {
     @Override
     public void periodic() {
 
+        
         calibrate();
         if (shouldBeCalibrating) return;
-
+        
         // Update bang bang with outputs determined by weight.
-//        if (underLoad) {
-//            bangCalc.setMinOutput(DROP_PERC_LOADED.get());
-//            bangCalc.setMultiplier(LIFT_PERC_LOADED.get());
-//        } else {
-//            bangCalc.setMinOutput(DROP_PERC_UNLOADED.get());
-//            bangCalc.setMultiplier(LIFT_PERC_UNLOADED.get());
-//        }
-
+        if (underLoad) {
+            bangCalc.setMinOutput(DROP_PERC_LOADED.get());
+            bangCalc.setMultiplier(LIFT_PERC_LOADED.get());
+        } else {
+            bangCalc.setMinOutput(DROP_PERC_UNLOADED.get());
+            bangCalc.setMultiplier(LIFT_PERC_UNLOADED.get());
+        }
+        
         /*
-         * If the motor is demanded to pull the robot up, it will use
-         * the multiplier.
-         * 
-         * If the motor is demanded to let the robot down, it will use the minOutput.
-         */
-
-        // System.out.println(motor1.getEncoder().getAngle().getCWDeg() + " " + currentHeight.get().getCWRot());
-
+        * If the motor is demanded to pull the robot up, it will use
+        * the multiplier.
+        * 
+        * If the motor is demanded to let the robot down, it will use the minOutput.
+        */
+        
+        System.out.println(motor1.getEncoder().getAngle().getCWDeg() + " " + currentHeight.get().getCWRot());
+        
         motor1.position(currentHeight, Angle.cwRot(targetHeight));
         motor2.position(currentHeight, Angle.cwRot(targetHeight));
-
+        
         if (bangCalc.inTolerance() && underLoad) {
             motor1.percent(FEED_FORWARD_LOADED.get());
             motor2.percent(FEED_FORWARD_LOADED.get());
         }
-
+        
         if (bangCalc.inTolerance() && !underLoad) {
+            System.out.println("Hi");
             motor1.percent(FEED_FORWARD_UNLOADED.get());
             motor2.percent(FEED_FORWARD_UNLOADED.get());
         }
@@ -181,8 +190,8 @@ public class TelescopingArm implements Subsystem {
 
     @Override
     public void teleopInit() {
-        setHeight(0, false);
-        calibrate();
+        setHeight(0.5, false);
+        shouldBeCalibrating = true;
     }
 
     @Override

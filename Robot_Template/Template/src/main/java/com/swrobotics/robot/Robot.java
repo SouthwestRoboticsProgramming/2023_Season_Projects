@@ -2,6 +2,9 @@ package com.swrobotics.robot;
 
 import com.swrobotics.robot.blockauto.AutoBlocks;
 import com.swrobotics.robot.control.Input;
+import com.swrobotics.robot.subsystem.climber.TelescopingArm;
+import com.swrobotics.robot.subsystem.climber.rotating.RotatingArm;
+import com.swrobotics.robot.subsystem.climber.rotating.RotatingArms;
 import com.swrobotics.robot.subsystem.drive.Drive;
 import com.team2129.lib.gyro.NavX;
 import com.team2129.lib.messenger.MessengerClient;
@@ -32,18 +35,22 @@ public final class Robot extends AbstractRobot {
     @Override
     protected final void addSubsystems() {
         // Common I/O that is not a subsystem
-        MessengerClient msg = getMessenger();
+        // MessengerClient msg = getMessenger();
         Input input = new Input();
-        NavX gyro = new NavX(); // Prefer using odometry angle rather than gyro for most things
+        // NavX gyro = new NavX(); // Prefer using odometry angle rather than gyro for most things
 
         // Note: Do not instantiate a subsystem without adding it to
         //     the scheduler, it could cause unexpected behavior and
         //     will cause a warning to be printed if any motors are
         //     used in it
 
-        Drive drive = new Drive(input, gyro, msg);
+        // Drive drive = new Drive(input, gyro, msg);
+
+        // TelescopingArm tele = new TelescopingArm(6, 7, false);
+        // RotatingArm rotating = new RotatingArm(10);
 
         Scheduler scheduler = Scheduler.get();
-        scheduler.addSubsystem(drive);
+        // scheduler.addSubsystem(tele);
+        scheduler.addSubsystem(rotating);
     }
 }
