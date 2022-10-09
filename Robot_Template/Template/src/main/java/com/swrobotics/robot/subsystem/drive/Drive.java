@@ -77,7 +77,7 @@ public class Drive implements Subsystem {
 
         drive = new SwerveDrive(gyro, MAX_WHEEL_VELOCITY, modules);
 
-        Scheduler.get().addSubsystem(drive);
+        Scheduler.get().addSubsystem(this, drive);
 
         msg.addHandler(MSG_GET_MODULE_DEFS, this::onGetModuleDefs);
     }
