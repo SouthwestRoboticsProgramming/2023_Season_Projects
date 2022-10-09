@@ -32,6 +32,11 @@ public class Localization implements Subsystem {
         angle = Angle.zero();
     }
 
+    public double getFeetToHub() {
+        return position.magnitude() * 3.281; // Convert meters to feet
+    }
+
+
     private Vec2d calculatePositionOnLimelight() {
         double limelightAngleDeg = limelight.getXAngle().getCWDeg();
         double limelightDistance = limelight.getDistance();
@@ -59,7 +64,7 @@ public class Localization implements Subsystem {
             position = calculatePositionOnLimelight();
         }
 
-        System.out.println("Pos: " + position);
+        // System.out.println("Pos: " + position);
     }
 
     

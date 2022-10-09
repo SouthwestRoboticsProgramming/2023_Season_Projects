@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 
 import com.swrobotics.robot.Robot;
 import com.swrobotics.robot.control.Input;
+import com.swrobotics.robot.subsystem.Localization;
 import com.swrobotics.robot.subsystem.thrower.commands.ShootCommand;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.MathUtil;
@@ -39,6 +40,7 @@ public class Thrower implements Subsystem {
 
     private static final NTDouble FLYWHEEL_SHUTOFF_SECONDS = new NTDouble("Thrower/Flywheel/Shutoff_Time", 1.0);
     private static final NTBoolean STRICT_AIM = new NTBoolean("Thrower/Strict_Aim", false);
+    private static final NTDouble TEST_DISTANCE = new NTDouble("Test/Test/Thrower Distance", 0);
 
     private static final NTEnum<ThrowerTuneSelector> TUNE_SELECTOR = new NTEnum<>("Thrower/Tuning/Tune_Select", ThrowerTuneSelector.class, ThrowerTuneSelector.DEFAULT);
 
@@ -46,6 +48,7 @@ public class Thrower implements Subsystem {
     private final Hopper hopper;
     private final Hood hood;
     private final Flywheel flywheel;
+    private final Localization loc;
 
     private final Timer flywheelShutoff;
 
@@ -54,7 +57,7 @@ public class Thrower implements Subsystem {
 
     private boolean isClimbing;
 
-    public Thrower(Input input) {
+    public Thrower(Input input, Localization loc) {
         highHubMap = new TreeMap<Double, Double>();
         lowHubMap = new TreeMap<Double, Double>();
 
@@ -64,21 +67,23 @@ public class Thrower implements Subsystem {
         hopper = new Hopper(ballDetector);
         hood = new Hood();
         flywheel = new Flywheel();
+        this.loc = loc;
 
         Scheduler sch = Scheduler.get();
         sch.addSubsystem(this, ballDetector);
         sch.addSubsystem(this, hopper);
-        // sch.addSubsystem(this, hood);
+        sch.addSubsystem(this, hood);
         sch.addSubsystem(this, flywheel);
 
         flywheelShutoff = new Timer();
         isClimbing = false;
 
         // Temporary copied from old constants
-        highHubMap.put(2.95, 2275.0);
-        highHubMap.put(5.4, 2450.0);
-        highHubMap.put(7.3, 2590.0);
-        highHubMap.put(9.58, 2680.0);
+        highHubMap.put(0.0, 0.0);
+        highHubMap.put(2.95, 500.0);
+        highHubMap.put(5.4, 600.0);
+        highHubMap.put(7.3, 800.0);
+        highHubMap.put(9.58, 1000.0);
     }
 
     private double[] calculateAim(double distance, boolean aimHighHub, boolean forceHubChoice) {
@@ -147,7 +152,8 @@ public class Thrower implements Subsystem {
 
     @Override
     public void periodic() {
-        double distance = 10; //*loc.getFeetToHub(); FIXME
+        // double distance = loc.getFeetToHub(); FIXME
+        double distance = TEST_DISTANCE.get();
 
         if (isClimbing) {
             hood.calibrate();
@@ -161,9 +167,10 @@ public class Thrower implements Subsystem {
         }
 
         if (hopper.isBallDetected() || !flywheelShutoff.hasElapsed(FLYWHEEL_SHUTOFF_SECONDS.get())) {
-            if ( input.getAim()) { // Prepare to fire // FIXME: Add localization if can see target
+            if (input.getAim()) { // Prepare to fire // FIXME: Add localization if can see target
                 double[] aim = calculateAim(distance, true, STRICT_AIM.get());
                 flywheel.setFlywheelVelocity(Angle.cwRot(aim[0] / 60)); // Convert rpm to Angle/second // TODO: Check functionality
+                System.out.println("Hood: " + aim[1]);
                 hood.setPosition(aim[1]);
                 // System.out.println("Distance: " + distance + " Hood: " + aim[1] + " Flywheel: " + aim[0]);
             } else {

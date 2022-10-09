@@ -105,7 +105,6 @@ public class Limelight implements Subsystem {
         y = Angle.cwDeg(yAngle.getDouble(0.0));
         area = targetArea.getDouble(0.0);
 
-        System.out.println(x.getCWDeg());
         L_DISTANCE.set(getDistance());
     }
 

@@ -6,6 +6,7 @@ import com.swrobotics.robot.subsystem.Intake;
 import com.swrobotics.robot.subsystem.Limelight;
 import com.swrobotics.robot.subsystem.Localization;
 import com.swrobotics.robot.subsystem.drive.Drive;
+import com.swrobotics.robot.subsystem.thrower.Hood;
 import com.swrobotics.robot.subsystem.thrower.Thrower;
 import com.team2129.lib.gyro.NavX;
 import com.team2129.lib.messenger.MessengerClient;
@@ -36,7 +37,7 @@ public final class Robot extends AbstractRobot {
     @Override
     protected final void addSubsystems() {
         // Common I/O that is not a subsystem
-        // MessengerClient msg = getMessenger();
+        // // MessengerClient msg = getMessenger();
         Input input = new Input();
         Localization loc = new Localization();
 
@@ -45,8 +46,10 @@ public final class Robot extends AbstractRobot {
         //     will cause a warning to be printed if any motors are
         //     used in it
         Thrower thrower = new Thrower(input, loc);
+        // Hood hood = new Hood();
 
         Scheduler scheduler = Scheduler.get();
+        // scheduler.addSubsystem(hood);
         scheduler.addSubsystem(loc);
         scheduler.addSubsystem(thrower);
     }
