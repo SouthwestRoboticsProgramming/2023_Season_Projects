@@ -75,7 +75,6 @@ public final class Flywheel implements Subsystem {
      * @param velocity Angle/Second
      */
     public void setFlywheelVelocity(Angle velocity) {
-        System.out.println(velocity.getCWRot());
         motor.velocity(velocity);
     }
 

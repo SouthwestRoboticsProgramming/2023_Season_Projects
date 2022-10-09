@@ -1,6 +1,8 @@
 package com.swrobotics.robot.subsystem;
 
 import com.swrobotics.robot.Robot;
+import com.swrobotics.robot.subsystem.drive.Drive;
+import com.team2129.lib.gyro.Gyroscope;
 import com.team2129.lib.gyro.NavX;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
@@ -14,7 +16,7 @@ public class Localization implements Subsystem {
     private static final NTBoolean USE_LIMELIGHT = new NTBoolean("Limelight/Use for localization", true);
 
     private final Limelight limelight;
-    private final NavX navx;
+    private final Drive drive;
 
     /**
      * In meters
@@ -22,10 +24,9 @@ public class Localization implements Subsystem {
     private Vec2d position;
     private Angle angle;
 
-    public Localization() {
+    public Localization(Drive drive) {
         limelight = new Limelight();
-        navx = new NavX();
-
+        this.drive = drive;
         Scheduler sch = Scheduler.get();
         sch.addSubsystem(this, limelight);
         position = new Vec2d();
@@ -56,12 +57,15 @@ public class Localization implements Subsystem {
     public void periodic() {
 
         // Update angle with new gyro position
-        angle = navx.getAngle();
+        angle = drive.getRotation();
 
         // Update position using limelight
         // Only update if it is accurate, the robot is in teleop, and we actually want to use it.
         if (limelight.isAccurate() && USE_LIMELIGHT.get() && Robot.get().getCurrentState() == RobotState.TELEOP) {
             position = calculatePositionOnLimelight();
+            drive.setPosition(position);
+        } else {
+            position = drive.getPosition();
         }
 
         // System.out.println("Pos: " + position);

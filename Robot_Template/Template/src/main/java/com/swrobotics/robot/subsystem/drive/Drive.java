@@ -4,14 +4,18 @@ import com.swrobotics.robot.control.Input;
 import com.team2129.lib.messenger.MessageBuilder;
 import com.team2129.lib.messenger.MessageReader;
 import com.team2129.lib.messenger.MessengerClient;
+import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.swerve.SwerveDrive;
 import com.team2129.lib.swerve.SwerveModule;
+import com.team2129.lib.utils.CoordinateConversions;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
 import com.team2129.lib.net.NTBoolean;
 import com.team2129.lib.net.NTEnum;
 import com.team2129.lib.gyro.NavX;
+
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 /*
@@ -73,6 +77,8 @@ public class Drive implements Subsystem {
 
         drive = new SwerveDrive(gyro, MAX_WHEEL_VELOCITY, modules);
 
+        Scheduler.get().addSubsystem(drive);
+
         msg.addHandler(MSG_GET_MODULE_DEFS, this::onGetModuleDefs);
     }
 
@@ -93,6 +99,23 @@ public class Drive implements Subsystem {
 
     public NavX getNavX() {
         return gyro;
+    }
+
+    public Angle getRotation() {
+        return Angle.ccwDeg(drive.getOdometryPose().getRotation().getDegrees());
+    }
+
+    public Vec2d getPosition() {
+        return CoordinateConversions.fromWPICoords(drive.getOdometryPose().getTranslation());
+    }
+
+    public void setPosition(Vec2d position) {
+        drive.setOdometryPose(
+            new Pose2d(
+            CoordinateConversions.toWPICoords(position),
+            getRotation().toRotation2dCCW()
+            )
+        );
     }
 
     @Override

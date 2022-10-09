@@ -170,7 +170,6 @@ public class Thrower implements Subsystem {
             if (input.getAim()) { // Prepare to fire // FIXME: Add localization if can see target
                 double[] aim = calculateAim(distance, true, STRICT_AIM.get());
                 flywheel.setFlywheelVelocity(Angle.cwRot(aim[0] / 60)); // Convert rpm to Angle/second // TODO: Check functionality
-                System.out.println("Hood: " + aim[1]);
                 hood.setPosition(aim[1]);
                 // System.out.println("Distance: " + distance + " Hood: " + aim[1] + " Flywheel: " + aim[0]);
             } else {
