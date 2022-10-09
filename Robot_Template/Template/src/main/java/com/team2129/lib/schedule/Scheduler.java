@@ -463,7 +463,12 @@ public final class Scheduler {
      * @return whether the command is running
      */
     public boolean isCommandRunning(Command cmd) {
+	if (cmd == null)
+	    return false;
+
 	CommandNode node = commands.get(cmd);
+	if (node == null)
+	    return false;
 
 	return checkIfValidLink(node) && !node.isSuspended();
     }
