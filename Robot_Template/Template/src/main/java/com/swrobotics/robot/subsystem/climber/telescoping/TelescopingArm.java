@@ -1,4 +1,4 @@
-package com.swrobotics.robot.subsystem.climber;
+package com.swrobotics.robot.subsystem.climber.telescoping;
 
 import java.util.function.Supplier;
 
@@ -102,6 +102,11 @@ private final TimeoutTimer calibrateTimer;
         this.underLoad = underLoad;
     }
 
+    public boolean inTolerance() {
+        bangCalc.calculate(getHeight(), Angle.cwRot(targetHeight)); // Must occur due to lazy motor behavior
+        return bangCalc.inTolerance();
+    }
+
     private Angle getHeight() {
         return Angle.cwRot(1 - motor1.getEncoder().getAngle().getCWDeg() / DEGREES_TO_MAX_HEIGHT); // Inverted
     }
@@ -171,10 +176,10 @@ private final TimeoutTimer calibrateTimer;
         * If the motor is demanded to let the robot down, it will use the minOutput.
         */
         
-        System.out.println(motor1.getEncoder().getAngle().getCWDeg() + " " + currentHeight.get().getCWRot());
-        
         motor1.position(currentHeight, Angle.cwRot(targetHeight));
         motor2.position(currentHeight, Angle.cwRot(targetHeight));
+
+        bangCalc.calculate(getHeight(), Angle.cwRot(targetHeight)); // Otherwise, motor is too lazy and skips this
         
         if (bangCalc.inTolerance() && underLoad) {
             motor1.percent(FEED_FORWARD_LOADED.get());
@@ -182,7 +187,6 @@ private final TimeoutTimer calibrateTimer;
         }
         
         if (bangCalc.inTolerance() && !underLoad) {
-            System.out.println("Hi");
             motor1.percent(FEED_FORWARD_UNLOADED.get());
             motor2.percent(FEED_FORWARD_UNLOADED.get());
         }

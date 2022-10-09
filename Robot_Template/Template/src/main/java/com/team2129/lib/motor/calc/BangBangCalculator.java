@@ -117,7 +117,6 @@ public final class BangBangCalculator implements VelocityCalculator, PositionCal
 
     public boolean inTolerance() {
         if (current == null || target == null) return false;
-        System.out.println(target.getCWDeg() + " curr: " + current.getCWDeg());
 
         boolean aboveMin = Math.abs(current.getCWDeg()) > Math.abs(target.getCWDeg() + threshLow.getCWDeg());
         boolean belowMax = Math.abs(current.getCWDeg()) < Math.abs(target.getCWDeg() + threshHigh.getCWDeg());
@@ -130,22 +129,22 @@ public final class BangBangCalculator implements VelocityCalculator, PositionCal
     }
 
     @Override
-    public double calculate(Angle currentVelocity, Angle targetVelocity) {
+    public double calculate(Angle currentReading, Angle targetReading) {
         System.out.println("Calcuated");
-        current = currentVelocity;
-        target = targetVelocity;
+        current = currentReading;
+        target = targetReading;
 
         // Define targets using thresholds
-        Angle targetLow = targetVelocity;
-        Angle targetHigh = targetVelocity;
+        Angle targetLow = targetReading;
+        Angle targetHigh = targetReading;
         
         // targetLow = targetLow.sub(threshLow);
-        targetLow = Angle.cwDeg(targetVelocity.getCWDeg() + threshLow.getCWDeg());
-        targetHigh = Angle.cwDeg(targetVelocity.getCWDeg() + threshHigh.getCWDeg());
+        targetLow = Angle.cwDeg(targetReading.getCWDeg() + threshLow.getCWDeg());
+        targetHigh = Angle.cwDeg(targetReading.getCWDeg() + threshHigh.getCWDeg());
 
         // Determine if the velocity should be increasing or decreasing
-        if (currentVelocity.getCWDeg() < targetLow.getCWDeg()) accelerating = true; // Velocity is below both targets
-        if (currentVelocity.getCWDeg() > targetHigh.getCWDeg()) accelerating = false; // Velocity is above both targets
+        if (currentReading.getCWDeg() < targetLow.getCWDeg()) accelerating = true; // Velocity is below both targets
+        if (currentReading.getCWDeg() > targetHigh.getCWDeg()) accelerating = false; // Velocity is above both targets
 
         // If the velocity is between the targets, the bang bang controller will continue to target the same target as before.
         double target = 0;
@@ -155,8 +154,8 @@ public final class BangBangCalculator implements VelocityCalculator, PositionCal
             target = targetLow.getCWDeg();
         }
 
-        double bangOut = bang.calculate(currentVelocity.getCWDeg(), target);
-        // System.out.println("Target: " + target + " current: " + currentVelocity.getCWDeg());
+        double bangOut = bang.calculate(currentReading.getCWDeg(), target);
+        // System.out.println("Target: " + target + " current: " + currentReading.getCWDeg());
         
         if (Math.abs(minOutput) > Math.abs(bangOut * multiplier)) {
             bangOut = minOutput;
