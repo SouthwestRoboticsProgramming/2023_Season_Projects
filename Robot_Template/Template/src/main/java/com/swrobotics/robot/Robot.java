@@ -2,12 +2,15 @@ package com.swrobotics.robot;
 
 import com.swrobotics.robot.blockauto.AutoBlocks;
 import com.swrobotics.robot.control.Input;
+import com.swrobotics.robot.subsystem.Intake;
 import com.swrobotics.robot.subsystem.climber.Climber;
 import com.swrobotics.robot.subsystem.climber.rotating.RotatingArm;
 import com.swrobotics.robot.subsystem.climber.rotating.RotatingArms;
 import com.swrobotics.robot.subsystem.climber.sequence.ClimbSequence;
 import com.swrobotics.robot.subsystem.climber.telescoping.TelescopingArm;
+import com.swrobotics.robot.subsystem.climber.telescoping.TelescopingArms;
 import com.swrobotics.robot.subsystem.drive.Drive;
+import com.swrobotics.robot.subsystem.thrower.Thrower;
 import com.team2129.lib.gyro.NavX;
 import com.team2129.lib.messenger.MessengerClient;
 import com.team2129.lib.schedule.Scheduler;
@@ -37,25 +40,33 @@ public final class Robot extends AbstractRobot {
     @Override
     protected final void addSubsystems() {
         // Common I/O that is not a subsystem
-        // MessengerClient msg = getMessenger();
+        MessengerClient msg = getMessenger();
         Input input = new Input();
-        // NavX gyro = new NavX(); // Prefer using odometry angle rather than gyro for most things
+        NavX gyro = new NavX(); // Prefer using odometry angle rather than gyro for most things
 
         // Note: Do not instantiate a subsystem without adding it to
         //     the scheduler, it could cause unexpected behavior and
         //     will cause a warning to be printed if any motors are
         //     used in it
 
-        // Drive drive = new Drive(input, gyro, msg);
+        Drive drive = new Drive(input, gyro, msg);
+        Intake intake = new Intake(input);
+        Thrower thrower = new Thrower(input);
 
         // TelescopingArm tele = new TelescopingArm(6, 7, false);
         // RotatingArm rotating = new RotatingArm(10);
 
         // Climber climber = new Climber();
 
+        // TelescopingArms arms = new TelescopingArms();
+
         Scheduler scheduler = Scheduler.get();
+        scheduler.addSubsystem(drive);
+        scheduler.addSubsystem(intake);
+        scheduler.addSubsystem(thrower);
         // scheduler.addSubsystem(climber);
-        // scheduler.addCommand(new ClimbSequence(climber, input));
+        // scheduler.addCommand(climber, new ClimbSequence(climber, input));
+        // scheduler.addSubsystem(arms);
         // scheduler.addSubsystem(rotating);
     }
 }

@@ -13,7 +13,7 @@ public class NavX extends Gyroscope {
 
     @Override
     public Angle getRawAngle() {
-        return Angle.ccwDeg(ahrs.getAngle());
+        return Angle.cwDeg(ahrs.getAngle());
     }
     
 }

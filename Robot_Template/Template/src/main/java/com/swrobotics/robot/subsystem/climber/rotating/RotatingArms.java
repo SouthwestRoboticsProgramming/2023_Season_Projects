@@ -15,16 +15,22 @@ public class RotatingArms implements Subsystem {
     private Angle targetAngle;
 
     public RotatingArms() {
-        leftArm = new RotatingArm(LEFT_ARM_ID);
-        rightArm = new RotatingArm(RIGHT_ARM_ID);
+        leftArm = new RotatingArm(LEFT_ARM_ID, "Left");
+        rightArm = new RotatingArm(RIGHT_ARM_ID, "Right");
 
         Scheduler sch = Scheduler.get();
         sch.addSubsystem(this, leftArm);
         sch.addSubsystem(this, rightArm);
+
+        targetAngle = Angle.zero();
     }
 
-    public boolean inTolerance() {
-        return leftArm.inTolerance() && rightArm.inTolerance();
+    public boolean leftInTolerance() {
+        return leftArm.inTolerance();
+    }
+
+    public boolean rightInTolerance() {
+        return rightArm.inTolerance();
     }
 
     public void setTargetAngle(Angle target) {
@@ -35,5 +41,13 @@ public class RotatingArms implements Subsystem {
     public void periodic() {
         leftArm.setTargetAngle(targetAngle);
         rightArm.setTargetAngle(targetAngle);
+    }
+
+    public RotatingArm getLeft() {
+        return leftArm;
+    }
+
+    public RotatingArm getRight() {
+        return rightArm;
     }
 }

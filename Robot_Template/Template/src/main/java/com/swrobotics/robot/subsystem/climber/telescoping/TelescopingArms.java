@@ -28,7 +28,19 @@ public class TelescopingArms implements Subsystem {
         rightTele.setHeight(percentOfMax, underLoad);
     }
 
-    public boolean inTolerance() {
-        return leftTele.inTolerance() && rightTele.inTolerance();
+    public boolean leftInTolerance() {
+        return leftTele.inTolerance();
+    }
+
+    public boolean rightInTolerance() {
+        return rightTele.inTolerance();
+    }
+
+    public TelescopingArm getLeft() {
+        return leftTele;
+    }
+
+    public TelescopingArm getRight() {
+        return rightTele;
     }
 }

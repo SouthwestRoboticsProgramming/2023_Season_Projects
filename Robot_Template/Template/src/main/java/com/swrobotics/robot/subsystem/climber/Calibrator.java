@@ -31,7 +31,7 @@ public class Calibrator implements Command {
         }
 
         // If the velocity is in tolerance
-        if (encoder.getVelocity().getCWDeg() <= velocityTolerance.getCWDeg()) {
+        if (Math.abs(encoder.getVelocity().getCWDeg()) <= velocityTolerance.getCWDeg()) {
             // Start timer
             timeout.start(false);
 

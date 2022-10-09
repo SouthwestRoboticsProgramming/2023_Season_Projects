@@ -38,7 +38,7 @@ public class ClimbSequence extends CommandSequence {
         append(new ClimberStep(climber, ARMS_UP_TO_MID_TELE, GET_OUT_OF_THE_WAY_ROT, false)); // Raise arms to reach to mid bar
         append(new ClimberStep(climber, PULL_UP_TELE, GET_OUT_OF_THE_WAY_ROT, true)); // Pull robot up to mid bar
         append(new ClimberStep(climber, PULL_UP_TELE, LOCK_IN_ROT, true)); // Lock rotators into mid bar
-        append(new ClimberStep(climber, RELEASE_TELE, LEAN_BACK_ROT, true)); // Lean back to reach to next bar
+        append(new ClimberStep(climber, RELEASE_TELE, LEAN_BACK_ROT, false)); // Lean back to reach to next bar
         // append(new WaitForAngleCommand(gyro)); // Make sure we're at the right angle
 
         // Mid to high
@@ -46,7 +46,7 @@ public class ClimbSequence extends CommandSequence {
         append(new ClimberStep(climber, REACH_TO_NEXT_BAR_TELE, PRESSURE_ROT, true)); // Rotate to put pressure on high bar
         append(new ClimberStep(climber, PULL_UP_TELE, GET_OUT_OF_THE_WAY_ROT, true)); // Pull up to high bar
         append(new ClimberStep(climber, PULL_UP_TELE, LOCK_IN_ROT, true)); // Lock rotators into high bar
-        append(new ClimberStep(climber, RELEASE_TELE, LEAN_BACK_ROT, true)); // Lean back to traversal bar
+        append(new ClimberStep(climber, RELEASE_TELE, LEAN_BACK_ROT, false)); // Lean back to traversal bar
         // append(new WaitForAngleCommand(gyro)); // Make sure we're at the right angle
 
         // High to traversal
@@ -60,6 +60,7 @@ public class ClimbSequence extends CommandSequence {
     @Override
     public boolean run() {
         boolean superOut = super.run();
+
 
         if (Robot.get().getCurrentState() == RobotState.DISABLED) {
             goTo(0);

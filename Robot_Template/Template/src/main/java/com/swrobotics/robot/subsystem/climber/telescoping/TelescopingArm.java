@@ -16,6 +16,9 @@ import com.team2129.lib.wpilib.RobotState;
 
 // FIXME-MERGE: Ignore all changes in this file, I was just getting it to compile
 public class TelescopingArm implements Subsystem {
+
+    private static final NTDouble TEST_PERC = new NTDouble("Test/Test/Climber percussion", 0);
+
     private static final NTDouble LIFT_PERC_LOADED = new NTDouble("Climber/Tele/Loaded Lift Percent", 0.8); // Lift the robot, should be positive
     private static final NTDouble LIFT_PERC_UNLOADED = new NTDouble("Climber/Tele/Unloaded Lift Percent", 0.5); // Lift the robot, should be positive
 
@@ -156,6 +159,9 @@ private final TimeoutTimer calibrateTimer;
     @Override
     public void periodic() {
 
+        // motor1.percent(TEST_PERC.get());
+        // motor2.percent(TEST_PERC.get());
+
         
         calibrate();
         if (shouldBeCalibrating) return;
@@ -201,6 +207,9 @@ private final TimeoutTimer calibrateTimer;
     @Override
     public void autonomousInit() {
         setHeight(0.25, false);
+    }
 
+    public String getTolInfo() {
+        return String.format("(C %.2f T %.2f)", getHeight().getCWRot(), targetHeight);
     }
 }

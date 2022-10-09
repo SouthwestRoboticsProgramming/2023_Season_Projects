@@ -37,26 +37,22 @@ public class RotatingArm implements Subsystem {
     private static final int MAX_ANGLE_CWDEG = 120;
 
     private final BrushlessSparkMaxMotor motor;
+    private final NTDouble lAngle;
 
-    private final Supplier<Angle> currentAngle;
-
-    private final Calibrator calibrator;
-
+    private Calibrator calibrator;
     private Angle targetAngle;
     
-    public RotatingArm(int motorID) {
+    public RotatingArm(int motorID, String name) {
         motor = new BrushlessSparkMaxMotor(this, motorID);
+        motor.setInverted(true);
         motor.setEncoderFilter(new JumpToZeroFilter());
+        motor.getEncoder().setInverted(false);
         motor.setPositionCalculator(new PIDCalculator(KP, KI, KD));
 
-        currentAngle = () -> getAngle();
+        lAngle = new NTDouble("Climber/Rotating/" + name + "/Angle", 0);
+        lAngle.setTemporary();
 
         setTargetAngle(Angle.cwDeg(90));
-
-        calibrator = new Calibrator(Angle.cwDeg(CALIBRATE_VELOCITY_TOLERANCE.get()),
-        CALIBRATE_PERCENT.get(),
-        CALIBRATE_TIMEOUT, motor.getEncoder(),
-        motor);
     }
 
     public void setTargetAngle(Angle angle) {
@@ -71,15 +67,20 @@ public class RotatingArm implements Subsystem {
         // Calculate length of Igus Shaft between pivot points
         double currentIgusLength = encoderRots / ROTS_PER_INCH + CALIBRATED_LENGTH;
         
+        // System.out.printf("%.3f %.3f %.3f %s %n", BASE_LENGTH, ARM_LENGTH, currentIgusLength, (BASE_LENGTH + ARM_LENGTH) >= currentIgusLength ? "valid" : "INVALID");
+
         // Calculate angle using law of cosines
         // Angle = (Base^2 + Arm^2 - Igus^2) / (2*Arm*Base)
-        double cwRad = Math.acos((BASE_LENGTH*BASE_LENGTH +
-        ARM_LENGTH*ARM_LENGTH -
-        currentIgusLength*currentIgusLength) /
-                                  (2 * ARM_LENGTH * BASE_LENGTH)
-                                  );
+        double cwRad = Math.acos((
+                BASE_LENGTH*BASE_LENGTH + 
+                ARM_LENGTH*ARM_LENGTH -
+                currentIgusLength*currentIgusLength) /
+            (2 * ARM_LENGTH * BASE_LENGTH)
+        );
+        Angle a = Angle.cwRad(cwRad);
+        lAngle.set(a.getCWDeg());
 
-        return Angle.cwRad(cwRad);
+        return a;
     }
 
     public boolean inTolerance() {
@@ -90,6 +91,11 @@ public class RotatingArm implements Subsystem {
 
     @Override
     public void teleopInit() {
+        calibrator = new Calibrator(Angle.cwDeg(CALIBRATE_VELOCITY_TOLERANCE.get()),
+        CALIBRATE_PERCENT.get(),
+        CALIBRATE_TIMEOUT, motor.getEncoder(),
+        motor);
+
         Scheduler.get().addCommand(calibrator);
     }
 
@@ -97,16 +103,22 @@ public class RotatingArm implements Subsystem {
     public void periodic() {
 
         // FIXME: Wait until done calibrating to start moving
-        targetAngle = Angle.cwDeg(TEST_TARGET.get());
+        // targetAngle = Angle.cwDeg(TEST_TARGET.get());
 
         if (Scheduler.get().isCommandRunning(calibrator)) {
-            System.out.println("Running");
             return;
         }
         // System.out.println("Mot: " + motor.getEncoder().getAngle().getCWDeg());
         // System.out.println("Current: "+ getAngle().getCWDeg() + " Tol: " + inTolerance());
-        motor.position(currentAngle, targetAngle);
+        motor.position(this::getAngle, targetAngle);
         // motor.percent(0.1);
     }
+
+    public String getTolInfo() {
+        return String.format("(C %.2f T %.2f)", getAngle().getCWDeg(), targetAngle.getCWDeg());
+    }
+
+    // We don't want any gravity here; no longer necessary
+    // haveGravity()
     
 }
