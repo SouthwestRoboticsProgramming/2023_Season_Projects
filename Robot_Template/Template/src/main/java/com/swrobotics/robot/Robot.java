@@ -49,21 +49,10 @@ public final class Robot extends AbstractRobot {
         Intake intake = new Intake(input);
         Thrower thrower = new Thrower(input, loc);
 
-        // TelescopingArm tele = new TelescopingArm(6, 7, false);
-        // RotatingArm rotating = new RotatingArm(10);
-
-        // Climber climber = new Climber();
-
-        // TelescopingArms arms = new TelescopingArms();
-
         Scheduler scheduler = Scheduler.get();
         scheduler.addSubsystem(loc);
         scheduler.addSubsystem(drive);
         scheduler.addSubsystem(intake);
         scheduler.addSubsystem(thrower);
-        // scheduler.addSubsystem(climber);
-        // scheduler.addCommand(climber, new ClimbSequence(climber, input));
-        // scheduler.addSubsystem(arms);
-        // scheduler.addSubsystem(rotating);
     }
 }
