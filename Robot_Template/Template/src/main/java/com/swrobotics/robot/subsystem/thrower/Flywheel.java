@@ -1,7 +1,7 @@
 package com.swrobotics.robot.subsystem.thrower;
 
 import com.team2129.lib.math.Angle;
-import com.team2129.lib.motor.calc.BangBangVelocityCalculator;
+import com.team2129.lib.motor.calc.BangBangCalculator;
 import com.team2129.lib.motor.calc.CompoundVelocityCalculator;
 import com.team2129.lib.motor.calc.FeedForwardVelocityCalculator;
 import com.team2129.lib.motor.calc.PIDCalculator;
@@ -53,7 +53,7 @@ public final class Flywheel implements Subsystem {
          *      KP should get motor to hover around the setpoint without revving.
          */
         
-        BangBangVelocityCalculator bangCalc = new BangBangVelocityCalculator();
+        BangBangCalculator bangCalc = new BangBangCalculator();
 
         FeedForwardVelocityCalculator feedCalc = new FeedForwardVelocityCalculator(KS, KV);
 

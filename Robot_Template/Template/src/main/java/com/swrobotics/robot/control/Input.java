@@ -73,4 +73,12 @@ public class Input {
     public boolean getAimOverride() {
         return controller.getStartButton();
     }
+
+    public boolean getClimbNextStep() {
+        return controller.getXButtonPressed();
+    }
+
+    public boolean getClimbPreviousStep() {
+        return controller.getBButtonPressed();
+    }
 }
