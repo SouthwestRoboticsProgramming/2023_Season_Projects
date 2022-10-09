@@ -79,11 +79,10 @@ public class Thrower implements Subsystem {
         isClimbing = false;
 
         // Temporary copied from old constants
-        highHubMap.put(0.0, 0.0);
-        highHubMap.put(2.95, 500.0);
-        highHubMap.put(5.4, 600.0);
-        highHubMap.put(7.3, 800.0);
-        highHubMap.put(9.58, 1000.0);
+        highHubMap.put(3.46, 50.4);
+        highHubMap.put(1.92, 35.1);
+        highHubMap.put(4.47, 65.0);
+        highHubMap.put(2.97, 45.0);
     }
 
     private double[] calculateAim(double distance, boolean aimHighHub, boolean forceHubChoice) {
