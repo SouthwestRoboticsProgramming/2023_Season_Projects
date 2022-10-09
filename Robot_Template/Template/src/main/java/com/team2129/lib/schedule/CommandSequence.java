@@ -31,6 +31,10 @@ public class CommandSequence implements CompoundCommand {
                 cmd.end(true);
             }
         }
+
+        Command getCommand() {
+            return cmd;
+        }
     }
 
     private final List<CommandWrapper> cmds;
@@ -101,6 +105,10 @@ public class CommandSequence implements CompoundCommand {
             cmds.get(index).init();
 
         invokeDebugCallback();
+    }
+
+    public Command getCurrent() {
+        return cmds.get(index).getCommand();
     }
 
     @Override

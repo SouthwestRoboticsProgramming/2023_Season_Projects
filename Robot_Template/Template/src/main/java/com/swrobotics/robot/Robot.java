@@ -2,7 +2,15 @@ package com.swrobotics.robot;
 
 import com.swrobotics.robot.blockauto.AutoBlocks;
 import com.swrobotics.robot.control.Input;
+import com.swrobotics.robot.subsystem.Intake;
+import com.swrobotics.robot.subsystem.climber.Climber;
+import com.swrobotics.robot.subsystem.climber.rotating.RotatingArm;
+import com.swrobotics.robot.subsystem.climber.rotating.RotatingArms;
+import com.swrobotics.robot.subsystem.climber.sequence.ClimbSequence;
+import com.swrobotics.robot.subsystem.climber.telescoping.TelescopingArm;
+import com.swrobotics.robot.subsystem.climber.telescoping.TelescopingArms;
 import com.swrobotics.robot.subsystem.drive.Drive;
+import com.swrobotics.robot.subsystem.thrower.Thrower;
 import com.team2129.lib.gyro.NavX;
 import com.team2129.lib.messenger.MessengerClient;
 import com.team2129.lib.schedule.Scheduler;
@@ -42,8 +50,23 @@ public final class Robot extends AbstractRobot {
         //     used in it
 
         Drive drive = new Drive(input, gyro, msg);
+        Intake intake = new Intake(input);
+        Thrower thrower = new Thrower(input);
+
+        // TelescopingArm tele = new TelescopingArm(6, 7, false);
+        // RotatingArm rotating = new RotatingArm(10);
+
+        // Climber climber = new Climber();
+
+        // TelescopingArms arms = new TelescopingArms();
 
         Scheduler scheduler = Scheduler.get();
         scheduler.addSubsystem(drive);
+        scheduler.addSubsystem(intake);
+        scheduler.addSubsystem(thrower);
+        // scheduler.addSubsystem(climber);
+        // scheduler.addCommand(climber, new ClimbSequence(climber, input));
+        // scheduler.addSubsystem(arms);
+        // scheduler.addSubsystem(rotating);
     }
 }

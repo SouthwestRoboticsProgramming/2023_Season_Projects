@@ -3,25 +3,24 @@ package com.team2129.lib.motor.calc;
 import com.team2129.lib.math.Angle;
 
 import edu.wpi.first.math.controller.BangBangController;
-import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.wpilibj.DriverStation;
 
 /**
  * Calculates the percent output to set a motor's velocity using a
  * bang-bang controller.
  */
-public final class BangBangVelocityCalculator implements VelocityCalculator {
+public final class BangBangCalculator implements VelocityCalculator, PositionCalculator {
     private final BangBangController bang;
-    private SlewRateLimiter rateLimiter;
-    private double rampSeconds;
     private Angle threshLow;
     private Angle threshHigh;
     private double multiplier;
+    private double minOutput;
 
     private boolean accelerating;
+    private Angle current;
+    private Angle target;
 
     /**
-     * Creates a new {@code BangBangVelocityCalculator} instance.
+     * Creates a new {@code BangBangCalculator} instance.
      *
      * From WPILib documentation:<p>
      * Always ensure that your motor controllers are set to "coast" before
@@ -30,9 +29,8 @@ public final class BangBangVelocityCalculator implements VelocityCalculator {
      * <p> Ensure that your motor and encoder are reporting in 
      * the same direction before using this controller.
      */
-    public BangBangVelocityCalculator() {
+    public BangBangCalculator() {
         bang = new BangBangController();
-        rateLimiter = new SlewRateLimiter(5.0); // Ramp from 0 to 100 in 1/5 of a second
         multiplier = 1.0;
 
         threshLow = Angle.zero();
@@ -102,29 +100,27 @@ public final class BangBangVelocityCalculator implements VelocityCalculator {
     }
 
     /**
-     * Set how quickly the motor should decelerate from 100% to 0% output.
-     * @param rampSeconds Time it takes to ramp down from 100% to 0% output.
+     * Set the value the calculator should output when
+     * it reads above the setpoint
+     * @param minOutput Minimum value the calculator will output
      */
-    public void setSpeedRamp(double rampSeconds) {
-        this.rampSeconds = rampSeconds;
-        rebuildRateLimiter();
+    public void setMinOutput(double minOutput) {
+        this.minOutput = minOutput;
     }
 
     /**
-     * Get how quickly the motor is allowed to decelerate between from 100% to 0%.
-     * @return Ramping in units per second.
+     * Get the lowest output as defined by {@code setMinOutput()}.
      */
-    public double getSpeedRamp() {
-        return rampSeconds;
+    public double getMinOutput() {
+        return minOutput;
     }
 
-    private void rebuildRateLimiter() {
-        try {
-            rateLimiter = new SlewRateLimiter(rampSeconds);
-        } catch (ArithmeticException e) {
-            DriverStation.reportError("Failed to set rate limit, did you set it to something other than 0?", true);
-            rateLimiter = new SlewRateLimiter(5.0);
-        }
+    public boolean inTolerance() {
+        if (current == null || target == null) return false;
+
+        boolean aboveMin = Math.abs(current.getCWDeg()) > Math.abs(target.getCWDeg() + threshLow.getCWDeg());
+        boolean belowMax = Math.abs(current.getCWDeg()) < Math.abs(target.getCWDeg() + threshHigh.getCWDeg());
+        return aboveMin && belowMax;
     }
 
     @Override
@@ -133,23 +129,21 @@ public final class BangBangVelocityCalculator implements VelocityCalculator {
     }
 
     @Override
-    public double calculate(Angle currentVelocity, Angle targetVelocity) {
+    public double calculate(Angle currentReading, Angle targetReading) {
+        current = currentReading;
+        target = targetReading;
 
         // Define targets using thresholds
-        Angle targetLow = targetVelocity;
-        Angle targetHigh = targetVelocity;
+        Angle targetLow = targetReading;
+        Angle targetHigh = targetReading;
         
         // targetLow = targetLow.sub(threshLow);
-        targetLow = Angle.cwDeg(targetVelocity.getCWDeg() - threshLow.getCWDeg());
-        targetHigh = Angle.cwDeg(targetVelocity.getCWDeg() + threshHigh.getCWDeg());
-        
-        // if (targetLow.lessThan(Angle.zero())) targetLow = Angle.zero();
-        
-        // System.out.println(targetLow.getCWDeg());
+        targetLow = Angle.cwDeg(targetReading.getCWDeg() + threshLow.getCWDeg());
+        targetHigh = Angle.cwDeg(targetReading.getCWDeg() + threshHigh.getCWDeg());
 
         // Determine if the velocity should be increasing or decreasing
-        if (currentVelocity.getCWDeg() < targetLow.getCWDeg()) accelerating = true; // Velocity is below both targets
-        if (currentVelocity.getCWDeg() > targetHigh.getCWDeg()) accelerating = false; // Velocity is above both targets
+        if (currentReading.getCWDeg() < targetLow.getCWDeg()) accelerating = true; // Velocity is below both targets
+        if (currentReading.getCWDeg() > targetHigh.getCWDeg()) accelerating = false; // Velocity is above both targets
 
         // If the velocity is between the targets, the bang bang controller will continue to target the same target as before.
         double target = 0;
@@ -159,11 +153,13 @@ public final class BangBangVelocityCalculator implements VelocityCalculator {
             target = targetLow.getCWDeg();
         }
 
-        double bangOut = bang.calculate(currentVelocity.getCWDeg(), target);
-        if (bangOut == 0) { // Only apply ramp on deceleration
-            bangOut = rateLimiter.calculate(bangOut);
+        double bangOut = bang.calculate(currentReading.getCWDeg(), target);
+        // System.out.println("Target: " + target + " current: " + currentReading.getCWDeg());
+        
+        if (Math.abs(minOutput) > Math.abs(bangOut * multiplier)) {
+            bangOut = minOutput;
         } else {
-            rateLimiter.calculate(bangOut);
+            bangOut *= multiplier;
         }
         return bangOut * multiplier;
     }

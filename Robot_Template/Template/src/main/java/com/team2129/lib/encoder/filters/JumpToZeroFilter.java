@@ -15,7 +15,7 @@ public class JumpToZeroFilter implements OutputFilter {
     @Override
     public Angle filter(Angle angle) {
         // Freeze the output if the encoder drops to exactly 0.
-        if (angle.equals(Angle.zero())) {  // TODO: Updated function on main
+        if (lastAngle != null && angle.equals(Angle.zero())) {  // TODO: Updated function on main
             return lastAngle;
         }
 
