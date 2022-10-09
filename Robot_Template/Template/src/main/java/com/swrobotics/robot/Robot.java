@@ -2,8 +2,10 @@ package com.swrobotics.robot;
 
 import com.swrobotics.robot.blockauto.AutoBlocks;
 import com.swrobotics.robot.control.Input;
+import com.swrobotics.robot.subsystem.climber.Climber;
 import com.swrobotics.robot.subsystem.climber.rotating.RotatingArm;
 import com.swrobotics.robot.subsystem.climber.rotating.RotatingArms;
+import com.swrobotics.robot.subsystem.climber.sequence.ClimbSequence;
 import com.swrobotics.robot.subsystem.climber.telescoping.TelescopingArm;
 import com.swrobotics.robot.subsystem.drive.Drive;
 import com.team2129.lib.gyro.NavX;
@@ -46,11 +48,14 @@ public final class Robot extends AbstractRobot {
 
         // Drive drive = new Drive(input, gyro, msg);
 
-        TelescopingArm tele = new TelescopingArm(6, 7, false);
-        // RotatingArm rotating = new RotatingArm(10);
+        // TelescopingArm tele = new TelescopingArm(6, 7, false);
+        RotatingArm rotating = new RotatingArm(10);
+
+        // Climber climber = new Climber();
 
         Scheduler scheduler = Scheduler.get();
-        scheduler.addSubsystem(tele);
-        // scheduler.addSubsystem(rotating);
+        // scheduler.addSubsystem(climber);
+        // scheduler.addCommand(new ClimbSequence(climber, input));
+        scheduler.addSubsystem(rotating);
     }
 }

@@ -22,7 +22,7 @@ public class RotatingArm implements Subsystem {
     private static final NTDouble KI = new NTDouble("Climber/Rotating/kI", 0.0);
     private static final NTDouble KD = new NTDouble("Climber/Rotating/kD", 0.0);
 
-    private static final NTDouble TOLERANCE = new NTDouble("Clibmer/Rotating/Tolerance Deg", 5);
+    private static final NTDouble TOLERANCE = new NTDouble("Climber/Rotating/Tolerance Deg", 5);
 
     private static final NTDouble CALIBRATE_PERCENT = new NTDouble("Climber/Rotating/Calibration Percent", -0.1);
     private static final NTDouble CALIBRATE_VELOCITY_TOLERANCE = new NTDouble("Climber/Rotating/Calibration Velocity Tolerence", 1); // Degrees per second
@@ -40,6 +40,8 @@ public class RotatingArm implements Subsystem {
 
     private final Supplier<Angle> currentAngle;
 
+    private final Calibrator calibrator;
+
     private Angle targetAngle;
     
     public RotatingArm(int motorID) {
@@ -50,6 +52,11 @@ public class RotatingArm implements Subsystem {
         currentAngle = () -> getAngle();
 
         setTargetAngle(Angle.cwDeg(90));
+
+        calibrator = new Calibrator(Angle.cwDeg(CALIBRATE_VELOCITY_TOLERANCE.get()),
+        CALIBRATE_PERCENT.get(),
+        CALIBRATE_TIMEOUT, motor.getEncoder(),
+        motor);
     }
 
     public void setTargetAngle(Angle angle) {
@@ -83,10 +90,7 @@ public class RotatingArm implements Subsystem {
 
     @Override
     public void teleopInit() {
-        Scheduler.get().addCommand(new Calibrator(Angle.cwDeg(CALIBRATE_VELOCITY_TOLERANCE.get()),
-        CALIBRATE_PERCENT.get(),
-        CALIBRATE_TIMEOUT, motor.getEncoder(),
-        motor));
+        Scheduler.get().addCommand();
     }
 
     @Override

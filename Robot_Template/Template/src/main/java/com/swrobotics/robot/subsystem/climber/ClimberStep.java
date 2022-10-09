@@ -16,7 +16,8 @@ public class ClimberStep implements Command {
     @Override
     public boolean run() {
         climber.setTargetState(state);
-        return climber.inTolerance();
+        // return climber.inTolerance();
+        return false;
     }
     
 }

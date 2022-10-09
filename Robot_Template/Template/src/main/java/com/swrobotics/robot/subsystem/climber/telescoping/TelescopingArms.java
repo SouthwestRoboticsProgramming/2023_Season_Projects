@@ -9,7 +9,7 @@ public class TelescopingArms implements Subsystem {
     private static final boolean LEFT_TELE_INVERTED = false;
     private static final int RIGHT_TELE_ID_1 = 8;
     private static final int RIGHT_TELE_ID_2 = 9;
-    private static final boolean RIGHT_TELE_INVERTED = true;
+    private static final boolean RIGHT_TELE_INVERTED = false;
 
     private final TelescopingArm leftTele;
     private final TelescopingArm rightTele;
