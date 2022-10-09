@@ -49,13 +49,13 @@ public final class Robot extends AbstractRobot {
         // Drive drive = new Drive(input, gyro, msg);
 
         // TelescopingArm tele = new TelescopingArm(6, 7, false);
-        RotatingArm rotating = new RotatingArm(10);
+        // RotatingArm rotating = new RotatingArm(10);
 
         // Climber climber = new Climber();
 
         Scheduler scheduler = Scheduler.get();
         // scheduler.addSubsystem(climber);
         // scheduler.addCommand(new ClimbSequence(climber, input));
-        scheduler.addSubsystem(rotating);
+        // scheduler.addSubsystem(rotating);
     }
 }

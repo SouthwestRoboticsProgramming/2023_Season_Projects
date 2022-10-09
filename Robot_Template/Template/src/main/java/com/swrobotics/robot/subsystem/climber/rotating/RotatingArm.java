@@ -90,7 +90,7 @@ public class RotatingArm implements Subsystem {
 
     @Override
     public void teleopInit() {
-        Scheduler.get().addCommand();
+        Scheduler.get().addCommand(calibrator);
     }
 
     @Override
@@ -98,6 +98,11 @@ public class RotatingArm implements Subsystem {
 
         // FIXME: Wait until done calibrating to start moving
         targetAngle = Angle.cwDeg(TEST_TARGET.get());
+
+        if (Scheduler.get().isCommandRunning(calibrator)) {
+            System.out.println("Running");
+            return;
+        }
         // System.out.println("Mot: " + motor.getEncoder().getAngle().getCWDeg());
         // System.out.println("Current: "+ getAngle().getCWDeg() + " Tol: " + inTolerance());
         motor.position(currentAngle, targetAngle);

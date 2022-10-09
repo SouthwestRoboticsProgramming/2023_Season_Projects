@@ -130,7 +130,6 @@ public final class BangBangCalculator implements VelocityCalculator, PositionCal
 
     @Override
     public double calculate(Angle currentReading, Angle targetReading) {
-        System.out.println("Calcuated");
         current = currentReading;
         target = targetReading;
 
