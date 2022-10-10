@@ -39,6 +39,10 @@ public final class PersistentSequence {
         this.stack = stack;
     }
 
+    public BlockStackInst getStack() {
+        return stack;
+    }
+
     public void save() {
         // Fake message builder so we can use same serialization code
         MessageBuilder builder = new MessageBuilder(null, null);
@@ -55,5 +59,9 @@ public final class PersistentSequence {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean delete() {
+        return file.delete();
     }
 }

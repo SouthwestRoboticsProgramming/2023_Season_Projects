@@ -1,9 +1,6 @@
 package com.swrobotics.robot.blockauto;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,12 +9,12 @@ import java.util.Map;
 import com.team2129.lib.messenger.MessageBuilder;
 import com.team2129.lib.messenger.MessageReader;
 import com.team2129.lib.messenger.MessengerClient;
-import com.team2129.lib.schedule.Command;
 import com.team2129.lib.schedule.CommandLoop;
 import com.team2129.lib.schedule.CommandUnion;
 import com.team2129.lib.schedule.WaitCommand;
 import com.team2129.lib.time.TimeUnit;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 
 public final class AutoBlocks {
@@ -98,9 +95,7 @@ public final class AutoBlocks {
      * 
      * S->R: Query sequences
      * R->S: Sequences (string list)
-     * 
-     * S->R: Create sequence (string)
-     * R->S: Create confirm (same string)
+     *
      * S->R: Delete sequence (string)
      * R->S: Delete confirm (same string)
      * S->R: Get sequence data (string)
@@ -114,19 +109,17 @@ public final class AutoBlocks {
      * Stored in .auto files.
      */
 
-    private static final String MSG_QUERY_BLOCK_DEFS = "AutoBlock:QueryBlockDefs";
-    private static final String MSG_QUERY_SEQUENCES  = "AutoBlock:QuerySequences";
-    private static final String MSG_CREATE_SEQUENCE  = "AutoBlock:CreateSequence";
-    private static final String MSG_READ_SEQUENCE    = "AutoBlock:ReadSequence";
-    private static final String MSG_UPDATE_SEQUENCE  = "AutoBlock:UpdateSequence";
-    private static final String MSG_DELETE_SEQUENCE  = "AutoBlock:DeleteSequence";
+    private static final String MSG_QUERY_BLOCK_DEFS      = "AutoBlock:QueryBlockDefs";
+    private static final String MSG_QUERY_SEQUENCES       = "AutoBlock:QuerySequences";
+    private static final String MSG_GET_SEQUENCE_DATA     = "AutoBlock:GetSequenceData";
+    private static final String MSG_PUBLISH_SEQUENCE_DATA = "AutoBlock:PublishSequenceData";
+    private static final String MSG_DELETE_SEQUENCE       = "AutoBlock:DeleteSequence";
 
-    private static final String MSG_BLOCK_DEFS     = "AutoBlock:BlockDefs";
-    private static final String MSG_SEQUENCES      = "AutoBlock:Sequences";
-    private static final String MSG_CREATE_CONFIRM = "AutoBlock:CreateConfirm";
-    private static final String MSG_SEQUENCE_DATA  = "AutoBlock:SequenceData";
-    private static final String MSG_UPDATE_CONFIRM = "AutoBlock:UpdateConfirm";
-    private static final String MSG_DELETE_CONFIRM = "AutoBlock:DeleteConfirm";
+    private static final String MSG_BLOCK_DEFS      = "AutoBlock:BlockDefs";
+    private static final String MSG_SEQUENCES       = "AutoBlock:Sequences";
+    private static final String MSG_SEQUENCE_DATA   = "AutoBlock:SequenceData";
+    private static final String MSG_PUBLISH_CONFIRM = "AutoBlock:PublishConfirm";
+    private static final String MSG_DELETE_CONFIRM  = "AutoBlock:DeleteConfirm";
 
     private static final File PERSISTENCE_DIR = new File(Filesystem.getOperatingDirectory(), "BlockAuto");
     private static final String PERSISTENCE_FILE_EXT = ".auto";
@@ -142,32 +135,31 @@ public final class AutoBlocks {
     public static void init(MessengerClient msg) {
         defineBlocks();
 
-        if (!PERSISTENCE_DIR.exists())
-            PERSISTENCE_DIR.mkdirs();
-
-        // test
-        BlockStackInst stack = new BlockStackInst();
-        stack.addBlock(new BlockInst(blockDefRegistry.get("wait"), 1.0));
-        BlockStackInst stack2 = new BlockStackInst();
-        stack2.addBlock(new BlockInst(blockDefRegistry.get("wait"), 10.0));
-        stack.addBlock(new BlockInst(blockDefRegistry.get("repeat"), 10, stack2));
-        PersistentSequence s = new PersistentSequence(new File(PERSISTENCE_DIR, "wait.auto"), stack);
-        s.save();
+        if (!PERSISTENCE_DIR.exists() && !PERSISTENCE_DIR.mkdirs()) {
+            DriverStation.reportWarning("Block auto: Failed to create persistence directory", false);
+        }
 
         // Read in existing sequences
-        for (File file : PERSISTENCE_DIR.listFiles()) {
-            if (!file.getName().endsWith(PERSISTENCE_FILE_EXT))
-                continue;
+        File[] persistenceFiles = PERSISTENCE_DIR.listFiles();
+        if (persistenceFiles != null) {
+            for (File file : persistenceFiles) {
+                if (!file.getName().endsWith(PERSISTENCE_FILE_EXT))
+                    continue;
 
-            String name = file.getName();
-            name = name.substring(0, name.length() - PERSISTENCE_FILE_EXT.length());
-    
-            PersistentSequence seq = new PersistentSequence(file);
-            sequences.put(name, seq);
+                String name = file.getName();
+                name = name.substring(0, name.length() - PERSISTENCE_FILE_EXT.length());
+
+                PersistentSequence seq = new PersistentSequence(file);
+                sequences.put(name, seq);
+            }
         }
 
         AutoBlocks.msg = msg;
-        msg.addHandler(MSG_QUERY_BLOCK_DEFS, AutoBlocks::onQueryBlockDefs);
+        msg.addHandler(MSG_QUERY_BLOCK_DEFS,      AutoBlocks::onQueryBlockDefs);
+        msg.addHandler(MSG_QUERY_SEQUENCES,       AutoBlocks::onQuerySequences);
+        msg.addHandler(MSG_GET_SEQUENCE_DATA,     AutoBlocks::onGetSequenceData);
+        msg.addHandler(MSG_PUBLISH_SEQUENCE_DATA, AutoBlocks::onPublishSequenceData);
+        msg.addHandler(MSG_DELETE_SEQUENCE,       AutoBlocks::onDeleteSequence);
 
         System.out.println("Block auto initialized");
     }
@@ -179,5 +171,63 @@ public final class AutoBlocks {
             cat.writeToMessenger(builder);
         }
         builder.send();
+    }
+
+    private static void onQuerySequences(String type, MessageReader reader) {
+        MessageBuilder builder = msg.prepare(MSG_SEQUENCES);
+        builder.addInt(sequences.size());
+        for (String name : sequences.keySet()) {
+            builder.addString(name);
+        }
+        builder.send();
+    }
+
+    private static void onGetSequenceData(String type, MessageReader reader) {
+        String name = reader.readString();
+        PersistentSequence sequence = sequences.get(name);
+
+        MessageBuilder builder = msg.prepare(MSG_SEQUENCE_DATA);
+        builder.addString(name);
+
+        if (sequence == null) {
+            builder.addBoolean(false);
+            builder.send();
+            return;
+        }
+
+        builder.addBoolean(true);
+        sequence.getStack().write(builder);
+        builder.send();
+    }
+
+    private static void onPublishSequenceData(String type, MessageReader reader) {
+        String name = reader.readString();
+        BlockStackInst inst = BlockStackInst.readFromMessenger(reader);
+
+        PersistentSequence sequence = new PersistentSequence(
+                new File(PERSISTENCE_DIR, name + PERSISTENCE_FILE_EXT),
+                inst
+        );
+        sequences.put(name, sequence);
+        sequence.save();
+
+        msg.prepare(MSG_PUBLISH_CONFIRM)
+                .addString(name)
+                .send();
+    }
+
+    private static void onDeleteSequence(String type, MessageReader reader) {
+        String name = reader.readString();
+
+        PersistentSequence sequence = sequences.remove(name);
+        boolean success = false;
+        if (sequence != null) {
+            success = sequence.delete();
+        }
+
+        msg.prepare(MSG_DELETE_CONFIRM)
+                .addString(name)
+                .addBoolean(success)
+                .send();
     }
 }
