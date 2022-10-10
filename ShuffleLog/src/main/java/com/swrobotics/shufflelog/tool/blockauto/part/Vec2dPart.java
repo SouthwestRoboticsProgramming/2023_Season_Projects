@@ -40,4 +40,9 @@ public class Vec2dPart extends ParamPart {
         v.y = temp.get();
         return v;
     }
+
+    @Override
+    public boolean isFrame() {
+        return true;
+    }
 }

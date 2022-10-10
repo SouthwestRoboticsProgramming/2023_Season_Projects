@@ -29,5 +29,10 @@ public final class DoublePart extends ParamPart {
         ImGui.inputDouble("", temp);
         return temp.get();
     }
+
+    @Override
+    public boolean isFrame() {
+        return true;
+    }
 }
 

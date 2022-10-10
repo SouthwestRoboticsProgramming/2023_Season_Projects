@@ -29,4 +29,9 @@ public final class IntPart extends ParamPart {
         ImGui.inputInt("", temp);
         return temp.get();
     }
+
+    @Override
+    public boolean isFrame() {
+        return true;
+    }
 }

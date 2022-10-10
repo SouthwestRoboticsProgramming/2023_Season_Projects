@@ -8,4 +8,8 @@ public abstract class BlockPart {
         PartTypes type = PartTypes.get(id);
         return type.read(reader);
     }
+
+    public boolean isFrame() {
+        return false;
+    }
 }

@@ -38,4 +38,9 @@ public final class EnumPart extends ParamPart {
         ImGui.combo("", temp, values);
         return temp.get();
     }
+
+    @Override
+    public boolean isFrame() {
+        return true;
+    }
 }
