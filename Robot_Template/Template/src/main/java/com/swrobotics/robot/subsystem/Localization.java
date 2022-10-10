@@ -1,9 +1,6 @@
 package com.swrobotics.robot.subsystem;
 
 import com.swrobotics.robot.Robot;
-import com.swrobotics.robot.subsystem.drive.Drive;
-import com.team2129.lib.gyro.Gyroscope;
-import com.team2129.lib.gyro.NavX;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
 import com.team2129.lib.net.NTBoolean;
@@ -16,7 +13,6 @@ public class Localization implements Subsystem {
     private static final NTBoolean USE_LIMELIGHT = new NTBoolean("Limelight/Use for localization", true);
 
     private final Limelight limelight;
-    private final Drive drive;
 
     /**
      * In meters
@@ -24,9 +20,8 @@ public class Localization implements Subsystem {
     private Vec2d position;
     private Angle angle;
 
-    public Localization(Drive drive) {
+    public Localization() {
         limelight = new Limelight();
-        this.drive = drive;
         Scheduler sch = Scheduler.get();
         sch.addSubsystem(this, limelight);
         position = new Vec2d();
@@ -35,6 +30,10 @@ public class Localization implements Subsystem {
 
     public double getFeetToHub() {
         return position.magnitude() * 3.281; // Convert meters to feet
+    }
+
+    public Angle getAngleToHub() {
+        return position.angle();
     }
 
 
@@ -53,22 +52,26 @@ public class Localization implements Subsystem {
         return new Vec2d(fieldX, fieldY);
     }
 
+    public Vec2d getPosition() {
+        return position;
+    }
+
+    public void updateRoation(Angle rotation) {
+        angle = rotation;
+    }
+
+    public void updatePosition(Vec2d position) {
+        this.position = position;
+    }
+
     @Override
     public void periodic() {
-
-        // Update angle with new gyro position
-        angle = drive.getRotation();
 
         // Update position using limelight
         // Only update if it is accurate, the robot is in teleop, and we actually want to use it.
         if (limelight.isAccurate() && USE_LIMELIGHT.get() && Robot.get().getCurrentState() == RobotState.TELEOP) {
             position = calculatePositionOnLimelight();
-            drive.setPosition(position);
-        } else {
-            position = drive.getPosition();
         }
-
-        // System.out.println("Pos: " + position);
     }
 
     
