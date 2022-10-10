@@ -23,6 +23,8 @@ public class Hood implements Subsystem {
     private static final NTDouble KD = new NTDouble("Thrower/Hood/kD", 0.0);
     
     private static final NTDouble CALIBRATE_PERCENT = new NTDouble("Thrower/Hood/Calibration Speed", -0.1);
+
+    private static final NTDouble TEST_POS = new NTDouble("Test/Test/Hood_Pos", 0);
     
     private static final NTDouble L_HOOD_POS = new NTDouble("Thrower/Hood/Hood Position", 2129);
     private static final NTBoolean L_LIMIT_SWITCH_PRESSED = new NTBoolean("Thrower/Hood/Limit Switch Pressed", false);
@@ -72,6 +74,7 @@ public class Hood implements Subsystem {
             if (limitSwitch.get()) {
                 isCalibrating = false;
                 encoder.zeroAngle();
+                motor.stop();
             } else {
                 motor.percent(CALIBRATE_PERCENT.get());
             }
@@ -82,6 +85,7 @@ public class Hood implements Subsystem {
             encoder.zeroAngle();
         }
         
+        // System.out.println("Going to... " + targetPosition.getCWRot());
         motor.position(targetPosition);
     }
 }

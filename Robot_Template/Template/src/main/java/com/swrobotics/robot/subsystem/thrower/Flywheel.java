@@ -21,14 +21,13 @@ public final class Flywheel implements Subsystem {
     private static final NTDouble KP = new NTDouble("Thrower/Flywheel/kP", 0.0003);
     private static final NTDouble KI = new NTDouble("Thrower/Flywheel/kI (Caution)", 0.0);
     private static final NTDouble KD = new NTDouble("Thrower/Flywheel/kD (Heavy Caution)", 0.0);
-
     private static final int FLYWHEEL_MOTOR_ID = 13;
 
     private static final NTDouble KS = new NTDouble("Thrower/Flywheel/kS", 0.0);
     private static final NTDouble KV = new NTDouble("Thrower/Flywheel/kV", 0.00003); // Change to adjust potency of velocity maintenance.
     
     private static final Angle BANG_THRESH_LOW = Angle.cwDeg(500);
-    private static final Angle BANG_THRESH_HIGH = Angle.cwDeg(-100);
+    private static final Angle BANG_THRESH_HIGH = Angle.cwDeg(-200);
 
     private final TalonFXMotor motor;
     
@@ -80,7 +79,8 @@ public final class Flywheel implements Subsystem {
     }
 
     public void idle() {
-        motor.velocity(Angle.cwRot(IDLE_VELOCITY.get()));
+        // motor.velocity(Angle.cwRot(IDLE_VELOCITY.get()));
+        motor.stop();
     }
 
     public void stop() {
