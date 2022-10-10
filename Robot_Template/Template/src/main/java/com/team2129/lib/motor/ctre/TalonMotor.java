@@ -65,6 +65,11 @@ public abstract class TalonMotor extends Motor {
         // Configure neutral deadband on motor so 0 percent output is neutral
         talon.configNeutralDeadband(Double.MIN_VALUE);
 
+	// Enable voltage compensation so motor output is consistent
+	// regardless of battery level
+	talon.configVoltageCompSaturation(12);
+	talon.enableVoltageCompensation(true);
+
         if (encoderTicksPerRotation > 0) {
             internalEncoder = new InternalEncoder(encoderTicksPerRotation);
             setInternalEncoder();

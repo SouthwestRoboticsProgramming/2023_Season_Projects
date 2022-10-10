@@ -49,13 +49,15 @@ public abstract class SparkMaxMotor extends Motor {
         super(parent);
         spark = new CANSparkMax(canID, type);
 
+	spark.enableVoltageCompensation(12);
+	
         internalEncoder = new InternalEncoder(spark.getEncoder());
         setInternalEncoder();
     }
 
     @Override
     public void setPercentOutInternal(double percent) {
-        spark.set(percent);
+        spark.setVoltage(12 * percent);
     }
 
     /**
