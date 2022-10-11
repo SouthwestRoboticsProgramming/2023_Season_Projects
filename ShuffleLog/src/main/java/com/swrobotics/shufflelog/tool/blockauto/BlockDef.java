@@ -27,8 +27,23 @@ public final class BlockDef {
         this.parts = parts;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public List<BlockPart> getParts() {
         return parts;
+    }
+
+    public BlockInst readInstance(MessageReader reader, BlockAutoTool tool) {
+        List<Object> params = new ArrayList<>();
+        for (BlockPart part : parts) {
+            if (part instanceof ParamPart) {
+                ParamPart p = (ParamPart) part;
+                params.add(p.readInst(reader, tool));
+            }
+        }
+        return new BlockInst(this, params.toArray());
     }
 
     public BlockInst instantiate() {

@@ -31,6 +31,10 @@ public final class BlockCategory {
         }
     }
 
+    public List<BlockInst> getBlocks() {
+        return blocks;
+    }
+
     public void draw() {
         if (collapsingHeader(name)) {
             int i = 0;

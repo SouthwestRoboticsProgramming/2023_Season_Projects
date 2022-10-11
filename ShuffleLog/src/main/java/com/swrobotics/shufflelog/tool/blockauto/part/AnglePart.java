@@ -1,6 +1,7 @@
 package com.swrobotics.shufflelog.tool.blockauto.part;
 
 import com.swrobotics.messenger.client.MessageReader;
+import com.swrobotics.shufflelog.tool.blockauto.BlockAutoTool;
 import imgui.ImGui;
 import imgui.type.ImDouble;
 
@@ -57,6 +58,11 @@ public final class AnglePart extends ParamPart {
         ImGui.setNextItemWidth(50);
         ImGui.inputDouble("", temp);
         return temp.get();
+    }
+
+    @Override
+    public Object readInst(MessageReader reader, BlockAutoTool tool) {
+        return reader.readDouble();
     }
 
     @Override

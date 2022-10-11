@@ -32,6 +32,10 @@ public final class BlockInst {
         }
     }
 
+    public BlockDef getDef() {
+        return def;
+    }
+
     private void drawContent() {
         int paramIdx = 0;
         int id = 0;

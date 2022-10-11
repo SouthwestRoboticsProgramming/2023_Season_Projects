@@ -9,7 +9,9 @@ import com.swrobotics.shufflelog.util.Cooldown;
 import imgui.flag.ImGuiTableFlags;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static imgui.ImGui.*;
 
@@ -32,33 +34,93 @@ public final class BlockAutoTool implements Tool {
 
     private final Cooldown blockDefsQueryCooldown;
     private final List<BlockCategory> categories;
-
     private boolean receivedCategories;
+    private final Map<String, BlockDef> blockDefs;
+
+    private final Cooldown sequencesQueryCooldown;
+    private final List<String> sequences;
+    private boolean receivedSequences;
+
+    private final Cooldown sequenceDataQueryCooldown;
+
     private String activeSeqName;
+    private BlockStackInst activeSeqStack;
 
     public BlockAutoTool(ShuffleLog log) {
         msg = log.getMsg();
         msg.addHandler(MSG_BLOCK_DEFS, this::onBlockDefs);
+        msg.addHandler(MSG_SEQUENCES, this::onSequences);
+        msg.addHandler(MSG_SEQUENCE_DATA, this::onSequenceData);
 
         blockDefsQueryCooldown = new Cooldown(ToolConstants.MSG_QUERY_COOLDOWN_TIME);
         categories = new ArrayList<>();
         receivedCategories = false;
+        blockDefs = new HashMap<>();
+
+        sequencesQueryCooldown = new Cooldown(ToolConstants.MSG_QUERY_COOLDOWN_TIME);
+        sequences = new ArrayList<>();
+        receivedSequences = false;
+
+        sequenceDataQueryCooldown = new Cooldown(ToolConstants.MSG_QUERY_COOLDOWN_TIME);
 
         activeSeqName = null;
+        activeSeqStack = null;
     }
 
     private void onBlockDefs(String type, MessageReader reader) {
         int count = reader.readInt();
         categories.clear();
         for (int i = 0; i < count; i++) {
-            categories.add(BlockCategory.read(reader));
+            BlockCategory cat = BlockCategory.read(reader);
+            for (BlockInst inst : cat.getBlocks()) {
+                BlockDef def = inst.getDef();
+                blockDefs.put(def.getName(), def);
+            }
+            categories.add(cat);
         }
         receivedCategories = true;
+    }
+
+    private void onSequences(String type, MessageReader reader) {
+        int len = reader.readInt();
+        sequences.clear();
+        for (int i = 0; i < len; i++) {
+            sequences.add(reader.readString());
+        }
+        receivedSequences = true;
+    }
+
+    private void onSequenceData(String type, MessageReader reader) {
+        String name = reader.readString();
+        if (!name.equals(activeSeqName)) return;
+
+        boolean valid = reader.readBoolean();
+        if (!valid) {
+            System.err.println("Block auto: Invalid sequence data");
+            return;
+        }
+
+        activeSeqStack = BlockStackInst.read(reader, this);
+    }
+
+    public BlockDef getBlockDef(String name) {
+        return blockDefs.get(name);
+    }
+
+    private void switchSequence(String sequence) {
+        activeSeqName = sequence;
+        activeSeqStack = null;
     }
 
     private void showSequenceList() {
         text("Sequences");
         separator();
+
+        for (String sequence : sequences) {
+            if (selectable(sequence, sequence.equals(activeSeqName))) {
+                switchSequence(sequence);
+            }
+        }
 
         button("Add");
     }
@@ -72,7 +134,11 @@ public final class BlockAutoTool implements Tool {
         text(activeSeqName);
         separator();
 
-        text("The blocks go here");
+        if (activeSeqStack == null) {
+            textDisabled("Loading blocks...");
+        } else {
+            activeSeqStack.show();
+        }
     }
 
     private void showPalette() {
@@ -90,6 +156,10 @@ public final class BlockAutoTool implements Tool {
             if (beginTable("layout", 3, ImGuiTableFlags.BordersInner | ImGuiTableFlags.Resizable)) {
                 if (!receivedCategories && blockDefsQueryCooldown.request())
                     msg.send(MSG_QUERY_BLOCK_DEFS);
+                if (!receivedSequences && sequencesQueryCooldown.request())
+                    msg.send(MSG_QUERY_SEQUENCES);
+                if (activeSeqName != null && activeSeqStack == null && sequenceDataQueryCooldown.request())
+                    msg.prepare(MSG_GET_SEQUENCE_DATA).addString(activeSeqName).send();
 
                 tableNextColumn();
                 showSequenceList();

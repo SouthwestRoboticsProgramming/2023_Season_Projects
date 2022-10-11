@@ -1,6 +1,7 @@
 package com.swrobotics.shufflelog.tool.blockauto.part;
 
 import com.swrobotics.messenger.client.MessageReader;
+import com.swrobotics.shufflelog.tool.blockauto.BlockAutoTool;
 import com.swrobotics.shufflelog.util.Vec2d;
 import imgui.ImGui;
 import imgui.type.ImDouble;
@@ -39,6 +40,11 @@ public class Vec2dPart extends ParamPart {
         ImGui.inputDouble("##y", temp);
         v.y = temp.get();
         return v;
+    }
+
+    @Override
+    public Object readInst(MessageReader reader, BlockAutoTool tool) {
+        return new Vec2d(reader.readDouble(), reader.readDouble());
     }
 
     @Override
