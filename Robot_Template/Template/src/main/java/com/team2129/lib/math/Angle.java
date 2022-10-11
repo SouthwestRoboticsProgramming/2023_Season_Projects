@@ -60,7 +60,7 @@ public final class Angle {
     }
 
     public double getCCWDeg() {
-        return Math.toDegrees(-angle);
+        return Math.toDegrees(angle);
     }
 
     public Angle setCWRad(double a) {
