@@ -33,7 +33,11 @@ public class Localization implements Subsystem {
     }
 
     public Angle getAngleToHub() {
-        return position.angle();
+        return Angle.cwDeg(position.angle().getCWDeg() - 90);
+    }
+
+    public Angle getRelativeAngleToHub() {
+        return Angle.cwDeg(getAngleToHub().getCWDeg() - angle.getCWDeg());
     }
 
 

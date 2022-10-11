@@ -49,6 +49,7 @@ public class Drive implements Subsystem {
     private static final NTEnum<SwerveModuleDef> SLOT_3_MODULE = new NTEnum<>("Swerve/Slots/Slot 3", SwerveModuleDef.class, SwerveModuleDef.MODULE_4);
 
     private static final NTDouble BODY_SPIN_RAD = new NTDouble("Swerve/Body Spin/Rotation Speed Rad", 0.5 * Math.PI);
+    private static final NTDouble BODY_SPIN_TOLERANCE = new NTDouble("Swerve/Body Spin/Tolerance", 5);
 
     private static final int TURN_ID_0 = 1;
     private static final int TURN_ID_1 = 2;
@@ -150,8 +151,14 @@ public class Drive implements Subsystem {
     @Override
     public void teleopPeriodic() {
         // Update localization
-        loc.updateRoation(getRotation());
-        loc.updatePosition(getPosition());
+        // loc.updateRoation(getRotation());
+        // loc.updatePosition(getPosition());
+
+        loc.updatePosition(new Vec2d(0, 5));
+        loc.updateRoation(Angle.ccwDeg(50));
+
+        System.out.println("Other: " + loc.getRelativeAngleToHub());
+        System.out.println("Angle to hub: " + loc.getRelativeAngleToHub().normalizeDeg(180));
 
         // Update drive position if the limelight kicked in
         setPosition(loc.getPosition());
@@ -166,9 +173,9 @@ public class Drive implements Subsystem {
         if (input.getAim()) {
         double relativeAngle = loc.getAngleToHub().getCWDeg() - rotation.getCWDeg();
         
-            if (relativeAngle > 0) {
+            if (relativeAngle > BODY_SPIN_TOLERANCE.get() / 2) {
                 rotation = Angle.cwRad(BODY_SPIN_RAD.get());
-            } else {
+            } else if (relativeAngle < -BODY_SPIN_TOLERANCE.get() / 2) {
                 rotation = Angle.cwRad(BODY_SPIN_RAD.get());
             }
         }
