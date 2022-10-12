@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.DriverStation;
  * extended to implement any unsupported Talon motor types.
  */
 public abstract class TalonMotor extends Motor {
+    // Talon internal encoders report velocity per 100ms, we want per second
     private static final int ENCODER_VELOCITY_TIME_SCALE = 10;
 
     protected final BaseTalon talon;
@@ -29,22 +30,22 @@ public abstract class TalonMotor extends Motor {
 
         @Override
         protected Angle getRawAngleImpl() {
-            try {
-                return Angle.cwRot(talon.getSelectedSensorPosition() / encoderTicksPerRotation);
-            } catch (ArithmeticException e) {
+            if (encoderTicksPerRotation == 0) {
                 DriverStation.reportError("Encoder ticks per rotation must not be 0", true);
                 return Angle.zero();
             }
+
+            return Angle.cwRot(talon.getSelectedSensorPosition() / encoderTicksPerRotation);
         }
 
         @Override
         protected Angle getVelocityImpl() {
-            try {
-                return Angle.cwRot(talon.getSelectedSensorVelocity() / encoderTicksPerRotation * ENCODER_VELOCITY_TIME_SCALE);
-            } catch (Exception e) {
+            if (encoderTicksPerRotation == 0) {
                 DriverStation.reportError("Encoder ticks per rotation must not be 0", true);
                 return Angle.zero();
             }
+
+            return Angle.cwRot(talon.getSelectedSensorVelocity() / encoderTicksPerRotation * ENCODER_VELOCITY_TIME_SCALE);
         }
     }
     
