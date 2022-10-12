@@ -1,5 +1,6 @@
 package com.swrobotics.shufflelog.tool.blockauto.part;
 
+import com.swrobotics.messenger.client.MessageBuilder;
 import com.swrobotics.messenger.client.MessageReader;
 import com.swrobotics.shufflelog.tool.blockauto.BlockAutoTool;
 import imgui.ImGui;
@@ -24,16 +25,23 @@ public final class IntPart extends ParamPart {
     }
 
     @Override
-    public Object edit(Object prev) {
-        temp.set((int) prev);
+    public boolean edit(Object[] prev) {
+        temp.set((int) prev[0]);
         ImGui.setNextItemWidth(75);
-        ImGui.inputInt("", temp);
-        return temp.get();
+        boolean changed = ImGui.inputInt("", temp);
+        if (changed)
+            prev[0] = temp.get();
+        return changed;
     }
 
     @Override
     public Object readInst(MessageReader reader, BlockAutoTool tool) {
         return reader.readInt();
+    }
+
+    @Override
+    public void writeInst(MessageBuilder builder, Object value) {
+        builder.addInt((int) value);
     }
 
     @Override

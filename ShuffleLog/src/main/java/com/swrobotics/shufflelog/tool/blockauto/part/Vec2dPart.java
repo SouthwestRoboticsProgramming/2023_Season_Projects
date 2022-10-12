@@ -1,5 +1,6 @@
 package com.swrobotics.shufflelog.tool.blockauto.part;
 
+import com.swrobotics.messenger.client.MessageBuilder;
 import com.swrobotics.messenger.client.MessageReader;
 import com.swrobotics.shufflelog.tool.blockauto.BlockAutoTool;
 import com.swrobotics.shufflelog.util.Vec2d;
@@ -28,23 +29,36 @@ public class Vec2dPart extends ParamPart {
     private static final ImDouble temp = new ImDouble();
 
     @Override
-    public Object edit(Object prev) {
-        Vec2d v = (Vec2d) prev;
+    public boolean edit(Object[] prev) {
+        Vec2d v = (Vec2d) prev[0];
         temp.set(v.x);
         ImGui.setNextItemWidth(50);
-        ImGui.inputDouble("##x", temp);
+        boolean changed = ImGui.inputDouble("##x", temp);
         v.x = temp.get();
         temp.set(v.y);
         ImGui.sameLine();
         ImGui.setNextItemWidth(50);
-        ImGui.inputDouble("##y", temp);
+        changed |= ImGui.inputDouble("##y", temp);
         v.y = temp.get();
-        return v;
+        return changed;
+    }
+
+    @Override
+    public Object duplicateParam(Object param) {
+        Vec2d v = (Vec2d) param;
+        return new Vec2d(v.x, v.y);
     }
 
     @Override
     public Object readInst(MessageReader reader, BlockAutoTool tool) {
         return new Vec2d(reader.readDouble(), reader.readDouble());
+    }
+
+    @Override
+    public void writeInst(MessageBuilder builder, Object value) {
+        Vec2d v = (Vec2d) value;
+        builder.addDouble(v.x);
+        builder.addDouble(v.y);
     }
 
     @Override

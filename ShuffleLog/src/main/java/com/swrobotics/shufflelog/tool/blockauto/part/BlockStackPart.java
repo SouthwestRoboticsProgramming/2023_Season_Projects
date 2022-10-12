@@ -1,5 +1,6 @@
 package com.swrobotics.shufflelog.tool.blockauto.part;
 
+import com.swrobotics.messenger.client.MessageBuilder;
 import com.swrobotics.messenger.client.MessageReader;
 import com.swrobotics.shufflelog.tool.blockauto.BlockAutoTool;
 import com.swrobotics.shufflelog.tool.blockauto.BlockStackInst;
@@ -9,13 +10,26 @@ import imgui.ImGui;
 public final class BlockStackPart extends ParamPart {
     @Override
     public Object getDefault() {
-        return null;
+        return new BlockStackInst();
     }
 
     @Override
-    public Object edit(Object prev) {
-        ImGui.text("<BlockStack>");
-        return null;
+    public boolean edit(Object[] prev) {
+        ImGui.indent();
+        boolean changed = ((BlockStackInst) prev[0]).show();
+        ImGui.unindent();
+
+        return changed;
+    }
+
+    @Override
+    public Object duplicateParam(Object param) {
+        return ((BlockStackInst) param).duplicate();
+    }
+
+    @Override
+    public void writeInst(MessageBuilder builder, Object value) {
+        ((BlockStackInst) value).write(builder);
     }
 
     @Override

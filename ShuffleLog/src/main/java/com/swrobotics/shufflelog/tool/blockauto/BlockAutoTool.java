@@ -1,5 +1,6 @@
 package com.swrobotics.shufflelog.tool.blockauto;
 
+import com.swrobotics.messenger.client.MessageBuilder;
 import com.swrobotics.messenger.client.MessageReader;
 import com.swrobotics.messenger.client.MessengerClient;
 import com.swrobotics.shufflelog.ShuffleLog;
@@ -17,6 +18,7 @@ import static imgui.ImGui.*;
 
 public final class BlockAutoTool implements Tool {
     public static final String BLOCK_DND_ID = "AB_DRAG_BLOCK";
+    public static BlockAutoTool INSTANCE;
 
     private static final String MSG_QUERY_BLOCK_DEFS      = "AutoBlock:QueryBlockDefs";
     private static final String MSG_QUERY_SEQUENCES       = "AutoBlock:QuerySequences";
@@ -47,6 +49,8 @@ public final class BlockAutoTool implements Tool {
     private BlockStackInst activeSeqStack;
 
     public BlockAutoTool(ShuffleLog log) {
+        INSTANCE = this;
+
         msg = log.getMsg();
         msg.addHandler(MSG_BLOCK_DEFS, this::onBlockDefs);
         msg.addHandler(MSG_SEQUENCES, this::onSequences);
@@ -107,6 +111,15 @@ public final class BlockAutoTool implements Tool {
         return blockDefs.get(name);
     }
 
+    public void onStackChange() {
+        MessageBuilder builder = msg.prepare(MSG_PUBLISH_SEQUENCE_DATA)
+                .addString(activeSeqName);
+
+        activeSeqStack.write(builder);
+
+        builder.send();
+    }
+
     private void switchSequence(String sequence) {
         activeSeqName = sequence;
         activeSeqStack = null;
@@ -137,7 +150,8 @@ public final class BlockAutoTool implements Tool {
         if (activeSeqStack == null) {
             textDisabled("Loading blocks...");
         } else {
-            activeSeqStack.show();
+            if (activeSeqStack.show())
+                onStackChange();
         }
     }
 

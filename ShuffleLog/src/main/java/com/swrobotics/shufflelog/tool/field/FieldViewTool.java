@@ -7,6 +7,7 @@ import com.swrobotics.shufflelog.tool.field.img.FieldVectorLayer;
 import com.swrobotics.shufflelog.tool.field.path.PathfindingLayer;
 import com.swrobotics.shufflelog.util.SmoothFloat;
 import imgui.ImGuiIO;
+import imgui.ImVec2;
 import imgui.flag.ImGuiMouseButton;
 import imgui.flag.ImGuiTableColumnFlags;
 import imgui.flag.ImGuiTableFlags;
@@ -118,6 +119,8 @@ public final class FieldViewTool extends ViewportTool {
             tableSetupColumn("layers", ImGuiTableColumnFlags.WidthFixed);
 
             tableNextColumn();
+            ImVec2 viewportOrigin = getCursorPos();
+            ImVec2 viewportSize = getContentRegionAvail();
             drawViewport();
             if (isItemHovered()) {
                 ImGuiIO io = getIO();
@@ -139,8 +142,28 @@ public final class FieldViewTool extends ViewportTool {
                 // Scroll to zoom
                 scale.set(scale.getTarget() * (1 + wheel * -0.1f));
             }
+
+            // Find where on the field the mouse cursor is
+            ImVec2 mousePos = getIO().getMousePos();
+            float centerX = viewportOrigin.x + viewportSize.x * 0.5f;
+            float centerY = viewportOrigin.y + viewportSize.y * 0.5f;
+            float relX = mousePos.x - centerX;
+            float relY = mousePos.y - centerY;
+            float sc = scale.get();
+            float cursorFieldX;
+            float cursorFieldY;
+            if (viewportRotated) {
+                cursorFieldX = relY / sc;
+                cursorFieldY = relX / sc;
+            } else {
+                cursorFieldX = relX / sc;
+                cursorFieldY = relY / -sc;
+            }
+
             tableNextColumn();
             for (FieldLayer layer : layers) {
+                text(String.format("Cursor pos: %3f, %3f", cursorFieldX, cursorFieldY));
+
                 if (collapsingHeader(layer.getName())) {
                     indent();
                     layer.showGui();

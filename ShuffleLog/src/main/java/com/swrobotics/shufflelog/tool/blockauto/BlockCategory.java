@@ -40,7 +40,7 @@ public final class BlockCategory {
             int i = 0;
             for (BlockInst inst : blocks) {
                 pushID(i++);
-                inst.draw();
+                inst.draw(() -> {});
                 popID();
             }
         }

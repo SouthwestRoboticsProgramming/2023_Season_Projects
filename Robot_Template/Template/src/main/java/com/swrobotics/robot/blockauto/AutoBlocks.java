@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.swrobotics.robot.blockauto.part.AnglePart;
+import com.team2129.lib.math.Angle;
 import com.team2129.lib.messenger.MessageBuilder;
 import com.team2129.lib.messenger.MessageReader;
 import com.team2129.lib.messenger.MessengerClient;
@@ -14,6 +16,7 @@ import com.team2129.lib.schedule.CommandUnion;
 import com.team2129.lib.schedule.WaitCommand;
 import com.team2129.lib.time.TimeUnit;
 
+import com.team2129.lib.wpilib.RobotState;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 
@@ -34,10 +37,23 @@ public final class AutoBlocks {
             .paramBlockStack()
             .creator((params) -> new CommandLoop(((BlockStackInst) params[1]).toCommand(), (int) params[0]));
         control.newBlock("union")
-            .text("Union")
+            .text("Union of")
             .paramBlockStack()
+            .text("and")
             .paramBlockStack()
             .creator((params) -> new CommandUnion(((BlockStackInst) params[0]).toCommand(), ((BlockStackInst) params[1]).toCommand()));
+
+        BlockCategory test = defineCategory("Test");
+        test.newBlock("test")
+                .text("Text")
+                .paramAngle(AnglePart.Mode.CCW_DEG, 0)
+                .paramBlockStack()
+                .paramDouble(0.134)
+                .paramEnum(RobotState.class, RobotState.DISABLED)
+                .paramFieldPoint(1, 1)
+                .paramInt(244)
+                .paramVec2d(241.23, 1243.12)
+                .creator((params) -> null);
 
         // BlockCategory drive = defineCategory("Drive");
         // drive.newBlock("drive_point")

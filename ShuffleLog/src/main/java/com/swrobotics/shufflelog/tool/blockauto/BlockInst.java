@@ -1,6 +1,8 @@
 package com.swrobotics.shufflelog.tool.blockauto;
 
+import com.swrobotics.messenger.client.MessageBuilder;
 import com.swrobotics.shufflelog.tool.blockauto.part.BlockPart;
+import com.swrobotics.shufflelog.tool.blockauto.part.BlockStackPart;
 import com.swrobotics.shufflelog.tool.blockauto.part.ParamPart;
 import com.swrobotics.shufflelog.tool.blockauto.part.StaticPart;
 import imgui.ImGui;
@@ -12,6 +14,7 @@ public final class BlockInst {
     private final BlockDef def;
     private final Object[] params;
     private final boolean firstElemRequiresAlignToFrame;
+    private BlockStackInst stack;
 
     public BlockInst(BlockDef def, Object[] params) {
         this.def = def;
@@ -32,46 +35,102 @@ public final class BlockInst {
         }
     }
 
+    public void write(MessageBuilder builder) {
+        builder.addString(def.getName());
+        int paramIdx = 0;
+        for (BlockPart part : def.getParts()) {
+            if (part instanceof ParamPart) {
+                ParamPart p = (ParamPart) part;
+                p.writeInst(builder, params[paramIdx++]);
+            }
+        }
+    }
+
+    public BlockStackInst getStack() {
+        return stack;
+    }
+
+    public void setStack(BlockStackInst stack) {
+        this.stack = stack;
+    }
+
     public BlockDef getDef() {
         return def;
     }
 
-    private void drawContent() {
+    private void dragSource() {
+        if (ImGui.beginDragDropSource(ImGuiDragDropFlags.SourceAllowNullID)) {
+            // Technically is doing more than we need, but it should still work
+            draw(() -> {});
+
+            ImGui.setDragDropPayload(BlockAutoTool.BLOCK_DND_ID, this);
+            ImGui.endDragDropSource();
+        }
+    }
+
+    public boolean draw(Runnable ctxMenu) {
+        boolean changed = false;
+        ImGui.beginGroup();
+        ImGui.beginGroup();
         int paramIdx = 0;
-        int id = 0;
         boolean first = true;
-        for (BlockPart part : def.getParts()) {
+        List<BlockPart> parts = def.getParts();
+        boolean isStack = false;
+        for (int id = 0; id < parts.size(); id++) {
             if (first) {
                 if (firstElemRequiresAlignToFrame)
                     ImGui.alignTextToFramePadding();
                 first = false;
-            } else {
+            } else if (!isStack) {
                 ImGui.sameLine();
             }
 
-            ImGui.pushID(id++);
+            BlockPart part = parts.get(id);
+
+            isStack = part instanceof BlockStackPart;
+            if (isStack) {
+                ImGui.endGroup();
+                dragSource();
+                ctxMenu.run();
+            }
+
+            ImGui.pushID(id);
             if (part instanceof ParamPart) {
                 ParamPart p = (ParamPart) part;
-                params[paramIdx] = p.edit(params[paramIdx]);
+                Object[] param = {params[paramIdx]};
+                changed |= p.edit(param);
+                params[paramIdx] = param[0];
                 paramIdx++;
             } else if (part instanceof StaticPart) {
                 StaticPart s = (StaticPart) part;
                 s.draw();
             }
             ImGui.popID();
+
+            if (isStack) {
+                ImGui.beginGroup();
+            }
         }
+        ImGui.endGroup();
+        dragSource();
+        ctxMenu.run();
+        ImGui.endGroup();
+        int color = ImGui.colorConvertFloat4ToU32(0.5f, 0.5f, 0.5f, 1.0f);
+        float pad = ImGui.getStyle().getItemSpacingY() / 2;
+        ImGui.getWindowDrawList().addRect(ImGui.getItemRectMinX()-pad, ImGui.getItemRectMinY()-pad, ImGui.getItemRectMaxX()+pad, ImGui.getItemRectMaxY()+pad, color);
+
+        return changed;
     }
 
-    public void draw() {
-        ImGui.beginGroup();
-        drawContent();
-        ImGui.endGroup();
-        float pad = ImGui.getStyle().getItemSpacingY() / 2;
-        ImGui.getWindowDrawList().addRect(ImGui.getItemRectMinX()-pad, ImGui.getItemRectMinY()-pad, ImGui.getItemRectMaxX()+pad, ImGui.getItemRectMaxY()+pad, 0xFFFFFFFF);
-        if (ImGui.beginDragDropSource(ImGuiDragDropFlags.SourceAllowNullID)) {
-            drawContent();
-            ImGui.setDragDropPayload(BlockAutoTool.BLOCK_DND_ID, this);
-            ImGui.endDragDropSource();
+    public BlockInst duplicate() {
+        Object[] dupParams = new Object[params.length];
+        int i = 0;
+        for (BlockPart part : def.getParts()) {
+            if (part instanceof ParamPart) {
+                dupParams[i] = ((ParamPart) part).duplicateParam(params[i]);
+                i++;
+            }
         }
+        return new BlockInst(def, dupParams);
     }
 }
