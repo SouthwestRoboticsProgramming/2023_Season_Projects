@@ -40,7 +40,7 @@ public class Thrower implements Subsystem {
 
     private static final NTDouble FLYWHEEL_SHUTOFF_SECONDS = new NTDouble("Thrower/Flywheel/Shutoff_Time", 1.0);
     private static final NTBoolean STRICT_AIM = new NTBoolean("Thrower/Strict_Aim", false);
-    private static final NTDouble TEST_DISTANCE = new NTDouble("Test/Test/Thrower Distance", 0);
+    // private static final NTDouble TEST_DISTANCE = new NTDouble("Test/Test/Thrower Distance", 0);
 
     private static final NTEnum<ThrowerTuneSelector> TUNE_SELECTOR = new NTEnum<>("Thrower/Tuning/Tune_Select", ThrowerTuneSelector.class, ThrowerTuneSelector.DEFAULT);
 
@@ -78,7 +78,6 @@ public class Thrower implements Subsystem {
         flywheelShutoff = new Timer();
         isClimbing = false;
 
-        // Temporary copied from old constants
         highHubMap.put(3.46, 50.4);
         highHubMap.put(1.92, 35.1);
         highHubMap.put(4.47, 65.0);
@@ -149,46 +148,46 @@ public class Thrower implements Subsystem {
         this.isClimbing = isClimbing;
     }
 
-    private static final NTDouble TEST_VEL = new NTDouble("Test/Shooter velocity", 0);
-    static {
-        TEST_VEL.setTemporary();
-    }
+    // private static final NTDouble TEST_VEL = new NTDouble("Test/Shooter velocity", 0);
+    // static {
+    //     TEST_VEL.setTemporary();
+    // }
 
     @Override
     public void periodic() {
-        flywheel.setFlywheelVelocity(Angle.cwRot(TEST_VEL.get()));
+        // flywheel.setFlywheelVelocity(Angle.cwRot(TEST_VEL.get()));
 
-        // double distance = loc.getFeetToHub(); FIXME
+        double distance = loc.getFeetToHub();
         // double distance = TEST_DISTANCE.get();
 
-        // if (isClimbing) {
-        //     hood.calibrate();
-        //     flywheel.stop();
-        //     return;
-        // }
+        if (isClimbing) {
+            hood.calibrate();
+            flywheel.stop();
+            return;
+        }
 
-        // if (hopper.isBallGone()) {
-        //     flywheelShutoff.reset();
-        //     flywheelShutoff.start();
-        // }
+        if (hopper.isBallGone()) {
+            flywheelShutoff.reset();
+            flywheelShutoff.start();
+        }
 
-        double[] aim = calculateAim(loc.getFeetToHub(), true, false);
-        hood.setPosition(aim[1]);
+        // double[] aim = calculateAim(loc.getFeetToHub(), true, false);
+        // hood.setPosition(aim[1]);
 
-        // if (hopper.isBallDetected() || !flywheelShutoff.hasElapsed(FLYWHEEL_SHUTOFF_SECONDS.get())) {
-        //     if (input.getAim()) { // Prepare to fire // FIXME: Add localization if can see target
-        //         double[] aim = calculateAim(distance, true, STRICT_AIM.get());
-        //         flywheel.setFlywheelVelocity(Angle.cwRot(aim[0] / 60)); // Convert rpm to Angle/second // TODO: Check functionality
-        //         hood.setPosition(aim[1]);
-        //         // System.out.println("Distance: " + distance + " Hood: " + aim[1] + " Flywheel: " + aim[0]);
-        //     } else {
-        //         hood.calibrate();
-        //         flywheel.idle();
-        //     }
-        // } else { // If no ball for the duration of the timer
-        //     hood.calibrate();
-        //     flywheel.stop();
-        // }
+        if (hopper.isBallDetected() || !flywheelShutoff.hasElapsed(FLYWHEEL_SHUTOFF_SECONDS.get())) {
+            if (input.getAim() && loc.canSeeTarget() || input.getAimOverride()) { // Prepare to fire // FIXME: Add localization if can see target
+                double[] aim = calculateAim(distance, true, STRICT_AIM.get());
+                flywheel.setFlywheelVelocity(Angle.cwRot(aim[0] / 60)); // Convert rpm to Angle/second
+                hood.setPosition(aim[1]);
+                // System.out.println("Distance: " + distance + " Hood: " + aim[1] + " Flywheel: " + aim[0]);
+            } else {
+                hood.calibrate();
+                flywheel.idle();
+            }
+        } else { // If no ball for the duration of the timer
+            hood.calibrate();
+            flywheel.stop();
+        }
 
         if (input.getShoot() && Robot.get().getCurrentState() == RobotState.TELEOP) {
             Scheduler.get().addCommand(new ShootCommand(hopper));

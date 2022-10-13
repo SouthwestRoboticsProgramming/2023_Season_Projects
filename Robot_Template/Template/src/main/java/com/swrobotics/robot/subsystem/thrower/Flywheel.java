@@ -79,8 +79,8 @@ public final class Flywheel implements Subsystem {
     }
 
     public void idle() {
-        // motor.velocity(Angle.cwRot(IDLE_VELOCITY.get()));
-        motor.stop();
+        motor.velocity(Angle.cwRot(IDLE_VELOCITY.get()));
+        // motor.stop();
     }
 
     public void stop() {

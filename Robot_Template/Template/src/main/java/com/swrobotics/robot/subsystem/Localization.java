@@ -1,9 +1,11 @@
 package com.swrobotics.robot.subsystem;
 
 import com.swrobotics.robot.Robot;
+import com.swrobotics.robot.subsystem.drive.Drive;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
 import com.team2129.lib.net.NTBoolean;
+import com.team2129.lib.net.NTDouble;
 import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.wpilib.RobotState;
@@ -11,6 +13,8 @@ import com.team2129.lib.wpilib.RobotState;
 public class Localization implements Subsystem {
 
     private static final NTBoolean USE_LIMELIGHT = new NTBoolean("Limelight/Use for localization", true);
+
+    private static final NTDouble LIMELIGHT_FOV = new NTDouble("Limelight/FOV", 80);
 
     private final Limelight limelight;
 
@@ -60,12 +64,16 @@ public class Localization implements Subsystem {
         return position;
     }
 
-    public void updateRoation(Angle rotation) {
+    public void updateRotation(Angle rotation) {
         angle = rotation;
     }
 
     public void updatePosition(Vec2d position) {
         this.position = position;
+    }
+
+    public boolean canSeeTarget() {
+        return Math.abs(getRelativeAngleToHub().getCCWDeg()) < LIMELIGHT_FOV.get();
     }
 
     @Override
@@ -77,6 +85,4 @@ public class Localization implements Subsystem {
             position = calculatePositionOnLimelight();
         }
     }
-
-    
 }

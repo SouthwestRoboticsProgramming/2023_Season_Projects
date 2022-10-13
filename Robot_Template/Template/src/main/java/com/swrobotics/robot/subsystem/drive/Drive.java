@@ -151,11 +151,8 @@ public class Drive implements Subsystem {
     @Override
     public void teleopPeriodic() {
         // Update localization
-        // loc.updateRoation(getRotation());
-        // loc.updatePosition(getPosition());
-
-        loc.updatePosition(new Vec2d(0, 5));
-        loc.updateRoation(Angle.ccwDeg(50));
+        loc.updateRotation(getRotation());
+        loc.updatePosition(getPosition());
 
         System.out.println("Other: " + loc.getRelativeAngleToHub());
         System.out.println("Angle to hub: " + loc.getRelativeAngleToHub().normalizeDeg(180));
