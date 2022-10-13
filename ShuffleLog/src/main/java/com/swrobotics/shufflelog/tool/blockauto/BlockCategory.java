@@ -29,6 +29,9 @@ public final class BlockCategory {
         for (BlockDef def : blocks) {
             this.blocks.add(def.instantiate());
         }
+        for (BlockInst inst : this.blocks) {
+            inst.setPalette();
+        }
     }
 
     public List<BlockInst> getBlocks() {

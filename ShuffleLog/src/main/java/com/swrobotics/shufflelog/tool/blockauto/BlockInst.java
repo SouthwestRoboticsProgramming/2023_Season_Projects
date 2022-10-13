@@ -16,6 +16,10 @@ public final class BlockInst {
     private final boolean firstElemRequiresAlignToFrame;
     private BlockStackInst stack;
 
+    // Workaround for ImGui bug with drag and drop
+    private boolean valid = true;
+    private boolean isPaletteEntry;
+
     public BlockInst(BlockDef def, Object[] params) {
         this.def = def;
         this.params = params;
@@ -33,6 +37,18 @@ public final class BlockInst {
             }
             firstElemRequiresAlignToFrame = hasFrame;
         }
+    }
+
+    public boolean isValid() {
+        return valid || isPaletteEntry;
+    }
+
+    public void invalidate() {
+        valid = false;
+    }
+
+    public void setPalette() {
+        isPaletteEntry = true;
     }
 
     public void write(MessageBuilder builder) {

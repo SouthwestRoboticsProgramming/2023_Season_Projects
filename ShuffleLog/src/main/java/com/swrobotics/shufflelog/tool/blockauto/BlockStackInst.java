@@ -42,11 +42,14 @@ public final class BlockStackInst {
         boolean changed = false;
         if (ImGui.beginDragDropTarget()) {
             BlockInst block = ImGui.acceptDragDropPayload(BlockAutoTool.BLOCK_DND_ID);
-            if (block != null) {
+            if (block != null && block.isValid()) {
+                block.invalidate();
+
                 BlockStackInst parent = block.getStack();
                 if (parent == this) {
-                    if (parent.blocks.indexOf(block) < insertionIdx)
+                    if (parent.blocks.indexOf(block) < insertionIdx) {
                         insertionIdx--;
+                    }
                     parent.removeBlock(block);
                 } else if (parent != null) {
                     parent.removeBlock(block);
@@ -58,7 +61,6 @@ public final class BlockStackInst {
 
                 changed = true;
 
-                System.out.println("Got " + block + " (inserted at " + insertionIdx + ")");
             }
             ImGui.endDragDropTarget();
         }
@@ -78,6 +80,8 @@ public final class BlockStackInst {
         int i = 0;
         boolean[] changed = {false};
         for (BlockInst block : blockCopy) {
+            if (!blocks.contains(block))
+                continue;
             ImGui.pushID(i);
             int[] popupId = {0};
             changed[0] |= block.draw(() -> {
