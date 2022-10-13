@@ -2,8 +2,6 @@ package com.swrobotics.robot.subsystem;
 
 import com.swrobotics.robot.Robot;
 import com.swrobotics.robot.subsystem.drive.Drive;
-import com.team2129.lib.gyro.Gyroscope;
-import com.team2129.lib.gyro.NavX;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
 import com.team2129.lib.net.NTBoolean;
