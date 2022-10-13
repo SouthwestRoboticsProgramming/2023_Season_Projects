@@ -1,7 +1,6 @@
 package com.swrobotics.shufflelog;
 
 import com.swrobotics.messenger.client.MessengerClient;
-import com.swrobotics.shufflelog.debug.SwerveDebugTool;
 import com.swrobotics.shufflelog.profile.Profiler;
 import com.swrobotics.shufflelog.tool.blockauto.BlockAutoTool;
 import com.swrobotics.shufflelog.tool.data.DataLogTool;
