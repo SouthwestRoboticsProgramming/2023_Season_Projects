@@ -44,9 +44,9 @@ public final class Robot extends AbstractRobot {
         //     will cause a warning to be printed if any motors are
         //     used in it
 
-        Drive drive = new Drive(input, gyro, msg);
-        Localization loc = new Localization(drive);
         Intake intake = new Intake(input);
+        Drive drive = new Drive(input, gyro, msg, intake);
+        Localization loc = new Localization(drive);
         Thrower thrower = new Thrower(input, loc);
 
         Scheduler scheduler = Scheduler.get();

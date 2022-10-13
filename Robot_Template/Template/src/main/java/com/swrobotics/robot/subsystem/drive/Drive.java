@@ -1,6 +1,7 @@
 package com.swrobotics.robot.subsystem.drive;
 
 import com.swrobotics.robot.control.Input;
+import com.swrobotics.robot.subsystem.Intake;
 import com.team2129.lib.messenger.MessageBuilder;
 import com.team2129.lib.messenger.MessageReader;
 import com.team2129.lib.messenger.MessengerClient;
@@ -59,15 +60,17 @@ public class Drive implements Subsystem {
 
     private final Input input;
     private final MessengerClient msg;
+    private final Intake intake;
 
     private final SwerveDrive drive;
     private final SwerveModule[] modules;
     private final NavX gyro;
 
-    public Drive(Input input, NavX gyro, MessengerClient msg) {
+    public Drive(Input input, NavX gyro, MessengerClient msg, Intake intake) {
         this.input = input;
         this.gyro = gyro;
         this.msg = msg;
+        this.intake = intake;
         
         SwerveModule w0 = SwerveModuleMaker.buildModule(this, SLOT_0_MODULE.get(), TURN_ID_0, SLOT_0_POS, 0);
         SwerveModule w1 = SwerveModuleMaker.buildModule(this, SLOT_1_MODULE.get(), TURN_ID_1, SLOT_1_POS, 90);
@@ -149,6 +152,13 @@ public class Drive implements Subsystem {
         if (input.getSlowMode()) {
             translation.mul(0.5);
         }
+
+        Vec2d stickForward = new Vec2d(0, 1);
+        if (!input.getFieldRelative())
+            stickForward.rotateBy(gyro.getAngle());
+
+        double dot = stickForward.dot(translation);
+        intake.setState(dot > 0 ? Intake.State.ON : Intake.State.OFF);
 
         drive.setMotion(translation, rotation, input.getFieldRelative());
     }

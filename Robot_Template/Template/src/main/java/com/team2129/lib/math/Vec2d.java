@@ -270,6 +270,10 @@ public final class Vec2d {
         return this;
     }
 
+    public double dot(Vec2d o) {
+        return x * o.x + y * o.y;
+    }
+
     public Translation2d toTranslation2d() {
         return new Translation2d(x, y);
     }
