@@ -78,11 +78,15 @@ public class Thrower implements Subsystem {
         flywheelShutoff = new Timer();
         isClimbing = false;
 
-        // Temporary copied from old constants
-        highHubMap.put(3.46, 50.4);
-        highHubMap.put(1.92, 35.1);
-        highHubMap.put(4.47, 65.0);
-        highHubMap.put(2.97, 45.0);
+        // Temporary copied from old constants (no this is wrong not anymore)
+//        highHubMap.put(3.46, 50.4);
+//        highHubMap.put(1.92, 35.1);
+//        highHubMap.put(4.47, 65.0);
+//        highHubMap.put(2.97, 45.0);
+        highHubMap.put(3.75, 40.3);
+        highHubMap.put(3.01, 36.3);
+        highHubMap.put(2.04, 30.5);
+        highHubMap.put(4.57, 49.8);
     }
 
     private double[] calculateAim(double distance, boolean aimHighHub, boolean forceHubChoice) {
