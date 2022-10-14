@@ -25,6 +25,8 @@ public class SwerveModuleMaker {
     private static final NTDouble TURN_KI = new NTDouble("Swerve/Turn/kI", 0.0);
     private static final NTDouble TURN_KD = new NTDouble("Swerve/Turn/kD", 0.0);
 
+    private static final NTDouble TURN_NOMINAL_OUT = new NTDouble("Swerve/Turn/Nominal Output", 0.25);
+
     public static final double GEAR_RATIO = 1 / 8.14;
     public static final double WHEEL_RADIUS = 0.05;
 
@@ -42,7 +44,8 @@ public class SwerveModuleMaker {
         steerCalc.enableContinuousInput(-180, 180); // This is required by SwerveModule
         steerMotor.setPositionCalculator(steerCalc);
         steerMotor.setNeutralDeadband(0.005);
-        steerMotor.setNominalOutput(0.25);
+        steerMotor.setNominalOutput(TURN_NOMINAL_OUT.get());
+        TURN_NOMINAL_OUT.onChange(() -> steerMotor.setNominalOutput(TURN_NOMINAL_OUT.get()));
 
         CANCoderImplementation canCoder = new CANCoderImplementation(def.getEncoderId(), Constants.CANIVORE);
         canCoder.setOffset(Angle.cwDeg(def.getEncoderOffset().get() + staticOffsetCWDeg));

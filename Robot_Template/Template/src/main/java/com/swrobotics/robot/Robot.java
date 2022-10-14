@@ -46,6 +46,7 @@ public final class Robot extends AbstractRobot {
 
         Drive drive = new Drive(input, gyro, msg);
         Localization loc = new Localization(drive);
+        drive.setLocalization(loc);
         Intake intake = new Intake(input);
         Thrower thrower = new Thrower(input, loc);
 

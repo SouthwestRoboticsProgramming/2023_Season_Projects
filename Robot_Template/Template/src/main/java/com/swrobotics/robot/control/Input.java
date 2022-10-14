@@ -59,15 +59,11 @@ public class Input {
 
     // Thrower
     public boolean getAim() {
-        return controller.getLeftTriggerAxis() > DEADBAND;
+        return controller.getLeftBumper();
     }
 
     public boolean getShoot() {
         return controller.getAButtonPressed();
-    }
-
-    public boolean getAimLow() {
-        return controller.getLeftBumper();
     }
 
     public boolean getAimOverride() {

@@ -1,7 +1,10 @@
 package com.team2129.lib.swerve;
 
 import com.team2129.lib.math.Angle;
+import com.team2129.lib.math.MathUtil;
 import com.team2129.lib.math.Vec2d;
+import com.team2129.lib.net.NTDouble;
+import com.team2129.lib.net.NTDoubleArray;
 import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.gyro.Gyroscope;
 
@@ -17,6 +20,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 /** A class to manage all of the swerve modules in a swerve drive. */
 // FIXME-Odometry: Odometry is almost certainly incorrect here
 public class SwerveDrive implements Subsystem {
+    private final NTDouble wheelStopTolerance, wheelFullTolerance;
     private final Gyroscope gyro;
     private final SwerveModule[] modules;
 
@@ -34,9 +38,11 @@ public class SwerveDrive implements Subsystem {
      * @param maxWheelVelocity Maximum wheel velocity in meters per second
      * @param modules Swerve modules to control
      */
-    public SwerveDrive(Gyroscope gyro, double maxWheelVelocity, SwerveModule... modules) {
+    public SwerveDrive(Gyroscope gyro, double maxWheelVelocity, NTDouble wheelStopTolerance, NTDouble wheelFullTolerance, SwerveModule... modules) {
         this.gyro = gyro;
         this.modules = modules;
+        this.wheelStopTolerance = wheelStopTolerance;
+        this.wheelFullTolerance = wheelFullTolerance;
 
         // Extract positions of modules
         Translation2d[] positions = new Translation2d[modules.length];
@@ -94,12 +100,33 @@ public class SwerveDrive implements Subsystem {
      * Set the desired motion of the swerve drive using a custom ChassisSpeeds object.
      * @param speeds ChassisSpeeds object detailing the desired motion of the swerve drive.
      */
+    private static final NTDouble L_DEBUG = new NTDouble("Swerve/Debug", 0);
+    private static final NTDoubleArray L_ERRORS = new NTDoubleArray("Swerve/Errors", 0, 0, 0, 0);
+    static { L_DEBUG.setTemporary(); L_ERRORS.setTemporary(); }
     public void setMotion(ChassisSpeeds speeds) {
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds, centerOfRotationWpi);
         SwerveDriveKinematics.desaturateWheelSpeeds(states, maxWheelVelocity);
-    
+
+        double avgErr = 0;
+        int k = 0;
+        for (SwerveModule module : modules) {
+            double err = module.getRotationError().getCCWRad();
+            avgErr += err;
+            L_ERRORS.set(k++, Math.toDegrees(err));
+        }
+        avgErr /= modules.length;
+        avgErr = Math.toDegrees(avgErr);
+        L_DEBUG.set(avgErr);
+
+        double stopTol = wheelStopTolerance.get();
+        double fullTol = wheelFullTolerance.get();
+
+        double driveScale = MathUtil.map(avgErr, stopTol, fullTol, 0, 1);
+        driveScale = MathUtil.clamp(driveScale, 0, 1);
+
         // Update modules
         for (int i = 0; i < states.length; i++) {
+            states[i].speedMetersPerSecond *= driveScale;
             modules[i].setState(states[i]);
         }
     }

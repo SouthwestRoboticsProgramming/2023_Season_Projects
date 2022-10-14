@@ -59,6 +59,7 @@ public final class Angle {
         return Math.toDegrees(-angle);
     }
 
+    // FIXME: This is wrong, but fixing it breaks drive...
     public double getCCWDeg() {
         return Math.toDegrees(-angle);
     }
@@ -160,6 +161,18 @@ public final class Angle {
         double wrapped = Math.PI * 2 - direct;
 
         return Math.min(direct, wrapped) < tol.angle;
+    }
+
+    public Angle getAbsDiff(Angle other) {
+        double normSelf = normalize(angle, 0, Math.PI * 2);
+        double normOther = normalize(other.angle, 0, Math.PI * 2);
+
+        double diffCCWR = normOther - normSelf;
+        double direct = Math.abs(diffCCWR);
+        double wrapped = Math.PI * 2 - direct;
+
+        double diffRad = Math.min(direct, wrapped);
+        return Angle.ccwRad(diffRad);
     }
 
     @Override

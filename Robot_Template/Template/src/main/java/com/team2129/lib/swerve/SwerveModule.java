@@ -84,6 +84,18 @@ public class SwerveModule {
         return actual.inTolerance(desired, tolerance) || actual.inTolerance(invDesired, tolerance);
     }
 
+    public Angle getRotationError() {
+        Angle desired = Angle.cwDeg(currentDesiredState.angle.getDegrees());
+        Angle invDesired = desired.add(HALF_ROT);
+        Angle actual = steerEncoder.getAngle();
+
+        Angle desErr = actual.getAbsDiff(desired);
+        Angle invErr = actual.getAbsDiff(invDesired);
+
+        double errRad = Math.min(Math.abs(desErr.getCCWRad()), Math.abs(invErr.getCCWRad()));
+        return Angle.ccwRad(errRad);
+    }
+
     /**
      * Set the desired state of the module.
      * @param desiredState Desired state of the module, as calculated by a kinematics object.

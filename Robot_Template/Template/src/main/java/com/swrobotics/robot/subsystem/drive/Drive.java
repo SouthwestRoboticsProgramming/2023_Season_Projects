@@ -1,9 +1,11 @@
 package com.swrobotics.robot.subsystem.drive;
 
 import com.swrobotics.robot.control.Input;
+import com.swrobotics.robot.subsystem.Localization;
 import com.team2129.lib.messenger.MessageBuilder;
 import com.team2129.lib.messenger.MessageReader;
 import com.team2129.lib.messenger.MessengerClient;
+import com.team2129.lib.net.NTDouble;
 import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.swerve.SwerveDrive;
@@ -53,6 +55,9 @@ public class Drive implements Subsystem {
 
     private static final NTBoolean PRINT_ENCODER_OFFSETS = new NTBoolean("Swerve/Print Encoder Offsets", false);
 
+    private static final NTDouble TURN_STOP_TOL = new NTDouble("Swerve/Turn stop tolerance", 80);
+    private static final NTDouble TURN_FULL_TOL = new NTDouble("Swerve/Turn full tolerance", 7);
+
     private static final String MSG_GET_MODULE_DEFS = "Swerve:GetModuleDefs";
     private static final String MSG_MODULE_DEFS = "Swerve:ModuleDefs";
     private static final String MSG_MODULE_STATES = "Swerve:ModuleStates";
@@ -63,23 +68,28 @@ public class Drive implements Subsystem {
     private final SwerveDrive drive;
     private final SwerveModule[] modules;
     private final NavX gyro;
+    private Localization loc;
 
     public Drive(Input input, NavX gyro, MessengerClient msg) {
         this.input = input;
         this.gyro = gyro;
         this.msg = msg;
-        
+
         SwerveModule w0 = SwerveModuleMaker.buildModule(this, SLOT_0_MODULE.get(), TURN_ID_0, SLOT_0_POS, 0);
         SwerveModule w1 = SwerveModuleMaker.buildModule(this, SLOT_1_MODULE.get(), TURN_ID_1, SLOT_1_POS, 90);
         SwerveModule w2 = SwerveModuleMaker.buildModule(this, SLOT_2_MODULE.get(), TURN_ID_2, SLOT_2_POS, 270);
         SwerveModule w3 = SwerveModuleMaker.buildModule(this, SLOT_3_MODULE.get(), TURN_ID_3, SLOT_3_POS, 180);
         modules = new SwerveModule[] {w0, w1, w2, w3};
 
-        drive = new SwerveDrive(gyro, MAX_WHEEL_VELOCITY, modules);
+        drive = new SwerveDrive(gyro, MAX_WHEEL_VELOCITY, TURN_STOP_TOL, TURN_FULL_TOL, modules);
 
         Scheduler.get().addSubsystem(this, drive);
 
         msg.addHandler(MSG_GET_MODULE_DEFS, this::onGetModuleDefs);
+    }
+
+    public void setLocalization(Localization loc) {
+        this.loc = loc;
     }
 
     private void onGetModuleDefs(String type, MessageReader reader) {
@@ -149,6 +159,15 @@ public class Drive implements Subsystem {
         if (input.getSlowMode()) {
             translation.mul(0.5);
         }
+
+//        if (input.getAim()) {
+//            double relativeAngle = loc.getAngleToHub().getCWDeg() - gyro.getAngle().getCWDeg();
+//
+//            if (relativeAngle > 5)
+//                rotation = Angle.cwDeg(90);
+//            else if (relativeAngle < -5)
+//                rotation = Angle.ccwDeg(90);
+//        }
 
         drive.setMotion(translation, rotation, input.getFieldRelative());
     }
