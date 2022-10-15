@@ -2,6 +2,7 @@ package com.swrobotics.robot.subsystem.thrower;
 
 import com.team2129.lib.encoder.HallEffectEncoder;
 import com.team2129.lib.math.Angle;
+import com.team2129.lib.math.MathUtil;
 import com.team2129.lib.motor.ctre.TalonSRXMotor;
 import com.team2129.lib.net.NTBoolean;
 import com.team2129.lib.net.NTDouble;
@@ -57,8 +58,8 @@ public class Hood implements Subsystem {
      * @param percent Percent height of the hood.
      */
     public void setPosition(double percent) {
+        percent = MathUtil.clamp(percent, 0, 1);
         targetPosition = Angle.cwRot(percent);
-        isCalibrating = false;
     }
 
     public void calibrate() {
@@ -69,6 +70,8 @@ public class Hood implements Subsystem {
     public void periodic() {
         L_LIMIT_SWITCH_PRESSED.set(limitSwitch.get());
         L_HOOD_POS.set(motor.getEncoder().getAngle().getCWDeg() / 360);
+
+        // System.out.println("Hood: " + isCalibrating + " " + targetPosition);
 
         if (isCalibrating) {
             if (limitSwitch.get()) {

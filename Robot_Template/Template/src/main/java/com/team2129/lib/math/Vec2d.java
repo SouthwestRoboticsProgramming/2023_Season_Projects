@@ -28,6 +28,11 @@ public final class Vec2d {
         y = tx.getY();
     }
 
+    public Vec2d(Vec2d v) {
+        x = v.x;
+        y = v.y;
+    }
+
     public double magnitude() {
         return Math.sqrt(x * x + y * y);
     }

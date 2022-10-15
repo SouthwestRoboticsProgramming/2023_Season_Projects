@@ -1,8 +1,6 @@
 package com.swrobotics.robot.auto;
 
 import com.swrobotics.robot.subsystem.drive.Drive;
-import com.team2129.lib.math.Angle;
-import com.team2129.lib.math.Vec2d;
 import com.team2129.lib.schedule.Command;
 import com.team2129.lib.time.Duration;
 import com.team2129.lib.time.Timestamp;

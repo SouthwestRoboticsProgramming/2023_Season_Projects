@@ -51,7 +51,7 @@ public final class Robot extends AbstractRobot {
         Intake intake = new Intake(input);
         Thrower thrower = new Thrower(input, loc);
 
-        AutoSystem auto = new AutoSystem(drive);
+        AutoSystem auto = new AutoSystem(drive, thrower.getHopper());
 
         Scheduler scheduler = Scheduler.get();
         scheduler.addSubsystem(loc);
