@@ -45,7 +45,7 @@ public class Input {
     }
 
     public boolean getSlowMode() { // Driver left trigger (Fully pulled)
-        return !(driver.getLeftTriggerAxis() > 1.0 - DEADBAND);
+        return (driver.getLeftTriggerAxis() > 1.0 - DEADBAND);
     }
 
 
