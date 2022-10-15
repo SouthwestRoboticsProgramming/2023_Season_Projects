@@ -82,10 +82,10 @@ public class Thrower implements Subsystem {
 //        highHubMap.put(1.92, 35.1);
 //        highHubMap.put(4.47, 65.0);
 //        highHubMap.put(2.97, 45.0);
-        highHubMap.put(3.75, 40.3);
-        highHubMap.put(3.01, 36.3);
-        highHubMap.put(2.04, 30.5);
-        highHubMap.put(4.57, 49.8);
+        highHubMap.put(3.75, 40.3 * 0.9);
+        highHubMap.put(3.01, 36.3 * 0.9);
+        highHubMap.put(2.04, 30.5 * 0.9);
+        highHubMap.put(4.57, 49.8 * 0.9);
     }
 
     private double[] calculateAim(double distance, boolean aimHighHub, boolean forceHubChoice) {
@@ -178,7 +178,7 @@ public class Thrower implements Subsystem {
 //        double[] aim = calculateAim(loc.getFeetToHub(), true, false);
 //        hood.setPosition(aim[1]);
 
-        System.out.println("DIstance: " + distance);
+        // System.out.println("DIstance: " + distance);
 
          if (hopper.isBallDetected() || !flywheelShutoff.hasElapsed(FLYWHEEL_SHUTOFF_SECONDS.get())) {
                  double[] aim = calculateAim(distance, true, STRICT_AIM.get());
