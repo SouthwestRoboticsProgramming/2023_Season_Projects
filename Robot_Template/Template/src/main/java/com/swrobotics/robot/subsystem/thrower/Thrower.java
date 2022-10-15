@@ -182,8 +182,8 @@ public class Thrower implements Subsystem {
 
          if (hopper.isBallDetected() || !flywheelShutoff.hasElapsed(FLYWHEEL_SHUTOFF_SECONDS.get())) {
                  double[] aim = calculateAim(distance, true, STRICT_AIM.get());
-//                 flywheel.setFlywheelVelocity(Angle.cwRot(aim[0])); // Convert rpm to Angle/second // TODO: Check functionality
-             flywheel.setFlywheelVelocity(Angle.cwRot(TEST_VEL.get()));
+                 flywheel.setFlywheelVelocity(Angle.cwRot(aim[0])); // Convert rpm to Angle/second // TODO: Check functionality
+//             flywheel.setFlywheelVelocity(Angle.cwRot(TEST_VEL.get()));
              hood.setPosition(aim[1]);
                  // System.out.println("Distance: " + distance + " Hood: " + aim[1] + " Flywheel: " + aim[0]);
          } else { // If no ball for the duration of the timer
