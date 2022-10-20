@@ -7,6 +7,7 @@ import com.team2129.lib.math.Vec2d;
 import com.team2129.lib.net.NTDouble;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 
 public class Input {
     private static final double DEADBAND = 0.2;
@@ -45,7 +46,7 @@ public class Input {
     }
 
     public boolean getSlowMode() { // Driver left trigger (Fully pulled)
-        return !(driver.getLeftTriggerAxis() > 1.0 - DEADBAND);
+        return (driver.getLeftTriggerAxis() > 1.0 - DEADBAND);
     }
 
 
@@ -56,9 +57,18 @@ public class Input {
     }
 
     /* Thrower */
+
     public boolean getAim() { // Either right bumper
-        return driver.getRightBumper() || manipulator.getRightBumper();
+        boolean out = driver.getRightBumper() || manipulator.getRightBumper();
+        double rumble = out ? 0.75 : 0;
+        driver.setRumble(RumbleType.kLeftRumble, rumble);
+        driver.setRumble(RumbleType.kRightRumble, rumble);
+        manipulator.setRumble(RumbleType.kLeftRumble, rumble);
+        manipulator.setRumble(RumbleType.kLeftRumble, rumble);
+        return out;
     }
+
+
 
     public boolean getShoot() { // Manipulator (Per ball) A button
         return manipulator.getAButtonPressed();

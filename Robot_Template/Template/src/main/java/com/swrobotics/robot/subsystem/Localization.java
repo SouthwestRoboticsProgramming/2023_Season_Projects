@@ -31,6 +31,10 @@ public class Localization implements Subsystem {
         angle = Angle.zero();
     }
 
+    public Vec2d getPosition() {
+        return position;
+    }
+
     public double getFeetToHub() {
         return position.magnitude() * 3.281; // Convert meters to feet
     }
@@ -63,6 +67,10 @@ public class Localization implements Subsystem {
         return new Vec2d(fieldX, fieldY);
     }
 
+    public boolean isLimelightAccurate() {
+        return limelight.isAccurate();
+    }
+
     @Override
     public void periodic() {
 
@@ -71,7 +79,7 @@ public class Localization implements Subsystem {
 
         // Update position using limelight
         // Only update if it is accurate, the robot is in teleop, and we actually want to use it.
-        if (limelight.isAccurate() && USE_LIMELIGHT.get() && Robot.get().getCurrentState() == RobotState.TELEOP) {
+        if (limelight.isAccurate() && USE_LIMELIGHT.get() && Robot.get().getCurrentState() != RobotState.DISABLED) {
             position = calculatePositionOnLimelight();
             drive.setPosition(position);
         } else {

@@ -1,5 +1,6 @@
 package com.swrobotics.robot;
 
+import com.swrobotics.robot.auto.AutoSystem;
 import com.swrobotics.robot.blockauto.AutoBlocks;
 import com.swrobotics.robot.control.Input;
 import com.swrobotics.robot.subsystem.Intake;
@@ -50,10 +51,13 @@ public final class Robot extends AbstractRobot {
         Intake intake = new Intake(input);
         Thrower thrower = new Thrower(input, loc);
 
+        AutoSystem auto = new AutoSystem(drive, thrower.getHopper());
+
         Scheduler scheduler = Scheduler.get();
         scheduler.addSubsystem(loc);
         scheduler.addSubsystem(drive);
         scheduler.addSubsystem(intake);
         scheduler.addSubsystem(thrower);
+        scheduler.addSubsystem(auto);
     }
 }

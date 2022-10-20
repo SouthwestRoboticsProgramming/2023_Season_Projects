@@ -87,7 +87,7 @@ public class Limelight implements Subsystem {
             x.getCWDeg() != 0 &&
             y.getCWDeg() != 0 &&
             getDistance() > 0 &&
-            getDistance() < 20 &&
+            getDistance() < 18 * 0.305 &&
             getArea() > 0);
     }
 

@@ -1,5 +1,6 @@
 package com.swrobotics.robot.subsystem.drive;
 
+import com.swrobotics.robot.auto.DriveAutoInput;
 import com.swrobotics.robot.control.Input;
 import com.swrobotics.robot.subsystem.Localization;
 import com.team2129.lib.messenger.MessageBuilder;
@@ -11,12 +12,16 @@ import com.team2129.lib.schedule.Subsystem;
 import com.team2129.lib.swerve.SwerveDrive;
 import com.team2129.lib.swerve.SwerveModule;
 import com.team2129.lib.utils.CoordinateConversions;
+import com.team2129.lib.wpilib.AbstractRobot;
+import com.team2129.lib.wpilib.RobotState;
 import com.team2129.lib.math.Angle;
+import com.team2129.lib.math.MathUtil;
 import com.team2129.lib.math.Vec2d;
 import com.team2129.lib.net.NTBoolean;
 import com.team2129.lib.net.NTEnum;
 import com.team2129.lib.gyro.NavX;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
@@ -70,6 +75,8 @@ public class Drive implements Subsystem {
     private final NavX gyro;
     private Localization loc;
 
+    private DriveAutoInput autoInput;
+
     public Drive(Input input, NavX gyro, MessengerClient msg) {
         this.input = input;
         this.gyro = gyro;
@@ -86,6 +93,16 @@ public class Drive implements Subsystem {
         Scheduler.get().addSubsystem(this, drive);
 
         msg.addHandler(MSG_GET_MODULE_DEFS, this::onGetModuleDefs);
+
+        autoInput = null;
+    }
+
+    public void setAutoInput(DriveAutoInput autoInput) {
+        this.autoInput = autoInput;
+    }
+
+    public void clearAutoInput() {
+        autoInput = null;
     }
 
     public void setLocalization(Localization loc) {
@@ -128,6 +145,14 @@ public class Drive implements Subsystem {
         );
     }
 
+    // TODO: Rework (or not)
+    // Constants taken from old code
+    private final PIDController autoTurnPID = new PIDController(0.01, 0.0001, 0.0002);
+    {
+        autoTurnPID.setTolerance(10);
+        autoTurnPID.enableContinuousInput(0, 360);
+    }
+
     @Override
     public void periodic() {
         if (PRINT_ENCODER_OFFSETS.get()) {
@@ -149,17 +174,31 @@ public class Drive implements Subsystem {
             builder.addDouble(current.speedMetersPerSecond);
         }
         builder.send();
-    }
 
-    @Override
-    public void teleopPeriodic() {
+        // Only do movements when not disabled
+        if (AbstractRobot.get().getCurrentState() == RobotState.DISABLED)
+            return;
+
         Vec2d translation = input.getDriveTranslation();
         Angle rotation = input.getDriveRotation();
+        boolean fieldRelative = input.getFieldRelative();
 
         if (input.getSlowMode()) {
             translation.mul(0.5);
         }
 
+        if (input.getAim() && false) {
+            // Vec2d pos = new Vec2d(loc.getPosition());
+            // System.out.println(pos);
+            // Angle rot = pos.negate().angle();
+            Angle rot = Angle.zero();
+            rot = rot.normalizeRangeRad(-2*Math.PI, 0);
+            System.out.println(rot + " current " + gyro.getAngle().normalizeRangeRad(-2*Math.PI, 0));
+            rotation = Angle.cwDeg(180 * MathUtil.clamp(autoTurnPID.calculate(gyro.getAngle().normalizeRangeRad(-2*Math.PI, 0).getCWDeg(), rot.getCWDeg()), -1, 1));
+            System.out.println("OUT " + rotation);
+        }
+
+        // bad, dont use
 //        if (input.getAim()) {
 //            double relativeAngle = loc.getAngleToHub().getCWDeg() - gyro.getAngle().getCWDeg();
 //
@@ -169,6 +208,16 @@ public class Drive implements Subsystem {
 //                rotation = Angle.ccwDeg(90);
 //        }
 
-        drive.setMotion(translation, rotation, input.getFieldRelative());
+        if (autoInput != null) {
+            translation = autoInput.getTranslation();
+            rotation = autoInput.getRotation();
+            fieldRelative = !autoInput.isRobotRelative();
+        }
+
+        drive.setMotion(translation, rotation, fieldRelative);
     }
+
+    @Override
+    public void teleopPeriodic() {
+        }
 }
