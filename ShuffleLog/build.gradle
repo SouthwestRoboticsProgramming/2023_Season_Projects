@@ -1,0 +1,88 @@
+plugins {
+    id 'java'
+}
+
+group 'com.swrobotics'
+version '2023'
+
+compileJava {
+    sourceCompatibility = '11'
+    targetCompatibility = '11'
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url 'https://frcmaven.wpi.edu/artifactory/release/'
+    }
+}
+
+def wpilibVersion = '2022.4.1'
+def p5xVersion = '0.353.0-beta-3'
+def lwjglVersion = '3.3.1'
+def imguiVersion = '1.86.4'
+
+static def lwjglModule(module) {
+    def prefix = 'org.lwjgl:lwjgl'
+    if (module != null) prefix += '-' + module
+
+    return [
+            prefix,
+            prefix + '::natives-linux',
+            prefix + '::natives-linux-arm64',
+            prefix + '::natives-linux-arm32',
+            prefix + '::natives-macos',
+            prefix + '::natives-windows',
+            prefix + '::natives-windows-x86'
+    ]
+}
+
+dependencies {
+    implementation project(':Messenger:MessengerClient')
+
+    implementation 'org.praxislive.libp5x:processing-core:' + p5xVersion
+    implementation('org.praxislive.libp5x:processing-lwjgl:' + p5xVersion) {
+        exclude group: 'org.lwjgl'
+    }
+
+    implementation 'io.github.spair:imgui-java-binding:' + imguiVersion
+    implementation 'io.github.spair:imgui-java-natives-linux:' + imguiVersion
+    implementation 'io.github.spair:imgui-java-natives-macos:' + imguiVersion
+    implementation 'io.github.spair:imgui-java-natives-windows:' + imguiVersion
+    implementation('io.github.spair:imgui-java-lwjgl3:' + imguiVersion) {
+        exclude group: 'org.lwjgl'
+    }
+
+    implementation platform('org.lwjgl:lwjgl-bom:' + lwjglVersion)
+    implementation lwjglModule(null)
+    implementation lwjglModule('assimp')
+    implementation lwjglModule('glfw')
+    implementation lwjglModule('opengl')
+    implementation lwjglModule('stb')
+
+    implementation 'edu.wpi.first.ntcore:ntcore-java:' + wpilibVersion
+    implementation 'edu.wpi.first.wpiutil:wpiutil-java:' + wpilibVersion
+    implementation 'edu.wpi.first.ntcore:ntcore-jni:' + wpilibVersion + ':windowsx86'
+    implementation 'edu.wpi.first.ntcore:ntcore-jni:' + wpilibVersion + ':windowsx86-64'
+    implementation 'edu.wpi.first.ntcore:ntcore-jni:' + wpilibVersion + ':linuxx86-64'
+    implementation 'edu.wpi.first.ntcore:ntcore-jni:' + wpilibVersion + ':linuxraspbian'
+    implementation 'edu.wpi.first.ntcore:ntcore-jni:' + wpilibVersion + ':osxx86-64'
+    implementation 'edu.wpi.first.fieldImages:fieldImages-java:' + wpilibVersion
+    implementation 'edu.wpi.first.wpimath:wpimath-java:' + wpilibVersion
+    implementation 'org.ejml:ejml-all:0.41'
+
+    implementation 'com.google.code.gson:gson:2.9.0'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.swrobotics.shufflelog.ShuffleLog'
+    }
+
+    from {
+        configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}

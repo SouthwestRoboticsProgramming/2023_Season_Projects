@@ -1,0 +1,10 @@
+rootProject.name = '2023_Season_Projects'
+include 'Lidar'
+include 'Messenger:MessengerClient'
+include 'Messenger:MessengerServer'
+include 'Messenger:MessengerTest'
+include 'Pathfinding'
+include 'ShuffleLog'
+include 'TaskManager'
+
+include 'Template'

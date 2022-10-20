@@ -38,5 +38,9 @@ Vision/Test.py
 
 # Maven shade output
 **/dependency-reduced-pom.xml
+
+# Gradle
+.gradle/
+
 Robot_Template/Template/networktables.ini
 Robot_Template/Template/networktables.ini.bak

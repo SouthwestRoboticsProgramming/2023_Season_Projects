@@ -1,0 +1,21 @@
+plugins {
+    id 'java'
+}
+
+group 'com.swrobotics'
+version '2023'
+
+compileJava {
+    sourceCompatibility = '11'
+    targetCompatibility = '11'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':Messenger:MessengerClient')
+
+    implementation 'com.fazecast:jSerialComm:2.7.0'
+}
