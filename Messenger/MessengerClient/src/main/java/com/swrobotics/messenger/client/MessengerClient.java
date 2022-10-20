@@ -280,6 +280,7 @@ public final class MessengerClient {
         void handle(String type, byte[] data);
     }
 
+    // Handles simple patterns (type must match exactly)
     private static final class DirectHandler implements Handler {
         private final String targetType;
         private final MessageHandler handler;
@@ -297,6 +298,7 @@ public final class MessengerClient {
         }
     }
 
+    // Handles wildcard patterns (i.e. patterns that end in '*')
     private static final class WildcardHandler implements Handler {
         private final String targetPrefix;
         private final MessageHandler handler;

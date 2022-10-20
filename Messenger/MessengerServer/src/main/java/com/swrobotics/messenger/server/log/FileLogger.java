@@ -48,7 +48,7 @@ public final class FileLogger implements MessageLogger {
 
     @Override
     public void logEvent(String type, String name, String descriptor) {
-        out.println(getTimestamp() + "\t" + type + "\t_" + name + "\t" + descriptor);
+        out.println(getTimestamp() + "\t_" + type + "\t" + name + "\t" + descriptor);
     }
 
     @Override

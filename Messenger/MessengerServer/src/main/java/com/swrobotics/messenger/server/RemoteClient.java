@@ -43,9 +43,12 @@ public final class RemoteClient implements Client, Runnable {
     }
 
     private void readMessage() throws IOException {
+//        System.out.println("Reading message type");
         String type = in.readUTF();
 
-        byte[] data = new byte[in.readInt()];
+        int dataSz = in.readInt();
+//        System.out.println("Type " + type + ", reading " + dataSz + " data bytes");
+        byte[] data = new byte[dataSz];
         in.readFully(data);
 
         DataInputStream in = new DataInputStream(new ByteArrayInputStream(data));

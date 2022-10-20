@@ -140,6 +140,12 @@ public final class MessageReader {
         }
     }
 
+    /**
+     * Reads raw data as a byte array from the message.
+     *
+     * @param length number of bytes to read
+     * @return bytes read
+     */
     public byte[] readRaw(int length) {
         try {
             byte[] buf = new byte[length];
