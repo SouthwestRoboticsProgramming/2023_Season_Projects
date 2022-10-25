@@ -7,6 +7,7 @@ import com.swrobotics.shufflelog.tool.data.DataLogTool;
 import com.swrobotics.shufflelog.tool.MenuBarTool;
 import com.swrobotics.shufflelog.tool.drive.SwerveDriveStateTool;
 import com.swrobotics.shufflelog.tool.field.FieldViewTool;
+import com.swrobotics.shufflelog.tool.loc.LocalizationTool;
 import com.swrobotics.shufflelog.tool.messenger.MessengerTool;
 import com.swrobotics.shufflelog.tool.data.NetworkTablesTool;
 import com.swrobotics.shufflelog.tool.profile.RobotProfilerTool;
@@ -16,6 +17,7 @@ import com.swrobotics.shufflelog.tool.scheduler.SchedulerTool;
 import com.swrobotics.shufflelog.tool.taskmanager.TaskManagerTool;
 import imgui.ImGui;
 import imgui.ImGuiIO;
+import imgui.extension.imguizmo.ImGuizmo;
 import imgui.extension.imnodes.ImNodes;
 import imgui.extension.implot.ImPlot;
 import imgui.flag.ImGuiConfigFlags;
@@ -89,6 +91,7 @@ public final class ShuffleLog extends PApplet {
         tools.add(new FieldViewTool(this));
         tools.add(new BlockAutoTool(this));
         tools.add(new SwerveDriveStateTool(this));
+        tools.add(new LocalizationTool(this));
 
         // Temporarily turn ShuffleLog into a swerve drive debugger
 //        tools.add(new SwerveDebugTool(this));
@@ -108,6 +111,7 @@ public final class ShuffleLog extends PApplet {
         imGuiGlfw.flushEvents();
         imGuiGlfw.newFrame();
         ImGui.newFrame();
+        ImGuizmo.beginFrame();
         Profiler.pop();
 
         Profiler.push("Read Messages");
