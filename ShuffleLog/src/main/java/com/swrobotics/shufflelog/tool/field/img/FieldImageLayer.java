@@ -40,6 +40,7 @@ public final class FieldImageLayer implements FieldLayer {
         float width = (float) config.fieldUnit.toMeters(config.fieldSize.width);
         float height = (float) config.fieldUnit.toMeters(config.fieldSize.height);
         g.rotate((float) Math.PI / 2); // WPILib field images are oriented incorrectly
+        g.fill(255); // Apparently images can be tinted in 3D mode
         g.image(
                 img,
                 -width/2, -height/2,
