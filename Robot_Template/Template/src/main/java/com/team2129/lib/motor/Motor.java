@@ -74,6 +74,10 @@ public abstract class Motor implements Subsystem {
         controlModeImpl = () -> percentImpl(percent);
     }
 
+    public void percent(NTDouble percent) {
+        percent(percent.get());
+    }
+
     /**
      * Tells the motor to target a specific encoder measurement.
      * The actual motor output is calculated by the set {@link PositionCalculator}. This
