@@ -23,4 +23,13 @@ public interface FieldLayer {
      * Draws the ImGui content for this layer.
      */
     void showGui();
+
+    /**
+     * Gets whether this layer should be sequentially offset to prevent z-fighting
+     * of 2D objects. This should typically be disabled for 3D objects, so they render
+     * in the correct spot.
+     *
+     * @return whether to offset
+     */
+    default boolean shouldOffset() { return true; }
 }

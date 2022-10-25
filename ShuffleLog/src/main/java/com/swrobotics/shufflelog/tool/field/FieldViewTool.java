@@ -7,6 +7,8 @@ import com.swrobotics.shufflelog.tool.ViewportTool;
 import com.swrobotics.shufflelog.tool.field.img.FieldImageLayer;
 import com.swrobotics.shufflelog.tool.field.img.FieldVectorLayer;
 import com.swrobotics.shufflelog.tool.field.path.PathfindingLayer;
+import com.swrobotics.shufflelog.tool.field.tag.ReferenceTag;
+import com.swrobotics.shufflelog.tool.field.tag.TagTrackerLayer;
 import com.swrobotics.shufflelog.util.SmoothFloat;
 import imgui.ImGui;
 import imgui.ImGuiIO;
@@ -18,13 +20,13 @@ import imgui.flag.ImGuiMouseButton;
 import imgui.flag.ImGuiTableFlags;
 import imgui.flag.ImGuiWindowFlags;
 import processing.core.PGraphics;
-import processing.core.PMatrix;
 import processing.core.PMatrix3D;
 import processing.opengl.PGraphicsOpenGL;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.swrobotics.shufflelog.util.ProcessingUtils.setPMatrix;
 import static processing.core.PConstants.*;
 
 public final class FieldViewTool extends ViewportTool {
@@ -45,7 +47,8 @@ public final class FieldViewTool extends ViewportTool {
     // END TODO
 
     private final SmoothFloat cameraRotX, cameraRotY;
-    private final SmoothFloat cameraPosX, cameraPosY, cameraPosZ;
+    private final SmoothFloat cameraTargetX, cameraTargetY, cameraTargetZ;
+    private final SmoothFloat cameraDist;
 
     public FieldViewTool(ShuffleLog log) {
         // Be in 3d mode
@@ -56,6 +59,7 @@ public final class FieldViewTool extends ViewportTool {
         layers.add(new MeterGridLayer());
         layers.add(new FieldVectorLayer());
         layers.add(new PathfindingLayer(log.getMsg()));
+        layers.add(new TagTrackerLayer(this));
 
         tags = new ArrayList<>();
         tags.add(new ReferenceTag("Tag 1", 1));
@@ -63,37 +67,29 @@ public final class FieldViewTool extends ViewportTool {
 
         cameraRotX = new SmoothFloat(SMOOTH, 0);
         cameraRotY = new SmoothFloat(SMOOTH, 0);
-
-        cameraPosX = new SmoothFloat(SMOOTH, 0);
-        cameraPosY = new SmoothFloat(SMOOTH, 0);
-        cameraPosZ = new SmoothFloat(SMOOTH, 10);
+        cameraTargetX = new SmoothFloat(SMOOTH, 0);
+        cameraTargetY = new SmoothFloat(SMOOTH, 0);
+        cameraTargetZ = new SmoothFloat(SMOOTH, 0);
+        cameraDist = new SmoothFloat(SMOOTH, 10);
 
         gizmoOp = Operation.TRANSLATE;
         gizmoMode = Mode.WORLD;
     }
 
-    private void setPMatrix(PMatrix dst, Matrix4f src) {
-        dst.set(
-                src.m00, src.m01, src.m02, src.m03,
-                src.m10, src.m11, src.m12, src.m13,
-                src.m20, src.m21, src.m22, src.m23,
-                src.m30, src.m31, src.m32, src.m33
-        );
-    }
-
     @Override
     protected void drawViewportContent(PGraphics pGraphics) {
-        cameraPosX.step(); cameraPosY.step(); cameraPosZ.step();
-        cameraRotX.step(); cameraRotY.step();
+        cameraRotX.step(); cameraRotY.step(); cameraDist.step();
+        cameraTargetX.step(); cameraTargetY.step(); cameraTargetZ.step();
 
         // Custom projection and view matrices because Processing's defaults are pretty bad
         PGraphicsOpenGL g = (PGraphicsOpenGL) pGraphics;
         projection = new Matrix4f().perspective((float) Math.toRadians(80), g.width / (float) g.height, 0.01f, 1000f);
         setPMatrix(g.projection, projection);
         view = new Matrix4f()
-                .translate(new Vector3f(cameraPosX.get(), cameraPosY.get(), cameraPosZ.get()))
+                .translate(new Vector3f(cameraTargetX.get(), cameraTargetY.get(), cameraTargetZ.get()))
                 .rotateZ(cameraRotY.get())
                 .rotateX(cameraRotX.get())
+                .translate(new Vector3f(0, 0, cameraDist.get()))
                 .invert();
         setPMatrix(g.modelview, view);
         g.modelviewInv.set(g.modelview);
@@ -104,36 +100,24 @@ public final class FieldViewTool extends ViewportTool {
 
         g.background(0);
 
-        // Basic lighting
+        // Basic lighting for 3d objects
         g.directionalLight(255, 255, 255, 1, 1, 1);
         g.ambientLight(175, 175, 175);
 
-        int i = 0;
+        float offset = 0;
         for (FieldLayer layer : layers) {
             g.pushMatrix();
-            g.translate(0, 0, 0.01f * i++);
+            if (layer.shouldOffset()) {
+                g.translate(0, 0, offset);
+                offset += 0.01;
+            }
             layer.draw(g, 1);
-            g.popMatrix();
-        }
-
-        g.fill(0, 255, 0, 64);
-        g.stroke(0, 255, 0);
-        g.strokeWeight(4);
-        PMatrix3D txMat = new PMatrix3D();
-        for (ReferenceTag tag : tags) {
-            g.pushMatrix();
-            setPMatrix(txMat, tag.getTransform());
-            g.applyMatrix(txMat);
-
-            float s = (float) tag.getSize();
-            g.rect(-s/2, -s/2, s, s);
             g.popMatrix();
         }
     }
 
-    private void select(ReferenceTag tag) {
-        selectedTag = tag;
-        gizmoTarget = tag.getTransform();
+    public void setGizmoTarget(GizmoTarget target) {
+        gizmoTarget = target.getTransform();
     }
 
     @Override
@@ -191,7 +175,7 @@ public final class FieldViewTool extends ViewportTool {
                 viewRotInv.m13 = 0;
                 viewRotInv.m23 = 0;
 
-                if (io.getMouseDown(ImGuiMouseButton.Left)) {
+                if (io.getMouseDown(ImGuiMouseButton.Right)) {
                     // Pan
 
                     float deltaX = io.getMouseDeltaX();
@@ -200,31 +184,28 @@ public final class FieldViewTool extends ViewportTool {
                     Vector3f up = viewRotInv.transformPosition(new Vector3f(0, 1, 0)).normalize();
                     Vector3f right = viewRotInv.transformPosition(new Vector3f(1, 0, 0)).normalize();
 
-                    float scaleUp = deltaY * 0.01f;
-                    float scaleRight = deltaX * -0.01f;
+                    float dist = cameraDist.get();
+                    float scaleUp = deltaY * 0.002f * dist;
+                    float scaleRight = deltaX * -0.002f * dist;
 
-                    cameraPosX.set(cameraPosX.getTarget() + up.x * scaleUp + right.x * scaleRight);
-                    cameraPosY.set(cameraPosY.getTarget() + up.y * scaleUp + right.y * scaleRight);
-                    cameraPosZ.set(cameraPosZ.getTarget() + up.z * scaleUp + right.z * scaleRight);
+                    cameraTargetX.set(cameraTargetX.getTarget() + up.x * scaleUp + right.x * scaleRight);
+                    cameraTargetY.set(cameraTargetY.getTarget() + up.y * scaleUp + right.y * scaleRight);
+                    cameraTargetZ.set(cameraTargetZ.getTarget() + up.z * scaleUp + right.z * scaleRight);
                 }
 
-                if (io.getMouseDown(ImGuiMouseButton.Right)) {
+                if (io.getMouseDown(ImGuiMouseButton.Left)) {
                     // Turn
 
                     float deltaX = io.getMouseDeltaX();
                     float deltaY = io.getMouseDeltaY();
 
-                    cameraRotX.set(cameraRotX.getTarget() + deltaY * 0.007f);
-                    cameraRotY.set(cameraRotY.getTarget() + deltaX * 0.007f);
+                    cameraRotX.set(cameraRotX.getTarget() - deltaY * 0.007f);
+                    cameraRotY.set(cameraRotY.getTarget() - deltaX * 0.007f);
                 }
 
                 float scroll = io.getMouseWheel();
-                Vector3f forward = viewRotInv.transformPosition(new Vector3f(0, 0, -1)).normalize();
-
-                float scale = scroll * -0.2f;
-                cameraPosX.set(cameraPosX.getTarget() + forward.x * scale);
-                cameraPosY.set(cameraPosY.getTarget() + forward.y * scale);
-                cameraPosZ.set(cameraPosZ.getTarget() + forward.z * scale);
+                float scale = 1 + scroll * -0.05f;
+                cameraDist.set(cameraDist.getTarget() * scale);
             }
 
             ImGui.tableNextColumn();
@@ -234,13 +215,6 @@ public final class FieldViewTool extends ViewportTool {
                     ImGui.indent();
                     layer.showGui();
                     ImGui.unindent();
-                }
-            }
-
-            ImGui.separator();
-            for (ReferenceTag tag : tags) {
-                if (ImGui.selectable(tag.getName(), tag.equals(selectedTag))) {
-                    select(tag);
                 }
             }
 
