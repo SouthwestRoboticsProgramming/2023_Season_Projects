@@ -6,7 +6,7 @@ import com.swrobotics.shufflelog.tool.field.GizmoTarget;
 public final class ReferenceTag implements GizmoTarget {
     private final String name;
     private final double size;
-    private final Matrix4f transform; // Encodes position and rotation
+    private Matrix4f transform; // Encodes position and rotation
 
     public ReferenceTag(String name, double size, Matrix4f transform) {
         this.name = name;
@@ -25,5 +25,10 @@ public final class ReferenceTag implements GizmoTarget {
     @Override
     public Matrix4f getTransform() {
         return transform;
+    }
+
+    @Override
+    public void setTransform(Matrix4f transform) {
+        this.transform = transform;
     }
 }

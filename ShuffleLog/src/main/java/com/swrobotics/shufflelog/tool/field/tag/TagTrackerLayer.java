@@ -3,9 +3,11 @@ package com.swrobotics.shufflelog.tool.field.tag;
 import com.swrobotics.messenger.client.MessageReader;
 import com.swrobotics.messenger.client.MessengerClient;
 import com.swrobotics.shufflelog.math.Matrix4f;
+import com.swrobotics.shufflelog.math.Vector3f;
 import com.swrobotics.shufflelog.tool.ToolConstants;
 import com.swrobotics.shufflelog.tool.field.FieldLayer;
 import com.swrobotics.shufflelog.tool.field.FieldViewTool;
+import com.swrobotics.shufflelog.tool.field.GizmoTarget;
 import com.swrobotics.shufflelog.util.Cooldown;
 import imgui.ImGui;
 import imgui.type.ImBoolean;
@@ -29,7 +31,9 @@ public final class TagTrackerLayer implements FieldLayer {
     private final FieldViewTool tool;
     private final MessengerClient msg;
     private final List<ReferenceTag> tags;
-    private ReferenceTag selectedTag;
+    private final List<Camera> cameras;
+    private GizmoTarget selection;
+    private RobotPose robotPose;
 
     public TagTrackerLayer(FieldViewTool tool, MessengerClient msg) {
         this.tool = tool;
@@ -39,9 +43,13 @@ public final class TagTrackerLayer implements FieldLayer {
         queryEnvironmentCooldown = new Cooldown(ToolConstants.MSG_QUERY_COOLDOWN_TIME);
 
         tags = new ArrayList<>();
-        selectedTag = null;
+        cameras = new ArrayList<>();
+        selection = null;
 
         msg.addHandler(MSG_ENVIRONMENT, this::onEnvironment);
+
+        // TODO: This should come from the tag tracker estimate
+        robotPose = new RobotPose(new Vector3f(1, 1, 1), new Matrix4f().translate(new Vector3f(0, -4, 0)));
     }
 
     @Override
@@ -69,9 +77,8 @@ public final class TagTrackerLayer implements FieldLayer {
         for (int i = 0; i < cameraCount; i++) {
             String name = reader.readString();
             int port = reader.readInt();
-            Matrix4f robotPose = readMatrix(reader);
-
-            // TODO: Use the data
+            Matrix4f transform = readMatrix(reader);
+            cameras.add(new Camera(name + " (" + port + ")", port, transform, robotPose.getTransform()));
         }
 
         hasEnvironment = true;
@@ -98,10 +105,40 @@ public final class TagTrackerLayer implements FieldLayer {
             g.rect(-s/2, -s/2, s, s);
             g.popMatrix();
         }
+
+        // Robot bounding box
+        g.noFill();
+        g.stroke(185, 66, 245);
+        g.strokeWeight(3);
+        g.pushMatrix();
+        setPMatrix(txMat, robotPose.getTransform());
+        g.applyMatrix(txMat);
+        Vector3f sz = robotPose.getSize();
+        g.translate(0, 0, sz.z/2);
+        g.box(sz.x, sz.y, sz.z);
+        g.popMatrix();
+
+        g.noFill();
+        g.stroke(255, 255, 0);
+        g.strokeWeight(4);
+        float s = 0.1f;
+        for (Camera cam : cameras) {
+            g.pushMatrix();
+            setPMatrix(txMat, cam.getTransform());
+            g.applyMatrix(txMat);
+
+            // Pyramid thing that isn't a pyramid
+            g.line(0, 0, 0, -s, s, s*-2);
+            g.line(0, 0, 0, s, s, s*-2);
+            g.line(0, 0, 0, s, -s, s*-2);
+            g.line(0, 0, 0, -s, -s, s*-2);
+
+            g.popMatrix();
+        }
     }
 
-    private void select(ReferenceTag tag) {
-        selectedTag = tag;
+    private void select(GizmoTarget tag) {
+        selection = tag;
         tool.setGizmoTarget(tag);
     }
 
@@ -110,8 +147,16 @@ public final class TagTrackerLayer implements FieldLayer {
         ImGui.checkbox("Show Tags", showTags);
 
         for (ReferenceTag tag : tags) {
-            if (ImGui.selectable(tag.getName(), tag.equals(selectedTag))) {
+            if (ImGui.selectable(tag.getName(), tag.equals(selection))) {
                 select(tag);
+            }
+        }
+
+        ImGui.separator();
+
+        for (Camera camera : cameras) {
+            if (ImGui.selectable(camera.getName(), camera.equals(selection))) {
+                select(camera);
             }
         }
     }

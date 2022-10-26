@@ -37,7 +37,7 @@ public final class FieldViewTool extends ViewportTool {
     private final List<FieldLayer> layers;
 
     private Matrix4f projection, view;
-    private Matrix4f gizmoTarget;
+    private GizmoTarget gizmoTarget;
     private int gizmoOp, gizmoMode;
 
     private final SmoothFloat cameraRotX, cameraRotY;
@@ -108,7 +108,7 @@ public final class FieldViewTool extends ViewportTool {
     }
 
     public void setGizmoTarget(GizmoTarget target) {
-        gizmoTarget = target.getTransform();
+        gizmoTarget = target;
     }
 
     @Override
@@ -147,12 +147,12 @@ public final class FieldViewTool extends ViewportTool {
 
             boolean gizmoConsumesMouse = false;
             if (gizmoTarget != null) {
-                float[] transArr = gizmoTarget.getColumnMajor();
+                float[] transArr = gizmoTarget.getTransform().getColumnMajor();
                 ImGuizmo.setRect(x, y, size.x, size.y);
                 ImGuizmo.setAllowAxisFlip(true);
                 ImGuizmo.manipulate(view.getColumnMajor(), projection.getColumnMajor(), transArr, gizmoOp, gizmoMode);
                 if (ImGuizmo.isUsing()) {
-                    gizmoTarget.setFromColumnMajor(transArr);
+                    gizmoTarget.setTransform(Matrix4f.fromColumnMajor(transArr));
                 }
                 gizmoConsumesMouse = ImGuizmo.isOver();
             }
