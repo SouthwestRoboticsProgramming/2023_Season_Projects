@@ -1,5 +1,6 @@
 package com.swrobotics.shufflelog.tool.field;
 
+import com.swrobotics.messenger.client.MessengerClient;
 import com.swrobotics.shufflelog.ShuffleLog;
 import com.swrobotics.shufflelog.math.Matrix4f;
 import com.swrobotics.shufflelog.math.Vector3f;
@@ -7,7 +8,6 @@ import com.swrobotics.shufflelog.tool.ViewportTool;
 import com.swrobotics.shufflelog.tool.field.img.FieldImageLayer;
 import com.swrobotics.shufflelog.tool.field.img.FieldVectorLayer;
 import com.swrobotics.shufflelog.tool.field.path.PathfindingLayer;
-import com.swrobotics.shufflelog.tool.field.tag.ReferenceTag;
 import com.swrobotics.shufflelog.tool.field.tag.TagTrackerLayer;
 import com.swrobotics.shufflelog.util.SmoothFloat;
 import imgui.ImGui;
@@ -20,7 +20,6 @@ import imgui.flag.ImGuiMouseButton;
 import imgui.flag.ImGuiTableFlags;
 import imgui.flag.ImGuiWindowFlags;
 import processing.core.PGraphics;
-import processing.core.PMatrix3D;
 import processing.opengl.PGraphicsOpenGL;
 
 import java.util.ArrayList;
@@ -37,14 +36,9 @@ public final class FieldViewTool extends ViewportTool {
 
     private final List<FieldLayer> layers;
 
-    // TODO: Move into layer
-    private final List<ReferenceTag> tags;
-    private ReferenceTag selectedTag;
-
     private Matrix4f projection, view;
     private Matrix4f gizmoTarget;
     private int gizmoOp, gizmoMode;
-    // END TODO
 
     private final SmoothFloat cameraRotX, cameraRotY;
     private final SmoothFloat cameraTargetX, cameraTargetY, cameraTargetZ;
@@ -54,16 +48,13 @@ public final class FieldViewTool extends ViewportTool {
         // Be in 3d mode
         super(log, "Field View", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse, P3D);
 
+        MessengerClient msg = log.getMsg();
         layers = new ArrayList<>();
         layers.add(new FieldImageLayer());
         layers.add(new MeterGridLayer());
         layers.add(new FieldVectorLayer());
-        layers.add(new PathfindingLayer(log.getMsg()));
-        layers.add(new TagTrackerLayer(this));
-
-        tags = new ArrayList<>();
-        tags.add(new ReferenceTag("Tag 1", 1));
-        tags.add(new ReferenceTag("Tag 2", 2));
+        layers.add(new PathfindingLayer(msg));
+        layers.add(new TagTrackerLayer(this, msg));
 
         cameraRotX = new SmoothFloat(SMOOTH, 0);
         cameraRotY = new SmoothFloat(SMOOTH, 0);

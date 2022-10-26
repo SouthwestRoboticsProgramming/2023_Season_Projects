@@ -8,10 +8,10 @@ public final class ReferenceTag implements GizmoTarget {
     private final double size;
     private final Matrix4f transform; // Encodes position and rotation
 
-    public ReferenceTag(String name, double size) {
+    public ReferenceTag(String name, double size, Matrix4f transform) {
         this.name = name;
         this.size = size;
-        transform = new Matrix4f();
+        this.transform = transform;
     }
 
     public String getName() {
