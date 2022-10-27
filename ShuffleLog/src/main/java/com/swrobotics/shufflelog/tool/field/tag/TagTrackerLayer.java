@@ -158,6 +158,21 @@ public final class TagTrackerLayer implements FieldLayer {
             g.line(0, 0, 0, s, -s, s*-2);
             g.line(0, 0, 0, -s, -s, s*-2);
             g.popMatrix();
+
+            Matrix4f invCameraPose = new Matrix4f(sample.cameraPose).invert();
+            invCameraPose.mul(pose);
+            RobotPose robotPose = new RobotPose(new Vector3f(1, 1, 1), invCameraPose);
+            // Robot bounding box
+            g.noFill();
+            g.stroke(185, 66, 245);
+            g.strokeWeight(3);
+            g.pushMatrix();
+            setPMatrix(txMat, robotPose.getTransform());
+            g.applyMatrix(txMat);
+            Vector3f sz = robotPose.getSize();
+            g.translate(0, 0, sz.z/2);
+            g.box(sz.x, sz.y, sz.z);
+            g.popMatrix();
         }
 
         // Robot bounding box
