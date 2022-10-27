@@ -15,7 +15,9 @@ import processing.core.PGraphics;
 import processing.core.PMatrix3D;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.swrobotics.shufflelog.util.ProcessingUtils.setPMatrix;
 
@@ -30,10 +32,17 @@ public final class TagTrackerLayer implements FieldLayer {
 
     private final FieldViewTool tool;
     private final MessengerClient msg;
-    private final List<ReferenceTag> tags;
+    private final Map<Integer, ReferenceTag> tags;
     private final List<Camera> cameras;
     private GizmoTarget selection;
     private RobotPose robotPose;
+
+    private static final class TestSample {
+        Matrix4f pose;
+        Matrix4f cameraPose;
+        int tagId;
+    }
+    private final List<TestSample> test = new ArrayList<>();
 
     public TagTrackerLayer(FieldViewTool tool, MessengerClient msg) {
         this.tool = tool;
@@ -42,7 +51,7 @@ public final class TagTrackerLayer implements FieldLayer {
         hasEnvironment = false;
         queryEnvironmentCooldown = new Cooldown(ToolConstants.MSG_QUERY_COOLDOWN_TIME);
 
-        tags = new ArrayList<>();
+        tags = new LinkedHashMap<>();
         cameras = new ArrayList<>();
         selection = null;
 
@@ -50,6 +59,19 @@ public final class TagTrackerLayer implements FieldLayer {
 
         // TODO: This should come from the tag tracker estimate
         robotPose = new RobotPose(new Vector3f(1, 1, 1), new Matrix4f().translate(new Vector3f(0, -4, 0)));
+
+        msg.addHandler("TagTracker:TestData", (type, reader) -> {
+            test.clear();
+            int count = reader.readInt();
+            for (int i = 0; i < count; i++) {
+                TestSample sample = new TestSample();
+                sample.pose = readMatrix(reader);
+                sample.cameraPose = readMatrix(reader);
+                sample.tagId = reader.readInt();
+                test.add(sample);
+                System.out.println("Seeing tag " + sample.tagId);
+            }
+        });
     }
 
     @Override
@@ -70,7 +92,7 @@ public final class TagTrackerLayer implements FieldLayer {
             double size = reader.readDouble();
             int id = reader.readInt();
             Matrix4f transform = readMatrix(reader);
-            tags.add(new ReferenceTag("Tag " + id, size, transform));
+            tags.put(id, new ReferenceTag("Tag " + id, id, size, transform));
         }
 
         int cameraCount = reader.readInt();
@@ -92,17 +114,49 @@ public final class TagTrackerLayer implements FieldLayer {
         if (!showTags.get())
             return;
 
-        g.fill(0, 255, 0, 64);
         g.stroke(0, 255, 0);
         g.strokeWeight(4);
         PMatrix3D txMat = new PMatrix3D();
-        for (ReferenceTag tag : tags) {
+        for (ReferenceTag tag : tags.values()) {
             g.pushMatrix();
             setPMatrix(txMat, tag.getTransform());
             g.applyMatrix(txMat);
 
+            boolean seen = false;
+            for (TestSample sample : test) {
+                if (sample.tagId == tag.getId()) {
+                    seen = true;
+                    break;
+                }
+            }
+
+            g.fill(0, 255, 0, seen ? 196 : 64);
+
             float s = (float) tag.getSize();
             g.rect(-s/2, -s/2, s, s);
+            g.popMatrix();
+        }
+
+        // Testing
+        for (TestSample sample : test) {
+            ReferenceTag tag = tags.get(sample.tagId);
+            Matrix4f pose = new Matrix4f(sample.pose);
+            float txScale = (float) tag.getSize();
+            pose.m03 *= txScale;
+            pose.m13 *= txScale;
+            pose.m23 *= txScale;
+            pose = new Matrix4f(tag.getTransform()).mul(pose);
+            g.pushMatrix();
+            setPMatrix(txMat, pose);
+            g.applyMatrix(txMat);
+            float s = 0.075f;
+            g.stroke(255, 0, 255);
+            g.strokeWeight(4);
+            // Pyramid thing that isn't a pyramid
+            g.line(0, 0, 0, -s, s, s*-2);
+            g.line(0, 0, 0, s, s, s*-2);
+            g.line(0, 0, 0, s, -s, s*-2);
+            g.line(0, 0, 0, -s, -s, s*-2);
             g.popMatrix();
         }
 
@@ -146,7 +200,7 @@ public final class TagTrackerLayer implements FieldLayer {
     public void showGui() {
         ImGui.checkbox("Show Tags", showTags);
 
-        for (ReferenceTag tag : tags) {
+        for (ReferenceTag tag : tags.values()) {
             if (ImGui.selectable(tag.getName(), tag.equals(selection))) {
                 select(tag);
             }
