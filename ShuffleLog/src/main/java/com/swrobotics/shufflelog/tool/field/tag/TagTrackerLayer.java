@@ -37,12 +37,7 @@ public final class TagTrackerLayer implements FieldLayer {
     private GizmoTarget selection;
     private RobotPose robotPose;
 
-    private static final class TestSample {
-        Matrix4f pose;
-        Matrix4f cameraPose;
-        int tagId;
-    }
-    private final List<TestSample> test = new ArrayList<>();
+    private final List<Matrix4f> estimatedPoses = new ArrayList<>();
 
     public TagTrackerLayer(FieldViewTool tool, MessengerClient msg) {
         this.tool = tool;
@@ -60,16 +55,11 @@ public final class TagTrackerLayer implements FieldLayer {
         // TODO: This should come from the tag tracker estimate
         robotPose = new RobotPose(new Vector3f(1, 1, 1), new Matrix4f().translate(new Vector3f(0, -4, 0)));
 
-        msg.addHandler("TagTracker:TestData", (type, reader) -> {
-            test.clear();
+        msg.addHandler("TagTracker:TestMtx", (type, reader) -> {
+            estimatedPoses.clear();
             int count = reader.readInt();
             for (int i = 0; i < count; i++) {
-                TestSample sample = new TestSample();
-                sample.pose = readMatrix(reader);
-                sample.cameraPose = readMatrix(reader);
-                sample.tagId = reader.readInt();
-                test.add(sample);
-                System.out.println("Seeing tag " + sample.tagId);
+                estimatedPoses.add(readMatrix(reader));
             }
         });
     }
@@ -104,6 +94,16 @@ public final class TagTrackerLayer implements FieldLayer {
         }
 
         hasEnvironment = true;
+
+        System.out.println(new Matrix4f().rotateX((float) Math.PI));
+    }
+
+    private void pyramid(PGraphics g, float s) {
+        // Pyramid thing that isn't a pyramid
+        g.line(0, 0, 0, -s, s, s * 2);
+        g.line(0, 0, 0, s, s, s * 2);
+        g.line(0, 0, 0, s, -s, s * 2);
+        g.line(0, 0, 0, -s, -s, s * 2);
     }
 
     @Override
@@ -123,12 +123,12 @@ public final class TagTrackerLayer implements FieldLayer {
             g.applyMatrix(txMat);
 
             boolean seen = false;
-            for (TestSample sample : test) {
-                if (sample.tagId == tag.getId()) {
-                    seen = true;
-                    break;
-                }
-            }
+//            for (TestSample sample : test) {
+//                if (sample.tagId == tag.getId()) {
+//                    seen = true;
+//                    break;
+//                }
+//            }
 
             g.fill(0, 255, 0, seen ? 196 : 64);
 
@@ -137,41 +137,31 @@ public final class TagTrackerLayer implements FieldLayer {
             g.popMatrix();
         }
 
-        // Testing
-        for (TestSample sample : test) {
-            ReferenceTag tag = tags.get(sample.tagId);
-            Matrix4f pose = new Matrix4f(sample.pose);
-            float txScale = (float) tag.getSize();
-            pose.m03 *= txScale;
-            pose.m13 *= txScale;
-            pose.m23 *= txScale;
-            pose = new Matrix4f(tag.getTransform()).mul(pose);
+        for (Matrix4f matrix : estimatedPoses) {
             g.pushMatrix();
-            setPMatrix(txMat, pose);
+            setPMatrix(txMat, matrix);
             g.applyMatrix(txMat);
-            float s = 0.075f;
-            g.stroke(255, 0, 255);
-            g.strokeWeight(4);
-            // Pyramid thing that isn't a pyramid
-            g.line(0, 0, 0, -s, s, s*-2);
-            g.line(0, 0, 0, s, s, s*-2);
-            g.line(0, 0, 0, s, -s, s*-2);
-            g.line(0, 0, 0, -s, -s, s*-2);
-            g.popMatrix();
 
-            Matrix4f invCameraPose = new Matrix4f(sample.cameraPose).invert();
-            invCameraPose.mul(pose);
-            RobotPose robotPose = new RobotPose(new Vector3f(1, 1, 1), invCameraPose);
             // Robot bounding box
             g.noFill();
             g.stroke(185, 66, 245);
             g.strokeWeight(3);
-            g.pushMatrix();
-            setPMatrix(txMat, robotPose.getTransform());
-            g.applyMatrix(txMat);
-            Vector3f sz = robotPose.getSize();
+            Vector3f sz = new Vector3f(1, 1, 1);
             g.translate(0, 0, sz.z/2);
             g.box(sz.x, sz.y, sz.z);
+            g.translate(0, 0, -sz.z/2);
+
+            // Cameras
+            for (Camera camera : cameras) {
+                g.pushMatrix();
+                setPMatrix(txMat, camera.getRawTransform());
+                g.applyMatrix(txMat);
+                g.stroke(255, 0, 0);
+                g.strokeWeight(3);
+                pyramid(g, 0.075f);
+                g.popMatrix();
+            }
+
             g.popMatrix();
         }
 
@@ -214,6 +204,13 @@ public final class TagTrackerLayer implements FieldLayer {
     @Override
     public void showGui() {
         ImGui.checkbox("Show Tags", showTags);
+
+        if (ImGui.button("Refresh")) {
+            selection = null;
+            hasEnvironment = false;
+            tags.clear();
+            cameras.clear();
+        }
 
         for (ReferenceTag tag : tags.values()) {
             if (ImGui.selectable(tag.getName(), tag.equals(selection))) {

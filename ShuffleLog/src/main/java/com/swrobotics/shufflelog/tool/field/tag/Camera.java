@@ -24,6 +24,10 @@ public final class Camera implements GizmoTarget {
         return port;
     }
 
+    public Matrix4f getRawTransform() {
+        return transform;
+    }
+
     @Override
     public Matrix4f getTransform() {
         return referencePose.mul(transform, new Matrix4f());
