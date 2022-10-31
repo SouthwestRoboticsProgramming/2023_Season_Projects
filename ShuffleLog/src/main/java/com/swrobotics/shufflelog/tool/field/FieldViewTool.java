@@ -203,9 +203,11 @@ public final class FieldViewTool extends ViewportTool {
 
             for (FieldLayer layer : layers) {
                 if (ImGui.collapsingHeader(layer.getName())) {
+                    ImGui.pushID(layer.getName());
                     ImGui.indent();
                     layer.showGui();
                     ImGui.unindent();
+                    ImGui.popID();
                 }
             }
 
