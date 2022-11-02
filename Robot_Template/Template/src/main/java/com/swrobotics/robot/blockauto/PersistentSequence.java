@@ -10,10 +10,12 @@ import com.team2129.lib.messenger.MessageBuilder;
 import com.team2129.lib.messenger.MessageReader;
 
 public final class PersistentSequence {
+    private final String name;
     private final File file;
     private final BlockStackInst stack;
 
-    public PersistentSequence(File file) {
+    public PersistentSequence(String name, File file) {
+        this.name = name;
         this.file = file;
         try {
             FileInputStream in = new FileInputStream(file);
@@ -34,9 +36,14 @@ public final class PersistentSequence {
         }
     }
 
-    public PersistentSequence(File file, BlockStackInst stack) {
+    public PersistentSequence(String name, File file, BlockStackInst stack) {
+        this.name = name;
         this.file = file;
         this.stack = stack;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public BlockStackInst getStack() {

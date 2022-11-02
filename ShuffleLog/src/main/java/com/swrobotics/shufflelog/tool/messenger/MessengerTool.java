@@ -25,6 +25,7 @@ import imgui.type.ImBoolean;
 import imgui.type.ImInt;
 import imgui.type.ImString;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

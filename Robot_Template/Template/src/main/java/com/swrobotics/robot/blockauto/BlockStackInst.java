@@ -3,6 +3,7 @@ package com.swrobotics.robot.blockauto;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.swrobotics.robot.Robot;
 import com.team2129.lib.messenger.MessageBuilder;
 import com.team2129.lib.messenger.MessageReader;
 import com.team2129.lib.schedule.Command;
@@ -39,10 +40,10 @@ public final class BlockStackInst {
         }
     }
 
-    public Command toCommand() {
+    public Command toCommand(Robot robot) {
         CommandSequence seq = new CommandSequence();
         for (BlockInst block : blocks) {
-            seq.append(block.toCommand());
+            seq.append(block.toCommand(robot));
         }
         return seq;
     }

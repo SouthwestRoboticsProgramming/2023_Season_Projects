@@ -27,4 +27,8 @@ public final class PCalculator implements PositionCalculator, VelocityCalculator
 
         return error * kP;
     }
+
+    @Override
+    public void reset() {
+    }
 }

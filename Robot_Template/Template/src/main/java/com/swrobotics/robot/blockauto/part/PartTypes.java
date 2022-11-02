@@ -8,7 +8,8 @@ public enum PartTypes {
     FIELD_POINT(4),
     ANGLE(5),
     ENUM(6),
-    BLOCK_STACK(7);
+    BLOCK_STACK(7),
+    NEW_LINE(8);
 
     // This will be fine until we have more than 256 part types
     // (probably won't ever happen)

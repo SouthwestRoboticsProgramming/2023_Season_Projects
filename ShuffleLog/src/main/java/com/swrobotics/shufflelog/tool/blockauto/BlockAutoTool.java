@@ -7,8 +7,13 @@ import com.swrobotics.shufflelog.ShuffleLog;
 import com.swrobotics.shufflelog.tool.Tool;
 import com.swrobotics.shufflelog.tool.ToolConstants;
 import com.swrobotics.shufflelog.util.Cooldown;
+import imgui.ImGuiViewport;
+import imgui.flag.ImGuiInputTextFlags;
 import imgui.flag.ImGuiTableFlags;
+import imgui.flag.ImGuiWindowFlags;
+import imgui.type.ImString;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +50,8 @@ public final class BlockAutoTool implements Tool {
 
     private final Cooldown sequenceDataQueryCooldown;
 
+    private final ImString popupInput;
+
     private String activeSeqName;
     private BlockStackInst activeSeqStack;
 
@@ -55,6 +62,8 @@ public final class BlockAutoTool implements Tool {
         msg.addHandler(MSG_BLOCK_DEFS, this::onBlockDefs);
         msg.addHandler(MSG_SEQUENCES, this::onSequences);
         msg.addHandler(MSG_SEQUENCE_DATA, this::onSequenceData);
+        msg.addHandler(MSG_PUBLISH_CONFIRM, this::onPublishConfirm);
+        msg.addHandler(MSG_DELETE_CONFIRM, this::onDeleteConfirm);
 
         blockDefsQueryCooldown = new Cooldown(ToolConstants.MSG_QUERY_COOLDOWN_TIME);
         categories = new ArrayList<>();
@@ -66,6 +75,8 @@ public final class BlockAutoTool implements Tool {
         receivedSequences = false;
 
         sequenceDataQueryCooldown = new Cooldown(ToolConstants.MSG_QUERY_COOLDOWN_TIME);
+
+        popupInput = new ImString(64);
 
         activeSeqName = null;
         activeSeqStack = null;
@@ -107,6 +118,32 @@ public final class BlockAutoTool implements Tool {
         activeSeqStack = BlockStackInst.read(reader, this);
     }
 
+    private void onPublishConfirm(String type, MessageReader reader) {
+        String name = reader.readString();
+
+        // If this is a new sequence, initialize and open it
+        if (!sequences.contains(name)) {
+            sequences.add(name);
+
+            activeSeqName = name;
+            activeSeqStack = null;
+        }
+    }
+
+    private void onDeleteConfirm(String type, MessageReader reader) {
+        String name = reader.readString();
+        boolean success = reader.readBoolean();
+
+        if (!success)
+            return;
+
+        sequences.remove(name);
+        if (activeSeqName.equals(name)) {
+            activeSeqName = null;
+            activeSeqStack = null;
+        }
+    }
+
     public BlockDef getBlockDef(String name) {
         return blockDefs.get(name);
     }
@@ -125,17 +162,78 @@ public final class BlockAutoTool implements Tool {
         activeSeqStack = null;
     }
 
+    private String getPopupInput() {
+        byte[] data = popupInput.getData();
+        StringBuilder builder = new StringBuilder();
+        for (byte b : data) {
+            if (b == 0)
+                break;
+            else
+                builder.append((char) b);
+        }
+        return builder.toString();
+    }
+
+    private boolean inputStringPopup(String title, String prompt, String confirm) {
+        if (beginPopupModal(title, ImGuiWindowFlags.NoMove)) {
+            // Center the popup
+            ImGuiViewport vp = getWindowViewport();
+            setWindowPos(vp.getCenterX() - getWindowWidth() / 2, vp.getCenterY() - getWindowHeight() / 2);
+
+            text(prompt);
+            setNextItemWidth(300);
+            boolean submit = inputText("##name", popupInput, ImGuiInputTextFlags.EnterReturnsTrue);
+            setItemDefaultFocus();
+
+            setNextItemWidth(300);
+            submit |= button(confirm);
+
+            if (submit)
+                closeCurrentPopup();
+
+            endPopup();
+
+            return submit;
+        }
+        return false;
+    }
+
     private void showSequenceList() {
         text("Sequences");
         separator();
 
         for (String sequence : sequences) {
+            pushID(sequence);
             if (selectable(sequence, sequence.equals(activeSeqName))) {
                 switchSequence(sequence);
             }
+            if (beginPopupContextItem("context_menu")) {
+                // TODO
+//                if (selectable("Rename")) {
+//                    closeCurrentPopup();
+//                }
+                if (selectable("Delete")) {
+                    msg.prepare(MSG_DELETE_SEQUENCE)
+                            .addString(sequence)
+                            .send();
+                }
+                endPopup();
+            }
+            popID();
         }
 
-        button("Add");
+        if (button("Add")) {
+            popupInput.set("");
+            openPopup("Add Sequence");
+        }
+
+        if (inputStringPopup("Add Sequence", "New sequence name:", "Create")) {
+            // Create the sequence
+            MessageBuilder builder = msg.prepare(MSG_PUBLISH_SEQUENCE_DATA)
+                    .addString(getPopupInput());
+            new BlockStackInst().write(builder);
+            builder.send();
+        }
     }
 
     private void showWorkArea() {
@@ -144,6 +242,7 @@ public final class BlockAutoTool implements Tool {
             return;
         }
 
+        pushID("work_area");
         text(activeSeqName);
         separator();
 
@@ -153,15 +252,18 @@ public final class BlockAutoTool implements Tool {
             if (activeSeqStack.show())
                 onStackChange();
         }
+        popID();
     }
 
     private void showPalette() {
+        pushID("palette");
         text("Block Palette");
         separator();
 
         for (BlockCategory cat : categories) {
             cat.draw();
         }
+        popID();
     }
 
     @Override

@@ -211,7 +211,7 @@ public class Drive implements Subsystem {
         if (autoInput != null) {
             translation = autoInput.getTranslation();
             rotation = autoInput.getRotation();
-            fieldRelative = !autoInput.isRobotRelative();
+            fieldRelative = autoInput.getMode() == DriveAutoInput.Mode.FIELD_RELATIVE;
         }
 
         drive.setMotion(translation, rotation, fieldRelative);

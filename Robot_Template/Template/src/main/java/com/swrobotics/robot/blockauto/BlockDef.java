@@ -2,18 +2,10 @@ package com.swrobotics.robot.blockauto;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
-import com.swrobotics.robot.blockauto.part.AnglePart;
-import com.swrobotics.robot.blockauto.part.BlockPart;
-import com.swrobotics.robot.blockauto.part.BlockStackPart;
-import com.swrobotics.robot.blockauto.part.DoublePart;
-import com.swrobotics.robot.blockauto.part.EnumPart;
-import com.swrobotics.robot.blockauto.part.FieldPointPart;
-import com.swrobotics.robot.blockauto.part.IntPart;
-import com.swrobotics.robot.blockauto.part.ParamPart;
-import com.swrobotics.robot.blockauto.part.TextPart;
-import com.swrobotics.robot.blockauto.part.Vec2dPart;
+import com.swrobotics.robot.Robot;
+import com.swrobotics.robot.blockauto.part.*;
 import com.team2129.lib.messenger.MessageBuilder;
 import com.team2129.lib.messenger.MessageReader;
 import com.team2129.lib.schedule.Command;
@@ -21,7 +13,7 @@ import com.team2129.lib.schedule.Command;
 public final class BlockDef {
     private final String name;
     private final List<BlockPart> parts;
-    private Function<Object[], Command> creator;
+    private BiFunction<Object[], Robot, Command> creator;
 
     public BlockDef(String name) {
         this.name = name;
@@ -30,6 +22,11 @@ public final class BlockDef {
 
     public BlockDef text(String text) {
         parts.add(new TextPart(text));
+        return this;
+    }
+
+    public BlockDef newLine() {
+        parts.add(NewLinePart.INSTANCE);
         return this;
     }
 
@@ -68,7 +65,7 @@ public final class BlockDef {
         return this;
     }
 
-    public void creator(Function<Object[], Command> creator) {
+    public void creator(BiFunction<Object[], Robot, Command> creator) {
         this.creator = creator;
     }
 
@@ -105,7 +102,7 @@ public final class BlockDef {
         return name;
     }
 
-    public Function<Object[], Command> getCreator() {
+    public BiFunction<Object[], Robot, Command> getCreator() {
         return creator;
     }
 }

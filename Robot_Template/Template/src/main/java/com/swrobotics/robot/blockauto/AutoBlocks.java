@@ -6,14 +6,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.swrobotics.robot.Robot;
+import com.swrobotics.robot.auto.AutoDriveForTime;
+import com.swrobotics.robot.auto.DriveAutoInput;
 import com.swrobotics.robot.blockauto.part.AnglePart;
+import com.swrobotics.robot.subsystem.thrower.commands.ShootCommand;
 import com.team2129.lib.math.Angle;
+import com.team2129.lib.math.Vec2d;
 import com.team2129.lib.messenger.MessageBuilder;
 import com.team2129.lib.messenger.MessageReader;
 import com.team2129.lib.messenger.MessengerClient;
+import com.team2129.lib.net.NTMultiSelect;
+import com.team2129.lib.schedule.Command;
 import com.team2129.lib.schedule.CommandLoop;
 import com.team2129.lib.schedule.CommandUnion;
 import com.team2129.lib.schedule.WaitCommand;
+import com.team2129.lib.time.Duration;
 import com.team2129.lib.time.TimeUnit;
 
 import com.team2129.lib.wpilib.RobotState;
@@ -21,6 +29,27 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 
 public final class AutoBlocks {
+    // Dropdown menu in ShuffleLog to select which auto to run
+    private static final NTMultiSelect<PersistentSequence> SELECTED_AUTO = new NTMultiSelect<>("Auto/Sequence", null) {
+        @Override
+        protected PersistentSequence valueOf(String name) {
+            return sequences.get(name);
+        }
+
+        @Override
+        protected String nameOf(PersistentSequence seq) {
+            return seq == null ? "[NULL]" : seq.getName();
+        }
+    };
+
+    public static Command getSelectedAutoCommand() {
+        PersistentSequence seq = SELECTED_AUTO.get();
+        if (seq == null)
+            return null;
+
+        return seq.getStack().toCommand(robot);
+    }
+
     private static void defineBlocks() {
         // The name parameter to newBlock("...") must be unique
 
@@ -29,31 +58,44 @@ public final class AutoBlocks {
             .text("Wait")
             .paramDouble(1)
             .text("seconds")
-            .creator((params) -> new WaitCommand((double) params[0], TimeUnit.SECONDS));
+            .creator((params, robot) -> new WaitCommand((double) params[0], TimeUnit.SECONDS));
         control.newBlock("repeat")
             .text("Repeat")
             .paramInt(10)
             .text("times")
             .paramBlockStack()
-            .creator((params) -> new CommandLoop(((BlockStackInst) params[1]).toCommand(), (int) params[0]));
+            .creator((params, robot) -> new CommandLoop(((BlockStackInst) params[1]).toCommand(robot), (int) params[0]));
         control.newBlock("union")
             .text("Union of")
             .paramBlockStack()
             .text("and")
             .paramBlockStack()
-            .creator((params) -> new CommandUnion(((BlockStackInst) params[0]).toCommand(), ((BlockStackInst) params[1]).toCommand()));
+            .creator((params, robot) -> new CommandUnion(((BlockStackInst) params[0]).toCommand(robot), ((BlockStackInst) params[1]).toCommand(robot)));
 
-        BlockCategory test = defineCategory("Test");
-        test.newBlock("test")
-                .text("Text")
-                .paramAngle(AnglePart.Mode.CCW_DEG, 0)
-                .paramBlockStack()
-                .paramDouble(0.134)
-                .paramEnum(RobotState.class, RobotState.DISABLED)
-                .paramFieldPoint(1, 1)
-                .paramInt(244)
-                .paramVec2d(241.23, 1243.12)
-                .creator((params) -> null);
+        BlockCategory drive = defineCategory("Drive");
+        drive.newBlock("drive_for_time")
+                .text("Drive")
+                .paramEnum(DriveAutoInput.Mode.class, DriveAutoInput.Mode.FIELD_RELATIVE)
+                .newLine()
+                .text("move:")
+                .paramVec2d(0, 0)
+                .text("(m/s), turn:")
+                .paramAngle(AnglePart.Mode.CCW_RAD, 0)
+                .text("(ccw rad/s)")
+                .newLine()
+                .text("for")
+                .paramDouble(1)
+                .text("seconds")
+                .creator((params, robot) -> new AutoDriveForTime(
+                        robot.getDrive(),
+                        new DriveAutoInput((Vec2d) params[1], (Angle) params[2], (DriveAutoInput.Mode) params[0]),
+                        new Duration((double) params[3], TimeUnit.SECONDS)
+                ));
+
+        BlockCategory ballFeed = defineCategory("Ball Feed");
+        ballFeed.newBlock("shoot")
+                .text("Shoot ball")
+                .creator((params, robot) -> new ShootCommand(robot.getThrower().getHopper()));
 
         // BlockCategory drive = defineCategory("Drive");
         // drive.newBlock("drive_point")
@@ -143,12 +185,13 @@ public final class AutoBlocks {
 
     private static final Map<String, BlockDef> blockDefRegistry = new HashMap<>();
     private static MessengerClient msg;
+    private static Robot robot;
 
     public static BlockDef getBlockDef(String id) {
         return blockDefRegistry.get(id);
     }
 
-    public static void init(MessengerClient msg) {
+    public static void init(MessengerClient msg, Robot robot) {
         defineBlocks();
 
         if (!PERSISTENCE_DIR.exists() && !PERSISTENCE_DIR.mkdirs()) {
@@ -165,12 +208,14 @@ public final class AutoBlocks {
                 String name = file.getName();
                 name = name.substring(0, name.length() - PERSISTENCE_FILE_EXT.length());
 
-                PersistentSequence seq = new PersistentSequence(file);
+                PersistentSequence seq = new PersistentSequence(name, file);
                 sequences.put(name, seq);
             }
         }
+        updateSelectorOptions();
 
         AutoBlocks.msg = msg;
+        AutoBlocks.robot = robot;
         msg.addHandler(MSG_QUERY_BLOCK_DEFS,      AutoBlocks::onQueryBlockDefs);
         msg.addHandler(MSG_QUERY_SEQUENCES,       AutoBlocks::onQuerySequences);
         msg.addHandler(MSG_GET_SEQUENCE_DATA,     AutoBlocks::onGetSequenceData);
@@ -178,6 +223,10 @@ public final class AutoBlocks {
         msg.addHandler(MSG_DELETE_SEQUENCE,       AutoBlocks::onDeleteSequence);
 
         System.out.println("Block auto initialized");
+    }
+
+    private static void updateSelectorOptions() {
+        SELECTED_AUTO.setOptions(new ArrayList<>(sequences.values()));
     }
 
     private static void onQueryBlockDefs(String type, MessageReader reader) {
@@ -221,11 +270,13 @@ public final class AutoBlocks {
         BlockStackInst inst = BlockStackInst.readFromMessenger(reader);
 
         PersistentSequence sequence = new PersistentSequence(
+                name,
                 new File(PERSISTENCE_DIR, name + PERSISTENCE_FILE_EXT),
                 inst
         );
         sequences.put(name, sequence);
         sequence.save();
+        updateSelectorOptions();
 
         msg.prepare(MSG_PUBLISH_CONFIRM)
                 .addString(name)
@@ -240,6 +291,7 @@ public final class AutoBlocks {
         if (sequence != null) {
             success = sequence.delete();
         }
+        updateSelectorOptions();
 
         msg.prepare(MSG_DELETE_CONFIRM)
                 .addString(name)

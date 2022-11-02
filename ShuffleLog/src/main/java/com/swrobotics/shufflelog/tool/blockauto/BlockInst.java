@@ -1,10 +1,7 @@
 package com.swrobotics.shufflelog.tool.blockauto;
 
 import com.swrobotics.messenger.client.MessageBuilder;
-import com.swrobotics.shufflelog.tool.blockauto.part.BlockPart;
-import com.swrobotics.shufflelog.tool.blockauto.part.BlockStackPart;
-import com.swrobotics.shufflelog.tool.blockauto.part.ParamPart;
-import com.swrobotics.shufflelog.tool.blockauto.part.StaticPart;
+import com.swrobotics.shufflelog.tool.blockauto.part.*;
 import imgui.ImGui;
 import imgui.flag.ImGuiDragDropFlags;
 
@@ -91,19 +88,20 @@ public final class BlockInst {
         int paramIdx = 0;
         boolean first = true;
         List<BlockPart> parts = def.getParts();
-        boolean isStack = false;
+        boolean isStack = false, shouldSameLine = true;
         for (int id = 0; id < parts.size(); id++) {
             if (first) {
                 if (firstElemRequiresAlignToFrame)
                     ImGui.alignTextToFramePadding();
                 first = false;
-            } else if (!isStack) {
+            } else if (shouldSameLine) {
                 ImGui.sameLine();
             }
 
             BlockPart part = parts.get(id);
 
             isStack = part instanceof BlockStackPart;
+            shouldSameLine = !isStack && !(part instanceof NewLinePart);
             if (isStack) {
                 ImGui.endGroup();
                 dragSource();

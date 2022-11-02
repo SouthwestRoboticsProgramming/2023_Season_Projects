@@ -207,14 +207,20 @@ public final class TaskManagerTool implements Tool {
 
             text("New directory name:");
             setNextItemWidth(300);
-            if (inputText("##name", mkdirName, ImGuiInputTextFlags.EnterReturnsTrue)) {
+            boolean submit = inputText("##name", mkdirName, ImGuiInputTextFlags.EnterReturnsTrue);
+            setItemDefaultFocus();
+
+            setNextItemWidth(300);
+            submit |= button("Create");
+
+            if (submit) {
                 String path = isRoot ? mkdirName.get() : (dir.getFullPath() + "/" + mkdirName.get());
                 msg.prepare(name + MSG_MKDIR)
                         .addString(path)
                         .send();
                 closeCurrentPopup();
             }
-            setItemDefaultFocus();
+
             endPopup();
         }
 

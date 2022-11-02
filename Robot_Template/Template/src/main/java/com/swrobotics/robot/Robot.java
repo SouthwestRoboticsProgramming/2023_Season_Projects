@@ -16,6 +16,9 @@ public final class Robot extends AbstractRobot {
     private static final double PERIODIC_PER_SECOND = 50;
     private static final String RASPBERRY_PI_IP = "10.21.29.3";
 
+    private Drive drive;
+    private Thrower thrower;
+
     public Robot() {
 	    super(PERIODIC_PER_SECOND);
 
@@ -30,7 +33,7 @@ public final class Robot extends AbstractRobot {
             initMessenger(RASPBERRY_PI_IP, 5805, "Robot");
         }
 
-        AutoBlocks.init(getMessenger());
+        AutoBlocks.init(getMessenger(), this);
     }
     
     @Override
@@ -45,13 +48,13 @@ public final class Robot extends AbstractRobot {
         //     will cause a warning to be printed if any motors are
         //     used in it
 
-        Drive drive = new Drive(input, gyro, msg);
+        drive = new Drive(input, gyro, msg);
         Localization loc = new Localization(drive);
         drive.setLocalization(loc);
         Intake intake = new Intake(input);
-        Thrower thrower = new Thrower(input, loc);
+        thrower = new Thrower(input, loc);
 
-        AutoSystem auto = new AutoSystem(drive, thrower.getHopper());
+        AutoSystem auto = new AutoSystem();
 
         Scheduler scheduler = Scheduler.get();
         scheduler.addSubsystem(loc);
@@ -59,5 +62,13 @@ public final class Robot extends AbstractRobot {
         scheduler.addSubsystem(intake);
         scheduler.addSubsystem(thrower);
         scheduler.addSubsystem(auto);
+    }
+
+    public Drive getDrive() {
+        return drive;
+    }
+
+    public Thrower getThrower() {
+        return thrower;
     }
 }

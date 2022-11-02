@@ -1,26 +1,16 @@
 package com.swrobotics.robot.auto;
 
-import com.swrobotics.robot.subsystem.drive.Drive;
-import com.swrobotics.robot.subsystem.thrower.Hopper;
-import com.swrobotics.robot.subsystem.thrower.commands.ShootCommand;
+import com.swrobotics.robot.blockauto.AutoBlocks;
 import com.team2129.lib.schedule.Command;
 import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.schedule.Subsystem;
 
 public final class AutoSystem implements Subsystem {
-    private final Drive drive;
-    private final Hopper hopper;
     private Command cmd;
-
-    public AutoSystem(Drive drive, Hopper hopper) {
-        this.drive = drive;
-        this.hopper = hopper;
-        cmd = null;
-    }
 
     @Override
     public void autonomousInit() {
-        cmd = new AutoSequence(drive, hopper);
+        cmd = AutoBlocks.getSelectedAutoCommand();
         Scheduler.get().addCommand(this, cmd);
     }
 

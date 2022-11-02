@@ -53,6 +53,12 @@ public enum PartTypes {
         public BlockPart read(MessageReader reader) {
             return new BlockStackPart();
         }
+    },
+    NEW_LINE(8) {
+        @Override
+        public BlockPart read(MessageReader reader) {
+            return NewLinePart.INSTANCE;
+        }
     };
 
     private static final Map<Byte, PartTypes> BY_ID = new HashMap<>();
