@@ -1,18 +1,16 @@
-package com.swrobotics.robot.auto;
+package com.swrobotics.robot.test;
 
-import com.swrobotics.robot.blockauto.AutoBlocks;
 import com.team2129.lib.schedule.Command;
 import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.schedule.Subsystem;
 
-public final class AutoSystem implements Subsystem {
+public final class TestSystem implements Subsystem {
     private Command cmd;
 
     @Override
-    public void autonomousInit() {
-        cmd = AutoBlocks.getSelectedAutoCommand();
-        if (cmd != null)
-            Scheduler.get().addCommand(this, cmd);
+    public void testInit() {
+        cmd = new TestSequence();
+        Scheduler.get().addCommand(this, cmd);
     }
 
     private void cancelCommand() {
@@ -33,7 +31,7 @@ public final class AutoSystem implements Subsystem {
     }
 
     @Override
-    public void testInit() {
+    public void autonomousInit() {
         cancelCommand();
     }
 }

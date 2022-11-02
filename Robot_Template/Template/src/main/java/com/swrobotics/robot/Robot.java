@@ -7,6 +7,7 @@ import com.swrobotics.robot.subsystem.Intake;
 import com.swrobotics.robot.subsystem.Localization;
 import com.swrobotics.robot.subsystem.drive.Drive;
 import com.swrobotics.robot.subsystem.thrower.Thrower;
+import com.swrobotics.robot.test.TestSystem;
 import com.team2129.lib.gyro.NavX;
 import com.team2129.lib.messenger.MessengerClient;
 import com.team2129.lib.schedule.Scheduler;
@@ -55,13 +56,16 @@ public final class Robot extends AbstractRobot {
         thrower = new Thrower(input, loc);
 
         AutoSystem auto = new AutoSystem();
+        TestSystem test = new TestSystem();
 
         Scheduler scheduler = Scheduler.get();
         scheduler.addSubsystem(loc);
         scheduler.addSubsystem(drive);
         scheduler.addSubsystem(intake);
         scheduler.addSubsystem(thrower);
+
         scheduler.addSubsystem(auto);
+        scheduler.addSubsystem(test);
     }
 
     public Drive getDrive() {
