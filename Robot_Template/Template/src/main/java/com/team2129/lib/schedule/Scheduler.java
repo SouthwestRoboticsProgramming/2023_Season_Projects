@@ -269,6 +269,11 @@ public final class Scheduler {
      * @param cmd Command to schedule
      */
     public void addCommand(Subsystem parent, Command cmd) {
+        if (cmd == null) {
+            DriverStation.reportError("Cannot schedule null command", true);
+            return;
+        }
+
         if (commands.containsKey(cmd)) {
             DriverStation.reportError("Command already scheduled: " + cmd, true);
             return;
@@ -316,6 +321,11 @@ public final class Scheduler {
      * @param ss Subsystem to schedule
      */
     public void addSubsystem(Subsystem parent, Subsystem ss) {
+        if (ss == null) {
+            DriverStation.reportError("Cannot schedule null subsystem", true);
+            return;
+        }
+
         if (subsystems.containsKey(ss)) {
             DriverStation.reportError("Subsystem already scheduled: " + ss, true);
             return;
