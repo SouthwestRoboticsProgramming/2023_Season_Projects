@@ -5,16 +5,14 @@ import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.opengl.PGraphicsOpenGL;
 
-import static imgui.ImGui.begin;
-import static imgui.ImGui.end;
-import static imgui.ImGui.getContentRegionAvail;
-import static imgui.ImGui.imageButton;
+import static imgui.ImGui.*;
 import static processing.core.PConstants.P2D;
 
 public abstract class ViewportTool implements Tool {
     private final PApplet app;
     private final String title;
     private final int windowFlags;
+    private final String renderer;
     private int pTexture;
     private PGraphicsOpenGL g;
 
@@ -23,9 +21,14 @@ public abstract class ViewportTool implements Tool {
     }
 
     public ViewportTool(PApplet app, String title, int windowFlags) {
+        this(app, title, windowFlags, P2D);
+    }
+
+    public ViewportTool(PApplet app, String title, int windowFlags, String renderer) {
         this.app = app;
         this.title = title;
         this.windowFlags = windowFlags;
+        this.renderer = renderer;
         pTexture = -1;
     }
 
@@ -33,7 +36,7 @@ public abstract class ViewportTool implements Tool {
 
     private boolean prepareGraphics(int w, int h) {
         if (g == null || g.width != w || g.height != h) {
-            g = (PGraphicsOpenGL) app.createGraphics(w, h, P2D);
+            g = (PGraphicsOpenGL) app.createGraphics(w, h, renderer);
             return false;
         }
         return true;
@@ -41,14 +44,19 @@ public abstract class ViewportTool implements Tool {
 
     protected final void drawViewport() {
         ImVec2 size = getContentRegionAvail();
-        drawViewport(size.x, size.y);
+        drawViewport(size.x, size.y, true);
     }
 
     protected final void drawViewport(float w, float h) {
+        drawViewport(w, h, true);
+    }
+
+    protected final void drawViewport(float w, float h, boolean blockEvents) {
         if (w > 0 && h > 0) {
             boolean shouldShowThisFrame = prepareGraphics((int) w, (int) h);
 
             g.beginDraw();
+            g.textFont(app.getGraphics().textFont);
             drawViewportContent(g);
             g.endDraw();
 
@@ -60,8 +68,12 @@ public abstract class ViewportTool implements Tool {
             else
                 texId = pTexture;
 
-            if (texId != -1)
-                imageButton(texId, w, h, 0, 1, 1, 0, 0);
+            if (texId != -1) {
+                if (blockEvents)
+                    imageButton(texId, w, h, 0, 1, 1, 0, 0);
+                else
+                    image(texId, w, h, 0, 1, 1, 0);
+            }
 
             pTexture = texId;
         }

@@ -187,15 +187,14 @@ public final class FieldVectorLayer implements FieldLayer {
         g.fill(0, 0, 255);
         g.noStroke();
         g.ellipseMode(PConstants.CENTER);
-        g.ellipse(
-                -startSpacingEdge - startPointEdge + 15.56f * startPointToLowerEdgeX + 40.44f * perpVectorX,
-                startSpacingEdge + startPointEdge + 15.56f * startPointToLowerEdgeY + 40.44f * perpVectorY,
-                12, 12
-        ); // Ball 2 upper-left
+        g.translate(-startSpacingEdge - startPointEdge + 15.56f * startPointToLowerEdgeX + 40.44f * perpVectorX,
+                startSpacingEdge + startPointEdge + 15.56f * startPointToLowerEdgeY + 40.44f * perpVectorY, 6);
+        g.sphere(6);
     }
 
     @Override
     public void showGui() {
         ImGui.checkbox("Show", show);
+        ImGui.text("afhjkldahksjhdf");
     }
 }

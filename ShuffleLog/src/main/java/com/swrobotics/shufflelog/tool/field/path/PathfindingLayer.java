@@ -206,7 +206,7 @@ public final class PathfindingLayer implements FieldLayer {
 
             // Show grid lines
             if (lines) {
-                g.strokeWeight(1.5f * cellStrokeMul);
+                g.strokeWeight(0.5f * cellStrokeMul);
                 g.stroke(96);
 
                 for (int x = 0; x <= cellsX; x++) {
@@ -244,15 +244,18 @@ public final class PathfindingLayer implements FieldLayer {
             }
 
             // Show endpoints
+            g.pushMatrix();
+            g.translate(0, 0, 0.005f);
             g.strokeWeight(strokeMul);
             g.ellipseMode(PConstants.CENTER);
             g.stroke(27, 196, 101, 128);
             g.fill(27, 196, 101);
-            float startSize = startX == goalX && startY == goalY ? 12*strokeMul : 10*strokeMul;
+            float startSize = startX == goalX && startY == goalY ? 0.12f*strokeMul : 0.10f*strokeMul;
             g.ellipse((float) startX, (float) startY, startSize, startSize);
             g.stroke(44, 62, 199, 128);
             g.fill(44, 62, 199);
-            g.ellipse((float) goalX, (float) goalY, 10*strokeMul, 10*strokeMul);
+            g.ellipse((float) goalX, (float) goalY, 0.10f*strokeMul, 0.10f*strokeMul);
+            g.popMatrix();
         }
     }
 

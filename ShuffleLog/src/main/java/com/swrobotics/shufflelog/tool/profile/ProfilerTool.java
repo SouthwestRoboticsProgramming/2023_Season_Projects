@@ -109,7 +109,7 @@ public abstract class ProfilerTool implements Tool {
             for (ProfileNode child : children) {
                 ImVec4 color = new ImVec4();
                 ImGui.colorConvertU32ToFloat4(PIE_COLORS[i % PIE_COLORS.length], color);
-                ImGui.colorButton(child.getName(), new float[] {color.x, color.y, color.z, color.w}, ImGuiColorEditFlags.NoTooltip);
+                ImGui.colorButton(child.getName(), new float[] {color.x, color.y, color.z, color.w}, ImGuiColorEditFlags.NoTooltip, 15, 15);
                 ImGui.sameLine();
                 ImGui.text(child.getName());
                 i++;

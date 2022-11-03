@@ -164,6 +164,12 @@ public final class MessageBuilder {
         return this;
     }
 
+    /**
+     * Adds raw data to this message.
+     *
+     * @param b data to add
+     * @return self
+     */
     public MessageBuilder addRaw(byte[] b) {
         try {
             out.write(b);

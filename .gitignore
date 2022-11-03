@@ -17,9 +17,6 @@
 # Compiled Java
 *.class
 
-# Gradle builds
-Robot_Template/Template/.gradle/
-
 # Log Files
 *.log
 
