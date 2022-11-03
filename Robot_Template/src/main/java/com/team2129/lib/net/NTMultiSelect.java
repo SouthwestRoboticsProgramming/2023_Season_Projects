@@ -3,6 +3,11 @@ package com.team2129.lib.net;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Represents a multiple choice value stored in NetworkTables.
+ * This is shown as a dropdown menu in ShuffleLog with the available
+ * options. The actual value is stored as a {@code String}.
+ */
 public abstract class NTMultiSelect<T> extends NTEntry<T> {
     private final T defaultVal;
     private final String defaultName;

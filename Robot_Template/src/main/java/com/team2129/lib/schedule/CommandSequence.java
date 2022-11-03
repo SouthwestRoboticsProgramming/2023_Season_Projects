@@ -7,6 +7,9 @@ import java.util.List;
 import com.team2129.lib.schedule.debug.CommandDebugDesc;
 import com.team2129.lib.schedule.debug.CompoundCommandDebugCallback;
 
+/**
+ * Represents a list of commands that are run in sequence.
+ */
 public class CommandSequence implements CompoundCommand {
     // TODO: Maybe make this its own class since we use the same thing
     //       in both CommandSequence and CommandUnion
@@ -41,10 +44,22 @@ public class CommandSequence implements CompoundCommand {
     private int index;
     private CompoundCommandDebugCallback debug;
 
+    /**
+     * Creates a new instance with a given list of commands to run.
+     * More commands can be added using the {@link #append(Command)}
+     * method.
+     * 
+     * @param cmds commands to run
+     */
     public CommandSequence(Command... cmds) {
         this(Arrays.asList(cmds));
     }
 
+    /**
+     * Creates a new instance with a given list of commands to run.
+     * 
+     * @param cmds commands to run
+     */
     public CommandSequence(List<Command> cmds) {
         this.cmds = new ArrayList<>();
         for (Command cmd : cmds) {
@@ -53,6 +68,11 @@ public class CommandSequence implements CompoundCommand {
         // Debug callback is not yet set
     }
 
+    /**
+     * Appends a new command to the end of this sequence.
+     * 
+     * @param cmd Command to append
+     */
     public void append(Command cmd) {
         appendInternal(cmd);
         invokeDebugCallback();
@@ -77,6 +97,10 @@ public class CommandSequence implements CompoundCommand {
         return index >= 0 && index < cmds.size();
     }
 
+    /**
+     * Cancels the currently running command and advances to the
+     * next command in the sequence.
+     */
     public void next() {
         if (running())
             cmds.get(index).end();
@@ -87,6 +111,10 @@ public class CommandSequence implements CompoundCommand {
         invokeDebugCallback();
     }
 
+    /**
+     * Cancels the currently running command and moves backwards to
+     * the previous command in the sequence.
+     */
     public void back() {
         if (running())
             cmds.get(index).end();
@@ -97,6 +125,12 @@ public class CommandSequence implements CompoundCommand {
         invokeDebugCallback();
     }
 
+    /**
+     * Cancels the currently running command and jumps to a specified
+     * index in the sequence.
+     * 
+     * @param dst jump destination index
+     */
     public void goTo(int dst) {
         if (running())
             cmds.get(index).end();
@@ -107,7 +141,15 @@ public class CommandSequence implements CompoundCommand {
         invokeDebugCallback();
     }
 
+    /**
+     * Gets the command that is currently running.
+     * 
+     * @return currently running command
+     */
     public Command getCurrent() {
+        if (!running())
+            return null;
+
         return cmds.get(index).getCommand();
     }
 

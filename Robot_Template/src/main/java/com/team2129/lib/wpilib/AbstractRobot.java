@@ -13,12 +13,26 @@ import com.team2129.lib.time.TimeUnit;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.wpilibj.RobotBase;
 
+/**
+ * The base class for any robot using this library.
+ */
 public abstract class AbstractRobot extends RobotBase {
+    /**
+     * Gets whether the robot code is currently running in a simulation.
+     * 
+     * @return whether in a simulation
+     */
     public static boolean isSimulation() {
         return !isReal();
     }
 
     private static AbstractRobot INSTANCE = null;
+
+    /**
+     * Gets the one robot instance.
+     * 
+     * @return instance
+     */
     public static AbstractRobot get() {
         return INSTANCE;
     }
@@ -28,6 +42,11 @@ public abstract class AbstractRobot extends RobotBase {
     private MessengerClient msg;
     private volatile boolean running;
 
+    /**
+     * Initializes the robot and the library.
+     * 
+     * @param periodicPerSecond desired number of periodic invocations per second
+     */
     public AbstractRobot(double periodicPerSecond) {
         this.periodicPerSecond = periodicPerSecond;
 
@@ -38,18 +57,38 @@ public abstract class AbstractRobot extends RobotBase {
         running = false;
     }
 
+    /**
+     * This method is where your robot code should schedule its subsystems.
+     */
     protected abstract void addSubsystems();
 
+    /**
+     * Initializes a Messenger client with the given connection parameters.
+     * 
+     * @param host host of the Messenger server
+     * @param port port of the Messenger server
+     * @param name name of this client
+     */
     protected final void initMessenger(String host, int port, String name) {
         msg = new MessengerClient(host, port, name);
         Scheduler.get().addSubsystem(new ReadMessages(msg));
         Scheduler.get().initMessenger(msg);
     }
 
+    /**
+     * Gets whether this robot has a Messenger client.
+     * 
+     * @return whether has messenger
+     */
     public boolean hasMessenger() {
         return msg != null;
     }
 
+    /**
+     * Gets the Messenger client.
+     * 
+     * @return messenger client
+     */
     public MessengerClient getMessenger() {
         return msg;
     }
@@ -91,6 +130,11 @@ public abstract class AbstractRobot extends RobotBase {
         running = false;
     }
 
+    /**
+     * Gets the current state of the robot.
+     * 
+     * @return current state
+     */
     public final RobotState getCurrentState() {
         if (isDisabled()) return RobotState.DISABLED;
         if (isAutonomous()) return RobotState.AUTONOMOUS;
@@ -100,6 +144,12 @@ public abstract class AbstractRobot extends RobotBase {
         throw new IllegalStateException("Illegal robot state");
     }
 
+    /**
+     * Gets the number of periodic invocations per second the main loop is
+     * running at.
+     * 
+     * @return periodic per second
+     */
     public final double getPeriodicPerSecond() {
         return periodicPerSecond;
     }

@@ -1,5 +1,8 @@
 package com.team2129.lib.net;
 
+/**
+ * Represents a {@code boolean[]} value stored in NetworkTables.
+ */
 public final class NTBooleanArray extends NTEntry<boolean[]> {
     private final boolean[] defaultVals;
 

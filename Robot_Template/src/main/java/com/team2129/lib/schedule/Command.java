@@ -7,6 +7,8 @@ import com.team2129.lib.wpilib.AbstractRobot;
 /**
  * An action that runs until it is complete.
  * A command must be scheduled through the scheduler and will be ran IMMEDIATELY.
+ * A command will continue to run if the robot state changes, so if a command should
+ * only run in a specific state, make sure to cancel it if the state changes.
  */
 public interface Command {
     Duration DEFAULT_INTERVAL = new Duration(1 / AbstractRobot.get().getPeriodicPerSecond(), TimeUnit.SECONDS);

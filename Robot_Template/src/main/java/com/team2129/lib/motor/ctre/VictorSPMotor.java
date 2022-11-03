@@ -6,8 +6,8 @@ import com.team2129.lib.schedule.Subsystem;
 import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
 
 /**
- * Represents a motor controlled by a Victor SP over PWM.
- * This motor does not have an internal encoder.
+ * Represents a motor controlled by a Victor SP or Victor SPX
+ * over PWM. This motor does not have an internal encoder.
  */
 public final class VictorSPMotor extends Motor {
     private final VictorSP motor;

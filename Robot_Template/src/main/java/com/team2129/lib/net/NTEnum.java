@@ -1,5 +1,8 @@
 package com.team2129.lib.net;
 
+/**
+ * Represents a {@code enum} value stored in NetworkTables.
+ */
 public class NTEnum<T extends Enum<T>> extends NTMultiSelect<T> {
     private final Class<T> type;
 

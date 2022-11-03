@@ -1,5 +1,8 @@
 package com.team2129.lib.net;
 
+/**
+ * Represents a {@code int[]} value stored in NetworkTables.
+ */
 public final class NTIntegerArray extends NTEntry<int[]> {
     private final double[] defaultVals;
 

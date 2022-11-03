@@ -1,5 +1,8 @@
 package com.team2129.lib.net;
 
+/**
+ * Represents a {@code int} value stored in NetworkTables.
+ */
 public final class NTInteger extends NTEntry<Integer> {
     private final int defaultVal;
 

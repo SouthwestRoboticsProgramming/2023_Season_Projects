@@ -20,10 +20,22 @@ public class CommandUnion implements CompoundCommand {
     private boolean hasInitialized;
     private CompoundCommandDebugCallback debug;
 
+    /**
+     * Creates a new instance with a set of commands to run
+     * in parallel.
+     * 
+     * @param children commands to run
+     */
     public CommandUnion(Command... children) {
         this(Arrays.asList(children));
     }
 
+    /**
+     * Creates a new instance with a set of commands to run
+     * in parallel.
+     * 
+     * @param children commands to run
+     */
     public CommandUnion(List<Command> children) {
         this.children = new ArrayList<>();
         hasInitialized = false;
@@ -32,6 +44,13 @@ public class CommandUnion implements CompoundCommand {
         }
     }
 
+    /**
+     * Adds another command to run in parallel.
+     * If this command has already started executing, the command
+     * will be started immediately.
+     * 
+     * @param child command to add
+     */
     public void add(Command child) {
         CommandWrapper w = new CommandWrapper();
         w.cmd = child;

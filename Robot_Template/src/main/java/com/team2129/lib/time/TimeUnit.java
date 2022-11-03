@@ -1,5 +1,8 @@
 package com.team2129.lib.time;
 
+/**
+ * Represents a unit that time can be measured in.
+ */
 public enum TimeUnit {
     NANOSECONDS (1),
     MICROSECONDS(1_000),

@@ -17,7 +17,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
-/** A class to manage all of the swerve modules in a swerve drive. */
+/** 
+ * A class to manage all of the swerve modules in a swerve drive.
+ */
 // FIXME-Odometry: Odometry is almost certainly incorrect here
 public class SwerveDrive implements Subsystem {
     private final NTDouble wheelStopTolerance, wheelFullTolerance;

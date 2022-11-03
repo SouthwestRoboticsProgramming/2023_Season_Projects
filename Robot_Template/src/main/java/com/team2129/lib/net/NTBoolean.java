@@ -1,5 +1,8 @@
 package com.team2129.lib.net;
 
+/**
+ * Represents a {@code boolean} value stored in NetworkTables.
+ */
 public class NTBoolean extends NTEntry<Boolean> {
     public enum Mode {
         /**

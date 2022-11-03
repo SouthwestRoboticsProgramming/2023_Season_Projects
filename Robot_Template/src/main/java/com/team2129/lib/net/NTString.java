@@ -1,5 +1,8 @@
 package com.team2129.lib.net;
 
+/**
+ * Represents a {@code String} value stored in NetworkTables.
+ */
 public final class NTString extends NTEntry<String> {
     private final String defaultVal;
 

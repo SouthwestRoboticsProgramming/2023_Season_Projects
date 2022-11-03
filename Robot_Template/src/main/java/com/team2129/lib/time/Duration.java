@@ -2,23 +2,47 @@ package com.team2129.lib.time;
 
 import java.util.Objects;
 
+/**
+ * Represents a span of time.
+ */
 public final class Duration {
     private final double count;
     private final TimeUnit unit;
 
+    /**
+     * Creates a new duration with a specified amount of time
+     * 
+     * @param count amount of time
+     * @param unit unit the amount is in
+     */
     public Duration(double count, TimeUnit unit) {
         this.count = count;
         this.unit = unit;
     }
 
+    /**
+     * Gets the amount of time in the unit given by {@link #getUnit()}.
+     * 
+     * @return amount of time
+     */
     public double getCount() {
         return count;
     }
 
+    /**
+     * Gets the unit the amount is specified in.
+     * 
+     * @return unit
+     */
     public TimeUnit getUnit() {
         return unit;
     }
 
+    /**
+     * Gets the amount of time this duration represents in nanoseconds.
+     * 
+     * @return time in nanoseconds
+     */
     public double getDurationNanos() {
         return count * unit.getDurationNanos();
     }

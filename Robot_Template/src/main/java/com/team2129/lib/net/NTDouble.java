@@ -1,5 +1,8 @@
 package com.team2129.lib.net;
 
+/**
+ * Represents a {@code double} value stored in NetworkTables.
+ */
 public final class NTDouble extends NTEntry<Double> {
     private final double defaultVal;
 

@@ -5,10 +5,19 @@ import java.util.Collections;
 import com.team2129.lib.schedule.debug.CommandDebugDesc;
 import com.team2129.lib.schedule.debug.CompoundCommandDebugCallback;
 
+/**
+ * Repeats a command a specified number of times.
+ */
 public final class CommandLoop implements CompoundCommand {
     private final Command cmd;
     private int repeats;
     
+    /**
+     * Creates a new loop that repeats a specified number of times.
+     * 
+     * @param cmd Command to repeat
+     * @param repeats number of times to repeat the command
+     */
     public CommandLoop(Command cmd, int repeats) {
         this.cmd = cmd;
         this.repeats = repeats;

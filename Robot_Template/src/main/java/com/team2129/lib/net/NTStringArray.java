@@ -1,5 +1,8 @@
 package com.team2129.lib.net;
 
+/**
+ * Represents a {@code String[]} value stored in NetworkTables.
+ */
 public final class NTStringArray extends NTEntry<String[]> {
     private final String[] defaultVals;
 

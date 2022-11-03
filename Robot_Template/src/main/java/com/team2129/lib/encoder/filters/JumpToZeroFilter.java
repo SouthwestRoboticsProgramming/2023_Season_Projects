@@ -5,13 +5,13 @@ import com.team2129.lib.math.Angle;
 
 /**
  * Detects if the output drops to exactly 0 and freezes the output to the last valid output.
+ * This is useful for detecting if an encoder is unplugged or loses connection during a
+ * match. Unfortunately, motors using a Spark MAX motor controller tend to do this quite often,
+ * so it is recommended to use this filter when using a Spark MAX.
  */
 public class JumpToZeroFilter implements OutputFilter {
     private Angle lastAngle;
 
-    /**
-     * Must be called to update the current value.
-     */
     @Override
     public Angle filter(Angle angle) {
         // Freeze the output if the encoder drops to exactly 0.
@@ -21,6 +21,5 @@ public class JumpToZeroFilter implements OutputFilter {
 
         lastAngle = angle;
         return angle;
-    }
-    
+    } 
 }

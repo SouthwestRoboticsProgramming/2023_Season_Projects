@@ -68,9 +68,9 @@ public final class Scheduler {
             periodic(state);
         }
 
-	public boolean hasParent() {
-	    return parent != null;
-	}
+        public boolean hasParent() {
+            return parent != null;
+        }
 
         public void setParent(SubsystemNode parent) {
             this.parent = parent;
@@ -369,7 +369,7 @@ public final class Scheduler {
         SubsystemNode parent = node.getParent();
         if (parent != null)
             parent.removeChild(node);
-	node.setParent(null);
+        node.setParent(null);
 
         node.remove();
         rootCommands.remove(node);
@@ -398,7 +398,7 @@ public final class Scheduler {
         SubsystemNode parent = node.getParent();
         if (parent != null)
             parent.removeChild(node);
-	node.setParent(null);
+        node.setParent(null);
 
         node.remove();
         rootSubsystems.remove(node);
@@ -461,7 +461,7 @@ public final class Scheduler {
      * @return whether the command is registered and
      */
     public boolean isCommandScheduled(Command cmd) {
-	return commands.containsKey(cmd);
+        return commands.containsKey(cmd);
     }
 
     /**
@@ -473,26 +473,26 @@ public final class Scheduler {
      * @return whether the command is running
      */
     public boolean isCommandRunning(Command cmd) {
-	if (cmd == null)
-	    return false;
+        if (cmd == null)
+            return false;
 
-	CommandNode node = commands.get(cmd);
-	if (node == null)
-	    return false;
+        CommandNode node = commands.get(cmd);
+        if (node == null)
+            return false;
 
-	return checkIfValidLink(node) && !node.isSuspended();
+        return checkIfValidLink(node) && !node.isSuspended();
     }
 
     // Checks whether a node is fully linked to the root
     private boolean checkIfValidLink(Node node) {
-	if ((node instanceof CommandNode && rootCommands.contains(node)) ||
-	    (node instanceof SubsystemNode && rootSubsystems.contains(node)))
-	    return true;
+        if ((node instanceof CommandNode && rootCommands.contains(node)) ||
+            (node instanceof SubsystemNode && rootSubsystems.contains(node)))
+            return true;
 
-	if (!node.hasParent())
-	    return false;
+        if (!node.hasParent())
+            return false;
 
-	return checkIfValidLink(node.getParent());
+        return checkIfValidLink(node.getParent());
     }
 
     // Link parent and child nodes

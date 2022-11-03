@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import edu.wpi.first.math.geometry.Translation2d;
 
+// TODO: Docs
 public final class Vec2d {
     public double x;
     public double y;

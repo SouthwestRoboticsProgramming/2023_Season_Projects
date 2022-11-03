@@ -1,6 +1,6 @@
 package com.swrobotics.robot.subsystem.thrower;
 
-import com.team2129.lib.encoder.HallEffectEncoder;
+import com.team2129.lib.encoder.QuadratureEncoder;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.MathUtil;
 import com.team2129.lib.motor.ctre.TalonSRXMotor;
@@ -30,7 +30,7 @@ public class Hood implements Subsystem {
     private static final NTDouble L_HOOD_POS = new NTDouble("Thrower/Hood/Hood Position", 2129);
     private static final NTBoolean L_LIMIT_SWITCH_PRESSED = new NTBoolean("Thrower/Hood/Limit Switch Pressed", false);
 
-    private final HallEffectEncoder encoder;
+    private final QuadratureEncoder encoder;
     private final TalonSRXMotor motor;
     private final DigitalInput limitSwitch;
 
@@ -38,7 +38,7 @@ public class Hood implements Subsystem {
     private Angle targetPosition;
 
     public Hood() {
-        encoder = new HallEffectEncoder(ENCODER_ID_1, ENCODER_ID_2, TICKS_PER_FLOOR_TO_CEILING); // Not ticks per rotation but ticks per floor to ceiling of movement.
+        encoder = new QuadratureEncoder(ENCODER_ID_1, ENCODER_ID_2, TICKS_PER_FLOOR_TO_CEILING); // Not ticks per rotation but ticks per floor to ceiling of movement.
  
         motor = new TalonSRXMotor(this, MOTOR_ID);
         motor.setEncoder(encoder);
