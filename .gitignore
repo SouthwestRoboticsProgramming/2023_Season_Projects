@@ -1,6 +1,7 @@
 # Build output
 *target/
 *build/
+.gradle/
 
 # IntelliJ IDEA Project Files
 .idea/
