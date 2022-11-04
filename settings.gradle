@@ -1,5 +1,6 @@
 rootProject.name = '2023_Season_Projects'
 include 'Lidar'
+include 'MathLib'
 include 'Messenger:MessengerClient'
 include 'Messenger:MessengerServer'
 include 'Messenger:MessengerTest'

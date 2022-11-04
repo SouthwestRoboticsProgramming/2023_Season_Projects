@@ -1,0 +1,23 @@
+plugins {
+    id 'java'
+}
+
+group 'com.swrobotics'
+version '2023'
+
+compileJava {
+    sourceCompatibility = '11'
+    targetCompatibility = '11'
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url 'https://frcmaven.wpi.edu/artifactory/release/'
+    }
+}
+
+dependencies {
+    implementation 'edu.wpi.first.wpimath:wpimath-java:2022.4.1'
+    implementation 'org.ejml:ejml-simple:0.41'
+}
