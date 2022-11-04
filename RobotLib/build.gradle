@@ -1,0 +1,31 @@
+plugins {
+    id 'java'
+    id 'edu.wpi.first.GradleRIO' version '2022.4.1'
+}
+
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
+
+group 'com.swrobotics'
+version '2023'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':MathLib')
+    implementation project(':Messenger:MessengerClient')
+
+    implementation wpi.java.deps.wpilib()
+    implementation wpi.java.vendor.java()
+}
+
+jar {
+    from {
+        configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}

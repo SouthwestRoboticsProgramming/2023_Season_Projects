@@ -1,15 +1,15 @@
 package com.team2129.lib.wpilib;
 
-import com.team2129.lib.messenger.MessageBuilder;
-import com.team2129.lib.profile.ProfileNode;
-import com.team2129.lib.profile.Profiler;
-import com.team2129.lib.time.Duration;
-import com.team2129.lib.messenger.MessengerClient;
+import com.swrobotics.messenger.client.MessageBuilder;
+import com.swrobotics.messenger.client.MessengerClient;
 import com.team2129.lib.messenger.ReadMessages;
 import com.team2129.lib.schedule.Scheduler;
-
+import com.team2129.lib.time.Duration;
 import com.team2129.lib.time.Repeater;
 import com.team2129.lib.time.TimeUnit;
+import com.team2129.lib.profile.ProfileNode;
+import com.team2129.lib.profile.Profiler;
+
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.wpilibj.RobotBase;
 
