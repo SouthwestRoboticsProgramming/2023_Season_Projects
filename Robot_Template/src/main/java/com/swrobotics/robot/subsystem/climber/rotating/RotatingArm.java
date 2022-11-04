@@ -1,7 +1,5 @@
 package com.swrobotics.robot.subsystem.climber.rotating;
 
-import java.util.function.Supplier;
-
 import com.swrobotics.robot.subsystem.climber.Calibrator;
 import com.team2129.lib.encoder.filters.JumpToZeroFilter;
 import com.team2129.lib.math.Angle;

@@ -1,11 +1,10 @@
 package com.team2129.lib.motor.ctre;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
-import com.team2129.lib.encoder.Encoder;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.motor.Motor;
+import com.team2129.lib.encoder.Encoder;
 import com.team2129.lib.schedule.Subsystem;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -102,8 +101,8 @@ public abstract class TalonMotor extends Motor {
      * 
      * @param neutralMode new neutral mode
      */
-    public void setNeutralMode(com.team2129.lib.motor.ctre.NeutralMode neutralMode) {
-        talon.setNeutralMode(neutralMode == com.team2129.lib.motor.ctre.NeutralMode.BRAKE ? NeutralMode.Brake : NeutralMode.Coast);
+    public void setNeutralMode(NeutralMode neutralMode) {
+        talon.setNeutralMode(neutralMode == NeutralMode.BRAKE ? com.ctre.phoenix.motorcontrol.NeutralMode.Brake : com.ctre.phoenix.motorcontrol.NeutralMode.Coast);
     }
 
     public double getTemperature() {

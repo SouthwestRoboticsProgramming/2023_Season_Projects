@@ -1,7 +1,5 @@
 package com.swrobotics.robot.blockauto;
 
-import java.util.function.Function;
-
 import com.swrobotics.robot.Robot;
 import com.swrobotics.robot.blockauto.part.BlockPart;
 import com.swrobotics.robot.blockauto.part.ParamPart;

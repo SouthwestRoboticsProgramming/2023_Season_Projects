@@ -2,15 +2,15 @@ package com.team2129.lib.motor;
 
 import java.util.function.Supplier;
 
+import com.team2129.lib.math.Angle;
+import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.encoder.Encoder;
 import com.team2129.lib.encoder.OutputFilter;
-import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.MathUtil;
 import com.team2129.lib.motor.calc.PIDCalculator;
 import com.team2129.lib.motor.calc.PositionCalculator;
 import com.team2129.lib.motor.calc.VelocityCalculator;
 import com.team2129.lib.net.NTDouble;
-import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.schedule.Subsystem;
 
 /**

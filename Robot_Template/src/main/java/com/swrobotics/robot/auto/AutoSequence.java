@@ -2,8 +2,6 @@ package com.swrobotics.robot.auto;
 
 import com.swrobotics.robot.subsystem.drive.Drive;
 import com.swrobotics.robot.subsystem.thrower.Hopper;
-import com.swrobotics.robot.subsystem.thrower.commands.IndexCommand;
-import com.swrobotics.robot.subsystem.thrower.commands.ShootCommand;
 import com.team2129.lib.math.Angle;
 import com.team2129.lib.math.Vec2d;
 import com.team2129.lib.schedule.CommandSequence;
