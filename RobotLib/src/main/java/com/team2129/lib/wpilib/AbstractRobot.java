@@ -1,7 +1,7 @@
 package com.team2129.lib.wpilib;
 
-import com.team2129.lib.messenger.MessageBuilder;
-import com.team2129.lib.messenger.MessengerClient;
+import com.swrobotics.messenger.client.MessageBuilder;
+import com.swrobotics.messenger.client.MessengerClient;
 import com.team2129.lib.messenger.ReadMessages;
 import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.time.Duration;

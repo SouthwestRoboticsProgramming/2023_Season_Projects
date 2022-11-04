@@ -1,7 +1,7 @@
 package com.swrobotics.robot.blockauto.part;
 
-import com.team2129.lib.messenger.MessageBuilder;
-import com.team2129.lib.messenger.MessageReader;
+import com.swrobotics.messenger.client.MessageBuilder;
+import com.swrobotics.messenger.client.MessageReader;
 
 public final class IntPart implements ParamPart {
     private final int def;

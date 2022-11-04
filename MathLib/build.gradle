@@ -21,3 +21,10 @@ dependencies {
     implementation 'edu.wpi.first.wpimath:wpimath-java:2022.4.1'
     implementation 'org.ejml:ejml-simple:0.41'
 }
+
+jar {
+    from {
+        configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}

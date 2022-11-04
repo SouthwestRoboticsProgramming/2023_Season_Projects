@@ -15,7 +15,7 @@ public final class MessageBuilder {
     private final ByteArrayOutputStream b;
     private final DataOutputStream out;
     
-    MessageBuilder(MessengerClient client, String type) {
+    public MessageBuilder(MessengerClient client, String type) {
         this.client = client;
         this.type = type;
         b = new ByteArrayOutputStream();
@@ -177,5 +177,14 @@ public final class MessageBuilder {
             throw new RuntimeException("Failed to write raw data", e);
         }
         return this;
+    }
+
+    /**
+     * Gets the data that has been written so far.
+     *
+     * @return data
+     */
+    public byte[] getData() {
+        return b.toByteArray();
     }
 }

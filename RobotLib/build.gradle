@@ -1,6 +1,5 @@
 plugins {
     id 'java'
-    id 'java-library'
     id 'edu.wpi.first.GradleRIO' version '2022.4.1'
 }
 
@@ -15,8 +14,18 @@ repositories {
 }
 
 dependencies {
-    api project(':MathLib')
+    implementation project(':MathLib')
+    implementation project(':Messenger:MessengerClient')
 
-    api wpi.java.deps.wpilib()
-    api wpi.java.vendor.java()
+    implementation wpi.java.deps.wpilib()
+    implementation wpi.java.vendor.java()
+}
+
+jar {
+    from {
+        configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }

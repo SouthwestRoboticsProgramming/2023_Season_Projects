@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 
+import com.swrobotics.messenger.client.MessageBuilder;
+import com.swrobotics.messenger.client.MessageReader;
 import com.swrobotics.robot.Robot;
 import com.swrobotics.robot.blockauto.part.*;
-import com.team2129.lib.messenger.MessageBuilder;
-import com.team2129.lib.messenger.MessageReader;
 import com.team2129.lib.schedule.Command;
 
 public final class BlockDef {

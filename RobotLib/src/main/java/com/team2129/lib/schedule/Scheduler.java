@@ -1,6 +1,6 @@
 package com.team2129.lib.schedule;
 
-import com.team2129.lib.messenger.MessengerClient;
+import com.swrobotics.messenger.client.MessengerClient;
 import com.team2129.lib.profile.Profiler;
 import com.team2129.lib.wpilib.AbstractRobot;
 import com.team2129.lib.wpilib.RobotState;
