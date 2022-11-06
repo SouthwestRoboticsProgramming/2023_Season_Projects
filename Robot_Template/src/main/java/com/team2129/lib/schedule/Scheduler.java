@@ -1,8 +1,7 @@
 package com.team2129.lib.schedule;
 
-import com.swrobotics.messenger.client.MessengerClient;
+import com.team2129.lib.messenger.MessengerClient;
 import com.team2129.lib.profile.Profiler;
-import com.team2129.lib.wpilib.AbstractRobot;
 import com.team2129.lib.wpilib.RobotState;
 import edu.wpi.first.wpilibj.DriverStation;
 
@@ -18,7 +17,7 @@ import java.util.*;
  *
  * @see Command
  * @see Subsystem
- * @see AbstractRobot
+ * @see com.team2129.lib.wpilib.AbstractRobot
  */
 public final class Scheduler {
     private static final Scheduler INSTANCE = new Scheduler();

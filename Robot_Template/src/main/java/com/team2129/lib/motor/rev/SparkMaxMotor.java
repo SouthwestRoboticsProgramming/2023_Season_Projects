@@ -1,13 +1,13 @@
 package com.team2129.lib.motor.rev;
 
-import com.team2129.lib.math.Angle;
-import com.team2129.lib.motor.Motor;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.team2129.lib.encoder.Encoder;
 import com.team2129.lib.encoder.filters.JumpToZeroFilter;
+import com.team2129.lib.math.Angle;
+import com.team2129.lib.motor.Motor;
 import com.team2129.lib.motor.ctre.NeutralMode;
 import com.team2129.lib.schedule.Subsystem;
 
@@ -76,6 +76,6 @@ public abstract class SparkMaxMotor extends Motor {
     }
 
     public void setNeutralMode(NeutralMode neutralMode) {
-        spark.setIdleMode(neutralMode == NeutralMode.BRAKE ? IdleMode.kBrake : IdleMode.kCoast);
+        spark.setIdleMode(neutralMode == com.team2129.lib.motor.ctre.NeutralMode.BRAKE ? IdleMode.kBrake : IdleMode.kCoast);
     }
 }

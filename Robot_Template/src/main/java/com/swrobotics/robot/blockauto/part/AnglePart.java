@@ -3,9 +3,9 @@ package com.swrobotics.robot.blockauto.part;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.swrobotics.messenger.client.MessageBuilder;
-import com.swrobotics.messenger.client.MessageReader;
 import com.team2129.lib.math.Angle;
+import com.team2129.lib.messenger.MessageBuilder;
+import com.team2129.lib.messenger.MessageReader;
 
 public final class AnglePart implements ParamPart {
     public enum Mode {

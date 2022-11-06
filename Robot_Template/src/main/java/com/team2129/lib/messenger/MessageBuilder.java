@@ -1,4 +1,4 @@
-package com.swrobotics.messenger.client;
+package com.team2129.lib.messenger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -15,7 +15,7 @@ public final class MessageBuilder {
     private final ByteArrayOutputStream b;
     private final DataOutputStream out;
     
-    MessageBuilder(MessengerClient client, String type) {
+    public MessageBuilder(MessengerClient client, String type) {
         this.client = client;
         this.type = type;
         b = new ByteArrayOutputStream();
@@ -164,12 +164,6 @@ public final class MessageBuilder {
         return this;
     }
 
-    /**
-     * Adds raw data to this message.
-     *
-     * @param b data to add
-     * @return self
-     */
     public MessageBuilder addRaw(byte[] b) {
         try {
             out.write(b);
@@ -177,5 +171,9 @@ public final class MessageBuilder {
             throw new RuntimeException("Failed to write raw data", e);
         }
         return this;
+    }
+
+    public byte[] getData() {
+        return b.toByteArray();
     }
 }

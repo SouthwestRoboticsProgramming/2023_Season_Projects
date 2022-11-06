@@ -1,6 +1,6 @@
 package com.swrobotics.robot.blockauto.part;
 
-import com.swrobotics.messenger.client.MessageBuilder;
+import com.team2129.lib.messenger.MessageBuilder;
 
 public interface BlockPart {
     /**

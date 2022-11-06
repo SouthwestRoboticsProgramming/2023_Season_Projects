@@ -48,8 +48,6 @@ def includeDesktopSupport = false
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 4.
 dependencies {
-    implementation project(':RobotLib')
-
     implementation wpi.java.deps.wpilib()
     implementation wpi.java.vendor.java()
 

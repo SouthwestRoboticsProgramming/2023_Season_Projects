@@ -1,6 +1,6 @@
 package com.swrobotics.robot.blockauto.part;
 
-import com.swrobotics.messenger.client.MessageBuilder;
+import com.team2129.lib.messenger.MessageBuilder;
 
 public final class NewLinePart implements BlockPart {
     public static final NewLinePart INSTANCE = new NewLinePart();

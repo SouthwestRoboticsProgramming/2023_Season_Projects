@@ -1,6 +1,5 @@
 package com.swrobotics.robot;
 
-import com.swrobotics.messenger.client.MessengerClient;
 import com.swrobotics.robot.auto.AutoSystem;
 import com.swrobotics.robot.blockauto.AutoBlocks;
 import com.swrobotics.robot.control.Input;
@@ -10,6 +9,7 @@ import com.swrobotics.robot.subsystem.drive.Drive;
 import com.swrobotics.robot.subsystem.thrower.Thrower;
 import com.swrobotics.robot.test.TestSystem;
 import com.team2129.lib.gyro.NavX;
+import com.team2129.lib.messenger.MessengerClient;
 import com.team2129.lib.schedule.Scheduler;
 import com.team2129.lib.wpilib.AbstractRobot;
 

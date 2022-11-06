@@ -2,7 +2,6 @@
 *target/
 *build/
 .gradle/
-*bin/
 
 # IntelliJ IDEA Project Files
 .idea/

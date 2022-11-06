@@ -1,9 +1,11 @@
 package com.swrobotics.robot.blockauto;
 
-import com.swrobotics.messenger.client.MessageBuilder;
+import java.util.function.Function;
+
 import com.swrobotics.robot.Robot;
 import com.swrobotics.robot.blockauto.part.BlockPart;
 import com.swrobotics.robot.blockauto.part.ParamPart;
+import com.team2129.lib.messenger.MessageBuilder;
 import com.team2129.lib.schedule.Command;
 
 /**

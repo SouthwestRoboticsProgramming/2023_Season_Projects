@@ -3,9 +3,9 @@ package com.swrobotics.robot.blockauto;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.swrobotics.messenger.client.MessageBuilder;
-import com.swrobotics.messenger.client.MessageReader;
 import com.swrobotics.robot.Robot;
+import com.team2129.lib.messenger.MessageBuilder;
+import com.team2129.lib.messenger.MessageReader;
 import com.team2129.lib.schedule.Command;
 import com.team2129.lib.schedule.CommandSequence;
 

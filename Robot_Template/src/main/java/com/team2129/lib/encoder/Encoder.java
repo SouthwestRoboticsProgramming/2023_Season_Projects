@@ -3,12 +3,11 @@ package com.team2129.lib.encoder;
 import java.util.function.Supplier;
 
 import com.team2129.lib.math.Angle;
-import com.team2129.lib.motor.ctre.TalonFXMotor;
 
 /**
  * A general wrapper for any external encoder. This can include
  * encoders built into a motor, such as the internal encoders in
- * {@link TalonFXMotor}.
+ * {@link com.team2129.lib.motor.ctre.TalonFXMotor}.
  */
 public abstract class Encoder implements Supplier<Angle> {
     private Angle offset = Angle.ccwRad(0); // Subtracted to get angle
