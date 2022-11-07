@@ -3,11 +3,11 @@ package com.swrobotics.robot.blockauto;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.swrobotics.lib.messenger.MessageBuilder;
+import com.swrobotics.lib.messenger.MessageReader;
+import com.swrobotics.lib.schedule.Command;
+import com.swrobotics.lib.schedule.CommandSequence;
 import com.swrobotics.robot.Robot;
-import com.team2129.lib.messenger.MessageBuilder;
-import com.team2129.lib.messenger.MessageReader;
-import com.team2129.lib.schedule.Command;
-import com.team2129.lib.schedule.CommandSequence;
 
 public final class BlockStackInst {
     public static BlockStackInst readFromMessenger(MessageReader reader) {

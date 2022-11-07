@@ -1,8 +1,8 @@
 package com.swrobotics.robot.subsystem.climber;
 
-import com.team2129.lib.math.Angle;
-import com.team2129.lib.math.MathUtil;
-import com.team2129.lib.net.NTDouble;
+import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.math.MathUtil;
+import com.swrobotics.lib.net.NTDouble;
 
 public class ClimberState {
     private final NTDouble telePercent;

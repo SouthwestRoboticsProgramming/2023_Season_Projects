@@ -1,9 +1,9 @@
 package com.swrobotics.robot.subsystem;
 
-import com.team2129.lib.math.Angle;
-import com.team2129.lib.net.NTBoolean;
-import com.team2129.lib.net.NTDouble;
-import com.team2129.lib.schedule.Subsystem;
+import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.net.NTBoolean;
+import com.swrobotics.lib.net.NTDouble;
+import com.swrobotics.lib.schedule.Subsystem;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;

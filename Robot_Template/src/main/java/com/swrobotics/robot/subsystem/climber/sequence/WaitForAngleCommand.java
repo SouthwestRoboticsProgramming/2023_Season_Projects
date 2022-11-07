@@ -1,7 +1,7 @@
 package com.swrobotics.robot.subsystem.climber.sequence;
 
-import com.team2129.lib.gyro.Gyroscope;
-import com.team2129.lib.schedule.Command;
+import com.swrobotics.lib.gyro.Gyroscope;
+import com.swrobotics.lib.schedule.Command;
 
 public class WaitForAngleCommand implements Command {
 

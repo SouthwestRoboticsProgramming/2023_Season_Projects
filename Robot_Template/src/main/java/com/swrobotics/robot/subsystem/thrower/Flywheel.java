@@ -1,15 +1,14 @@
 package com.swrobotics.robot.subsystem.thrower;
 
-import com.team2129.lib.math.Angle;
-import com.team2129.lib.motor.calc.BangBangCalculator;
-import com.team2129.lib.motor.calc.CompoundVelocityCalculator;
-import com.team2129.lib.motor.calc.FeedForwardVelocityCalculator;
-import com.team2129.lib.motor.calc.PIDCalculator;
-import com.team2129.lib.motor.ctre.NeutralMode;
-import com.team2129.lib.motor.ctre.TalonFXMotor;
-import com.team2129.lib.net.NTDouble;
-import com.team2129.lib.schedule.Subsystem;
-
+import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.motor.calc.BangBangCalculator;
+import com.swrobotics.lib.motor.calc.CompoundVelocityCalculator;
+import com.swrobotics.lib.motor.calc.FeedForwardVelocityCalculator;
+import com.swrobotics.lib.motor.calc.PIDCalculator;
+import com.swrobotics.lib.motor.ctre.NeutralMode;
+import com.swrobotics.lib.motor.ctre.TalonFXMotor;
+import com.swrobotics.lib.net.NTDouble;
+import com.swrobotics.lib.schedule.Subsystem;
 import com.swrobotics.robot.Constants;
 
 public final class Flywheel implements Subsystem {

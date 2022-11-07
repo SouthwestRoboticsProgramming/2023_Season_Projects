@@ -1,12 +1,12 @@
 package com.swrobotics.robot.subsystem.thrower;
 
-import com.team2129.lib.encoder.QuadratureEncoder;
-import com.team2129.lib.math.Angle;
-import com.team2129.lib.math.MathUtil;
-import com.team2129.lib.motor.ctre.TalonSRXMotor;
-import com.team2129.lib.net.NTBoolean;
-import com.team2129.lib.net.NTDouble;
-import com.team2129.lib.schedule.Subsystem;
+import com.swrobotics.lib.encoder.QuadratureEncoder;
+import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.math.MathUtil;
+import com.swrobotics.lib.motor.ctre.TalonSRXMotor;
+import com.swrobotics.lib.net.NTBoolean;
+import com.swrobotics.lib.net.NTDouble;
+import com.swrobotics.lib.schedule.Subsystem;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 

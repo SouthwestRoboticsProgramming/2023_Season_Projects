@@ -1,10 +1,10 @@
 package com.swrobotics.robot.subsystem.climber;
 
-import com.team2129.lib.encoder.Encoder;
-import com.team2129.lib.math.Angle;
-import com.team2129.lib.motor.Motor;
-import com.team2129.lib.schedule.Command;
-import com.team2129.lib.utils.TimeoutTimer;
+import com.swrobotics.lib.encoder.Encoder;
+import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.motor.Motor;
+import com.swrobotics.lib.schedule.Command;
+import com.swrobotics.lib.utils.TimeoutTimer;
 
 public class Calibrator implements Command {
 

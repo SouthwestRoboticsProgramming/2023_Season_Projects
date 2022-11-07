@@ -1,9 +1,9 @@
 package com.swrobotics.robot.auto;
 
+import com.swrobotics.lib.schedule.Command;
+import com.swrobotics.lib.schedule.Scheduler;
+import com.swrobotics.lib.schedule.Subsystem;
 import com.swrobotics.robot.blockauto.AutoBlocks;
-import com.team2129.lib.schedule.Command;
-import com.team2129.lib.schedule.Scheduler;
-import com.team2129.lib.schedule.Subsystem;
 
 public final class AutoSystem implements Subsystem {
     private Command cmd;

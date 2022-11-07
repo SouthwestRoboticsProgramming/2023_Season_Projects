@@ -1,7 +1,7 @@
 package com.swrobotics.robot.blockauto.part;
 
-import com.team2129.lib.messenger.MessageBuilder;
-import com.team2129.lib.messenger.MessageReader;
+import com.swrobotics.lib.messenger.MessageBuilder;
+import com.swrobotics.lib.messenger.MessageReader;
 
 public final class DoublePart implements ParamPart {
     private final double def;

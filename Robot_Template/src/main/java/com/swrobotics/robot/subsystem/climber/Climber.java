@@ -1,9 +1,9 @@
 package com.swrobotics.robot.subsystem.climber;
 
+import com.swrobotics.lib.schedule.Scheduler;
+import com.swrobotics.lib.schedule.Subsystem;
 import com.swrobotics.robot.subsystem.climber.rotating.RotatingArms;
 import com.swrobotics.robot.subsystem.climber.telescoping.TelescopingArms;
-import com.team2129.lib.schedule.Scheduler;
-import com.team2129.lib.schedule.Subsystem;
 
 public class Climber implements Subsystem {
 

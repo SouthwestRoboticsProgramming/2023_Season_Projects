@@ -1,7 +1,7 @@
 package com.swrobotics.robot.subsystem.climber.telescoping;
 
-import com.team2129.lib.schedule.Scheduler;
-import com.team2129.lib.schedule.Subsystem;
+import com.swrobotics.lib.schedule.Scheduler;
+import com.swrobotics.lib.schedule.Subsystem;
 
 public class TelescopingArms implements Subsystem {
     private static final int LEFT_TELE_ID_1 = 6;
