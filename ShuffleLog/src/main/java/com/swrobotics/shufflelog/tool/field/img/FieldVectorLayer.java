@@ -195,6 +195,5 @@ public final class FieldVectorLayer implements FieldLayer {
     @Override
     public void showGui() {
         ImGui.checkbox("Show", show);
-        ImGui.text("afhjkldahksjhdf");
     }
 }
