@@ -59,6 +59,7 @@ public final class Robot extends AbstractRobot {
         TestSystem test = new TestSystem();
 
         Scheduler scheduler = Scheduler.get();
+        scheduler.addSubsystem(input);
         scheduler.addSubsystem(loc);
         scheduler.addSubsystem(drive);
         scheduler.addSubsystem(intake);
