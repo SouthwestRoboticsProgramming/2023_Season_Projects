@@ -17,7 +17,7 @@
 14. Add READMEs to repos
 15. RYAN: Icon for shuffle-log
 16. TagTracker wiki
-17. TagTracker lint fixes
+17. ~~TagTracker lint fixes~~
 18. Advertise TagTracker
 19. TagTracker Video recording for log
 20. TagTracker send video back to driver station
