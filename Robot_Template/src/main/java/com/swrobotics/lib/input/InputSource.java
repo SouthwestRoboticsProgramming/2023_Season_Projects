@@ -9,7 +9,7 @@ import com.swrobotics.lib.schedule.Subsystem;
  */
 public abstract class InputSource implements Subsystem {
     @Override
-    public void periodic() {
+    public final void periodic() {
         for (InputElement elem : getElements()) {
             elem.update();
         }
