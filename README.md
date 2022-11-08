@@ -1,6 +1,6 @@
 # 2023_Season_Projects
 
-### Vision
+## Vision
 See README.MD in Vision folder for installation steps
 
 - Vision
@@ -13,12 +13,12 @@ See README.MD in Vision folder for installation steps
 - Make base template and templates for different drive-bases
 
 
-### Robot template and libraries
-##### Template
+## Robot template and libraries
+### Template
 Template code that implements our custom command scheduler and other features. Get the next season started strong.
 
-##### Libraries
-###### Math
+### Libraries
+#### Math
 A new library to better manage angles and vectors.
-###### Swerve
+#### Swerve
 A library that fully implements swerve into our ecosystem for quick development of next year's swerve drive.
