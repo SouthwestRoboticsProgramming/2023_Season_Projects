@@ -1,3 +1,12 @@
+// Add a build dependency on Packr to build native executables
+buildscript {
+    dependencies {
+        classpath files("build-libs/packr-all-4.0.0.jar")
+    }
+}
+
+import com.badlogicgames.packr.*;
+
 plugins {
     id 'java'
 }
@@ -85,4 +94,52 @@ jar {
     }
 
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+def JRE_LINUX_X64 = "OpenJDK11U-jre_x64_linux_hotspot_11.0.17_8.tar.gz"
+def JRE_WINDOWS_X64 = "OpenJDK11U-jre_x64_windows_hotspot_11.0.17_8.zip"
+
+static boolean deleteDirectory(File directoryToBeDeleted) {
+    File[] allContents = directoryToBeDeleted.listFiles()
+    if (allContents != null) {
+        for (File file : allContents) {
+            deleteDirectory(file)
+        }
+    }
+    return directoryToBeDeleted.delete()
+}
+
+static void packForPlatform(platform, jre) {
+    def JRE_DOWNLOAD_ROOT = "https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.17%2B8/"
+
+    System.out.println((Object) "Packing executable for ${platform} with jre ${jre}")
+
+    def workingPath = System.getProperty("user.dir")
+    def workingDir = new File(workingPath)
+
+    def s = File.separator
+    def outDir = new File(workingDir, "ShuffleLog${s}build${s}pack${s}${platform}")
+    deleteDirectory(outDir)
+    outDir.mkdirs()
+
+    def packConfig = new PackrConfig(
+            platform,
+            (JRE_DOWNLOAD_ROOT + jre).toString(),
+            "ShuffleLog-${platform}".toString(),
+            Arrays.asList("${workingPath}${s}ShuffleLog${s}build${s}libs${s}ShuffleLog-2023.jar".toString()),
+            'com.swrobotics.shufflelog.ShuffleLog'.toString(),
+            outDir
+    )
+    packConfig.vmArgs = new ArrayList<>()
+    packConfig.jrePath = "jre"
+
+    new Packr().pack(packConfig)
+}
+
+tasks.register("pack") {
+    dependsOn "jar"
+    doLast {
+        packForPlatform(PackrConfig.Platform.Windows64, JRE_WINDOWS_X64)
+        packForPlatform(PackrConfig.Platform.Linux64, JRE_LINUX_X64)
+    }
 }
