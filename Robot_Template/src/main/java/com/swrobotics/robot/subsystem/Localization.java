@@ -1,6 +1,7 @@
 package com.swrobotics.robot.subsystem;
 
 import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.math.CWAngle;
 import com.swrobotics.lib.math.Vec2d;
 import com.swrobotics.lib.net.NTBoolean;
 import com.swrobotics.lib.schedule.Scheduler;
@@ -28,7 +29,7 @@ public class Localization implements Subsystem {
         Scheduler sch = Scheduler.get();
         sch.addSubsystem(this, limelight);
         position = new Vec2d();
-        angle = Angle.zero();
+        angle = Angle.ZERO;
     }
 
     public Vec2d getPosition() {
@@ -44,25 +45,25 @@ public class Localization implements Subsystem {
     }
 
     public Angle getAngleToHub() {
-        double deg = position.angle().getCWDeg() - 90;
+        double deg = position.angle().cw().deg() - 90;
         if (deg < -180)
             deg += 360;
         if (deg > 180)
             deg -= 360;
-        return Angle.cwDeg(deg);
+        return CWAngle.deg(deg);
     }
 
     private Vec2d calculatePositionOnLimelight() {
-        double limelightAngleDeg = limelight.getXAngle().getCWDeg();
+        double limelightAngleDeg = limelight.getXAngle().cw().deg();
         double limelightDistance = limelight.getDistance();
-        double robotAngleDeg = angle.getCWDeg();
+        double robotAngleDeg = angle.cw().deg();
 
-        Angle angleDiff = Angle.cwDeg(robotAngleDeg - limelightAngleDeg);
-        angleDiff = Angle.cwDeg(angleDiff.getCWDeg() - 90); // Account for position shenanigans
+        Angle angleDiff = CWAngle.deg(robotAngleDeg - limelightAngleDeg);
+        angleDiff = CWAngle.deg(angleDiff.cw().deg() - 90); // Account for position shenanigans
         
         limelightDistance += 1.35582 / 2; // Account for hub radius
-        double fieldX = -limelightDistance * Math.cos(angleDiff.getCWDeg());
-        double fieldY = limelightDistance * Math.sin(angleDiff.getCWDeg());
+        double fieldX = -limelightDistance * Math.cos(angleDiff.cw().deg());
+        double fieldY = limelightDistance * Math.sin(angleDiff.cw().deg());
 
         return new Vec2d(fieldX, fieldY);
     }

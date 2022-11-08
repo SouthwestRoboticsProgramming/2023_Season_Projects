@@ -4,6 +4,7 @@ import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.math.CWAngle;
 import com.swrobotics.lib.math.MathUtil;
 import com.swrobotics.lib.net.NTBoolean;
 import com.swrobotics.lib.net.NTDouble;
@@ -187,7 +188,7 @@ public class Thrower implements Subsystem {
 
          if ((hopper.isBallDetected() || /*!flywheelShutoff.hasElapsed(FLYWHEEL_SHUTOFF_SECONDS.get())*/false) && loc.isLimelightAccurate()) {
                  double[] aim = calculateAim(distance, true, STRICT_AIM.get());
-                 flywheel.setFlywheelVelocity(Angle.cwRot(aim[0])); // Convert rpm to Angle/second // TODO: Check functionality
+                 flywheel.setFlywheelVelocity(CWAngle.rot(aim[0])); // Convert rpm to Angle/second // TODO: Check functionality
 //             flywheel.setFlywheelVelocity(Angle.cwRot(TEST_VEL.get()));
              hood.setPosition(aim[1]);
                  // System.out.println("Distance: " + distance + " Hood: " + aim[1] + " Flywheel: " + aim[0]);

@@ -2,6 +2,7 @@ package com.swrobotics.robot.subsystem.drive;
 
 import com.swrobotics.lib.encoder.CANCoderImplementation;
 import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.math.CWAngle;
 import com.swrobotics.lib.math.Vec2d;
 import com.swrobotics.lib.motor.calc.PIDCalculator;
 import com.swrobotics.lib.motor.ctre.NeutralMode;
@@ -47,8 +48,8 @@ public class SwerveModuleMaker {
         TURN_NOMINAL_OUT.onChange(() -> steerMotor.setNominalOutput(TURN_NOMINAL_OUT.get()));
 
         CANCoderImplementation canCoder = new CANCoderImplementation(def.getEncoderId(), Constants.CANIVORE);
-        canCoder.setOffset(Angle.cwDeg(def.getEncoderOffset().get() + staticOffsetCWDeg));
-        def.getEncoderOffset().onChange(() -> canCoder.setOffset(Angle.cwDeg(def.getEncoderOffset().get() + staticOffsetCWDeg)));
+        canCoder.setOffset(CWAngle.deg(def.getEncoderOffset().get() + staticOffsetCWDeg));
+        def.getEncoderOffset().onChange(() -> canCoder.setOffset(CWAngle.deg(def.getEncoderOffset().get() + staticOffsetCWDeg)));
 
         return new SwerveModule(driveMotor, steerMotor, canCoder, position, GEAR_RATIO, WHEEL_RADIUS);
     }

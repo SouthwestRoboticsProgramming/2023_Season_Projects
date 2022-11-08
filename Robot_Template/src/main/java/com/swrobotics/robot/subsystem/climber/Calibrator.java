@@ -31,7 +31,7 @@ public class Calibrator implements Command {
         }
 
         // If the velocity is in tolerance
-        if (Math.abs(encoder.getVelocity().getCWDeg()) <= velocityTolerance.getCWDeg()) {
+        if (Math.abs(encoder.getVelocity().cw().deg()) <= velocityTolerance.cw().deg()) {
             // Start timer
             timeout.start(false);
 
@@ -48,7 +48,7 @@ public class Calibrator implements Command {
     @Override
     public void end(boolean wasCancelled) {
         for (Motor motor : motors) {
-            motor.getEncoder().setAngle(Angle.cwDeg(0));
+            motor.getEncoder().setAngle(Angle.ZERO);
             motor.stop();
         }
     }

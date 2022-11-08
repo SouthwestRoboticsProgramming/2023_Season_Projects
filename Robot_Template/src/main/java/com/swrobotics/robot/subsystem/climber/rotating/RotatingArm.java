@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import com.swrobotics.lib.encoder.filters.JumpToZeroFilter;
 import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.math.CWAngle;
 import com.swrobotics.lib.motor.calc.PIDCalculator;
 import com.swrobotics.lib.motor.rev.BrushlessSparkMaxMotor;
 import com.swrobotics.lib.net.NTDouble;
@@ -52,17 +53,17 @@ public class RotatingArm implements Subsystem {
         lAngle = new NTDouble("Climber/Rotating/" + name + "/Angle", 0);
         lAngle.setTemporary();
 
-        setTargetAngle(Angle.cwDeg(90));
+        setTargetAngle(CWAngle.deg(90));
     }
 
     public void setTargetAngle(Angle angle) {
-        double cwDeg = MathUtil.clamp(angle.getCWDeg(), MIN_ANGLE_CWDEG, MAX_ANGLE_CWDEG);
-        targetAngle = Angle.cwDeg(cwDeg);
+        double cwDeg = MathUtil.clamp(angle.cw().deg(), MIN_ANGLE_CWDEG, MAX_ANGLE_CWDEG);
+        targetAngle = CWAngle.deg(cwDeg);
     }
 
     public Angle getAngle() {
         // Get angle from encoder
-        double encoderRots = motor.getEncoder().getAngle().getCWRot();
+        double encoderRots = motor.getEncoder().getAngle().cw().rot();
         
         // Calculate length of Igus Shaft between pivot points
         double currentIgusLength = encoderRots / ROTS_PER_INCH + CALIBRATED_LENGTH;
@@ -77,21 +78,20 @@ public class RotatingArm implements Subsystem {
                 currentIgusLength*currentIgusLength) /
             (2 * ARM_LENGTH * BASE_LENGTH)
         );
-        Angle a = Angle.cwRad(cwRad);
-        lAngle.set(a.getCWDeg());
+        Angle a = CWAngle.rad(cwRad);
+        lAngle.set(a.cw().deg());
 
         return a;
     }
 
     public boolean inTolerance() {
-        double degDiff = Math.abs(targetAngle.getCWDeg() - getAngle().getCWDeg());
-        
+        double degDiff = targetAngle.cw().getAbsDiff(getAngle().cw()).deg();
         return degDiff < TOLERANCE.get();
     }
 
     @Override
     public void teleopInit() {
-        calibrator = new Calibrator(Angle.cwDeg(CALIBRATE_VELOCITY_TOLERANCE.get()),
+        calibrator = new Calibrator(CWAngle.deg(CALIBRATE_VELOCITY_TOLERANCE.get()),
         CALIBRATE_PERCENT.get(),
         CALIBRATE_TIMEOUT, motor.getEncoder(),
         motor);
@@ -115,7 +115,7 @@ public class RotatingArm implements Subsystem {
     }
 
     public String getTolInfo() {
-        return String.format("(C %.2f T %.2f)", getAngle().getCWDeg(), targetAngle.getCWDeg());
+        return String.format("(C %.2f T %.2f)", getAngle().cw().deg(), targetAngle.cw().deg());
     }
 
     // We don't want any gravity here; no longer necessary

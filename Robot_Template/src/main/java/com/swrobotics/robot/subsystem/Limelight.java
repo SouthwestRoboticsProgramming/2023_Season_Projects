@@ -1,6 +1,7 @@
 package com.swrobotics.robot.subsystem;
 
 import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.math.CWAngle;
 import com.swrobotics.lib.net.NTBoolean;
 import com.swrobotics.lib.net.NTDouble;
 import com.swrobotics.lib.schedule.Subsystem;
@@ -49,8 +50,8 @@ public class Limelight implements Subsystem {
         // setLights(LIGHTS_ON.get());
         // LIGHTS_ON.onChange(() -> setLights(LIGHTS_ON.get()));
 
-        y = Angle.zero();
-        x = Angle.zero();
+        y = Angle.ZERO;
+        x = Angle.ZERO;
         area = 0;
 
         L_DISTANCE.setTemporary();
@@ -76,7 +77,7 @@ public class Limelight implements Subsystem {
         Angle angle = getYAngle();
 
         try {
-            return HEIGHT_DIFF / Math.tan(angle.getCWRad());
+            return HEIGHT_DIFF / Math.tan(angle.cw().rad());
         } catch (ArithmeticException e) {
             return 0;
         }
@@ -84,8 +85,8 @@ public class Limelight implements Subsystem {
 
     public boolean isAccurate() {
         return (
-            x.getCWDeg() != 0 &&
-            y.getCWDeg() != 0 &&
+            x.cw().deg() != 0 &&
+            y.cw().deg() != 0 &&
             getDistance() > 0 &&
             getDistance() < 18 * 0.305 &&
             getArea() > 0);
@@ -101,8 +102,8 @@ public class Limelight implements Subsystem {
 
     @Override
     public void periodic() {
-        x = Angle.cwDeg(xAngle.getDouble(0.0));
-        y = Angle.cwDeg(yAngle.getDouble(0.0));
+        x = CWAngle.deg(xAngle.getDouble(0.0));
+        y = CWAngle.deg(yAngle.getDouble(0.0));
         area = targetArea.getDouble(0.0);
 
         L_DISTANCE.set(getDistance());

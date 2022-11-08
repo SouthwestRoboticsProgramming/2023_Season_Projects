@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.math.CCWAngle;
+import com.swrobotics.lib.math.CWAngle;
 import com.swrobotics.lib.messenger.MessageBuilder;
 import com.swrobotics.lib.messenger.MessageReader;
 
@@ -12,67 +14,67 @@ public final class AnglePart implements ParamPart {
         CW_DEG(0) {
             @Override
             public Angle toAngle(double val) {
-                return Angle.cwDeg(val);
+                return CWAngle.deg(val);
             }
 
             @Override
             public double fromAngle(Angle val) {
-                return val.getCWDeg();
+                return val.cw().deg();
             }
         },
         CCW_DEG(1) {
             @Override
             public Angle toAngle(double val) {
-                return Angle.ccwDeg(val);
+                return CCWAngle.deg(val);
             }
 
             @Override
             public double fromAngle(Angle val) {
-                return val.getCCWDeg();
+                return val.ccw().deg();
             }
         },
         CW_RAD(2) {
             @Override
             public Angle toAngle(double val) {
-                return Angle.cwRad(val);
+                return CWAngle.rad(val);
             }
 
             @Override
             public double fromAngle(Angle val) {
-                return val.getCWRad();
+                return val.cw().rad();
             }
         },
         CCW_RAD(3) {
             @Override
             public Angle toAngle(double val) {
-                return Angle.ccwRad(val);
+                return CCWAngle.rad(val);
             }
 
             @Override
             public double fromAngle(Angle val) {
-                return val.getCCWRad();
+                return val.ccw().rad();
             }
         },
         CW_ROT(4) {
             @Override
             public Angle toAngle(double val) {
-                return Angle.cwRot(val);
+                return CWAngle.rot(val);
             }
 
             @Override
             public double fromAngle(Angle val) {
-                return val.getCWRot();
+                return val.cw().rot();
             }
         },
         CCW_ROT(5) {
             @Override
             public Angle toAngle(double val) {
-                return Angle.ccwRot(val);
+                return CCWAngle.rot(val);
             }
 
             @Override
             public double fromAngle(Angle val) {
-                return val.getCCWRot();
+                return val.ccw().rot();
             }
         };
 

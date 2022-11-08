@@ -1,6 +1,7 @@
 package com.swrobotics.robot.subsystem.thrower;
 
 import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.math.CWAngle;
 import com.swrobotics.lib.motor.calc.BangBangCalculator;
 import com.swrobotics.lib.motor.calc.CompoundVelocityCalculator;
 import com.swrobotics.lib.motor.calc.FeedForwardVelocityCalculator;
@@ -25,8 +26,8 @@ public final class Flywheel implements Subsystem {
     private static final NTDouble KS = new NTDouble("Thrower/Flywheel/kS", 0.0);
     private static final NTDouble KV = new NTDouble("Thrower/Flywheel/kV", 0.00003); // Change to adjust potency of velocity maintenance.
     
-    private static final Angle BANG_THRESH_LOW = Angle.cwDeg(500);
-    private static final Angle BANG_THRESH_HIGH = Angle.cwDeg(-200);
+    private static final Angle BANG_THRESH_LOW = CWAngle.deg(500);
+    private static final Angle BANG_THRESH_HIGH = CWAngle.deg(-200);
 
     private final TalonFXMotor motor;
     
@@ -89,6 +90,6 @@ public final class Flywheel implements Subsystem {
     @Override
     public void periodic() {
         L_MOTOR_TEMP.set(motor.getTemperature());
-        L_MOTOR_VELOCITY.set(motor.getEncoder().getVelocity().getCWDeg() / 360);
+        L_MOTOR_VELOCITY.set(motor.getEncoder().getVelocity().cw().rot());
     }
 }

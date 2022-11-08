@@ -1,9 +1,7 @@
 package com.swrobotics.robot.subsystem.drive;
 
 import com.swrobotics.lib.gyro.NavX;
-import com.swrobotics.lib.math.Angle;
-import com.swrobotics.lib.math.MathUtil;
-import com.swrobotics.lib.math.Vec2d;
+import com.swrobotics.lib.math.*;
 import com.swrobotics.lib.messenger.MessageBuilder;
 import com.swrobotics.lib.messenger.MessageReader;
 import com.swrobotics.lib.messenger.MessengerClient;
@@ -14,7 +12,6 @@ import com.swrobotics.lib.schedule.Scheduler;
 import com.swrobotics.lib.schedule.Subsystem;
 import com.swrobotics.lib.swerve.SwerveDrive;
 import com.swrobotics.lib.swerve.SwerveModule;
-import com.swrobotics.lib.math.CoordinateConversions;
 import com.swrobotics.lib.wpilib.AbstractRobot;
 import com.swrobotics.lib.wpilib.RobotState;
 import com.swrobotics.robot.auto.DriveAutoInput;
@@ -129,7 +126,7 @@ public class Drive implements Subsystem {
     }
 
     public Angle getRotation() {
-        return Angle.ccwDeg(drive.getOdometryPose().getRotation().getDegrees());
+        return CoordinateConversions.fromWPIAngle(drive.getOdometryPose().getRotation());
     }
 
     public Vec2d getPosition() {
@@ -139,13 +136,13 @@ public class Drive implements Subsystem {
     public void setPosition(Vec2d position) {
         drive.setOdometryPose(
             new Pose2d(
-            CoordinateConversions.toWPICoords(position),
-            getRotation().toRotation2dCCW()
+                CoordinateConversions.toWPICoords(position),
+                drive.getOdometryPose().getRotation()
             )
         );
     }
 
-    // TODO: Rework (or not)
+    // Does not work, TODO: Fix or remove
     // Constants taken from old code
     private final PIDController autoTurnPID = new PIDController(0.01, 0.0001, 0.0002);
     {
@@ -191,11 +188,12 @@ public class Drive implements Subsystem {
             // Vec2d pos = new Vec2d(loc.getPosition());
             // System.out.println(pos);
             // Angle rot = pos.negate().angle();
-            Angle rot = Angle.zero();
-            rot = rot.normalizeRangeRad(-2*Math.PI, 0);
-            System.out.println(rot + " current " + gyro.getAngle().normalizeRangeRad(-2*Math.PI, 0));
-            rotation = Angle.cwDeg(180 * MathUtil.clamp(autoTurnPID.calculate(gyro.getAngle().normalizeRangeRad(-2*Math.PI, 0).getCWDeg(), rot.getCWDeg()), -1, 1));
-            System.out.println("OUT " + rotation);
+            // FIXME
+//            Angle rot = Angle.zero();
+//            rot = rot.normalizeRangeRad(-2*Math.PI, 0);
+//            System.out.println(rot + " current " + gyro.getAngle().normalizeRangeRad(-2*Math.PI, 0));
+//            rotation = Angle.cwDeg(180 * MathUtil.clamp(autoTurnPID.calculate(gyro.getAngle().normalizeRangeRad(-2*Math.PI, 0).getCWDeg(), rot.getCWDeg()), -1, 1));
+//            System.out.println("OUT " + rotation);
         }
 
         // bad, dont use
@@ -219,5 +217,5 @@ public class Drive implements Subsystem {
 
     @Override
     public void teleopPeriodic() {
-        }
+    }
 }
