@@ -172,6 +172,40 @@ public abstract class AbstractAngle<T extends AbstractAngle<T>> implements Angle
         return wrapRot(-range, range);
     }
 
+    // Calculates the absolute difference in radians between this angle and another
+    private double absDiffRad(double o) {
+        double normSelf = MathUtil.wrap(rad, 0, MathUtil.TAU);
+        double normOther = MathUtil.wrap(o, 0, MathUtil.TAU);
+
+        double diffRad = normOther - normSelf;
+        double direct = Math.abs(diffRad);
+        double wrapped = MathUtil.TAU - direct;
+
+        return Math.min(direct, wrapped);
+    }
+
+    /**
+     * Calculates the absolute difference between this angle and another.
+     *
+     * @param o other angle
+     * @return absolute difference
+     */
+    public AbsoluteAngle getAbsDiff(T o) {
+        return AbsoluteAngle.rad(absDiffRad(o.rad()));
+    }
+
+    /**
+     * Gets whether this angle is within the specified tolerance from
+     * another angle.
+     *
+     * @param o angle to compare to
+     * @param tol tolerance
+     * @return whether this angle is within tolerance of the other
+     */
+    public boolean inTolerance(T o, Angle tol) {
+        return absDiffRad(o.rad()) < tol.abs().rad();
+    }
+
     @Override
     public T negate() {
         return create(-rad);
