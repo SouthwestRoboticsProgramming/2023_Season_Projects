@@ -1,13 +1,13 @@
 package com.swrobotics.robot.subsystem.climber.sequence;
 
+import com.swrobotics.lib.gyro.Gyroscope;
+import com.swrobotics.lib.net.NTDouble;
+import com.swrobotics.lib.schedule.CommandSequence;
+import com.swrobotics.lib.wpilib.RobotState;
 import com.swrobotics.robot.Robot;
 import com.swrobotics.robot.control.Input;
 import com.swrobotics.robot.subsystem.climber.Climber;
 import com.swrobotics.robot.subsystem.climber.ClimberStep;
-import com.team2129.lib.gyro.Gyroscope;
-import com.team2129.lib.net.NTDouble;
-import com.team2129.lib.schedule.CommandSequence;
-import com.team2129.lib.wpilib.RobotState;
 
 public class ClimbSequence extends CommandSequence {
 

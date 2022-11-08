@@ -1,7 +1,7 @@
 package com.swrobotics.robot.subsystem.climber;
 
-import com.team2129.lib.net.NTDouble;
-import com.team2129.lib.schedule.Command;
+import com.swrobotics.lib.net.NTDouble;
+import com.swrobotics.lib.schedule.Command;
 
 public class ClimberStep implements Command {
 

@@ -1,9 +1,9 @@
 package com.swrobotics.robot.subsystem.thrower;
 
-import edu.wpi.first.wpilibj.DigitalInput;
+import com.swrobotics.lib.net.NTBoolean;
+import com.swrobotics.lib.schedule.Subsystem;
 
-import com.team2129.lib.net.NTBoolean;
-import com.team2129.lib.schedule.Subsystem;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 /**
  * A sensor to detect when a ball is engaged with the indexing wheel.

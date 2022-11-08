@@ -1,6 +1,6 @@
 package com.swrobotics.robot.subsystem.drive;
 
-import com.team2129.lib.net.NTDouble;
+import com.swrobotics.lib.net.NTDouble;
 
 public enum SwerveModuleDef {
     MODULE_1(1, 6, "Swerve/Offsets/Module 1 Offset"),

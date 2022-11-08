@@ -1,10 +1,10 @@
 package com.swrobotics.robot.subsystem.thrower;
 
+import com.swrobotics.lib.motor.ctre.NeutralMode;
+import com.swrobotics.lib.motor.ctre.TalonFXMotor;
+import com.swrobotics.lib.net.NTDouble;
+import com.swrobotics.lib.schedule.Subsystem;
 import com.swrobotics.robot.Constants;
-import com.team2129.lib.motor.ctre.NeutralMode;
-import com.team2129.lib.motor.ctre.TalonFXMotor;
-import com.team2129.lib.net.NTDouble;
-import com.team2129.lib.schedule.Subsystem;
 
 public class Hopper implements Subsystem {
     private static final int INDEX_MOTOR_ID = 12;

@@ -1,10 +1,10 @@
 package com.swrobotics.robot.control;
 
-import com.team2129.lib.utils.Toggle;
-import com.team2129.lib.math.Angle;
-import com.team2129.lib.math.MathUtil;
-import com.team2129.lib.math.Vec2d;
-import com.team2129.lib.net.NTDouble;
+import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.math.MathUtil;
+import com.swrobotics.lib.math.Vec2d;
+import com.swrobotics.lib.net.NTDouble;
+import com.swrobotics.lib.utils.Toggle;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;

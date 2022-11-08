@@ -1,8 +1,8 @@
 package com.swrobotics.robot.blockauto.part;
 
-import com.team2129.lib.math.Vec2d;
-import com.team2129.lib.messenger.MessageBuilder;
-import com.team2129.lib.messenger.MessageReader;
+import com.swrobotics.lib.math.Vec2d;
+import com.swrobotics.lib.messenger.MessageBuilder;
+import com.swrobotics.lib.messenger.MessageReader;
 
 public class Vec2dPart implements ParamPart {
     private final double defX;

@@ -1,8 +1,8 @@
 package com.swrobotics.robot.subsystem.thrower.commands;
 
+import com.swrobotics.lib.net.NTDouble;
+import com.swrobotics.lib.schedule.Command;
 import com.swrobotics.robot.subsystem.thrower.Hopper;
-import com.team2129.lib.net.NTDouble;
-import com.team2129.lib.schedule.Command;
 
 import edu.wpi.first.wpilibj.Timer;
 
