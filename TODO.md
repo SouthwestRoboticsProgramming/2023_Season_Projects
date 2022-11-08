@@ -19,6 +19,8 @@
 16. TagTracker wiki
 17. TagTracker lint fixes
 18. Advertise TagTracker
+19. TagTracker Video recording for log
+20. TagTracker send video back to driver station
 
 #### Schedule
 WIP
