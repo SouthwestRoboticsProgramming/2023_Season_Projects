@@ -1,5 +1,7 @@
 package com.swrobotics.lib.math;
 
+import java.util.Objects;
+
 /**
  * Implements the operations common to all types of angle, but depend on the
  * specific type. This class exists to avoid having the type parameter in Angle,
@@ -223,5 +225,19 @@ public abstract class AbstractAngle<T extends AbstractAngle<T>> implements Angle
         if (cacheCos < -1.5)
             cacheCos = Math.cos(rad);
         return cacheCos;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AbstractAngle<?> that = (AbstractAngle<?>) o;
+
+        return this.ccw().rad() == that.ccw().rad();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(rad);
     }
 }
