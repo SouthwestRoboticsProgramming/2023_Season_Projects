@@ -13,5 +13,5 @@ public enum NeutralMode {
     /**
      * Will allow the motor to move
      */
-    COAST;
+    COAST
 }

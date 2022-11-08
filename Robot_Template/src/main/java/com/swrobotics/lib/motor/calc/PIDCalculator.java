@@ -109,7 +109,7 @@ public final class PIDCalculator implements PositionCalculator, VelocityCalculat
      * the PIDCalculator will stop attempting to get to the position.
      */
     public void setTolerance(Angle tolerance) {
-        pid.setTolerance(tolerance.getCWDeg());
+        pid.setTolerance(tolerance.cw().deg());
     }
 
     /**
@@ -131,7 +131,7 @@ public final class PIDCalculator implements PositionCalculator, VelocityCalculat
     public double calculate(Angle current, Angle target) {
 
         // TODO: At setpoint that works
-        double output = pid.calculate(current.getCWDeg(), target.getCWDeg());
+        double output = pid.calculate(current.cw().deg(), target.cw().deg());
 
         if (!allowNegativeOutputs) {
             output = MathUtil.clamp(output, 0, Double.MAX_VALUE);

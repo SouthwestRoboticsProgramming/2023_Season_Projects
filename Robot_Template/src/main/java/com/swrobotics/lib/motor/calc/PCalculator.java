@@ -21,8 +21,8 @@ public final class PCalculator implements PositionCalculator, VelocityCalculator
 
     @Override
     public double calculate(Angle current, Angle target) {
-        double currentAng = current.getCWDeg();
-        double targetAng = target.getCWDeg();
+        double currentAng = current.cw().deg();
+        double targetAng = target.cw().deg();
         double error = targetAng - currentAng;
 
         return error * kP;
