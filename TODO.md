@@ -21,6 +21,11 @@
 18. Advertise TagTracker
 19. TagTracker Video recording for log
 20. TagTracker send video back to driver station
+21. Set up deploying libraries to GitHub Packages, to make using the library easier
+22. Finish Scheduler tool in ShuffleLog
+23. ShuffleLog tag and camera movement for TagTracker
+24. Make swerve lib easier to use
+25. Update Deploy
 
 #### Schedule
 WIP
