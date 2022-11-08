@@ -59,7 +59,7 @@ public final class ShuffleLog extends PApplet {
 
     private void setIcon(long window) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            InputStream in = getClass().getClassLoader().getResourceAsStream("icon.png");
+            InputStream in = getClass().getClassLoader().getResourceAsStream(Math.random() < 0.1 ? "icon2.png" : "icon.png");
             if (in == null)
                 throw new IOException("Failed to find icon resource");
 
