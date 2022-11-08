@@ -5,11 +5,14 @@ import com.swrobotics.lib.math.Angle;
 import com.swrobotics.lib.math.MathUtil;
 import com.swrobotics.lib.math.Vec2d;
 import com.swrobotics.lib.net.NTDouble;
+import com.swrobotics.lib.schedule.Scheduler;
+import com.swrobotics.lib.schedule.Subsystem;
 import com.swrobotics.lib.utils.Toggle;
 
+import com.swrobotics.robot.subsystem.thrower.commands.ShootCommand;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 
-public class Input {
+public class Input implements Subsystem {
     private static final double DEADBAND = 0.2;
 
     public static final NTDouble MAX_DRIVE_ROTATION = new NTDouble("Drive/Max_Rotation_Speed", 0.5 * Math.PI); // Radians / Second
@@ -23,6 +26,8 @@ public class Input {
     public Input() {
         driver = new XboxController(0);
         manipulator = new XboxController(1);
+        Scheduler.get().addSubsystem(this, driver);
+        Scheduler.get().addSubsystem(this, manipulator);
 
         intakeToggle = new Toggle();
         intakeToggle.set(false);
