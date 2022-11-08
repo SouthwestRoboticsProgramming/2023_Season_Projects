@@ -10,6 +10,9 @@ package com.swrobotics.lib.math2;
 public abstract class AbstractAngle<T extends AbstractAngle<T>> implements Angle {
     private final double rad;
 
+    // Store results of sin() and cos() to reduce trigonometry usage
+    private double cacheSin = -2, cacheCos = -2;
+
     /**
      * Creates a new instance from a radian measurement.
      *
@@ -169,5 +172,22 @@ public abstract class AbstractAngle<T extends AbstractAngle<T>> implements Angle
         return wrapRot(-range, range);
     }
 
-    @Override public T negate() { return create(-rad); }
+    @Override
+    public T negate() {
+        return create(-rad);
+    }
+
+    @Override
+    public double sin() {
+        if (cacheSin < -1.5)
+            cacheSin = Math.sin(rad);
+        return cacheSin;
+    }
+
+    @Override
+    public double cos() {
+        if (cacheCos < -1.5)
+            cacheCos = Math.cos(rad);
+        return cacheCos;
+    }
 }
