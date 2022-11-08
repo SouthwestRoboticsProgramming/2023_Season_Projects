@@ -56,14 +56,14 @@ public final class AbsoluteAngle extends AbstractAngle<AbsoluteAngle> {
 
     @Override
     public CCWAngle ccw() {
-        if (cacheCCW != null)
+        if (cacheCCW == null)
             cacheCCW = CCWAngle.rad(rad());
         return cacheCCW;
     }
 
     @Override
     public CWAngle cw() {
-        if (cacheCW != null)
+        if (cacheCW == null)
             cacheCW = CWAngle.rad(rad());
         return cacheCW;
     }
