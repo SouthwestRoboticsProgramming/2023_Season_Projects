@@ -21,13 +21,17 @@ import imgui.extension.imnodes.ImNodes;
 import imgui.extension.implot.ImPlot;
 import imgui.flag.ImGuiConfigFlags;
 import imgui.gl3.ImGuiImplGl3;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWImage;
+import org.lwjgl.stb.STBImage;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 import processing.core.PApplet;
 import processing.core.PFont;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -53,10 +57,52 @@ public final class ShuffleLog extends PApplet {
         size(1280, 720, P2D);
     }
 
+    private void setIcon(long window) {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            InputStream in = getClass().getClassLoader().getResourceAsStream("icon.png");
+            if (in == null)
+                throw new IOException("Failed to find icon resource");
+
+            ByteArrayOutputStream bufferStream = new ByteArrayOutputStream();
+            byte[] buf = new byte[1024];
+            int read;
+            while ((read = in.read(buf)) > 0) {
+                bufferStream.write(buf, 0, read);
+            }
+            byte[] data = bufferStream.toByteArray();
+
+            ByteBuffer pngData = MemoryUtil.memAlloc(data.length);
+            pngData.put(data);
+            pngData.flip();
+
+            IntBuffer x = stack.mallocInt(1);
+            IntBuffer y = stack.mallocInt(1);
+            IntBuffer channels = stack.mallocInt(1);
+            ByteBuffer imageData = STBImage.stbi_load_from_memory(pngData, x, y, channels, 4);
+            MemoryUtil.memFree(pngData);
+            if (imageData == null)
+                throw new IOException("Failed to decode icon");
+
+            GLFWImage.Buffer images = GLFWImage.calloc(1, stack);
+            GLFWImage image = images.get(0);
+            image.width(x.get(0));
+            image.height(y.get(0));
+            image.pixels(imageData);
+
+            GLFW.glfwSetWindowIcon(window, images);
+
+            STBImage.stbi_image_free(imageData);
+        } catch (IOException e) {
+            System.err.println("Failed to set window icon");
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void setup() {
         surface.setResizable(true);
         long windowHandle = (long) surface.getNative();
+        setIcon(windowHandle);
 
         saveDefaultLayout();
 
