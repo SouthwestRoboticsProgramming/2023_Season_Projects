@@ -21,7 +21,7 @@ public final class CCWAngle extends AbstractAngle<CCWAngle> {
      * @return new instance
      */
     public static CCWAngle deg(double deg) {
-        return new CCWAngle(Math.toDegrees(deg));
+        return new CCWAngle(Math.toRadians(deg));
     }
 
     /**
