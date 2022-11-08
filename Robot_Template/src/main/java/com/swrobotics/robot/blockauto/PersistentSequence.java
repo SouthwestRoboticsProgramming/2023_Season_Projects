@@ -6,8 +6,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import com.team2129.lib.messenger.MessageBuilder;
-import com.team2129.lib.messenger.MessageReader;
+import com.swrobotics.lib.messenger.MessageBuilder;
+import com.swrobotics.lib.messenger.MessageReader;
 
 public final class PersistentSequence {
     private final String name;

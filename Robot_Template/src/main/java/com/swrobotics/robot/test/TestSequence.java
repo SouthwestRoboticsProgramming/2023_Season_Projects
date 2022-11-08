@@ -1,6 +1,6 @@
 package com.swrobotics.robot.test;
 
-import com.team2129.lib.schedule.CommandSequence;
+import com.swrobotics.lib.schedule.CommandSequence;
 
 public final class TestSequence extends CommandSequence {
     public TestSequence() {

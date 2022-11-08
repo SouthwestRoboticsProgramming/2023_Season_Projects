@@ -1,8 +1,8 @@
 package com.swrobotics.robot.subsystem.climber.rotating;
 
-import com.team2129.lib.math.Angle;
-import com.team2129.lib.schedule.Scheduler;
-import com.team2129.lib.schedule.Subsystem;
+import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.schedule.Scheduler;
+import com.swrobotics.lib.schedule.Subsystem;
 
 public class RotatingArms implements Subsystem {
 

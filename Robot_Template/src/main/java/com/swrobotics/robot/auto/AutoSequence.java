@@ -1,15 +1,15 @@
 package com.swrobotics.robot.auto;
 
+import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.math.Vec2d;
+import com.swrobotics.lib.schedule.CommandSequence;
+import com.swrobotics.lib.schedule.WaitCommand;
+import com.swrobotics.lib.time.Duration;
+import com.swrobotics.lib.time.TimeUnit;
 import com.swrobotics.robot.subsystem.drive.Drive;
 import com.swrobotics.robot.subsystem.thrower.Hopper;
 import com.swrobotics.robot.subsystem.thrower.commands.IndexCommand;
 import com.swrobotics.robot.subsystem.thrower.commands.ShootCommand;
-import com.team2129.lib.math.Angle;
-import com.team2129.lib.math.Vec2d;
-import com.team2129.lib.schedule.CommandSequence;
-import com.team2129.lib.schedule.WaitCommand;
-import com.team2129.lib.time.Duration;
-import com.team2129.lib.time.TimeUnit;
 
 public final class AutoSequence extends CommandSequence {
     public AutoSequence(Drive drive, Hopper hopper) {

@@ -1,8 +1,8 @@
 package com.swrobotics.robot.test;
 
-import com.team2129.lib.schedule.Command;
-import com.team2129.lib.schedule.Scheduler;
-import com.team2129.lib.schedule.Subsystem;
+import com.swrobotics.lib.schedule.Command;
+import com.swrobotics.lib.schedule.Scheduler;
+import com.swrobotics.lib.schedule.Subsystem;
 
 public final class TestSystem implements Subsystem {
     private Command cmd;

@@ -1,9 +1,9 @@
 package com.swrobotics.robot.auto;
 
+import com.swrobotics.lib.schedule.Command;
+import com.swrobotics.lib.time.Duration;
+import com.swrobotics.lib.time.Timestamp;
 import com.swrobotics.robot.subsystem.drive.Drive;
-import com.team2129.lib.schedule.Command;
-import com.team2129.lib.time.Duration;
-import com.team2129.lib.time.Timestamp;
 
 public final class AutoDriveForTime implements Command {
     private final Drive drive;

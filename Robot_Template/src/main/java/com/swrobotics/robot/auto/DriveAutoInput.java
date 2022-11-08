@@ -1,7 +1,7 @@
 package com.swrobotics.robot.auto;
 
-import com.team2129.lib.math.Angle;
-import com.team2129.lib.math.Vec2d;
+import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.math.Vec2d;
 
 public final class DriveAutoInput {
     public enum Mode {

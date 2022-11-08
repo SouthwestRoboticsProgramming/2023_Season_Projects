@@ -1,6 +1,7 @@
 package com.swrobotics.robot.test;
 
-import com.team2129.lib.schedule.Command;
+import com.swrobotics.lib.schedule.Command;
+
 import edu.wpi.first.wpilibj.DriverStation;
 
 public abstract class Test implements Command {
