@@ -3,7 +3,7 @@ package com.swrobotics.lib.math2;
 /**
  * Implements the operations common to all types of angle, but depend on the
  * specific type. This class exists to avoid having the type parameter in Angle,
- * as it makes code using it much messier.
+ * as well as requiring that you know what type of angle you are working with.
  *
  * @param <T> the type of the implementing class
  */
