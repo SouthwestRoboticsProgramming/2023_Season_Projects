@@ -1,9 +1,9 @@
 # TODO November 7 - January 7
 
 #### Items
-1. Delete unused packages
+1. ~~Delete unused packages~~
 2. Move messenger to seperate package
-3. Move lib from team2129 to swrobotics
+3. ~~Move lib from team2129 to swrobotics~~
 4. Check gyro directions and add proper NavX calibration
 5. Rework angle to use more classes
 6. Add more stuff to MathUtil
