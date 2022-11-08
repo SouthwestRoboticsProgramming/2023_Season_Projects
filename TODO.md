@@ -15,7 +15,7 @@
 12. Create vision script for normal object detection (non-tag)
 13. Update documentation on whole library
 14. Add READMEs to repos
-15. RYAN: Icon for shuffle-log
+15. ~~RYAN: Icon for shuffle-log~~
 16. TagTracker wiki
 17. ~~TagTracker lint fixes~~
 18. Advertise TagTracker
