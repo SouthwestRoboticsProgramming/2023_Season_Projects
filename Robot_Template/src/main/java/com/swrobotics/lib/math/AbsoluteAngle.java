@@ -23,7 +23,7 @@ public final class AbsoluteAngle extends AbstractAngle<AbsoluteAngle> {
      * @return new instance
      */
     public static AbsoluteAngle deg(double deg) {
-        return new AbsoluteAngle(Math.toDegrees(deg));
+        return new AbsoluteAngle(Math.toRadians(deg));
     }
 
     /**
