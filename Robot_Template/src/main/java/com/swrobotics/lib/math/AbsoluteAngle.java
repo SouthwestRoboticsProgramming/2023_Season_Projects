@@ -1,4 +1,4 @@
-package com.swrobotics.lib.math2;
+package com.swrobotics.lib.math;
 
 /**
  * Represents either a directionless angle, or an angle without a known

@@ -1,4 +1,4 @@
-package com.swrobotics.lib.math2;
+package com.swrobotics.lib.math;
 
 /**
  * Represents a clockwise angle.

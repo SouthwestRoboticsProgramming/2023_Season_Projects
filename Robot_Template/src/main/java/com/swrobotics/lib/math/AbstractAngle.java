@@ -1,4 +1,4 @@
-package com.swrobotics.lib.math2;
+package com.swrobotics.lib.math;
 
 /**
  * Implements the operations common to all types of angle, but depend on the
