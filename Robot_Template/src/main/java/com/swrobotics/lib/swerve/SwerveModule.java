@@ -2,8 +2,7 @@ package com.swrobotics.lib.swerve;
 
 import com.swrobotics.lib.encoder.AbsoluteEncoder;
 import com.swrobotics.lib.encoder.Encoder;
-import com.swrobotics.lib.math.Angle;
-import com.swrobotics.lib.math.Vec2d;
+import com.swrobotics.lib.math.*;
 import com.swrobotics.lib.motor.Motor;
 
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -50,7 +49,7 @@ public class SwerveModule {
 
         metersToRadians = 1.0 / (gearRatio * wheelRadius);
 
-        tolerance = Angle.cwDeg(1);
+        tolerance = AbsoluteAngle.deg(1);
         currentDesiredState = new SwerveModuleState();
     }
 
@@ -70,30 +69,30 @@ public class SwerveModule {
         return position;
     }
 
-    private static final Angle HALF_ROT = Angle.cwRot(0.5);
+    private static final CWAngle HALF_ROT_CW = CWAngle.rot(0.5);
     /**
      * Get if the wheel is within the defined steering tolerance.
      * @return If the wheel is within tolerance.
      */
     public boolean inTolerance() {
-        Angle desired = Angle.cwDeg(currentDesiredState.angle.getDegrees());
-        Angle invDesired = desired.add(HALF_ROT);
+        CWAngle desired = CWAngle.deg(currentDesiredState.angle.getDegrees());
+        CWAngle invDesired = desired.add(HALF_ROT_CW);
 
-        Angle actual = steerEncoder.getAngle();
+        CWAngle actual = steerEncoder.getAngle().cw();
 
         return actual.inTolerance(desired, tolerance) || actual.inTolerance(invDesired, tolerance);
     }
 
-    public Angle getRotationError() {
-        Angle desired = Angle.cwDeg(currentDesiredState.angle.getDegrees());
-        Angle invDesired = desired.add(HALF_ROT);
-        Angle actual = steerEncoder.getAngle();
+    public AbsoluteAngle getRotationError() {
+        CWAngle desired = CWAngle.deg(currentDesiredState.angle.getDegrees());
+        CWAngle invDesired = desired.add(HALF_ROT_CW);
+        CWAngle actual = steerEncoder.getAngle().cw();
 
         Angle desErr = actual.getAbsDiff(desired);
         Angle invErr = actual.getAbsDiff(invDesired);
 
-        double errRad = Math.min(Math.abs(desErr.getCCWRad()), Math.abs(invErr.getCCWRad()));
-        return Angle.ccwRad(errRad);
+        double errRad = Math.min(Math.abs(desErr.ccw().rad()), Math.abs(invErr.ccw().rad()));
+        return AbsoluteAngle.rad(errRad);
     }
 
     /**
@@ -108,7 +107,9 @@ public class SwerveModule {
         double driveSpeed = desiredState.speedMetersPerSecond;
         double steerAngle = desiredState.angle.getRadians();
 
-        double currentAngle = steerEncoder.getAngle().normalizeRangeDeg(0, 360).getCCWRad();
+        // TODO: Fix; This was working because previous implementation was wrong
+        double currentAngle = CoordinateConversions.toWPIAngle(steerEncoder.getAngle().ccw()).getRadians();
+        currentAngle = MathUtil.wrap(currentAngle, 0, Math.PI * 2);
 
         steerAngle %= Math.PI * 2;
         if (steerAngle < 0.0) {
@@ -136,9 +137,9 @@ public class SwerveModule {
         // Drive
         if (!inTolerance()) {
             // Set steer angle
-            steerMotor.position(Angle.ccwRad(steerAngle).normalizeDeg(180));
+            steerMotor.position(CCWAngle.rad(steerAngle).wrapDeg(180));
         }
-        driveMotor.velocity(Angle.cwRad(driveSpeed * metersToRadians));
+        driveMotor.velocity(CWAngle.rad(driveSpeed * metersToRadians));
     }
 
     /**
@@ -146,10 +147,10 @@ public class SwerveModule {
      * @return The real state of the module
      */
     public SwerveModuleState getState() {
-        double velocity = driveEncoder.getVelocity().getCWRad() / metersToRadians;
+        double velocity = driveEncoder.getVelocity().cw().rad() / metersToRadians;
         Angle angle = steerEncoder.getAngle();
 
-        return new SwerveModuleState(velocity, angle.toRotation2dCW());
+        return new SwerveModuleState(velocity, CoordinateConversions.toWPIAngle(angle));
     }
 
     public SwerveModuleState getTargetState() {

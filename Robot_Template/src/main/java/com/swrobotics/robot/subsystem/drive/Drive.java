@@ -14,7 +14,7 @@ import com.swrobotics.lib.schedule.Scheduler;
 import com.swrobotics.lib.schedule.Subsystem;
 import com.swrobotics.lib.swerve.SwerveDrive;
 import com.swrobotics.lib.swerve.SwerveModule;
-import com.swrobotics.lib.utils.CoordinateConversions;
+import com.swrobotics.lib.math.CoordinateConversions;
 import com.swrobotics.lib.wpilib.AbstractRobot;
 import com.swrobotics.lib.wpilib.RobotState;
 import com.swrobotics.robot.auto.DriveAutoInput;

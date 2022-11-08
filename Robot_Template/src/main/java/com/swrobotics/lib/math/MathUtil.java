@@ -12,6 +12,11 @@ public final class MathUtil {
     public static final double TAU = Math.PI * 2;
 
     /**
+     * Constant containing exactly half the value of pi.
+     */
+    public static final double HALF_PI = Math.PI / 2;
+
+    /**
      * Clamps a value within a specified range. If the value is
      * below the minimum, it will be clamped up to the minimum,
      * and if it is above the maximum, it will be clamped down
