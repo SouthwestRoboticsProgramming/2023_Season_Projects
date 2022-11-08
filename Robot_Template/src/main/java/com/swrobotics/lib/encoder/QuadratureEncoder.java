@@ -1,6 +1,7 @@
 package com.swrobotics.lib.encoder;
 
 import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.math.CWAngle;
 
 /**
  * Represents a quadrature encoder connected over two DIO ports
@@ -27,11 +28,11 @@ public class QuadratureEncoder extends Encoder {
     @Override
     public Angle getRawAngleImpl() {
         // FIXME: Check direction
-        return Angle.cwRot(encoder.getDistance() / ticksPerRotation);
+        return CWAngle.rot(encoder.getDistance() / ticksPerRotation);
     }
 
     @Override
     public Angle getVelocityImpl() {
-        return Angle.cwRot(encoder.getRate());
+        return CWAngle.rot(encoder.getRate());
     }
 }

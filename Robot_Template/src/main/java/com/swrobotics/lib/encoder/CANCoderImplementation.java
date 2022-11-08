@@ -7,6 +7,7 @@ import com.ctre.phoenix.sensors.CANCoderStatusFrame;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.ctre.phoenix.sensors.SensorTimeBase;
 import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.math.CWAngle;
 
 /**
  * A class to configure and implement CANCoders.
@@ -59,16 +60,16 @@ public class CANCoderImplementation extends AbsoluteEncoder {
 
     @Override
     public Angle getRelativeAngle() {
-        return Angle.cwDeg(encoder.getPosition());
+        return CWAngle.deg(encoder.getPosition());
     }
 
     @Override
     public Angle getRawAngleImpl() {
-        return Angle.cwDeg(encoder.getAbsolutePosition());
+        return CWAngle.deg(encoder.getAbsolutePosition());
     }
 
     @Override
     public Angle getVelocityImpl() {
-        return Angle.cwDeg(encoder.getVelocity());
+        return CWAngle.deg(encoder.getVelocity());
     }
 }
