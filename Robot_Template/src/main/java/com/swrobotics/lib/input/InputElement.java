@@ -5,5 +5,8 @@ package com.swrobotics.lib.input;
  * input. This includes axes, buttons, and d-pads.
  */
 public interface InputElement {
+    /**
+     * Called every periodic to read new input.
+     */
     void update();
 }

@@ -10,12 +10,20 @@ import java.util.function.Supplier;
  */
 public final class InputDpad implements InputElement {
     private final Supplier<Integer> getter;
-    private final InputButton up, down, left, right;
-    private final InputAxis vertical, horizontal;
+    public final InputButton up, down, left, right;
+    public final InputAxis vertical, horizontal;
 
     private int angleDeg;
     private Angle angle;
 
+    /**
+     * Creates a new D-pad input that reads its value from a provided
+     * getter function. The getter should return a clockwise angle in
+     * degrees, with up being zero, and return -1 when no buttons are
+     * pressed, as the WPILib POV input does.
+     *
+     * @param getter value getter
+     */
     public InputDpad(Supplier<Integer> getter) {
         this.getter = getter;
 
@@ -31,38 +39,26 @@ public final class InputDpad implements InputElement {
         horizontal = new InputAxis(() -> right.isPressed() ? 1.0 : (left.isPressed() ? -1.0 : 0.0));
     }
 
+    /**
+     * Gets whether any button on the D-pad is pressed.
+     *
+     * @return pressed
+     */
     public boolean isPressed() {
         return angleDeg >= 0;
     }
 
-    public InputButton getUp() {
-        return up;
-    }
-
-    public InputButton getDown() {
-        return down;
-    }
-
-    public InputButton getLeft() {
-        return left;
-    }
-
-    public InputButton getRight() {
-        return right;
-    }
-
-    public InputAxis getVertical() {
-        return vertical;
-    }
-
-    public InputAxis getHorizontal() {
-        return horizontal;
-    }
-
+    /**
+     * Gets the angle that the D-pad is currently pressed. Zero represents
+     * up.
+     *
+     * @return angle
+     */
     public Angle getAngle() {
         return angle;
     }
 
+    // Calculates the angle based on the POV measurement
     private Angle calcAngle() {
         return isPressed() ? Angle.cwDeg(angleDeg) : Angle.zero();
     }

@@ -15,5 +15,10 @@ public abstract class InputSource implements Subsystem {
         }
     }
 
+    /**
+     * Gets all the elements present in this source.
+     *
+     * @return elements present
+     */
     protected abstract Iterable<InputElement> getElements();
 }
