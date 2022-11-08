@@ -95,7 +95,9 @@ public abstract class AbstractAngle<T extends AbstractAngle<T>> implements Angle
      * @param scalar scaling factor
      * @return scaled angle
      */
-    public T div(double scalar) { return create(rad() / scalar); }
+    public T div(double scalar) {
+        return create(rad() / scalar);
+    }
 
     /**
      * Wraps this angle within bounds specified in radians.
