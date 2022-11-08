@@ -1,12 +1,12 @@
 package com.swrobotics.robot.control;
 
+import com.swrobotics.lib.input.XboxController;
 import com.swrobotics.lib.math.Angle;
 import com.swrobotics.lib.math.MathUtil;
 import com.swrobotics.lib.math.Vec2d;
 import com.swrobotics.lib.net.NTDouble;
 import com.swrobotics.lib.utils.Toggle;
 
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 
 public class Input {
@@ -31,47 +31,45 @@ public class Input {
     /* Drive */
     public Vec2d getDriveTranslation() { // Driver left stick
         // Apply deadband
-        double x = MathUtil.applyDeadband(driver.getLeftX(), DEADBAND);
-        double y = -MathUtil.applyDeadband(driver.getLeftY(), DEADBAND);
+        double x = MathUtil.applyDeadband(driver.leftStickX.get(), DEADBAND);
+        double y = -MathUtil.applyDeadband(driver.leftStickY.get(), DEADBAND);
 
         return new Vec2d(x, y).mul(MAX_DRIVE_SPEED.get());
     }
 
     public Angle getDriveRotation() { // Driver right stick
-        return Angle.cwRad(MathUtil.applyDeadband(driver.getRightX(), DEADBAND) * MAX_DRIVE_ROTATION.get());
+        return Angle.cwRad(MathUtil.applyDeadband(driver.rightStickX.get(), DEADBAND) * MAX_DRIVE_ROTATION.get());
     }
 
     public boolean getFieldRelative() { // Driver right trigger (Fully pulled)
-        return !(driver.getRightTriggerAxis() > 1.0 - DEADBAND);
+        return !(driver.rightTrigger.get() > 1.0 - DEADBAND);
     }
 
     public boolean getSlowMode() { // Driver left trigger (Fully pulled)
-        return (driver.getLeftTriggerAxis() > 1.0 - DEADBAND);
+        return (driver.leftTrigger.get() > 1.0 - DEADBAND);
     }
 
 
     /* Intake */
     public boolean getIntakeOn() { // Manipulator toggle Y button
-        intakeToggle.toggle(manipulator.getYButtonPressed());
+        intakeToggle.toggle(manipulator.y.isRising());
         return intakeToggle.get();
     }
 
     /* Thrower */
 
     public boolean getAim() { // Either right bumper
-        boolean out = driver.getRightBumper() || manipulator.getRightBumper();
+        boolean out = driver.rightBumper.isPressed() || manipulator.rightBumper.isPressed();
         double rumble = out ? 0.75 : 0;
-        driver.setRumble(RumbleType.kLeftRumble, rumble);
-        driver.setRumble(RumbleType.kRightRumble, rumble);
-        manipulator.setRumble(RumbleType.kLeftRumble, rumble);
-        manipulator.setRumble(RumbleType.kLeftRumble, rumble);
+        driver.setRumble(rumble);
+        manipulator.setRumble(rumble);
         return out;
     }
 
 
 
     public boolean getShoot() { // Manipulator (Per ball) A button
-        return manipulator.getAButtonPressed();
+        return manipulator.a.isRising();
     }
 
     public boolean getAimLow() { // Not currently a feature
@@ -79,15 +77,15 @@ public class Input {
     }
 
     public boolean getAimOverride() { // Either tart button
-        return driver.getStartButton() || manipulator.getStartButton();
+        return driver.start.isPressed() || manipulator.start.isPressed();
     }
 
     /* Climber */
     public boolean getClimbNextStep() { // Manipulator X button
-        return manipulator.getXButtonPressed();
+        return manipulator.x.isRising();
     }
 
     public boolean getClimbPreviousStep() { // Manipulator B button
-        return manipulator.getBButtonPressed();
+        return manipulator.b.isRising();
     }
 }
