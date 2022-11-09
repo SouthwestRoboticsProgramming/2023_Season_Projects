@@ -65,4 +65,9 @@ public final class CWAngle extends AbstractAngle<CWAngle> {
     public CWAngle cw() {
         return this;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%.3f deg cw", deg());
+    }
 }
