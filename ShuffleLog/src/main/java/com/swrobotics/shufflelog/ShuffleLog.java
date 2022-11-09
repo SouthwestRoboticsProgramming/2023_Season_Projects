@@ -26,6 +26,7 @@ import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.system.Platform;
 import processing.core.PApplet;
 import processing.core.PFont;
 
@@ -102,7 +103,10 @@ public final class ShuffleLog extends PApplet {
     public void setup() {
         surface.setResizable(true);
         long windowHandle = (long) surface.getNative();
-        setIcon(windowHandle);
+
+        // Does not work on Windows for some reason
+        if (Platform.get() == Platform.LINUX)
+            setIcon(windowHandle);
 
         saveDefaultLayout();
 
