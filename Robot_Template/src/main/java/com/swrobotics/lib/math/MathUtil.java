@@ -115,7 +115,7 @@ public final class MathUtil {
 
     // Checks if a given range is valid (i.e. max >= min)
     private static void checkValidRange(double min, double max) {
-        if (min > max)
+        if (min >= max)
             throw new IllegalArgumentException("Minimum must not be greater than maximum");
     }
 }
