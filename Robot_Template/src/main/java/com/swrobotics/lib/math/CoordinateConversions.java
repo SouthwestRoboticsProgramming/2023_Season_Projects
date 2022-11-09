@@ -1,7 +1,5 @@
 package com.swrobotics.lib.math;
 
-import com.swrobotics.lib.math.Vec2d;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
