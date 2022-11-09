@@ -116,30 +116,31 @@ public class SwerveModule {
             steerAngle += 2 * Math.PI;
         }
 
+        // Change the target angle so that the difference is [-pi, pi) instead of [0,2pi)
         double difference = steerAngle - currentAngle;
         if (difference >= Math.PI) {
             steerAngle -= 2.0 * Math.PI;
         } else if (difference < -Math.PI) {
             steerAngle += 2.0 * Math.PI;
         }
-        difference = steerAngle - currentAngle;
+        difference = steerAngle - currentAngle; // Recalculate difference
 
+        // If the difference is greater than 90 deg or less than -90 deg the drive can be inverted so the total
+        // movement of the module is less than 90 deg
         if (difference > Math.PI / 2.0 || difference < -Math.PI / 2.0) {
+            // Only need to add 180 deg here because the target angle will be put back into the range [0, 2pi)
             steerAngle += Math.PI;
             driveSpeed *= -1;
         }
 
+        // Put the target angle back into the range [0, 2pi)
         steerAngle %= 2 * Math.PI;
         if (steerAngle < 0.0) {
             steerAngle += 2.0 * Math.PI;
         }
 
-        // Drive
-        if (!inTolerance()) {
-            // Set steer angle
-            steerMotor.position(CCWAngle.rad(steerAngle).wrapDeg(180));
-        }
-        driveMotor.velocity(CWAngle.rad(driveSpeed * metersToRadians));
+        steerMotor.position(CCWAngle.rad(steerAngle));
+        driveMotor.velocity(CWAngle.rad(driveSpeed * metersToRadians)); // TODO: Change to voltage
     }
 
     /**
