@@ -113,7 +113,7 @@ public final class MathUtil {
         return Math.copySign(map(abs, band, 1, 0, 1), val);
     }
 
-    // Checks if a given range is valid (i.e. max >= min)
+    // Checks if a given range is valid (i.e. max > min)
     private static void checkValidRange(double min, double max) {
         if (min >= max)
             throw new IllegalArgumentException("Minimum must not be greater than maximum");

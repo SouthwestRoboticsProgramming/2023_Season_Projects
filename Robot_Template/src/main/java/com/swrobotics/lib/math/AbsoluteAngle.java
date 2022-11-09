@@ -67,4 +67,9 @@ public final class AbsoluteAngle extends AbstractAngle<AbsoluteAngle> {
             cacheCW = CWAngle.rad(rad());
         return cacheCW;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%.3f deg abs", deg());
+    }
 }

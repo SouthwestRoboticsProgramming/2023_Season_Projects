@@ -65,4 +65,9 @@ public final class CCWAngle extends AbstractAngle<CCWAngle> {
             cacheCW = CWAngle.rad(-rad());
         return cacheCW;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%.3f deg ccw", deg());
+    }
 }
