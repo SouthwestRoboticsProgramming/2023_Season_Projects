@@ -110,7 +110,7 @@ public final class MathUtil {
     public static double deadband(double val, double band) {
         double abs = Math.abs(val);
         if (abs < band) return 0;
-        return Math.copySign(map(val, band, 1, 0, 1), abs);
+        return Math.copySign(map(abs, band, 1, 0, 1), val);
     }
 
     // Checks if a given range is valid (i.e. max >= min)
