@@ -23,6 +23,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 
@@ -144,6 +145,14 @@ public class Drive implements Subsystem {
 
     public void set(Vec2d translation, Angle rotationsPerSecond, boolean fieldRelative) {
         drive.setMotion(translation, rotationsPerSecond, fieldRelative);
+    }
+
+    public void setTrajectory(Trajectory.State state) {
+        drive.setTrajectoryState(state);
+    }
+
+    public void setTrajectory(Trajectory.State state, Angle angle) {
+        drive.setTrajectoryState(state, angle);
     }
 
     @Override

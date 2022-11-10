@@ -21,6 +21,7 @@ import com.swrobotics.lib.time.TimeUnit;
 import com.swrobotics.lib.wpilib.RobotState;
 import com.swrobotics.robot.Robot;
 import com.swrobotics.robot.auto.AutoDriveForTime;
+import com.swrobotics.robot.auto.AutoSpinToAngle;
 import com.swrobotics.robot.auto.DriveAutoInput;
 import com.swrobotics.robot.blockauto.part.AnglePart;
 import com.swrobotics.robot.subsystem.thrower.commands.ShootCommand;
@@ -90,6 +91,17 @@ public final class AutoBlocks {
                         robot.getDrive(),
                         new DriveAutoInput((Vec2d) params[1], (Angle) params[2], (DriveAutoInput.Mode) params[0]),
                         new Duration((double) params[3], TimeUnit.SECONDS)
+                ));
+
+        drive.newBlock("spin_to_angle")
+                .paramAngle(AnglePart.Mode.CCW_RAD, 0)
+                .text("(ccw rad)")
+                .text("robot relative:")
+                .paramBoolean(false) // FIXME-Ryan: Add boolean support
+                .creator((params, robot) -> new AutoSpinToAngle(
+                    robot.getDrive(), 
+                    (Angle) params[0], 
+                    (boolean) params[1]
                 ));
 
         BlockCategory ballFeed = defineCategory("Ball Feed");

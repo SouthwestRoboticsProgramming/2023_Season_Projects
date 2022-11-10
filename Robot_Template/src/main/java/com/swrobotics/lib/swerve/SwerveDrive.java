@@ -2,7 +2,6 @@ package com.swrobotics.lib.swerve;
 
 import com.swrobotics.lib.gyro.Gyroscope;
 import com.swrobotics.lib.math.Angle;
-import com.swrobotics.lib.math.CCWAngle;
 import com.swrobotics.lib.math.MathUtil;
 import com.swrobotics.lib.math.Vec2d;
 import com.swrobotics.lib.net.NTDouble;
