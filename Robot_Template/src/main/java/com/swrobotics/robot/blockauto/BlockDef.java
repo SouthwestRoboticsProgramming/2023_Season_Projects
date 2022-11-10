@@ -60,6 +60,11 @@ public final class BlockDef {
         return this;
     }
 
+    public BlockDef paramBoolean(boolean def) {
+        parts.add(new BooleanPart(def));
+        return this;
+    }
+
     public <E extends Enum<E>> BlockDef paramEnum(Class<E> type, E def) {
         parts.add(new EnumPart<>(type, def));
         return this;
