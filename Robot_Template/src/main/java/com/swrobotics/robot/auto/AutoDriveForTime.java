@@ -1,5 +1,7 @@
 package com.swrobotics.robot.auto;
 
+import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.math.Vec2d;
 import com.swrobotics.lib.schedule.Command;
 import com.swrobotics.lib.time.Duration;
 import com.swrobotics.lib.time.Timestamp;
@@ -18,12 +20,12 @@ public final class AutoDriveForTime implements Command {
 
     @Override
     public void end(boolean cancelled) {
-        drive.clearAutoInput();
+        drive.set(new Vec2d(), Angle.ZERO, false);
     }
 
     @Override
     public boolean run() {
-        drive.setAutoInput(input);
+        drive.set(input.getTranslation(), input.getRotation(), input.getMode() == DriveAutoInput.Mode.FIELD_RELATIVE);
         return Timestamp.now().isAtOrAfter(finishTime);
     }
 }
