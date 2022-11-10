@@ -3,6 +3,8 @@ package com.swrobotics.lib.gyro;
 import com.kauailabs.navx.frc.AHRS;
 import com.swrobotics.lib.math.Angle;
 
+import edu.wpi.first.wpilibj.SPI.Port;
+
 /**
  * Implementation of the navX2 MXP gyroscope manufactured
  * by Kaua'i Labs.
@@ -15,12 +17,11 @@ public class NavX extends Gyroscope {
      * the RoboRIO MXP port.
      */
     public NavX() {
-        ahrs = new AHRS();
-        ahrs.calibrate();
+        ahrs = new AHRS(Port.kMXP, (byte) 200); // NavX connected over MXP
     }
 
     @Override
-    public Angle getRawAngle() {
+    public Angle getRaw() {
         return Angle.cwDeg(ahrs.getAngle());
     }
 }

@@ -17,8 +17,8 @@ public abstract class Gyroscope {
      * 
      * @return adjusted angle of the gyroscope
      */
-    public Angle getAngle() {
-        return getRawAngle().add(offset);
+    public Angle get() {
+        return getRaw().add(offset);
     }
 
     /**
@@ -26,7 +26,7 @@ public abstract class Gyroscope {
      * 
      * @return raw angle of the gyroscope
      */
-    public abstract Angle getRawAngle();
+    public abstract Angle getRaw();
 
     /**
      * Sets the position of the gyro to a known value to calibrate it.
@@ -34,12 +34,12 @@ public abstract class Gyroscope {
      * 
      * @param angleOffset the angle that the gyro is actually at 
      */
-    public void setOffset(Angle angleOffset) {
+    public void set(Angle angleOffset) {
         offset = offset.sub(angleOffset);
     }
 
     @Override
     public String toString() {
-        return "Angle: " + getAngle() + " Raw: " + getRawAngle();
+        return "Angle: " + get() + " Raw: " + getRaw();
     }
 }
