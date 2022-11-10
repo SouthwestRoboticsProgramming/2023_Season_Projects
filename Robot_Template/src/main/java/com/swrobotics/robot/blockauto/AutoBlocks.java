@@ -97,10 +97,10 @@ public final class AutoBlocks {
                 .paramAngle(AnglePart.Mode.CCW_RAD, 0)
                 .text("(ccw rad)")
                 .text("robot relative:")
-                .paramBoolean(false) // FIXME-Ryan: Add boolean support
+                .paramBoolean(false)
                 .creator((params, robot) -> new AutoSpinToAngle(
-                    robot.getDrive(), 
-                    (Angle) params[0], 
+                    robot.getDrive(),
+                    (Angle) params[0],
                     (boolean) params[1]
                 ));
 
