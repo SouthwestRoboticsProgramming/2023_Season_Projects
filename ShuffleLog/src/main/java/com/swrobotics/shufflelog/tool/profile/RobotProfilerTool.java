@@ -2,15 +2,19 @@ package com.swrobotics.shufflelog.tool.profile;
 
 import com.swrobotics.messenger.client.MessageReader;
 import com.swrobotics.messenger.client.MessengerClient;
+import com.swrobotics.shufflelog.ShuffleLog;
+import com.swrobotics.shufflelog.profile.MemoryStats;
 import com.swrobotics.shufflelog.profile.ProfileNode;
 
 public final class RobotProfilerTool extends ProfilerTool {
     private ProfileNode lastData;
+    private MemoryStats lastMem;
 
-    public RobotProfilerTool(MessengerClient msg) {
-        super("Robot Profiler");
+    public RobotProfilerTool(ShuffleLog log) {
+        super(log, "Robot Profiler");
 
-        msg.addHandler("Profiler:Data", this::onProfileData);
+        log.getMsg().addHandler("Profiler:Data", this::onProfileData);
+        lastMem = new MemoryStats(0, 0, 0);
     }
 
     private ProfileNode readProfileNode(MessageReader reader, ProfileNode parent) {
@@ -29,6 +33,11 @@ public final class RobotProfilerTool extends ProfilerTool {
 
     private void onProfileData(String type, MessageReader reader) {
         lastData = readProfileNode(reader, null);
+
+        long free = reader.readLong();
+        long max = reader.readLong();
+        long total = reader.readLong();
+        lastMem = new MemoryStats(free, max, total);
     }
 
     @Override
@@ -37,5 +46,10 @@ public final class RobotProfilerTool extends ProfilerTool {
     @Override
     protected ProfileNode getLastData() {
         return lastData;
+    }
+
+    @Override
+    protected MemoryStats getMemStats() {
+        return lastMem;
     }
 }

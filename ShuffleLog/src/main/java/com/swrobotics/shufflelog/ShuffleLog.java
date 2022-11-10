@@ -133,8 +133,8 @@ public final class ShuffleLog extends PApplet {
         DataLogTool dataLogTool = new DataLogTool(this);
         tools.add(dataLogTool);
         tools.add(new NetworkTablesTool(threadPool, dataLogTool));
-        tools.add(new ShuffleLogProfilerTool());
-        tools.add(new RobotProfilerTool(msg));
+        tools.add(new ShuffleLogProfilerTool(this));
+        tools.add(new RobotProfilerTool(this));
         tools.add(new SchedulerTool(msg));
         tools.add(new TaskManagerTool(this, "TaskManager"));
         tools.add(new FieldViewTool(this));

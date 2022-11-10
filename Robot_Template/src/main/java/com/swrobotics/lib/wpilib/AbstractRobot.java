@@ -3,6 +3,7 @@ package com.swrobotics.lib.wpilib;
 import com.swrobotics.lib.messenger.MessageBuilder;
 import com.swrobotics.lib.messenger.MessengerClient;
 import com.swrobotics.lib.messenger.ReadMessages;
+import com.swrobotics.lib.profile.MemoryStats;
 import com.swrobotics.lib.profile.ProfileNode;
 import com.swrobotics.lib.profile.Profiler;
 import com.swrobotics.lib.schedule.Scheduler;
@@ -114,6 +115,12 @@ public abstract class AbstractRobot extends RobotBase {
                     if (msg != null) {
                         MessageBuilder builder = msg.prepare("Profiler:Data");
                         encodeProfileNode(builder, Profiler.getLastData());
+
+                        MemoryStats mem = MemoryStats.current();
+                        builder.addLong(mem.getFree());
+                        builder.addLong(mem.getMax());
+                        builder.addLong(mem.getTotal());
+
                         builder.send();
                     }
                 }

@@ -1,5 +1,7 @@
 package com.swrobotics.shufflelog.tool.profile;
 
+import com.swrobotics.shufflelog.ShuffleLog;
+import com.swrobotics.shufflelog.profile.MemoryStats;
 import com.swrobotics.shufflelog.profile.ProfileNode;
 import com.swrobotics.shufflelog.profile.Profiler;
 import imgui.flag.ImGuiTableFlags;
@@ -11,8 +13,8 @@ import static imgui.ImGui.*;
 public final class ShuffleLogProfilerTool extends ProfilerTool {
     private final String vendor, renderer, version, glslVersion;
 
-    public ShuffleLogProfilerTool() {
-        super("ShuffleLog Profiler");
+    public ShuffleLogProfilerTool(ShuffleLog log) {
+        super(log, "ShuffleLog Profiler");
 
         // Get OpenGL info for debugging
         vendor = GL11.glGetString(GL11.GL_VENDOR);
@@ -54,5 +56,10 @@ public final class ShuffleLogProfilerTool extends ProfilerTool {
     @Override
     protected ProfileNode getLastData() {
         return Profiler.getLastData();
+    }
+
+    @Override
+    protected MemoryStats getMemStats() {
+        return MemoryStats.current();
     }
 }

@@ -16,9 +16,15 @@ public final class Graph {
     private static final double Y_PADDING = 0.05; // Percentage of Y span
     private static final ImVec2 GRAPH_SIZE = new ImVec2(-1, 200);
 
+    private final String titleOverride;
     private final List<DataPlot<?>> plots;
 
     public Graph() {
+        this(null);
+    }
+
+    public Graph(String titleOverride) {
+        this.titleOverride = titleOverride;
         plots = new ArrayList<>();
     }
 
@@ -81,6 +87,9 @@ public final class Graph {
     }
 
     public String getName() {
+        if (titleOverride != null)
+            return titleOverride;
+
         StringBuilder builder = new StringBuilder();
         boolean comma = false;
         for (DataPlot<?> plot : plots) {

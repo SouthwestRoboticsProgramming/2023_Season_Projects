@@ -1,7 +1,11 @@
 package com.swrobotics.shufflelog.tool.profile;
 
+import com.swrobotics.shufflelog.ShuffleLog;
+import com.swrobotics.shufflelog.profile.MemoryStats;
 import com.swrobotics.shufflelog.profile.ProfileNode;
 import com.swrobotics.shufflelog.tool.Tool;
+import com.swrobotics.shufflelog.tool.data.DoubleDataPlot;
+import com.swrobotics.shufflelog.tool.data.Graph;
 import imgui.ImDrawList;
 import imgui.ImGui;
 import imgui.ImVec2;
@@ -19,17 +23,35 @@ import java.util.List;
 public abstract class ProfilerTool implements Tool {
     private static final String SEPARATOR = "/";
 
+    private final ShuffleLog log;
     private final String name;
+    private final Graph memoryGraph;
 
     private String selectionPath;
 
-    public ProfilerTool(String name) {
+    public ProfilerTool(ShuffleLog log, String name) {
         this.name = name;
+        this.log = log;
+
+        memoryGraph = new Graph("Memory (MB)");
+        memoryGraph.addPlot(new DoubleDataPlot("Total", "", 10) {
+            @Override
+            protected Double read() {
+                return (double) getMemStats().getTotal() / MemoryStats.BYTES_PER_MB;
+            }
+        });
+        memoryGraph.addPlot(new DoubleDataPlot("Used", "", 10) {
+            @Override
+            protected Double read() {
+                return (double) getMemStats().getUsed() / MemoryStats.BYTES_PER_MB;
+            }
+        });
 
         selectionPath = "";
     }
 
     protected abstract ProfileNode getLastData();
+    protected abstract MemoryStats getMemStats();
 
     private void sortNodes(List<ProfileNode> nodes) {
         nodes.sort(Comparator.comparingLong((n) -> -n.getTotalTimeNanoseconds()));
@@ -156,6 +178,8 @@ public abstract class ProfilerTool implements Tool {
 
     @Override
     public void process() {
+        memoryGraph.sample(log.getTimestamp());
+
         if (ImGui.begin(name)) {
             ImGui.setWindowSize(475, 600, ImGuiCond.FirstUseEver);
 
@@ -167,6 +191,9 @@ public abstract class ProfilerTool implements Tool {
                 ImGui.end();
                 return;
             }
+
+            memoryGraph.plot();
+            ImGui.separator();
 
             showSelectionPie(node);
             ImGui.separator();
