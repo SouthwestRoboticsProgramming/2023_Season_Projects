@@ -82,7 +82,7 @@ public class Localization implements Subsystem {
         // Only update if it is accurate, the robot is in teleop, and we actually want to use it.
         if (limelight.isAccurate() && USE_LIMELIGHT.get() && Robot.get().getCurrentState() != RobotState.DISABLED) {
             position = calculatePositionOnLimelight();
-            drive.setPosition(position);
+            drive.setPose(position, angle);
         } else {
             position = drive.getPosition();
         }

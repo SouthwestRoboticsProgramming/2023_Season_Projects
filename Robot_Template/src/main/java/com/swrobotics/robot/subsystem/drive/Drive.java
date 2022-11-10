@@ -72,8 +72,6 @@ public class Drive implements Subsystem {
     private final NavX gyro;
     private Localization loc;
 
-    private DriveAutoInput autoInput;
-
     public Drive(Input input, NavX gyro, MessengerClient msg) {
         this.input = input;
         this.gyro = gyro;
@@ -90,16 +88,6 @@ public class Drive implements Subsystem {
         Scheduler.get().addSubsystem(this, drive);
 
         msg.addHandler(MSG_GET_MODULE_DEFS, this::onGetModuleDefs);
-
-        autoInput = null;
-    }
-
-    public void setAutoInput(DriveAutoInput autoInput) {
-        this.autoInput = autoInput;
-    }
-
-    public void clearAutoInput() {
-        autoInput = null;
     }
 
     public void setLocalization(Localization loc) {
@@ -117,14 +105,6 @@ public class Drive implements Subsystem {
         builder.send();
     }
 
-    public SwerveDrive getDriveController() {
-        return drive;
-    }
-
-    public NavX getNavX() {
-        return gyro;
-    }
-
     public Angle getRotation() {
         return CoordinateConversions.fromWPIAngle(drive.getOdometryPose().getRotation());
     }
@@ -133,21 +113,17 @@ public class Drive implements Subsystem {
         return CoordinateConversions.fromWPICoords(drive.getOdometryPose().getTranslation());
     }
 
-    public void setPosition(Vec2d position) {
+    public void setPose(Vec2d position, Angle rotation) {
         drive.setOdometryPose(
             new Pose2d(
                 CoordinateConversions.toWPICoords(position),
-                drive.getOdometryPose().getRotation()
+                CoordinateConversions.toWPIAngle(rotation)
             )
         );
     }
 
-    // Does not work, TODO: Fix or remove
-    // Constants taken from old code
-    private final PIDController autoTurnPID = new PIDController(0.01, 0.0001, 0.0002);
-    {
-        autoTurnPID.setTolerance(10);
-        autoTurnPID.enableContinuousInput(0, 360);
+    public void set(Vec2d translation, Angle rotationsPerSecond, boolean fieldRelative) {
+        drive.setMotion(translation, rotationsPerSecond, fieldRelative);
     }
 
     @Override
@@ -172,10 +148,10 @@ public class Drive implements Subsystem {
         }
         builder.send();
 
-        // Only do movements when not disabled
-        if (AbstractRobot.get().getCurrentState() == RobotState.DISABLED)
-            return;
-
+    }
+    
+    @Override
+    public void teleopPeriodic() {
         Vec2d translation = input.getDriveTranslation();
         Angle rotation = input.getDriveRotation();
         boolean fieldRelative = input.getFieldRelative();
@@ -184,38 +160,10 @@ public class Drive implements Subsystem {
             translation.mul(0.5);
         }
 
-        if (input.getAim() && false) {
-            // Vec2d pos = new Vec2d(loc.getPosition());
-            // System.out.println(pos);
-            // Angle rot = pos.negate().angle();
-            // FIXME
-//            Angle rot = Angle.zero();
-//            rot = rot.normalizeRangeRad(-2*Math.PI, 0);
-//            System.out.println(rot + " current " + gyro.getAngle().normalizeRangeRad(-2*Math.PI, 0));
-//            rotation = Angle.cwDeg(180 * MathUtil.clamp(autoTurnPID.calculate(gyro.getAngle().normalizeRangeRad(-2*Math.PI, 0).getCWDeg(), rot.getCWDeg()), -1, 1));
-//            System.out.println("OUT " + rotation);
+        if (input.getAim()) {
+            // TODO
         }
 
-        // bad, dont use
-//        if (input.getAim()) {
-//            double relativeAngle = loc.getAngleToHub().getCWDeg() - gyro.getAngle().getCWDeg();
-//
-//            if (relativeAngle > 5)
-//                rotation = Angle.cwDeg(90);
-//            else if (relativeAngle < -5)
-//                rotation = Angle.ccwDeg(90);
-//        }
-
-        if (autoInput != null) {
-            translation = autoInput.getTranslation();
-            rotation = autoInput.getRotation();
-            fieldRelative = autoInput.getMode() == DriveAutoInput.Mode.FIELD_RELATIVE;
-        }
-
-        drive.setMotion(translation, rotation, fieldRelative);
-    }
-
-    @Override
-    public void teleopPeriodic() {
+        set(translation, rotation, fieldRelative);
     }
 }
