@@ -94,6 +94,7 @@ public final class AutoBlocks {
                 ));
 
         drive.newBlock("spin_to_angle")
+                .text("Spin to angle:")
                 .paramAngle(AnglePart.Mode.CCW_RAD, 0)
                 .text("(ccw rad)")
                 .text("robot relative:")
