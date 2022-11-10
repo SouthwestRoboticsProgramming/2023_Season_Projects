@@ -2,6 +2,7 @@ package com.swrobotics.lib.swerve;
 
 import com.swrobotics.lib.gyro.Gyroscope;
 import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.math.CCWAngle;
 import com.swrobotics.lib.math.MathUtil;
 import com.swrobotics.lib.math.Vec2d;
 import com.swrobotics.lib.net.NTDouble;
@@ -9,6 +10,7 @@ import com.swrobotics.lib.net.NTDoubleArray;
 import com.swrobotics.lib.schedule.Subsystem;
 import com.swrobotics.lib.math.CoordinateConversions;
 
+import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -16,6 +18,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.Trajectory;
 
 /** 
  * A class to manage all of the swerve modules in a swerve drive.
@@ -28,6 +31,7 @@ public class SwerveDrive implements Subsystem {
 
     private final double maxWheelVelocity;
     private final SwerveDriveKinematics kinematics;
+    private final HolonomicDriveController holo; // TODO: Make this tunable
 
     private final SwerveDriveOdometry odometry;
 
@@ -40,11 +44,12 @@ public class SwerveDrive implements Subsystem {
      * @param maxWheelVelocity Maximum wheel velocity in meters per second
      * @param modules Swerve modules to control
      */
-    public SwerveDrive(Gyroscope gyro, double maxWheelVelocity, NTDouble wheelStopTolerance, NTDouble wheelFullTolerance, SwerveModule... modules) {
+    public SwerveDrive(Gyroscope gyro, double maxWheelVelocity, NTDouble wheelStopTolerance, NTDouble wheelFullTolerance, HolonomicDriveController holonomic,  SwerveModule... modules) {
         this.gyro = gyro;
         this.modules = modules;
         this.wheelStopTolerance = wheelStopTolerance;
         this.wheelFullTolerance = wheelFullTolerance;
+        holo = holonomic;
 
         // Extract positions of modules
         Translation2d[] positions = new Translation2d[modules.length];
@@ -106,6 +111,7 @@ public class SwerveDrive implements Subsystem {
     private static final NTDouble L_DEBUG = new NTDouble("Swerve/Debug", 0);
     private static final NTDoubleArray L_ERRORS = new NTDoubleArray("Swerve/Errors", 0, 0, 0, 0);
     static { L_DEBUG.setTemporary(); L_ERRORS.setTemporary(); }
+
     public void setMotion(ChassisSpeeds speeds) {
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds, centerOfRotationWpi);
         SwerveDriveKinematics.desaturateWheelSpeeds(states, maxWheelVelocity);
@@ -132,6 +138,15 @@ public class SwerveDrive implements Subsystem {
             states[i].speedMetersPerSecond *= driveScale;
             modules[i].setState(states[i]);
         }
+    }
+
+    public void setTrajectoryState(Trajectory.State state, Angle angle) {
+        ChassisSpeeds speeds = holo.calculate(getOdometryPose(), state, CoordinateConversions.toWPIAngle(angle));
+        setMotion(speeds);
+    }
+
+    public void setTrajectoryState(Trajectory.State state) {
+        setTrajectoryState(state, CoordinateConversions.fromWPIAngle(getOdometryPose().getRotation()));
     }
 
     public SwerveModule getModule(int index) {

@@ -18,9 +18,13 @@ import com.swrobotics.robot.auto.DriveAutoInput;
 import com.swrobotics.robot.control.Input;
 import com.swrobotics.robot.subsystem.Localization;
 
+import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 
 /*
  * Wheel Layout:
@@ -36,7 +40,7 @@ public class Drive implements Subsystem {
     private static final double WHEEL_SPACING = 0.4699; // Meters
     private static final double CENTER_DISTANCE = WHEEL_SPACING / 2;
 
-    public static final double MAX_WHEEL_VELOCITY = 4.11;
+    public static final double MAX_WHEEL_VELOCITY = 4.0;
 
     private static final Vec2d SLOT_0_POS = new Vec2d(-CENTER_DISTANCE,  CENTER_DISTANCE);
     private static final Vec2d SLOT_1_POS = new Vec2d( CENTER_DISTANCE,  CENTER_DISTANCE);
@@ -49,6 +53,16 @@ public class Drive implements Subsystem {
     private static final NTEnum<SwerveModuleDef> SLOT_1_MODULE = new NTEnum<>("Swerve/Slots/Slot 1", SwerveModuleDef.class, SwerveModuleDef.MODULE_2);
     private static final NTEnum<SwerveModuleDef> SLOT_2_MODULE = new NTEnum<>("Swerve/Slots/Slot 2", SwerveModuleDef.class, SwerveModuleDef.MODULE_3);
     private static final NTEnum<SwerveModuleDef> SLOT_3_MODULE = new NTEnum<>("Swerve/Slots/Slot 3", SwerveModuleDef.class, SwerveModuleDef.MODULE_4);
+
+    // PID to drive to a point
+    private static final NTDouble PATH_FOLLOW_KP = new NTDouble("Swerve/Follow Path/kP", 0.001);
+    private static final NTDouble PATH_FOLLOW_KI = new NTDouble("Swerve/Follow Path/kI", 0.0);
+    private static final NTDouble PATH_FOLLOW_KD = new NTDouble("Swerve/Follow Path/kD", 0.0);
+
+    // PID to spin to an angle
+    private static final NTDouble SPIN_KP = new NTDouble("Swerve/Spin/kP", 0.001);
+    private static final NTDouble SPIN_KI = new NTDouble("Swerve/Spin/kP", 0.0);
+    private static final NTDouble SPIN_KD = new NTDouble("Swerve/Spin/kP", 0.0);
 
     private static final int TURN_ID_0 = 1;
     private static final int TURN_ID_1 = 2;
@@ -69,12 +83,9 @@ public class Drive implements Subsystem {
 
     private final SwerveDrive drive;
     private final SwerveModule[] modules;
-    private final NavX gyro;
-    private Localization loc;
 
     public Drive(Input input, NavX gyro, MessengerClient msg) {
         this.input = input;
-        this.gyro = gyro;
         this.msg = msg;
 
         SwerveModule w0 = SwerveModuleMaker.buildModule(this, SLOT_0_MODULE.get(), TURN_ID_0, SLOT_0_POS, 0);
@@ -83,15 +94,24 @@ public class Drive implements Subsystem {
         SwerveModule w3 = SwerveModuleMaker.buildModule(this, SLOT_3_MODULE.get(), TURN_ID_3, SLOT_3_POS, 180);
         modules = new SwerveModule[] {w0, w1, w2, w3};
 
-        drive = new SwerveDrive(gyro, MAX_WHEEL_VELOCITY, TURN_STOP_TOL, TURN_FULL_TOL, modules);
+        // Create PID controllers for path following
+        PIDController followPath = new PIDController(PATH_FOLLOW_KP.get(),
+                                                    PATH_FOLLOW_KI.get(),
+                                                    PATH_FOLLOW_KD.get());
+
+        ProfiledPIDController spinToAngle = new ProfiledPIDController(SPIN_KP.get(),
+                                                                    SPIN_KI.get(),
+                                                                    SPIN_KD.get(),
+                                                                    new TrapezoidProfile.Constraints(MathUtil.TAU, Math.PI)); // Max rotation is 1 rot per second
+
+        drive = new SwerveDrive(gyro,
+        MAX_WHEEL_VELOCITY, TURN_STOP_TOL, TURN_FULL_TOL,
+        new HolonomicDriveController(followPath, followPath, spinToAngle),
+        modules);
 
         Scheduler.get().addSubsystem(this, drive);
 
         msg.addHandler(MSG_GET_MODULE_DEFS, this::onGetModuleDefs);
-    }
-
-    public void setLocalization(Localization loc) {
-        this.loc = loc;
     }
 
     private void onGetModuleDefs(String type, MessageReader reader) {
