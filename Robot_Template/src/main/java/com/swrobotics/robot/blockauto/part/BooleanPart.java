@@ -25,5 +25,10 @@ public final class BooleanPart implements ParamPart {
         builder.addByte(PartTypes.BOOLEAN.getId());
         builder.addBoolean(def);
     }
+
+    @Override
+    public Object getDefault() {
+        return def;
+    }
 }
 

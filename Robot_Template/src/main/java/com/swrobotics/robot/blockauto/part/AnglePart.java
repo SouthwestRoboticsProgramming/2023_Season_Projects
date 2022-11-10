@@ -121,4 +121,9 @@ public final class AnglePart implements ParamPart {
         builder.addByte((byte) mode.id);
         builder.addDouble(def);
     }
+
+    @Override
+    public Object getDefault() {
+        return def;
+    }
 }

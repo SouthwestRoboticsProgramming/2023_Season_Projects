@@ -50,13 +50,19 @@ public final class BlockInst {
 
     public void write(MessageBuilder builder) {
         builder.addString(def.getName());
+
+        MessageBuilder builder2 = new MessageBuilder(null, null);
         int paramIdx = 0;
         for (BlockPart part : def.getParts()) {
             if (part instanceof ParamPart) {
                 ParamPart p = (ParamPart) part;
-                p.writeInst(builder, params[paramIdx++]);
+                p.writeInst(builder2, params[paramIdx++]);
             }
         }
+
+        byte[] data = builder2.getData();
+        builder.addInt(data.length);
+        builder.addRaw(data);
     }
 
     public BlockStackInst getStack() {

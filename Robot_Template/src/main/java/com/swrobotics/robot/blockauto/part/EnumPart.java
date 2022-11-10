@@ -51,4 +51,9 @@ public final class EnumPart<E extends Enum<E>> implements ParamPart {
         }
         builder.addInt(defIdx);
     }
+
+    @Override
+    public Object getDefault() {
+        return defIdx;
+    }
 }

@@ -36,4 +36,9 @@ public class Vec2dPart implements ParamPart {
         builder.addDouble(defX);
         builder.addDouble(defY);
     }
+
+    @Override
+    public Object getDefault() {
+        return new Vec2d(defX, defY);
+    }
 }

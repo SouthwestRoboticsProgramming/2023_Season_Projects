@@ -19,4 +19,9 @@ public final class BlockStackPart implements ParamPart {
     public void writeToMessenger(MessageBuilder builder) {
         builder.addByte(PartTypes.BLOCK_STACK.getId());
     }
+
+    @Override
+    public Object getDefault() {
+        return new BlockStackInst();
+    }
 }

@@ -25,4 +25,9 @@ public final class DoublePart implements ParamPart {
         builder.addByte(PartTypes.DOUBLE.getId());
         builder.addDouble(def);
     }
+
+    @Override
+    public Object getDefault() {
+        return def;
+    }
 }

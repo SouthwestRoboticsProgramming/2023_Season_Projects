@@ -36,11 +36,15 @@ public final class BlockDef {
     }
 
     public BlockInst readInstance(MessageReader reader, BlockAutoTool tool) {
+        int dataLen = reader.readInt();
+        byte[] data = reader.readRaw(dataLen);
+        MessageReader reader2 = new MessageReader(data);
+
         List<Object> params = new ArrayList<>();
         for (BlockPart part : parts) {
             if (part instanceof ParamPart) {
                 ParamPart p = (ParamPart) part;
-                params.add(p.readInst(reader, tool));
+                params.add(p.readInst(reader2, tool));
             }
         }
         return new BlockInst(this, params.toArray());

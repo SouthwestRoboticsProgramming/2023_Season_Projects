@@ -24,6 +24,22 @@ public final class MessageReader {
     }
 
     /**
+     * Reads a specified amount of raw data.
+     *
+     * @param len number of bytes to read
+     * @return data read
+     */
+    public byte[] readRaw(int len) {
+        try {
+            byte[] data = new byte[len];
+            in.readFully(data);
+            return data;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read " + len + " bytes", e);
+        }
+    }
+
+    /**
      * Reads a {@code boolean} from the message.
      *
      * @return boolean read

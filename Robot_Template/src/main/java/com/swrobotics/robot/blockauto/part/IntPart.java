@@ -25,4 +25,9 @@ public final class IntPart implements ParamPart {
         builder.addByte(PartTypes.INT.getId());
         builder.addInt(def);
     }
+
+    @Override
+    public Object getDefault() {
+        return def;
+    }
 }

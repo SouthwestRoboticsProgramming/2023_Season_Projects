@@ -9,6 +9,7 @@ import com.swrobotics.lib.messenger.MessageReader;
 import com.swrobotics.lib.schedule.Command;
 import com.swrobotics.robot.Robot;
 import com.swrobotics.robot.blockauto.part.*;
+import edu.wpi.first.wpilibj.DriverStation;
 
 public final class BlockDef {
     private final String name;
@@ -81,11 +82,30 @@ public final class BlockDef {
     }
 
     public BlockInst readInstance(MessageReader reader) {
+        int dataLen = reader.readInt();
+        byte[] data = reader.readRaw(dataLen);
+        MessageReader reader2 = new MessageReader(data);
+
         List<Object> params = new ArrayList<>();
-        for (BlockPart part : parts) {
-            if (part instanceof ParamPart) {
-                ParamPart p = (ParamPart) part;
-                params.add(p.readInst(reader));
+        try {
+            for (BlockPart part : parts) {
+                if (part instanceof ParamPart) {
+                    ParamPart p = (ParamPart) part;
+                    params.add(p.readInst(reader2));
+                }
+            }
+        } catch (Throwable t) {
+            // Print a LOT of warnings so we notice it
+            for (int i = 0; i < 250; i++) {
+                DriverStation.reportWarning("AutoBlocks: A BLOCK HAS BEEN CORRUPTED (" + name + ")", false);
+            }
+
+            params = new ArrayList<>();
+            for (BlockPart part : parts) {
+                if (part instanceof ParamPart) {
+                    ParamPart p = (ParamPart) part;
+                    params.add(p.getDefault());
+                }
             }
         }
         return new BlockInst(this, params.toArray());
