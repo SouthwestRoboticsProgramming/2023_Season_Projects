@@ -10,7 +10,6 @@ import com.swrobotics.lib.time.Timestamp;
 public final class WaitCommand implements Command {
     private final Duration dur;
     private Timestamp end;
-    private boolean initiated;
 
     /**
      * Creates a new instance with a specified time.
@@ -28,17 +27,16 @@ public final class WaitCommand implements Command {
      * @param dur duration to run for
      */
     public WaitCommand(Duration dur) {
-        initiated = false;
         this.dur = dur;
     }
 
     @Override
+    public void init() {
+        end = Timestamp.now().after(dur);
+    }
+
+    @Override
     public boolean run() {
-        // Start the wait when the command starts
-        if (!initiated) {
-            end = Timestamp.now().after(dur);
-        }
-        initiated = true;
         return Timestamp.now().isAtOrAfter(end);
     }
 }

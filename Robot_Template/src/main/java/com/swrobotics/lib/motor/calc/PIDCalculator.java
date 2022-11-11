@@ -139,8 +139,9 @@ public final class PIDCalculator implements PositionCalculator, VelocityCalculat
 
         // System.out.println(pid.getP() + " " + pid.getI() + " " + pid.getD());
 
-        // System.out.println("curr: " + current.getCWDeg() + " tar: " + target.getCWDeg() + " out: " + output);
+        // System.out.println("curr: " + current.cw() + " tar: " + target.cw() + " out: " + output);
 
+        
         return output;
     }
 }

@@ -24,6 +24,7 @@ public class CommandSequence implements CompoundCommand {
 
         boolean run() {
             finished = cmd.run();
+            System.out.println("CommandSequence ran " + cmd + "; finished=" + finished);
             if (finished)
                 cmd.end(false);
             return finished;

@@ -54,6 +54,7 @@ public class SwerveDrive implements Subsystem {
         Translation2d[] positions = new Translation2d[modules.length];
         for (int i = 0; i< modules.length; i++) {
             positions[i] = CoordinateConversions.toWPICoords(modules[i].getPosition());
+            System.out.println("Module " + i + " position: " + positions[i]);
         }
 
         kinematics = new SwerveDriveKinematics(positions);

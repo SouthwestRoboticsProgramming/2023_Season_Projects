@@ -105,10 +105,11 @@ public class SwerveModule {
 
         currentDesiredState = desiredState;
         double driveSpeed = desiredState.speedMetersPerSecond;
-        double steerAngle = desiredState.angle.getRadians();
+        double steerAngle = -desiredState.angle.getRadians();
+        System.out.println("Desired " + driveSpeed + " " + Math.toDegrees(steerAngle));
 
         // TODO: Fix; This was working because previous implementation was wrong
-        double currentAngle = CoordinateConversions.toWPIAngle(steerEncoder.getAngle().ccw()).getRadians();
+        double currentAngle = steerEncoder.getAngle().ccw().rad();
         currentAngle = MathUtil.wrap(currentAngle, 0, Math.PI * 2);
 
         steerAngle %= Math.PI * 2;
@@ -139,7 +140,8 @@ public class SwerveModule {
             steerAngle += 2.0 * Math.PI;
         }
 
-        steerMotor.position(CCWAngle.rad(steerAngle));
+        // System.out.println("Steer current " + steerEncoder.getAngle().ccw() + " target " + CCWAngle.rad(steerAngle));
+        steerMotor.position(CCWAngle.rad(steerAngle).wrapDeg(-180, 180));
         driveMotor.velocity(CWAngle.rad(driveSpeed * metersToRadians)); // TODO: Change to voltage
     }
 

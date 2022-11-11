@@ -11,10 +11,14 @@ public class IndexCommand implements Command {
     private static final NTDouble RUN_SPEED = new NTDouble("Thrower/Commands/Index/Index_Speed_Percent", 0.3);
 
     private final Hopper hopper;
-    private final Timer timer;
+    private Timer timer;
 
     public IndexCommand(Hopper hopper) {
         this.hopper = hopper;
+    }
+
+    @Override
+    public void init() {
         timer = new Timer();
         timer.start();
     }
