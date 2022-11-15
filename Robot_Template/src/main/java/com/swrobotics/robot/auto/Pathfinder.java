@@ -17,7 +17,7 @@ public final class Pathfinder implements Subsystem {
     private final MessengerClient msg;
     private final Localization loc;
     private final List<Vec2d> path;
-    private boolean pathValid;
+    private boolean hasPathForCurrentTarget;
 
     public Pathfinder(MessengerClient msg, Localization loc) {
         this.msg = msg;
@@ -44,11 +44,12 @@ public final class Pathfinder implements Subsystem {
                 .addDouble(pos.x)
                 .addDouble(pos.y)
                 .send();
+        hasPathForCurrentTarget = false;
     }
 
     private void onPath(String type, MessageReader reader) {
-        pathValid = reader.readBoolean();
-        if (pathValid) {
+        hasPathForCurrentTarget = reader.readBoolean();
+        if (hasPathForCurrentTarget) {
             int pointCount = reader.readInt();
             path.clear();
             for (int i = 0; i < pointCount; i++) {
@@ -59,8 +60,8 @@ public final class Pathfinder implements Subsystem {
         }
     }
 
-    public boolean isPathValid() {
-        return pathValid;
+    public boolean hasPathForCurrentTarget() {
+        return hasPathForCurrentTarget;
     }
 
     public List<Vec2d> getPath() {
