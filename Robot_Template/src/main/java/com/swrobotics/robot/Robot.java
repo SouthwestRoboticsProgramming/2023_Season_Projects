@@ -5,6 +5,7 @@ import com.swrobotics.lib.messenger.MessengerClient;
 import com.swrobotics.lib.schedule.Scheduler;
 import com.swrobotics.lib.wpilib.AbstractRobot;
 import com.swrobotics.robot.auto.AutoSystem;
+import com.swrobotics.robot.auto.Pathfinder;
 import com.swrobotics.robot.blockauto.AutoBlocks;
 import com.swrobotics.robot.control.Input;
 import com.swrobotics.robot.subsystem.Intake;
@@ -51,6 +52,8 @@ public final class Robot extends AbstractRobot {
 
         drive = new Drive(input, gyro, msg);
         Localization loc = new Localization(drive);
+        Pathfinder path = new Pathfinder(msg, loc);
+
         Intake intake = new Intake(input);
         thrower = new Thrower(input, loc);
 
@@ -59,6 +62,7 @@ public final class Robot extends AbstractRobot {
 
         Scheduler scheduler = Scheduler.get();
         scheduler.addSubsystem(loc);
+        scheduler.addSubsystem(path);
         scheduler.addSubsystem(drive);
         scheduler.addSubsystem(intake);
         scheduler.addSubsystem(thrower);

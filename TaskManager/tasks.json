@@ -4,8 +4,8 @@
     "command": [
       "java",
       "-jar",
-      "Pathfinding-Task-2023.jar"
+      "Pathfinding-2023.jar"
     ],
-    "enabled": true
+    "enabled": false
   }
 }

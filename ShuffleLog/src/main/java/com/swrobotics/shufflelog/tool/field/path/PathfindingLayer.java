@@ -164,10 +164,6 @@ public final class PathfindingLayer implements FieldLayer {
         }
 
         // Wavy ends go wheeeeeeee (for testing latency)
-        msg.prepare(MSG_SET_POS)
-                .addDouble(3 * Math.sin((System.currentTimeMillis() % 1000) / 1000.0 * Math.PI * 2))
-                .addDouble(-6)
-                .send();
         msg.prepare(MSG_SET_GOAL)
                 .addDouble(3 * Math.cos(((System.currentTimeMillis() * 1.253) % 1000 / 1000.0) * Math.PI * 2))
                 .addDouble(6)
