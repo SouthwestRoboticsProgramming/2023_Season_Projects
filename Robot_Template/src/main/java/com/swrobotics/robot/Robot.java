@@ -5,6 +5,7 @@ import com.swrobotics.lib.messenger.MessengerClient;
 import com.swrobotics.lib.schedule.Scheduler;
 import com.swrobotics.lib.wpilib.AbstractRobot;
 import com.swrobotics.robot.auto.AutoSystem;
+import com.swrobotics.robot.auto.Pathfinder;
 import com.swrobotics.robot.blockauto.AutoBlocks;
 import com.swrobotics.robot.control.Input;
 import com.swrobotics.robot.subsystem.Intake;
@@ -17,6 +18,8 @@ public final class Robot extends AbstractRobot {
     private static final double PERIODIC_PER_SECOND = 50;
     private static final String RASPBERRY_PI_IP = "10.21.29.3";
 
+    private Localization loc;
+    private Pathfinder pathfinder;
     private Drive drive;
     private Thrower thrower;
 
@@ -50,7 +53,9 @@ public final class Robot extends AbstractRobot {
         //     used in it
 
         drive = new Drive(input, gyro, msg);
-        Localization loc = new Localization(drive);
+        loc = new Localization(drive);
+        pathfinder = new Pathfinder(msg, loc);
+
         Intake intake = new Intake(input);
         thrower = new Thrower(input, loc);
 
@@ -59,12 +64,21 @@ public final class Robot extends AbstractRobot {
 
         Scheduler scheduler = Scheduler.get();
         scheduler.addSubsystem(loc);
+        scheduler.addSubsystem(pathfinder);
         scheduler.addSubsystem(drive);
         scheduler.addSubsystem(intake);
         scheduler.addSubsystem(thrower);
 
         scheduler.addSubsystem(auto);
         scheduler.addSubsystem(test);
+    }
+
+    public Localization getLocalization() {
+        return loc;
+    }
+
+    public Pathfinder getPathfinder() {
+        return pathfinder;
     }
 
     public Drive getDrive() {

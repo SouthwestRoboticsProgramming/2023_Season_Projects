@@ -18,9 +18,9 @@ import com.swrobotics.lib.schedule.CommandUnion;
 import com.swrobotics.lib.schedule.WaitCommand;
 import com.swrobotics.lib.time.Duration;
 import com.swrobotics.lib.time.TimeUnit;
-import com.swrobotics.lib.wpilib.RobotState;
 import com.swrobotics.robot.Robot;
 import com.swrobotics.robot.auto.AutoDriveForTime;
+import com.swrobotics.robot.auto.AutoDriveToPoint;
 import com.swrobotics.robot.auto.AutoSpinToAngle;
 import com.swrobotics.robot.auto.DriveAutoInput;
 import com.swrobotics.robot.blockauto.part.AnglePart;
@@ -103,6 +103,20 @@ public final class AutoBlocks {
                     robot.getDrive(),
                     (Angle) params[0],
                     (boolean) params[1]
+                ));
+
+        drive.newBlock("path_to_point")
+                .text("Drive to")
+                .paramFieldPoint(0, 0)
+                .text("facing")
+                .paramAngle(AnglePart.Mode.CW_DEG, 0)
+                .text("(cw deg)")
+                .creator((params, robot) -> new AutoDriveToPoint(
+                        robot.getPathfinder(),
+                        robot.getLocalization(),
+                        robot.getDrive(),
+                        (Vec2d) params[0],
+                        (Angle) params[1]
                 ));
 
         BlockCategory ballFeed = defineCategory("Ball Feed");
