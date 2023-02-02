@@ -2,6 +2,7 @@ package com.swrobotics.robot.subsystem.thrower;
 
 import com.swrobotics.lib.encoder.QuadratureEncoder;
 import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.math.CWAngle;
 import com.swrobotics.lib.math.MathUtil;
 import com.swrobotics.lib.motor.ctre.TalonSRXMotor;
 import com.swrobotics.lib.net.NTBoolean;
@@ -47,7 +48,7 @@ public class Hood implements Subsystem {
         limitSwitch = new DigitalInput(LIMIT_SWITCH_ID);
 
         isCalibrating = true;
-        targetPosition = Angle.zero();
+        targetPosition = Angle.ZERO;
 
         L_LIMIT_SWITCH_PRESSED.setTemporary();
         L_HOOD_POS.setTemporary();
@@ -59,7 +60,7 @@ public class Hood implements Subsystem {
      */
     public void setPosition(double percent) {
         percent = MathUtil.clamp(percent, 0, 1);
-        targetPosition = Angle.cwRot(percent);
+        targetPosition = CWAngle.rot(percent);
     }
 
     public void calibrate() {
@@ -69,7 +70,7 @@ public class Hood implements Subsystem {
     @Override
     public void periodic() {
         L_LIMIT_SWITCH_PRESSED.set(limitSwitch.get());
-        L_HOOD_POS.set(motor.getEncoder().getAngle().getCWDeg() / 360);
+        L_HOOD_POS.set(motor.getEncoder().getAngle().cw().rot());
 
         // System.out.println("Hood: " + isCalibrating + " " + targetPosition);
 

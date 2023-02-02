@@ -1,6 +1,7 @@
 package com.swrobotics.robot.control;
 
 import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.math.CWAngle;
 import com.swrobotics.lib.math.MathUtil;
 import com.swrobotics.lib.math.Vec2d;
 import com.swrobotics.lib.net.NTDouble;
@@ -31,14 +32,14 @@ public class Input {
     /* Drive */
     public Vec2d getDriveTranslation() { // Driver left stick
         // Apply deadband
-        double x = MathUtil.applyDeadband(driver.getLeftX(), DEADBAND);
-        double y = -MathUtil.applyDeadband(driver.getLeftY(), DEADBAND);
+        double x = MathUtil.deadband(driver.getLeftX(), DEADBAND);
+        double y = -MathUtil.deadband(driver.getLeftY(), DEADBAND);
 
         return new Vec2d(x, y).mul(MAX_DRIVE_SPEED.get());
     }
 
     public Angle getDriveRotation() { // Driver right stick
-        return Angle.cwRad(MathUtil.applyDeadband(driver.getRightX(), DEADBAND) * MAX_DRIVE_ROTATION.get());
+        return CWAngle.rad(MathUtil.deadband(driver.getRightX(), DEADBAND) * MAX_DRIVE_ROTATION.get());
     }
 
     public boolean getFieldRelative() { // Driver right trigger (Fully pulled)

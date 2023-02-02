@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import com.swrobotics.lib.encoder.filters.JumpToZeroFilter;
 import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.math.CWAngle;
 import com.swrobotics.lib.motor.calc.BangBangCalculator;
 import com.swrobotics.lib.motor.ctre.NeutralMode;
 import com.swrobotics.lib.motor.rev.BrushlessSparkMaxMotor;
@@ -73,8 +74,8 @@ private final TimeoutTimer calibrateTimer;
         motor1.setEncoderFilter(new JumpToZeroFilter());
         motor2.setEncoderFilter(new JumpToZeroFilter());
 
-        motor1.getEncoder().setAngle(Angle.zero());
-        motor2.getEncoder().setAngle(Angle.zero());
+        motor1.getEncoder().setAngle(Angle.ZERO);
+        motor2.getEncoder().setAngle(Angle.ZERO);
 
         motor1.getEncoder().setInverted(!inverted);
         motor1.getEncoder().setInverted(!inverted);
@@ -83,8 +84,8 @@ private final TimeoutTimer calibrateTimer;
         motor2.setEncoder(motor1.getEncoder());
 
         bangCalc = new BangBangCalculator();
-        bangCalc.setLowerThreshold(Angle.cwDeg(-5));
-        bangCalc.setUpperThreshold(Angle.cwDeg(5));
+        bangCalc.setLowerThreshold(CWAngle.deg(-5));
+        bangCalc.setUpperThreshold(CWAngle.deg(5));
 
         motor1.setPositionCalculator(bangCalc);
         motor2.setPositionCalculator(bangCalc);
@@ -92,7 +93,7 @@ private final TimeoutTimer calibrateTimer;
         shouldBeCalibrating = true;
         calibrateTimer = new TimeoutTimer(CALIBRATE_TIMEOUT);
 
-        currentHeight = () -> getHeight();
+        currentHeight = this::getHeight;
     }
 
     public void setCalibrating(boolean calibrate) {
@@ -105,12 +106,12 @@ private final TimeoutTimer calibrateTimer;
     }
 
     public boolean inTolerance() {
-        bangCalc.calculate(getHeight(), Angle.cwRot(targetHeight)); // Must occur due to lazy motor behavior
+        bangCalc.calculate(getHeight(), CWAngle.rot(targetHeight)); // Must occur due to lazy motor behavior
         return bangCalc.inTolerance();
     }
 
     private Angle getHeight() {
-        return Angle.cwRot(1 - motor1.getEncoder().getAngle().getCWDeg() / DEGREES_TO_MAX_HEIGHT); // Inverted
+        return CWAngle.rot(1 - motor1.getEncoder().getAngle().cw().deg() / DEGREES_TO_MAX_HEIGHT); // Inverted
     }
 
     /**
@@ -124,7 +125,7 @@ private final TimeoutTimer calibrateTimer;
         }
 
         // Read current velocity
-        double currentVelocity = Math.abs(motor1.getEncoder().getVelocity().getCWDeg());
+        double currentVelocity = Math.abs(motor1.getEncoder().getVelocity().cw().deg());
         RobotState state = Robot.get().getCurrentState();
 
         // Start timer if it isn't moving
@@ -137,8 +138,8 @@ private final TimeoutTimer calibrateTimer;
         // Get leading edge of timer to zero encoders
         if (calibrateTimer.get() && shouldBeCalibrating) {
             shouldBeCalibrating = false;
-            motor1.getEncoder().setAngle(Angle.zero());
-            motor2.getEncoder().setAngle(Angle.zero());
+            motor1.getEncoder().setAngle(Angle.ZERO);
+            motor2.getEncoder().setAngle(Angle.ZERO);
 
             motor1.stop();
             motor2.stop();
@@ -181,10 +182,10 @@ private final TimeoutTimer calibrateTimer;
         * If the motor is demanded to let the robot down, it will use the minOutput.
         */
         
-        motor1.position(currentHeight, Angle.cwRot(targetHeight));
-        motor2.position(currentHeight, Angle.cwRot(targetHeight));
+        motor1.position(currentHeight, CWAngle.rot(targetHeight));
+        motor2.position(currentHeight, CWAngle.rot(targetHeight));
 
-        bangCalc.calculate(getHeight(), Angle.cwRot(targetHeight)); // Otherwise, motor is too lazy and skips this
+        bangCalc.calculate(getHeight(), CWAngle.rot(targetHeight)); // Otherwise, motor is too lazy and skips this
         
         if (bangCalc.inTolerance() && underLoad) {
             motor1.percent(FEED_FORWARD_LOADED.get());
@@ -209,6 +210,6 @@ private final TimeoutTimer calibrateTimer;
     }
 
     public String getTolInfo() {
-        return String.format("(C %.2f T %.2f)", getHeight().getCWRot(), targetHeight);
+        return String.format("(C %.2f T %.2f)", getHeight().cw().rot(), targetHeight);
     }
 }

@@ -59,6 +59,6 @@ public class Hopper implements Subsystem {
             }
         }
 
-        L_INDEX_VELOCITY.set(indexMotor.getEncoder().getVelocity().getCWDeg() / 360);
+        L_INDEX_VELOCITY.set(indexMotor.getEncoder().getVelocity().cw().rot());
     }
 }

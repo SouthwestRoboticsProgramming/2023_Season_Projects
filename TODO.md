@@ -5,8 +5,8 @@
 2. Move messenger to seperate package
 3. ~~Move lib from team2129 to swrobotics~~
 4. Check gyro directions and add proper NavX calibration
-5. Rework angle to use more classes
-6. Add more stuff to MathUtil
+5. ~~Rework angle to use more classes~~
+6. ~~Add more stuff to MathUtil~~
 7. Swap motors to use voltags
 8. Swap talon motors to use onboard controller (if faster)
 9. Add auto commands to swerve lib

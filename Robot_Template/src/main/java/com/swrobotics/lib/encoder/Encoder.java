@@ -10,7 +10,7 @@ import com.swrobotics.lib.math.Angle;
  * {@link com.swrobotics.lib.motor.ctre.TalonFXMotor}.
  */
 public abstract class Encoder implements Supplier<Angle> {
-    private Angle offset = Angle.ccwRad(0); // Subtracted to get angle
+    private Angle offset = Angle.ZERO; // Subtracted to get angle
     private OutputFilter filter = (angle) -> angle; // Applied to angle in getAngle()
     private boolean inverted = false;
 
@@ -34,7 +34,7 @@ public abstract class Encoder implements Supplier<Angle> {
      */
     public Angle getRawAngle() {
         if (inverted) {
-            return Angle.zero().sub(getRawAngleImpl());
+            return getRawAngleImpl().negate();
         } else {
             return getRawAngleImpl();
         }
@@ -47,7 +47,7 @@ public abstract class Encoder implements Supplier<Angle> {
      */
     public Angle getVelocity() {
         if (inverted) {
-            return Angle.zero().sub(getVelocityImpl());
+            return getVelocityImpl().negate();
         } else {
             return getVelocityImpl();
         }
@@ -71,7 +71,7 @@ public abstract class Encoder implements Supplier<Angle> {
      * @param angle define the real current angle of the encoder
      */
     public void setAngle(Angle angle) {
-        offset = getRawAngle().sub(angle);
+        offset = getRawAngle().ccw().sub(angle.ccw());
     }
 
     /**
@@ -100,7 +100,7 @@ public abstract class Encoder implements Supplier<Angle> {
      * @return the angle of the encoder
      */
     public Angle getUnfilteredAngle() {
-        return getRawAngle().sub(offset);
+        return getRawAngle().ccw().sub(offset.ccw());
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.swrobotics.robot.subsystem.climber;
 
 import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.math.CWAngle;
 import com.swrobotics.lib.math.MathUtil;
 import com.swrobotics.lib.net.NTDouble;
 
@@ -20,7 +21,7 @@ public class ClimberState {
     }
 
     public Angle getRotAngle() {
-        return Angle.cwDeg(rotAngle.get());
+        return CWAngle.deg(rotAngle.get());
     }
 
     public boolean getLoaded() {

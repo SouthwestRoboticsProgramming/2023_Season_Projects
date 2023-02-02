@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 import com.swrobotics.lib.encoder.Encoder;
 import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.math.CWAngle;
 import com.swrobotics.lib.motor.Motor;
 import com.swrobotics.lib.schedule.Subsystem;
 
@@ -32,20 +33,20 @@ public abstract class TalonMotor extends Motor {
         protected Angle getRawAngleImpl() {
             if (encoderTicksPerRotation == 0) {
                 DriverStation.reportError("Encoder ticks per rotation must not be 0", true);
-                return Angle.zero();
+                return Angle.ZERO;
             }
 
-            return Angle.cwRot(talon.getSelectedSensorPosition() / encoderTicksPerRotation);
+            return CWAngle.rot(talon.getSelectedSensorPosition() / encoderTicksPerRotation);
         }
 
         @Override
         protected Angle getVelocityImpl() {
             if (encoderTicksPerRotation == 0) {
                 DriverStation.reportError("Encoder ticks per rotation must not be 0", true);
-                return Angle.zero();
+                return Angle.ZERO;
             }
 
-            return Angle.cwRot(talon.getSelectedSensorVelocity() / encoderTicksPerRotation * ENCODER_VELOCITY_TIME_SCALE);
+            return CWAngle.rot(talon.getSelectedSensorVelocity() / encoderTicksPerRotation * ENCODER_VELOCITY_TIME_SCALE);
         }
     }
     

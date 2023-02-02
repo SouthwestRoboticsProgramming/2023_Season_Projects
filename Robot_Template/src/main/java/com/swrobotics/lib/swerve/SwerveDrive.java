@@ -7,7 +7,7 @@ import com.swrobotics.lib.math.Vec2d;
 import com.swrobotics.lib.net.NTDouble;
 import com.swrobotics.lib.net.NTDoubleArray;
 import com.swrobotics.lib.schedule.Subsystem;
-import com.swrobotics.lib.utils.CoordinateConversions;
+import com.swrobotics.lib.math.CoordinateConversions;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -56,7 +56,8 @@ public class SwerveDrive implements Subsystem {
         this.maxWheelVelocity = maxWheelVelocity;
 
         // FIXME-Odometry: Not sure if this initialization is correct; I don't have physical robot to test
-        Rotation2d gyroAngle = gyro.getAngle().toRotation2dCW();
+        // TODO-Math: Test
+        Rotation2d gyroAngle = CoordinateConversions.toWPIAngle(gyro.getAngle());
         Pose2d initialPose = new Pose2d(0, 0, gyroAngle);
         odometry = new SwerveDriveOdometry(kinematics, gyroAngle, initialPose);
 
@@ -84,14 +85,14 @@ public class SwerveDrive implements Subsystem {
             speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
                 wpiTranslation.getX(),
                 wpiTranslation.getY(),
-                rotationsPerSecond.getCCWRad(), 
-                gyro.getAngle().toRotation2dCCW()
+                rotationsPerSecond.ccw().rad(),
+                CoordinateConversions.toWPIAngle(gyro.getAngle()) // TODO: Test
             );
         } else {
             speeds = new ChassisSpeeds(
                 wpiTranslation.getX(),
                 wpiTranslation.getY(),
-                rotationsPerSecond.getCCWRad()
+                rotationsPerSecond.ccw().rad()
             );
         }
 
@@ -112,7 +113,7 @@ public class SwerveDrive implements Subsystem {
         double avgErr = 0;
         int k = 0;
         for (SwerveModule module : modules) {
-            double err = module.getRotationError().getCCWRad();
+            double err = module.getRotationError().rad();
             avgErr += err;
             L_ERRORS.set(k++, Math.toDegrees(err));
         }
@@ -158,7 +159,7 @@ public class SwerveDrive implements Subsystem {
     public void printEncoderOffsets() {
         StringBuilder out = new StringBuilder("Encoder offsets (cw deg): ");
         for (SwerveModule module : modules) {
-            out.append(String.format("%3.3f", module.getRawAngle().getCWDeg()));
+            out.append(String.format("%3.3f", module.getRawAngle().cw().deg()));
             out.append(" ");
         }
         System.out.println(out);
@@ -188,11 +189,13 @@ public class SwerveDrive implements Subsystem {
      * @param pose Known pose of the robot to reset the odometry to.
      */
     public void setOdometryPose(Pose2d pose) {
-        odometry.resetPosition(pose, gyro.getAngle().toRotation2dCW());
+        // TODO: Test
+        odometry.resetPosition(pose, CoordinateConversions.toWPIAngle(gyro.getAngle()));
     }
 
     @Override
     public void periodic() {
-        odometry.update(gyro.getAngle().toRotation2dCW(), getStates());
+        // TODO: Test
+        odometry.update(CoordinateConversions.toWPIAngle(gyro.getAngle()), getStates());
     }
 }

@@ -9,7 +9,7 @@ public abstract class Gyroscope {
     private Angle offset;
 
     public Gyroscope() {
-        offset = Angle.cwDeg(0);
+        offset = Angle.ZERO;
     }
 
     /**
@@ -18,7 +18,7 @@ public abstract class Gyroscope {
      * @return adjusted angle of the gyroscope
      */
     public Angle getAngle() {
-        return getRawAngle().add(offset);
+        return getRawAngle().ccw().add(offset.ccw());
     }
 
     /**
@@ -35,7 +35,7 @@ public abstract class Gyroscope {
      * @param angleOffset the angle that the gyro is actually at 
      */
     public void setOffset(Angle angleOffset) {
-        offset = offset.sub(angleOffset);
+        offset = offset.ccw().sub(angleOffset.ccw());
     }
 
     @Override

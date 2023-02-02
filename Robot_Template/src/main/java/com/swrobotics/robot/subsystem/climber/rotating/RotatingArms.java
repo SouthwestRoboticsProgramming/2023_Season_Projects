@@ -22,7 +22,7 @@ public class RotatingArms implements Subsystem {
         sch.addSubsystem(this, leftArm);
         sch.addSubsystem(this, rightArm);
 
-        targetAngle = Angle.zero();
+        targetAngle = Angle.ZERO;
     }
 
     public boolean leftInTolerance() {

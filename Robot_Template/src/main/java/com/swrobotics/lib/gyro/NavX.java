@@ -2,6 +2,7 @@ package com.swrobotics.lib.gyro;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.math.CWAngle;
 
 /**
  * Implementation of the navX2 MXP gyroscope manufactured
@@ -21,6 +22,6 @@ public class NavX extends Gyroscope {
 
     @Override
     public Angle getRawAngle() {
-        return Angle.cwDeg(ahrs.getAngle());
+        return CWAngle.deg(ahrs.getAngle());
     }
 }

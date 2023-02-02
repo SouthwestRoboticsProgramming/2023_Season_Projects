@@ -2,6 +2,7 @@ package com.swrobotics.lib.gyro;
 
 import com.swrobotics.lib.math.Angle;
 
+import com.swrobotics.lib.math.CWAngle;
 import edu.wpi.first.wpilibj.ADIS16448_IMU;
 
 /**
@@ -21,6 +22,6 @@ public final class ADIS16448Gyroscope extends Gyroscope {
 
     @Override
     public Angle getRawAngle() {
-        return Angle.cwDeg(imu.getAngle());
+        return CWAngle.deg(imu.getAngle());
     }
 }

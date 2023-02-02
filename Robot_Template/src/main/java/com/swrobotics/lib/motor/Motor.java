@@ -143,7 +143,7 @@ public abstract class Motor implements Subsystem {
      * The actual motor output is calculated by the set {@link VelocityCalculator}. This
      * function requires a velocity calculator to be set.
      * 
-     * @param angleGetter getter for the current angle
+     * @param velocityGetter getter for the current angle
      * @param velocity target velocity in angle per second
      * @throws IllegalStateException if no velocity calculator or encoder is set
      * 
@@ -174,7 +174,7 @@ public abstract class Motor implements Subsystem {
      * will actively try to keep the output still, but is not guaranteed to
      * stay in the same position.
      */
-    public void halt() { velocity(Angle.zero()); }
+    public void halt() { velocity(Angle.ZERO); }
     
     /**
      * Stops the motor by continuously targeting its current position. The
@@ -375,7 +375,7 @@ public abstract class Motor implements Subsystem {
         if (inverted) percent = -percent;
 
         // Apply neutral deadband
-        percent = MathUtil.applyDeadband(percent, neutralDeadband);
+        percent = MathUtil.deadband(percent, neutralDeadband);
         
         // Apply nominal output
         if (percent != 0 && Math.abs(percent) < nominalOutput) {

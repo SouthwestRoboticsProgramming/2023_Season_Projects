@@ -6,6 +6,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.swrobotics.lib.encoder.Encoder;
 import com.swrobotics.lib.encoder.filters.JumpToZeroFilter;
 import com.swrobotics.lib.math.Angle;
+import com.swrobotics.lib.math.CCWAngle;
 import com.swrobotics.lib.motor.Motor;
 import com.swrobotics.lib.motor.ctre.NeutralMode;
 import com.swrobotics.lib.schedule.Subsystem;
@@ -29,12 +30,12 @@ public abstract class SparkMaxMotor extends Motor {
 
         @Override
         protected Angle getRawAngleImpl() {
-            return Angle.ccwRot(encoder.getPosition());
+            return CCWAngle.rot(encoder.getPosition());
         }
 
         @Override
         protected Angle getVelocityImpl() {
-            return Angle.ccwRot(encoder.getVelocity() * VELOCITY_TIME_SCALE);
+            return CCWAngle.rot(encoder.getVelocity() * VELOCITY_TIME_SCALE);
         }
     }
 

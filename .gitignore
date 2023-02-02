@@ -36,5 +36,5 @@ Vision/Test.py
 
 # Maven shade output
 **/dependency-reduced-pom.xml
-Robot_Template/Template/networktables.ini
-Robot_Template/Template/networktables.ini.bak
+Robot_Template/networktables.ini
+Robot_Template/networktables.ini.bak

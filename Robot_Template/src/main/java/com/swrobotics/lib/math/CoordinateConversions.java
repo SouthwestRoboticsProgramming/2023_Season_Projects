@@ -1,7 +1,6 @@
-package com.swrobotics.lib.utils;
+package com.swrobotics.lib.math;
 
-import com.swrobotics.lib.math.Vec2d;
-
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 /**
@@ -20,13 +19,32 @@ import edu.wpi.first.math.geometry.Translation2d;
  * Positive Y is away from the driver.
  */
 public final class CoordinateConversions {
-
     public static Vec2d fromWPICoords(Translation2d tx) {
         return new Vec2d(-tx.getY(), tx.getX());
     }
 
     public static Translation2d toWPICoords(Vec2d vec) {
         return new Translation2d(vec.y, -vec.x);
+    }
+
+    /**
+     * Converts from a counterclockwise WPI angle to our angle.
+     *
+     * @param rot rotation to convert
+     * @return converted angle
+     */
+    public static Angle fromWPIAngle(Rotation2d rot) {
+        return CCWAngle.rad(rot.getRadians() + MathUtil.HALF_PI);
+    }
+
+    /**
+     * Converts from our angle to a counterclockwise WPI angle.
+     *
+     * @param angle angle to convert
+     * @return converted angle
+     */
+    public static Rotation2d toWPIAngle(Angle angle) {
+        return new Rotation2d(angle.ccw().rad() - MathUtil.HALF_PI);
     }
 
     private CoordinateConversions() {
